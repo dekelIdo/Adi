@@ -69,7 +69,7 @@
     <section id="packages" class="packages">
       <div class="container-blog">
         <h2 class="section-title">חבילות</h2>
-        <div class="package-grid">
+        <div class="package-grid" aria-live="polite">
           <article class="card">
             <div class="card-body">
               <div class="card-heading">
@@ -114,7 +114,7 @@
           </article>
 
           <article class="card card-popular">
-            <div class="card-badge">Most Popular</div>
+            <div class="card-badge">הכי פופולרי</div>
             <div class="card-body">
               <div class="card-heading">
                 <h3 class="card-title">SOCIAL-LI</h3>
@@ -230,6 +230,7 @@
             </div>
           </article>
         </div>
+        <div class="carousel-dots" aria-hidden="true"></div>
       </div>
     </section>
 
@@ -250,21 +251,42 @@
       <div class="container-blog">
         <h2 class="section-title">לקוחות שלי</h2>
         <div class="client-logos">
-          <img
-            src="assets/lovable-uploads/client-allen-carr.png"
-            alt="Allen Carr"
-            class="client-logo"
-          />
-          <img
-            src="assets/lovable-uploads/client-movement.png"
-            alt="Movement"
-            class="client-logo"
-          />
-          <img
-            src="assets/lovable-uploads/client-moon-productions.png"
-            alt="Moon Productions"
-            class="client-logo"
-          />
+          <a
+            class="client-logo-link"
+            href="https://www.allencarr.co.il/"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            <img
+              src="assets/lovable-uploads/client-allen-carr.png"
+              alt="Allen Carr"
+              class="client-logo"
+            />
+          </a>
+          <a
+            class="client-logo-link"
+            href="https://movement-group.com/en/"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            <img
+              src="assets/lovable-uploads/client-movement.png"
+              alt="Movement"
+              class="client-logo"
+            />
+          </a>
+          <a
+            class="client-logo-link"
+            href="https://moonpro-media.com/"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            <img
+              src="assets/lovable-uploads/client-moon-productions.png"
+              alt="Moon Productions"
+              class="client-logo"
+            />
+          </a>
         </div>
       </div>
     </section>
@@ -298,8 +320,9 @@
                 target="_blank"
                 rel="noopener noreferrer"
               >
-                <svg class="icon icon-message" viewBox="0 0 24 24" aria-hidden="true">
-                  <path d="M21 11.5a8.5 8.5 0 1 1-4.26-7.37L22 3l-1.25 5.26A8.47 8.47 0 0 1 21 11.5z" fill="none" stroke="currentColor" stroke-width="2" />
+                <svg class="icon icon-whatsapp" viewBox="0 0 32 32" aria-hidden="true">
+                  <path d="M16 3C9.37 3 4 8.16 4 14.52c0 2.56.86 4.92 2.32 6.84L5 29l7.94-2.54c1.9 1.02 4.1 1.58 6.37 1.58 6.63 0 12-5.16 12-11.52S22.63 3 16 3z" fill="currentColor" />
+                  <path d="M22.27 19.37c-.3.85-1.52 1.62-2.4 1.8-.6.1-1.38.14-2.24-.14-.52-.16-1.2-.38-2.06-.86-3.62-1.98-5.96-5.46-6.14-5.7-.18-.24-1.46-1.9-1.46-3.62 0-1.72.9-2.56 1.22-2.9.3-.34.7-.42.94-.42h.68c.22 0 .5-.08.78.6.3.7 1.02 2.46 1.1 2.64.1.18.16.4.06.64-.1.24-.14.4-.3.62-.16.22-.34.5-.48.66-.16.18-.34.38-.16.72.18.34.8 1.32 1.72 2.14 1.18 1.06 2.16 1.38 2.5 1.54.34.16.54.14.74-.08.2-.22.86-1 1.1-1.36.24-.36.5-.3.82-.2.34.12 2.18 1 2.56 1.18.38.18.64.28.74.44.1.16.1.9-.2 1.74z" fill="#ffffff" />
                 </svg>
                 וואטסאפ
               </a>

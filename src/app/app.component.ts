@@ -10,6 +10,7 @@ export class AppComponent implements AfterViewInit, OnDestroy {
   private cardObserver?: IntersectionObserver;
   private carouselObserver?: IntersectionObserver;
   private mediaQuery?: MediaQueryList;
+  private dotsContainer?: HTMLElement | null;
 
   ngAfterViewInit(): void {
     if (!('IntersectionObserver' in window)) {
@@ -20,6 +21,7 @@ export class AppComponent implements AfterViewInit, OnDestroy {
       document.querySelectorAll<HTMLElement>('.packages .card')
     );
     const packageGrid = document.querySelector<HTMLElement>('.packages .package-grid');
+    this.dotsContainer = document.querySelector<HTMLElement>('.packages .carousel-dots');
 
     this.cardObserver = new IntersectionObserver(
       (entries, observer) => {
@@ -47,8 +49,23 @@ export class AppComponent implements AfterViewInit, OnDestroy {
         cards.forEach((card) => card.classList.remove('is-active'));
         this.carouselObserver?.disconnect();
 
+        if (this.dotsContainer) {
+          this.dotsContainer.innerHTML = '';
+        }
+
         if (!isMobile) {
           return;
+        }
+
+        if (this.dotsContainer) {
+          cards.forEach((_, index) => {
+            const dot = document.createElement('span');
+            dot.className = 'carousel-dot';
+            if (index === 0) {
+              dot.classList.add('is-active');
+            }
+            this.dotsContainer?.appendChild(dot);
+          });
         }
 
         const popularCard =
@@ -56,6 +73,12 @@ export class AppComponent implements AfterViewInit, OnDestroy {
 
         if (popularCard) {
           popularCard.classList.add('is-active');
+          const popularIndex = cards.indexOf(popularCard);
+          if (this.dotsContainer) {
+            Array.from(this.dotsContainer.children).forEach((dot, index) => {
+              dot.classList.toggle('is-active', index === popularIndex);
+            });
+          }
           popularCard.scrollIntoView({
             behavior: 'auto',
             inline: 'center',
@@ -70,6 +93,12 @@ export class AppComponent implements AfterViewInit, OnDestroy {
                 const target = entry.target as HTMLElement;
                 cards.forEach((card) => card.classList.remove('is-active'));
                 target.classList.add('is-active');
+                const activeIndex = cards.indexOf(target);
+                if (this.dotsContainer) {
+                  Array.from(this.dotsContainer.children).forEach((dot, index) => {
+                    dot.classList.toggle('is-active', index === activeIndex);
+                  });
+                }
               }
             });
           },
@@ -82,4 +111,16 @@ export class AppComponent implements AfterViewInit, OnDestroy {
         cards.forEach((card) => this.carouselObserver?.observe(card));
       };
 
-      handleCarousel(t
+      handleCarousel(this.mediaQuery.matches);
+      this.mediaQuery.addEventListener('change', (event) => {
+        handleCarousel(event.matches);
+      });
+    }
+  }
+
+  ngOnDestroy(): void {
+    this.cardObserver?.disconnect();
+    this.carouselObserver?.disconnect();
+  }
+}
+
