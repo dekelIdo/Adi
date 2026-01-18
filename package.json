@@ -4,8 +4,7 @@
   "private": true,
   "scripts": {
     "start": "ng serve",
-  "build": "ng build --configuration production"
-  },
+    "build": "npx ng build --configuration production"  },
   "dependencies": {
     "@angular/common": "latest",
     "@angular/compiler": "latest",
