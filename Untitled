@@ -1,0 +1,6 @@
+"build": {
+  "options": {
+    "browser": "src/main.ts",
+    "index": "src/index.html"
+  }
+}
