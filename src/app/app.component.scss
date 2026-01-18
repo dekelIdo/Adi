@@ -5,7 +5,7 @@
 // ==========================================================================
 $color-bg: #ffffff;
 $color-surface: #ffffff;
-$color-surface-alt: #fff3df;
+$color-surface-alt: #ffffff;
 $color-primary: #f2c94c;
 $color-primary-strong: #e3b33a;
 $color-secondary: #caa472;
@@ -63,6 +63,7 @@ $breakpoints: (
 
 @mixin hover-lift {
   transition: transform 0.25s ease, box-shadow 0.25s ease;
+
   &:hover {
     transform: translateY(-$space-1);
     box-shadow: $shadow-card;
@@ -102,6 +103,7 @@ $breakpoints: (
 .whitespace-pre-line {
   white-space: pre-line;
 }
+
 .logo-circle {
   width: clamp(40px, 5vw, 64px);
   aspect-ratio: 1 / 1;
@@ -118,7 +120,8 @@ $breakpoints: (
   object-fit: cover;
   display: block;
 }
-.stack-6 > * + * {
+
+.stack-6>*+* {
   margin-top: $space-4;
 }
 
@@ -229,8 +232,8 @@ $breakpoints: (
   content: "";
   position: absolute;
   inset: 0;
-  background: radial-gradient(circle at 18% 22%, rgba(242, 201, 76, 0.08), transparent 60%),
-    radial-gradient(circle at 82% 28%, rgba(47, 95, 169, 0.05), transparent 65%);
+  background: radial-gradient(circle at 18% 22%, rgba(0, 0, 0, 0.03), transparent 60%),
+    radial-gradient(circle at 82% 28%, rgba(47, 95, 169, 0.04), transparent 65%);
   pointer-events: none;
 }
 
@@ -283,7 +286,7 @@ $breakpoints: (
 }
 
 .hero-title-script {
-  font-family: $font-accent;
+  font-family: YADknqccWbk_0, _fb_, auto;
   font-weight: 400;
   @include fluid-type(3.2rem, 4.8rem);
   display: inline-block;
@@ -292,6 +295,7 @@ $breakpoints: (
 }
 
 .hero-title-name {
+  font-family: YAFdtfahXt8_0, _fb_, auto;
   font-weight: 300;
   letter-spacing: -0.01em;
 }
@@ -303,7 +307,7 @@ $breakpoints: (
   gap: $space-3;
 }
 
-.hero-text > * + * {
+.hero-text>*+* {
   margin-top: $space-3;
 }
 
@@ -399,12 +403,13 @@ $breakpoints: (
 }
 
 .btn-primary {
-  background: linear-gradient(135deg, rgb(255 239 191 / 80%) 0%, rgb(215 215 215 / 80%) 100%);
-  color: #3c2d12;
-  box-shadow: 0 8px 16px rgba(232, 180, 54, 0.2);
+  background:#bbddfa;
+  color: #070707;
+  box-shadow: #bbddfa(232, 180, 54, 0.2);
+
   &:hover {
     transform: translateY(-$space-1);
-    box-shadow: 0 12px 20px rgba(232, 180, 54, 0.26);
+    box-shadow: #bbddfa(232, 180, 54, 0.2);
   }
 }
 
@@ -454,6 +459,7 @@ $breakpoints: (
   transform-origin: 50% 50%;
   transform: scale(0.92);
 }
+
 .btn-instagram-gradient {
   display: inline-flex;
   align-items: center;
@@ -469,7 +475,7 @@ $breakpoints: (
 
 .btn-instagram-gradient:hover {
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
 }
 
 .icon-instagram {
@@ -528,6 +534,7 @@ $breakpoints: (
   margin: 0 0 $space-4;
 }
 
+
 // ==========================================================================
 // About & Testimonials
 // ==========================================================================
@@ -575,7 +582,7 @@ $breakpoints: (
   inset-inline: $space-5;
   top: $space-3;
   height: 1px;
-  background: rgba(231, 221, 201, 0.7);
+  background: rgba(0, 0, 0, 0.08);
   opacity: 0.7;
 }
 
@@ -588,12 +595,12 @@ $breakpoints: (
 }
 
 .card {
-  border: 1px solid rgba(231, 221, 201, 0.9);
+  border: 1px solid rgba(0, 0, 0, 0.12);
   border-radius: 16px;
   padding: var(--card-pad);
   background: #ffffff;
   position: relative;
-  box-shadow: 0 10px 24px rgba(41, 30, 12, 0.08);
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.08);
   display: flex;
   flex-direction: column;
   transition: transform 0.24s ease-out, box-shadow 0.24s ease-out,
@@ -602,9 +609,9 @@ $breakpoints: (
 
 .card-popular {
   border-width: 1px;
-  border-color: rgba(47, 95, 169, 0.32);
+  border-color: rgba(0, 0, 0, 0.24);
   background: #ffffff;
-  box-shadow: 0 18px 36px rgba(41, 30, 12, 0.14);
+  box-shadow: 0 18px 36px rgba(0, 0, 0, 0.14);
 }
 
 .card-badge {
@@ -613,14 +620,14 @@ $breakpoints: (
   right: 50%;
   top: -3px;
   transform: translateX(50%);
-  background: rgba(47, 95, 169, 0.08);
-  color: $color-blue-dark;
+  background: rgba(0, 0, 0, 0.06);
+  color: $color-text;
   padding: $space-1 $space-3;
   border-radius: $radius-pill;
   font-size: 0.85rem;
   font-weight: 600;
-  border: 1px solid rgba(47, 95, 169, 0.22);
-  box-shadow: 0 8px 18px rgba(41, 30, 12, 0.08);
+  border: 1px solid rgba(0, 0, 0, 0.18);
+  box-shadow: 0 8px 18px rgba(0, 0, 0, 0.08);
 }
 
 .card-body {
@@ -640,12 +647,23 @@ $breakpoints: (
 }
 
 .card-title {
-  font-size: clamp(1.55rem, 2.2vw, 1.85rem);
-  font-family: $font-display;
-  letter-spacing: -0.01em;
-  font-weight: 700;
+  font-size: clamp(1.4rem, 2vw, 1.6rem);
+  font-family: YADZ-fjPhWE_1, _fb_, auto;
+  letter-spacing: -0.005em;
+  font-weight: 600;
   margin: 0;
-  color: $color-secondary-dark;
+  color: rgba(26, 26, 26, 0.9);
+  display: inline-block;
+  padding: $space-1 $space-3;
+  border-radius: $radius-sm;
+  background: rgba(187, 221, 250, 0.5);
+  width: 100%;
+  height: auto;
+  min-height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 50%;
 }
 
 .card-subtitle {
@@ -659,7 +677,7 @@ $breakpoints: (
   font-size: clamp(2rem, 3vw, 2.5rem);
   font-family: $font-display;
   font-weight: 700;
-  color: $color-secondary-dark;
+  color: $color-text;
   letter-spacing: -0.015em;
   display: flex;
   align-items: center;
@@ -697,7 +715,7 @@ $breakpoints: (
 
 .card-divider {
   height: 1px;
-  background: rgba(0, 0, 0, 0.08);
+  background: rgba(0, 0, 0, 0.12);
   width: 100%;
   transition: background 0.3s ease, opacity 0.3s ease, transform 0.3s ease;
   justify-self: center;
@@ -852,6 +870,7 @@ $breakpoints: (
 }
 
 @media (prefers-reduced-motion: reduce) {
+
   .package-grid .card.is-animated,
   .package-grid .card.is-animated .card-heading,
   .package-grid .card.is-animated .card-price,
@@ -964,9 +983,11 @@ $breakpoints: (
   0% {
     transform: translateX(0);
   }
+
   35% {
     transform: translateX(10px);
   }
+
   70% {
     transform: translateX(0);
   }
@@ -1362,6 +1383,7 @@ $breakpoints: (
   .hero-title {
     font-size: 2.4rem;
     line-height: 1.12;
+    font-family: "Reggae One", $font-accent, _fb_, auto;
   }
 
   .hero-title-script {
@@ -1379,6 +1401,11 @@ $breakpoints: (
 
   .section-title {
     font-size: 1.9rem;
+  }
+
+  .packages-title {
+    margin-bottom: 0;
+    margin-top: 5px;
   }
 
   .about-text {
@@ -1418,10 +1445,12 @@ $breakpoints: (
 // Motion
 // ==========================================================================
 @keyframes bounce {
+
   0%,
   100% {
     transform: translateX(-50%) translateY(0);
   }
+
   50% {
     transform: translateX(-50%) translateY($space-2);
   }
