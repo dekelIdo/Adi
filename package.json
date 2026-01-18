@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "start": "ng serve",
-    "build": "npx ng build --configuration production"
+    "build": "node ./node_modules/@angular/cli/bin/ng build --configuration production"
   },
   "engines": {
     "node": "20.x"
