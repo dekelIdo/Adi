@@ -166,6 +166,13 @@ $breakpoints: (
   background: #ffffff;
 }
 
+.footer-text {
+  margin: 0;
+  text-align: center;
+  color: $color-text-muted;
+  font-size: 0.95rem;
+}
+
 .header-inner {
   display: flex;
   align-items: center;
@@ -191,6 +198,7 @@ $breakpoints: (
   display: flex;
   align-items: center;
   gap: $space-4;
+  position: relative;
 }
 
 .header-link {
@@ -207,6 +215,24 @@ $breakpoints: (
 .header-link:hover {
   color: $color-blue-dark;
   background: $color-blue-tint;
+}
+
+.header-nav::after {
+  content: "";
+  position: absolute;
+  inset-inline: $space-2;
+  bottom: -$space-1;
+  height: 2px;
+  border-radius: 999px;
+  background: rgba(47, 95, 169, 0.35);
+  opacity: 0;
+  transform: scaleX(0.6);
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+.site-header.is-scrolling .header-nav::after {
+  opacity: 1;
+  transform: scaleX(1);
 }
 
 // ==========================================================================
@@ -335,6 +361,34 @@ $breakpoints: (
   height: $space-4;
   display: inline-block;
   flex-shrink: 0;
+}
+
+.btn .icon-whatsapp,
+.btn .icon-phone,
+.btn .icon-message {
+  display: block;
+}
+
+.btn-whatsapp {
+  display: inline-flex;
+  align-items: center;
+  gap: $space-2;
+}
+
+.icon-whatsapp {
+  width: 24px;
+  height: 24px;
+  display: block;
+}
+
+.btn .icon-whatsapp path:first-child {
+  transform-origin: 50% 50%;
+  transform: scale(0.9);
+}
+
+.btn .icon-phone path {
+  transform-origin: 50% 50%;
+  transform: scale(0.95) translateX(0.5px);
 }
 
 .contact-actions .btn {
@@ -506,6 +560,7 @@ $breakpoints: (
   position: absolute;
   top: -$space-2;
   right: 50%;
+  top: -3px;
   transform: translateX(50%);
   background: rgba(47, 95, 169, 0.08);
   color: $color-blue-dark;

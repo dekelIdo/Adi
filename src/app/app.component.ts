@@ -11,6 +11,9 @@ export class AppComponent implements AfterViewInit, OnDestroy {
   private carouselObserver?: IntersectionObserver;
   private mediaQuery?: MediaQueryList;
   private dotsContainer?: HTMLElement | null;
+  private scrollTimeoutId?: number;
+  private headerEl?: HTMLElement | null;
+  private headerLinks: HTMLElement[] = [];
 
   ngAfterViewInit(): void {
     if (!('IntersectionObserver' in window)) {
@@ -22,6 +25,10 @@ export class AppComponent implements AfterViewInit, OnDestroy {
     );
     const packageGrid = document.querySelector<HTMLElement>('.packages .package-grid');
     this.dotsContainer = document.querySelector<HTMLElement>('.packages .carousel-dots');
+    this.headerEl = document.querySelector<HTMLElement>('.site-header');
+    this.headerLinks = Array.from(
+      document.querySelectorAll<HTMLElement>('.site-header .header-link')
+    );
 
     this.cardObserver = new IntersectionObserver(
       (entries, observer) => {
@@ -44,7 +51,7 @@ export class AppComponent implements AfterViewInit, OnDestroy {
     cards.forEach((card) => this.cardObserver?.observe(card));
 
     if (packageGrid) {
-      this.mediaQuery = window.matchMedia('(max-width: 480px)');
+      this.mediaQuery = window.matchMedia('(max-width: 767px)');
       const handleCarousel = (isMobile: boolean) => {
         cards.forEach((card) => card.classList.remove('is-active'));
         this.carouselObserver?.disconnect();
@@ -57,23 +64,21 @@ export class AppComponent implements AfterViewInit, OnDestroy {
           return;
         }
 
+        const popularCard =
+          packageGrid.querySelector<HTMLElement>('.card-popular') ?? cards[0];
+        const popularIndex = popularCard ? cards.indexOf(popularCard) : 0;
+
         if (this.dotsContainer) {
           cards.forEach((_, index) => {
             const dot = document.createElement('span');
             dot.className = 'carousel-dot';
-            if (index === 0) {
-              dot.classList.add('is-active');
-            }
+            dot.classList.toggle('is-active', index === popularIndex);
             this.dotsContainer?.appendChild(dot);
           });
         }
 
-        const popularCard =
-          packageGrid.querySelector<HTMLElement>('.card-popular') ?? cards[0];
-
         if (popularCard) {
           popularCard.classList.add('is-active');
-          const popularIndex = cards.indexOf(popularCard);
           if (this.dotsContainer) {
             Array.from(this.dotsContainer.children).forEach((dot, index) => {
               dot.classList.toggle('is-active', index === popularIndex);
@@ -116,11 +121,33 @@ export class AppComponent implements AfterViewInit, OnDestroy {
         handleCarousel(event.matches);
       });
     }
+
+    window.addEventListener('scroll', this.handleHeaderScroll, { passive: true });
   }
 
   ngOnDestroy(): void {
     this.cardObserver?.disconnect();
     this.carouselObserver?.disconnect();
+    window.removeEventListener('scroll', this.handleHeaderScroll);
+    if (this.scrollTimeoutId) {
+      window.clearTimeout(this.scrollTimeoutId);
+    }
   }
+
+  private handleHeaderScroll = (): void => {
+    this.headerLinks.forEach((link) => link.classList.remove('is-active'));
+
+    if (!this.headerEl) {
+      return;
+    }
+
+    this.headerEl.classList.add('is-scrolling');
+    if (this.scrollTimeoutId) {
+      window.clearTimeout(this.scrollTimeoutId);
+    }
+    this.scrollTimeoutId = window.setTimeout(() => {
+      this.headerEl?.classList.remove('is-scrolling');
+    }, 2000);
+  };
 }
 
