@@ -1,4 +1,13 @@
 @import url("https://fonts.googleapis.com/css2?family=Abril+Fatface&family=Assistant:wght@300;400;500;600;700&family=Reggae+One&display=swap");
+@import url('https://fonts.googleapis.com/css2?family=Assistant:wght@200;300;400;500;600;700;800&display=swap');
+
+@font-face {
+  font-family: "Assistant";
+  src: local("Assistant");
+  font-weight: 200 800;
+  font-style: normal;
+  font-display: swap;
+}
 
 // ==========================================================================
 // Brand Tokens - Premium Mediterranean
@@ -102,6 +111,16 @@ $breakpoints: (
 
 .whitespace-pre-line {
   white-space: pre-line;
+}
+
+.hero-lead-highlight-sub{
+  padding: 0 8px 0 8px;
+  text-align: center;
+  font-size: 1.1rem;
+}
+
+.assistant-font {
+  font-family: "Assistant", "Segoe UI", Arial, sans-serif;
 }
 
 .logo-circle {
@@ -232,11 +251,13 @@ $breakpoints: (
   content: "";
   position: absolute;
   inset: 0;
-  background: radial-gradient(circle at 18% 22%, rgba(0, 0, 0, 0.03), transparent 60%),
-    radial-gradient(circle at 82% 28%, rgba(47, 95, 169, 0.04), transparent 65%);
   pointer-events: none;
 }
-
+.hero-ragga-font-container{
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
 .hero-grid {
   @extend .grid-4;
   align-items: center;
@@ -254,21 +275,11 @@ $breakpoints: (
   box-shadow: $shadow-soft;
 }
 
-.hero-media::after {
-  content: "";
-  position: absolute;
-  inset: $space-1;
-  border-radius: inherit;
-  border: 1px solid rgba(255, 255, 255, 0.6);
-  pointer-events: none;
-}
-
 .hero-image {
   width: 100%;
   height: 100%;
   object-fit: cover;
   display: block;
-  filter: saturate(1.02);
 }
 
 .hero-content {
@@ -283,26 +294,31 @@ $breakpoints: (
   font-family: $font-display;
   line-height: 1.08;
   letter-spacing: -0.02em;
+  text-align: center;
 }
 
 .hero-title-script {
-  font-family: YADknqccWbk_0, _fb_, auto;
+  font-family: "ReggaScriptHebrew", YADknqccWbk_0, _fb_, auto;
   font-weight: 400;
   @include fluid-type(3.2rem, 4.8rem);
-  display: inline-block;
-  margin-inline-end: $space-3;
+  display: block;
+  margin-inline: auto;
   color: $color-accent-dark;
 }
 
 .hero-title-name {
-  font-family: YAFdtfahXt8_0, _fb_, auto;
+  font-family: "Assistant", "Segoe UI", Arial, sans-serif;
   font-weight: 300;
   letter-spacing: -0.01em;
+  display: block;
+  margin-inline: auto;
+  text-align: center;
 }
 
 .hero-text {
   color: $color-text-muted;
   font-weight: 300;
+  font-family: YAFdtfahXt8_0, _fb_, auto;
   display: grid;
   gap: $space-3;
 }
@@ -319,9 +335,12 @@ $breakpoints: (
 
 .hero-lead-highlight {
   font-size: 2rem;
-  font-weight: 700;
+  font-weight: 300;
+  font-family: "Assistant", "Segoe UI", Arial, sans-serif;
   color: #1a1a1a;
   margin-bottom: $space-2;
+  padding: 0 8px 0 8px;
+  text-align: center;
 }
 
 .hero-sublead {
@@ -330,6 +349,10 @@ $breakpoints: (
   line-height: 1.6;
   color: #333;
 }
+
+  .hero-lead-highlight {
+    font-size: 1.2rem;
+  }
 
 .hero-name {
   font-weight: 600;
@@ -340,6 +363,10 @@ $breakpoints: (
   display: flex;
   flex-wrap: wrap;
   gap: $space-4;
+}
+
+.hero-lead-highlight-sub{
+  color:#464646 ;
 }
 
 // ==========================================================================
@@ -534,6 +561,10 @@ $breakpoints: (
   margin: 0 0 $space-4;
 }
 
+.about .section-title {
+  font-family: "ReggaScriptHebrew", $font-display, _fb_, auto;
+}
+
 
 // ==========================================================================
 // About & Testimonials
@@ -721,6 +752,13 @@ $breakpoints: (
   justify-self: center;
 }
 
+.card-divider-blue {
+  height: 1px;
+  background:rgba(187, 221, 250, 0.5);
+  width: 100%;
+  transition: background 0.3s ease, opacity 0.3s ease, transform 0.3s ease;
+  justify-self: center;
+}
 .card-footer {
   display: grid;
   grid-template-rows: auto 1fr;
@@ -1383,11 +1421,12 @@ $breakpoints: (
   .hero-title {
     font-size: 2.4rem;
     line-height: 1.12;
-    font-family: "Reggae One", $font-accent, _fb_, auto;
+    font-family: "Kedem AAA", _fb_, auto;
   }
 
   .hero-title-script {
     font-size: 2.5rem;
+    margin: auto;
   }
 
   .hero-lead {
@@ -1415,6 +1454,7 @@ $breakpoints: (
 
   .hero-actions {
     flex-direction: column;
+    justify-content: center;
   }
 
   .btn {
