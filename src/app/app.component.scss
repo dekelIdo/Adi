@@ -330,6 +330,18 @@ $breakpoints: (
   @include soft-ring($color-blue);
 }
 
+.btn .icon {
+  width: $space-4;
+  height: $space-4;
+  display: inline-block;
+  flex-shrink: 0;
+}
+
+.contact-actions .btn {
+  justify-content: center;
+  gap: $space-2;
+}
+
 .btn-primary {
   background: linear-gradient(135deg, rgba(242, 201, 76, 0.8) 0%, rgba(227, 179, 58, 0.8) 100%);
   color: #3c2d12;
@@ -757,7 +769,7 @@ $breakpoints: (
     padding-inline: $space-3;
     padding-bottom: $space-2;
     -webkit-overflow-scrolling: touch;
-    touch-action: pan-x;
+    touch-action: pan-x pan-y;
     position: relative;
     animation: carousel-nudge 1.6s ease-out 0.4s 1;
     background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="%239b9183" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>'),
@@ -879,8 +891,8 @@ $breakpoints: (
 
 .client-logos {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: $space-5;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: $space-4;
   align-items: center;
   justify-items: center;
 }
@@ -890,10 +902,12 @@ $breakpoints: (
   align-items: center;
   justify-content: center;
   cursor: pointer;
+  width: 100%;
 }
 
 .client-logo {
-  height: 56px;
+  height: 52px;
+  max-width: 100%;
   object-fit: contain;
   filter: grayscale(0.2);
   opacity: 0.9;
@@ -964,6 +978,15 @@ $breakpoints: (
   gap: $space-4;
   align-items: center;
   justify-content: center;
+}
+
+.contact-actions .btn {
+  width: 100%;
+  max-width: 280px;
+}
+
+.contact-actions .icon {
+  flex-shrink: 0;
 }
 
 // ==========================================================================
@@ -1132,6 +1155,17 @@ $breakpoints: (
 
   .feature-list li {
     grid-template-columns: $space-3 1fr;
+  }
+}
+
+@media (max-width: 480px) {
+  .client-logos {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: $space-2;
+  }
+
+  .client-logo {
+    height: 40px;
   }
 }
 
