@@ -11,9 +11,16 @@ export class AppComponent implements AfterViewInit, OnDestroy {
   private carouselObserver?: IntersectionObserver;
   private mediaQuery?: MediaQueryList;
   private dotsContainer?: HTMLElement | null;
-  private scrollTimeoutId?: number;
-  private headerEl?: HTMLElement | null;
-  private headerLinks: HTMLElement[] = [];
+  private clientsAutoplayId?: number;
+  private clientsScrollRaf?: number;
+  private clientsTrack?: HTMLElement | null;
+  private clientsSlides: HTMLElement[] = [];
+  private clientsDots?: HTMLElement | null;
+  private clientsPrev?: HTMLButtonElement | null;
+  private clientsNext?: HTMLButtonElement | null;
+  private clientsDragging = false;
+  private clientsDragStartX = 0;
+  private clientsDragStartScroll = 0;
 
   ngAfterViewInit(): void {
     if (!('IntersectionObserver' in window)) {
@@ -25,10 +32,6 @@ export class AppComponent implements AfterViewInit, OnDestroy {
     );
     const packageGrid = document.querySelector<HTMLElement>('.packages .package-grid');
     this.dotsContainer = document.querySelector<HTMLElement>('.packages .carousel-dots');
-    this.headerEl = document.querySelector<HTMLElement>('.site-header');
-    this.headerLinks = Array.from(
-      document.querySelectorAll<HTMLElement>('.site-header .header-link')
-    );
 
     this.cardObserver = new IntersectionObserver(
       (entries, observer) => {
@@ -84,10 +87,17 @@ export class AppComponent implements AfterViewInit, OnDestroy {
               dot.classList.toggle('is-active', index === popularIndex);
             });
           }
-          popularCard.scrollIntoView({
-            behavior: 'auto',
-            inline: 'center',
-            block: 'nearest'
+          requestAnimationFrame(() => {
+            const rect = packageGrid.getBoundingClientRect();
+            if (rect.top < 0) {
+              window.scrollTo({ top: 0, behavior: 'auto' });
+            }
+            packageGrid.scrollTo({
+              left:
+                popularCard.offsetLeft -
+                (packageGrid.clientWidth - popularCard.offsetWidth) / 2,
+              behavior: 'auto'
+            });
           });
         }
 
@@ -122,32 +132,169 @@ export class AppComponent implements AfterViewInit, OnDestroy {
       });
     }
 
-    window.addEventListener('scroll', this.handleHeaderScroll, { passive: true });
+    this.initClientsCarousel();
   }
 
   ngOnDestroy(): void {
     this.cardObserver?.disconnect();
     this.carouselObserver?.disconnect();
-    window.removeEventListener('scroll', this.handleHeaderScroll);
-    if (this.scrollTimeoutId) {
-      window.clearTimeout(this.scrollTimeoutId);
-    }
+    this.cleanupClientsCarousel();
   }
 
-  private handleHeaderScroll = (): void => {
-    this.headerLinks.forEach((link) => link.classList.remove('is-active'));
-
-    if (!this.headerEl) {
+  private initClientsCarousel(): void {
+    this.clientsTrack = document.querySelector<HTMLElement>('.client-carousel-track');
+    if (!this.clientsTrack) {
       return;
     }
+    this.clientsSlides = Array.from(
+      this.clientsTrack.querySelectorAll<HTMLElement>('.client-slide')
+    );
+    this.clientsDots = document.querySelector<HTMLElement>('.clients-dots');
+    this.clientsPrev = document.querySelector<HTMLButtonElement>(
+      '.client-carousel .carousel-arrow.prev'
+    );
+    this.clientsNext = document.querySelector<HTMLButtonElement>(
+      '.client-carousel .carousel-arrow.next'
+    );
 
-    this.headerEl.classList.add('is-scrolling');
-    if (this.scrollTimeoutId) {
-      window.clearTimeout(this.scrollTimeoutId);
+    if (this.clientsDots) {
+      this.clientsDots.innerHTML = '';
+      this.clientsSlides.forEach((_, index) => {
+        const dot = document.createElement('span');
+        dot.className = 'carousel-dot';
+        if (index === 0) {
+          dot.classList.add('is-active');
+        }
+        this.clientsDots?.appendChild(dot);
+      });
     }
-    this.scrollTimeoutId = window.setTimeout(() => {
-      this.headerEl?.classList.remove('is-scrolling');
-    }, 2000);
+
+    const onPrev = () => this.scrollClientsBy(-1);
+    const onNext = () => this.scrollClientsBy(1);
+    this.clientsPrev?.addEventListener('click', onPrev);
+    this.clientsNext?.addEventListener('click', onNext);
+
+    const onScroll = () => {
+      if (this.clientsScrollRaf) {
+        cancelAnimationFrame(this.clientsScrollRaf);
+      }
+      this.clientsScrollRaf = requestAnimationFrame(() => {
+        this.updateClientsActiveDot();
+      });
+    };
+    this.clientsTrack.addEventListener('scroll', onScroll, { passive: true });
+
+    const onMouseDown = (event: MouseEvent) => {
+      if (!this.clientsTrack) {
+        return;
+      }
+      this.clientsDragging = true;
+      this.clientsTrack.classList.add('is-dragging');
+      this.clientsDragStartX = event.pageX;
+      this.clientsDragStartScroll = this.clientsTrack.scrollLeft;
+    };
+
+    const onMouseMove = (event: MouseEvent) => {
+      if (!this.clientsTrack || !this.clientsDragging) {
+        return;
+      }
+      const delta = event.pageX - this.clientsDragStartX;
+      this.clientsTrack.scrollLeft = this.clientsDragStartScroll - delta;
+    };
+
+    const stopDrag = () => {
+      if (!this.clientsTrack) {
+        return;
+      }
+      this.clientsDragging = false;
+      this.clientsTrack.classList.remove('is-dragging');
+    };
+
+    this.clientsTrack.addEventListener('mousedown', onMouseDown);
+    window.addEventListener('mousemove', onMouseMove);
+    window.addEventListener('mouseup', stopDrag);
+    this.clientsTrack.addEventListener('mouseleave', stopDrag);
+
+    const onEnter = () => this.pauseClientsAutoplay();
+    const onLeave = () => this.startClientsAutoplay();
+    this.clientsTrack.addEventListener('mouseenter', onEnter);
+    this.clientsTrack.addEventListener('mouseleave', onLeave);
+    this.clientsTrack.addEventListener('touchstart', onEnter, { passive: true });
+    this.clientsTrack.addEventListener('touchend', onLeave);
+
+    this.startClientsAutoplay();
+
+    this.cleanupClientsCarousel = () => {
+      this.pauseClientsAutoplay();
+      this.clientsPrev?.removeEventListener('click', onPrev);
+      this.clientsNext?.removeEventListener('click', onNext);
+      this.clientsTrack?.removeEventListener('scroll', onScroll);
+      this.clientsTrack?.removeEventListener('mouseenter', onEnter);
+      this.clientsTrack?.removeEventListener('mouseleave', onLeave);
+      this.clientsTrack?.removeEventListener('touchstart', onEnter);
+      this.clientsTrack?.removeEventListener('touchend', onLeave);
+      this.clientsTrack?.removeEventListener('mousedown', onMouseDown);
+      window.removeEventListener('mousemove', onMouseMove);
+      window.removeEventListener('mouseup', stopDrag);
+      this.clientsTrack?.removeEventListener('mouseleave', stopDrag);
+      if (this.clientsScrollRaf) {
+        cancelAnimationFrame(this.clientsScrollRaf);
+      }
+    };
+  }
+
+  private cleanupClientsCarousel = (): void => {
+    return;
   };
+
+  private scrollClientsBy(direction: number): void {
+    if (!this.clientsTrack || this.clientsSlides.length === 0) {
+      return;
+    }
+    const slide = this.clientsSlides[0];
+    const slideLeft = slide.getBoundingClientRect().width;
+    const gapValue = getComputedStyle(this.clientsTrack).gap || '0px';
+    const gap = parseFloat(gapValue);
+    const step = slideLeft + gap;
+    this.clientsTrack.scrollBy({ left: direction * step, behavior: 'smooth' });
+  }
+
+  private updateClientsActiveDot(): void {
+    if (!this.clientsTrack || !this.clientsDots || this.clientsSlides.length === 0) {
+      return;
+    }
+    const trackCenter = this.clientsTrack.scrollLeft + this.clientsTrack.clientWidth / 2;
+    let closestIndex = 0;
+    let closestDistance = Number.POSITIVE_INFINITY;
+    this.clientsSlides.forEach((slide, index) => {
+      const slideCenter = slide.offsetLeft + slide.offsetWidth / 2;
+      const distance = Math.abs(trackCenter - slideCenter);
+      if (distance < closestDistance) {
+        closestDistance = distance;
+        closestIndex = index;
+      }
+    });
+    Array.from(this.clientsDots.children).forEach((dot, index) => {
+      dot.classList.toggle('is-active', index === closestIndex);
+    });
+  }
+
+  private startClientsAutoplay(): void {
+    if (!this.clientsTrack || this.clientsSlides.length < 2) {
+      return;
+    }
+    if (this.clientsAutoplayId) {
+      window.clearInterval(this.clientsAutoplayId);
+    }
+    this.clientsAutoplayId = window.setInterval(() => {
+      this.scrollClientsBy(1);
+    }, 5000);
+  }
+
+  private pauseClientsAutoplay(): void {
+    if (this.clientsAutoplayId) {
+      window.clearInterval(this.clientsAutoplayId);
+    }
+  }
 }
 
