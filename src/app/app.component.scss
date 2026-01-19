@@ -359,6 +359,30 @@ $breakpoints: (
   color: #555;
 }
 
+.packages-ragga-container{
+    background: darken($color: #E6E4E1, $amount: 2.5);
+    background:
+    radial-gradient(
+      ellipse at center,
+      #D8D4CF 25%,
+      #E6E4E1 85%
+    );
+    border-radius: 8px;
+    padding: 8px 18px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: fit-content;
+    margin: 0 auto;
+    margin-right: 41%;
+    margin-bottom: 14px;
+  }
+  
+  .packages-ragga-container img {
+    height: 22px;
+    display: block;
+  }
+
 .hero-actions {
   display: flex;
   flex-wrap: wrap;
@@ -411,12 +435,19 @@ $breakpoints: (
 .icon-whatsapp {
   width: 24px;
   height: 24px;
-  display: block;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .btn .icon-whatsapp path:first-child {
   transform-origin: 50% 50%;
   transform: scale(0.9);
+}
+
+.btn .icon-whatsapp path:last-child {
+  transform-origin: 50% 50%;
+  transform: translateX(1.5px) translateY(1px);
 }
 
 .btn .icon-phone path {
@@ -722,6 +753,7 @@ $breakpoints: (
   margin: 0;
   display: grid;
   gap: $space-2;
+  align-content: start;
   color: $color-text-muted;
   text-align: center;
   justify-items: center;
