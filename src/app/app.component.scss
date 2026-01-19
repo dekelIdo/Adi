@@ -360,22 +360,19 @@ $breakpoints: (
 }
 
 .packages-ragga-container{
-    background: darken($color: #E6E4E1, $amount: 2.5);
-    background:
-    radial-gradient(
-      ellipse at center,
-      #D8D4CF 25%,
-      #E6E4E1 85%
-    );
-    border-radius: 8px;
-    padding: 8px 18px;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: fit-content;
-    margin: 0 auto;
-    margin-right: 41%;
-    margin-bottom: 14px;
+     background: darken($color: #E6E4E1, $amount: 2.5);
+     background:
+     radial-gradient(
+       ellipse at center,
+       #D8D4CF 25%,
+       #E6E4E1 85%
+     );
+     border-radius: 8px;
+     padding: 8px 18px;
+     align-items: center;
+     justify-content: center;
+     width: fit-content;
+      margin: 0 auto $space-3;
   }
   
   .packages-ragga-container img {
@@ -953,6 +950,10 @@ $breakpoints: (
 }
 
 @media (max-width: 767px) {
+  .packages-ragga-container {
+    margin: 0 auto -22px auto;
+  }
+
   .package-grid {
     display: flex;
     align-items: stretch;
