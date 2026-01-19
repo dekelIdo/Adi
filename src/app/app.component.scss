@@ -735,7 +735,6 @@ $breakpoints: (
 .card-price {
   font-size: clamp(2rem, 3vw, 2.5rem);
   font-family: $font-display;
-  font-weight: 700;
   color: $color-text;
   letter-spacing: -0.015em;
   display: flex;
@@ -951,7 +950,9 @@ $breakpoints: (
 
 @media (max-width: 767px) {
   .packages-ragga-container {
-    margin-bottom: -26px  }
+    margin-top: 0;
+    margin-inline: auto;
+  }
 
   .package-grid {
     display: flex;
@@ -1475,7 +1476,6 @@ $breakpoints: (
   }
 
   .packages-title {
-    margin-bottom: 0;
     margin-top: 5px;
   }
 
