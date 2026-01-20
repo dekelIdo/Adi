@@ -9,6 +9,16 @@ import { AfterViewInit, Component, OnDestroy } from '@angular/core';
 export class AppComponent implements AfterViewInit, OnDestroy {
   private cardObserver?: IntersectionObserver;
   private carouselObserver?: IntersectionObserver;
+  private heroObserver?: IntersectionObserver;
+  private revealObserver?: IntersectionObserver;
+  private swipeTeaseObserver?: IntersectionObserver;
+  private swipeTeaseTargets: HTMLElement[] = [];
+  private swipeTeaseInView = new Set<HTMLElement>();
+  private swipeTeaseScrollRaf?: number;
+  private swipeTeaseLastY = 0;
+  private swipeTeaseLastDirection: 'up' | 'down' | 'none' = 'none';
+  private swipeTeaseLastTime = 0;
+  private swipeTeaseOnScroll?: () => void;
   private mediaQuery?: MediaQueryList;
   private dotsContainer?: HTMLElement | null;
   private clientsAutoplayId?: number;
@@ -23,9 +33,7 @@ export class AppComponent implements AfterViewInit, OnDestroy {
   private clientsDragStartScroll = 0;
 
   ngAfterViewInit(): void {
-    if (!('IntersectionObserver' in window)) {
-      return;
-    }
+    const supportsIntersectionObserver = 'IntersectionObserver' in window;
 
     const cards = Array.from(
       document.querySelectorAll<HTMLElement>('.packages .card')
@@ -33,25 +41,27 @@ export class AppComponent implements AfterViewInit, OnDestroy {
     const packageGrid = document.querySelector<HTMLElement>('.packages .package-grid');
     this.dotsContainer = document.querySelector<HTMLElement>('.packages .carousel-dots');
 
-    this.cardObserver = new IntersectionObserver(
-      (entries, observer) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            const target = entry.target as HTMLElement;
-            target.classList.add('is-animated');
-            requestAnimationFrame(() => {
-              target.classList.add('is-inview');
-            });
-            observer.unobserve(entry.target);
-          }
-        });
-      },
-      {
-        threshold: 0.2
-      }
-    );
+    if (supportsIntersectionObserver) {
+      this.cardObserver = new IntersectionObserver(
+        (entries, observer) => {
+          entries.forEach((entry) => {
+            if (entry.isIntersecting) {
+              const target = entry.target as HTMLElement;
+              target.classList.add('is-animated');
+              requestAnimationFrame(() => {
+                target.classList.add('is-inview');
+              });
+              observer.unobserve(entry.target);
+            }
+          });
+        },
+        {
+          threshold: 0.2
+        }
+      );
 
-    cards.forEach((card) => this.cardObserver?.observe(card));
+      cards.forEach((card) => this.cardObserver?.observe(card));
+    }
 
     if (packageGrid) {
       this.mediaQuery = window.matchMedia('(max-width: 767px)');
@@ -132,13 +142,195 @@ export class AppComponent implements AfterViewInit, OnDestroy {
       });
     }
 
+    this.initHeroEntrance();
+    this.initScrollReveals(supportsIntersectionObserver);
     this.initClientsCarousel();
+    this.initSwipeTease(supportsIntersectionObserver);
   }
 
   ngOnDestroy(): void {
     this.cardObserver?.disconnect();
     this.carouselObserver?.disconnect();
+    this.heroObserver?.disconnect();
+    this.revealObserver?.disconnect();
+    this.swipeTeaseObserver?.disconnect();
+    if (this.swipeTeaseOnScroll) {
+      window.removeEventListener('scroll', this.swipeTeaseOnScroll);
+    }
+    if (this.swipeTeaseScrollRaf) {
+      cancelAnimationFrame(this.swipeTeaseScrollRaf);
+    }
     this.cleanupClientsCarousel();
+  }
+
+  private initHeroEntrance(): void {
+    const hero = document.querySelector<HTMLElement>('.hero');
+    if (!hero) {
+      return;
+    }
+    const heroTargets = Array.from(
+      document.querySelectorAll<HTMLElement>(
+        '.hero .hero-ragga-font-container, .hero .hero-title-name, .hero .hero-lead, .hero .card-divider-blue, .hero .hero-lead-highlight-sub, .hero .hero-actions, .hero .hero-media'
+      )
+    );
+    heroTargets.forEach((target, index) => {
+      target.setAttribute('data-animate', 'hero');
+      target.style.setProperty('--hero-delay', `${index * 90}ms`);
+    });
+    const supportsIntersectionObserver = 'IntersectionObserver' in window;
+    if (!supportsIntersectionObserver) {
+      heroTargets.forEach((target) => target.classList.add('is-inview'));
+      return;
+    }
+
+    this.heroObserver = new IntersectionObserver(
+      (entries, observer) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            heroTargets.forEach((target) => target.classList.add('is-inview'));
+            observer.disconnect();
+          }
+        });
+      },
+      {
+        threshold: 0.35
+      }
+    );
+
+    this.heroObserver.observe(hero);
+  }
+
+  private initScrollReveals(supportsIntersectionObserver: boolean): void {
+    const sections = Array.from(
+      document.querySelectorAll<HTMLElement>(
+        '.about, .packages, .clients, .testimonials, .contact'
+      )
+    );
+    if (sections.length === 0) {
+      return;
+    }
+
+    const revealItems: HTMLElement[] = [];
+    sections.forEach((section) => {
+      const items = Array.from(
+        section.querySelectorAll<HTMLElement>(
+          '.section-title, .about-content, .packages-ragga-container, .package-grid, .testimonial-media, .client-carousel, .client-slide, .contact-card'
+        )
+      );
+      items.forEach((item, index) => {
+        item.classList.add('reveal-item');
+        item.style.setProperty('--reveal-delay', `${index * 90}ms`);
+        revealItems.push(item);
+      });
+    });
+
+    if (!supportsIntersectionObserver) {
+      revealItems.forEach((item) => item.classList.add('is-revealed'));
+      return;
+    }
+
+    this.revealObserver = new IntersectionObserver(
+      (entries, observer) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            const target = entry.target as HTMLElement;
+            target.classList.add('is-revealed');
+            observer.unobserve(entry.target);
+          }
+        });
+      },
+      {
+        threshold: 0.2
+      }
+    );
+
+    revealItems.forEach((item) => this.revealObserver?.observe(item));
+  }
+
+  private initSwipeTease(supportsIntersectionObserver: boolean): void {
+    this.swipeTeaseTargets = Array.from(
+      document.querySelectorAll<HTMLElement>('.package-grid, .client-carousel-track')
+    );
+    if (this.swipeTeaseTargets.length === 0) {
+      return;
+    }
+
+    this.swipeTeaseTargets.forEach((target) => {
+      target.setAttribute('data-animate', 'swipe');
+    });
+
+    const reduceMotionQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
+    if (reduceMotionQuery.matches) {
+      return;
+    }
+
+    if (!supportsIntersectionObserver) {
+      this.swipeTeaseTargets.forEach((target) => target.classList.add('is-inview'));
+      return;
+    }
+
+    this.swipeTeaseObserver = new IntersectionObserver(
+      (entries, observer) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            const target = entry.target as HTMLElement;
+            target.classList.add('is-inview');
+            this.swipeTeaseInView.add(target);
+            this.triggerSwipeTease(target);
+          } else {
+            const target = entry.target as HTMLElement;
+            target.classList.remove('is-inview');
+            this.swipeTeaseInView.delete(target);
+          }
+        });
+      },
+      {
+        threshold: 0.3
+      }
+    );
+
+    this.swipeTeaseTargets.forEach((target) => this.swipeTeaseObserver?.observe(target));
+
+    this.swipeTeaseLastY = window.scrollY;
+    this.swipeTeaseOnScroll = () => {
+      if (this.swipeTeaseScrollRaf) {
+        cancelAnimationFrame(this.swipeTeaseScrollRaf);
+      }
+      this.swipeTeaseScrollRaf = requestAnimationFrame(() => {
+        const currentY = window.scrollY;
+        const direction: 'up' | 'down' | 'none' =
+          currentY > this.swipeTeaseLastY ? 'down' : currentY < this.swipeTeaseLastY ? 'up' : 'none';
+        this.swipeTeaseLastY = currentY;
+
+        if (direction === 'none') {
+          return;
+        }
+
+        const now = Date.now();
+        const directionChanged = direction !== this.swipeTeaseLastDirection;
+        if (directionChanged && now - this.swipeTeaseLastTime > 1200) {
+          this.swipeTeaseLastTime = now;
+          this.swipeTeaseLastDirection = direction;
+          this.swipeTeaseInView.forEach((target) => {
+            this.triggerSwipeTease(target);
+          });
+        } else if (directionChanged) {
+          this.swipeTeaseLastDirection = direction;
+        }
+      });
+    };
+
+    window.addEventListener('scroll', this.swipeTeaseOnScroll, { passive: true });
+  }
+
+  private triggerSwipeTease(target: HTMLElement): void {
+    target.classList.remove('is-swipe-tease');
+    void target.offsetWidth;
+    target.classList.add('is-swipe-tease');
+    const onEnd = () => {
+      target.classList.remove('is-swipe-tease');
+    };
+    target.addEventListener('animationend', onEnd, { once: true });
   }
 
   private initClientsCarousel(): void {

@@ -48,6 +48,7 @@ $space-5: 32px;
 $shadow-soft: 0 10px 24px rgba(42, 30, 10, 0.12);
 $shadow-card: 0 28px 56px rgba(42, 30, 10, 0.18);
 $shadow-glow: 0 18px 48px rgba(227, 179, 58, 0.22);
+$ease-premium: cubic-bezier(0.22, 1, 0.36, 1);
 
 $breakpoints: (
   sm: 640px,
@@ -126,7 +127,6 @@ $breakpoints: (
 .logo-circle {
   width: clamp(40px, 5vw, 64px);
   aspect-ratio: 1 / 1;
-  border-radius: 50%;
   display: grid;
   place-items: center;
   flex-shrink: 0;
@@ -134,8 +134,6 @@ $breakpoints: (
 
 .logo-circle-img {
   width: 100%;
-  height: 100%;
-  border-radius: 50%;
   object-fit: cover;
   display: block;
 }
@@ -229,7 +227,7 @@ $breakpoints: (
   padding: $space-2 $space-3;
   min-height: calc(#{$space-5} + #{$space-2});
   border-radius: $radius-pill;
-  transition: color 0.2s ease, background 0.2s ease;
+  transition: color 220ms $ease-premium, background 220ms $ease-premium;
   @include soft-ring($color-blue);
 }
 
@@ -405,9 +403,14 @@ $breakpoints: (
   font-weight: 600;
   text-decoration: none;
   border: 2px solid transparent;
-  transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease,
-    color 0.2s ease, border-color 0.2s ease;
+  transition: transform 220ms $ease-premium, box-shadow 220ms $ease-premium,
+    background 220ms $ease-premium, color 220ms $ease-premium,
+    border-color 220ms $ease-premium;
   @include soft-ring($color-blue);
+}
+
+.btn:active {
+  transform: scale(0.97);
 }
 
 .btn .icon {
@@ -422,7 +425,9 @@ $breakpoints: (
 .btn .icon-message {
   display: block;
 }
-
+.icon-phone{
+  margin-left: 10px;
+}
 .btn-whatsapp {
   display: inline-flex;
   align-items: center;
@@ -463,7 +468,7 @@ $breakpoints: (
   box-shadow: #bbddfa(232, 180, 54, 0.2);
 
   &:hover {
-    transform: translateY(-$space-1);
+    transform: translateY(-1px);
     box-shadow: #bbddfa(232, 180, 54, 0.2);
   }
 }
@@ -493,7 +498,8 @@ $breakpoints: (
   border-color: rgba(129, 129, 129, 0.5);
   color: rgba(26, 26, 26, 0.85);
   background: rgba(0, 0, 0, 0.02);
-  transition: color 0.25s ease, background 0.25s ease, border-color 0.25s ease;
+  transition: color 220ms $ease-premium, background 220ms $ease-premium,
+    border-color 220ms $ease-premium;
 }
 
 .btn-instagram:hover {
@@ -565,6 +571,7 @@ $breakpoints: (
   width: $space-4;
   height: $space-4;
   display: inline-block;
+  transition: transform 220ms $ease-premium, opacity 220ms $ease-premium;
 }
 
 .icon-chevron {
@@ -662,8 +669,8 @@ $breakpoints: (
   box-shadow: 0 10px 24px rgba(0, 0, 0, 0.08);
   display: flex;
   flex-direction: column;
-  transition: transform 0.24s ease-out, box-shadow 0.24s ease-out,
-    border-color 0.24s ease-out;
+  transition: transform 240ms $ease-premium, box-shadow 240ms $ease-premium,
+    border-color 240ms $ease-premium;
 }
 
 .card-popular {
@@ -762,12 +769,13 @@ $breakpoints: (
     gap: $space-2;
     line-height: 1.7;
     width: min(100%, 360px);
-    transition: color 0.25s ease-out;
+    transition: color 240ms $ease-premium;
     text-align: start;
   }
 
   .icon-check {
-    transition: color 0.25s ease-out, transform 0.25s ease-out, opacity 0.25s ease-out;
+    transition: color 240ms $ease-premium, transform 240ms $ease-premium,
+      opacity 240ms $ease-premium;
     flex-shrink: 0;
   }
 }
@@ -776,7 +784,8 @@ $breakpoints: (
   height: 1px;
   background: rgba(0, 0, 0, 0.12);
   width: 100%;
-  transition: background 0.3s ease, opacity 0.3s ease, transform 0.3s ease;
+  transition: background 300ms $ease-premium, opacity 300ms $ease-premium,
+    transform 300ms $ease-premium;
   justify-self: center;
 }
 
@@ -784,7 +793,8 @@ $breakpoints: (
   height: 1px;
   background:rgba(187, 221, 250, 0.5);
   width: 100%;
-  transition: background 0.3s ease, opacity 0.3s ease, transform 0.3s ease;
+  transition: background 300ms $ease-premium, opacity 300ms $ease-premium,
+    transform 300ms $ease-premium;
   justify-self: center;
 }
 .card-footer {
@@ -830,8 +840,8 @@ $breakpoints: (
 
 @media (hover: hover) {
   .package-grid .card:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 18px 40px rgba(41, 30, 12, 0.14);
+    transform: translateY(-2px);
+    box-shadow: 0 16px 36px rgba(41, 30, 12, 0.14);
     border-color: rgba(47, 95, 169, 0.35);
   }
 
@@ -844,7 +854,7 @@ $breakpoints: (
   }
 
   .package-grid .card-popular:hover {
-    box-shadow: 0 22px 48px rgba(41, 30, 12, 0.18), 0 0 0 1px rgba(47, 95, 169, 0.14);
+    box-shadow: 0 20px 44px rgba(41, 30, 12, 0.18), 0 0 0 1px rgba(47, 95, 169, 0.14);
   }
 
   .feature-list li:hover {
@@ -967,7 +977,6 @@ $breakpoints: (
     -webkit-overflow-scrolling: touch;
     touch-action: pan-x pan-y;
     position: relative;
-    animation: carousel-nudge 1.6s ease-out 0.4s 1;
     background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="%239b9183" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>'),
       url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="%239b9183" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg>');
     background-repeat: no-repeat;
@@ -990,9 +999,8 @@ $breakpoints: (
     transform: translateY(8px) scale(0.92);
     opacity: 0.72;
     box-shadow: 0 8px 18px rgba(41, 30, 12, 0.12);
-    transition: transform 260ms cubic-bezier(0.22, 1, 0.36, 1),
-      box-shadow 260ms cubic-bezier(0.22, 1, 0.36, 1),
-      opacity 260ms cubic-bezier(0.22, 1, 0.36, 1);
+    transition: transform 260ms $ease-premium, box-shadow 260ms $ease-premium,
+      opacity 260ms $ease-premium;
     will-change: transform, opacity;
   }
 
@@ -1035,7 +1043,7 @@ $breakpoints: (
     height: 6px;
     border-radius: 999px;
     background: rgba(43, 42, 38, 0.22);
-    transition: transform 200ms ease-out, background 200ms ease-out;
+    transition: transform 200ms $ease-premium, background 200ms $ease-premium;
   }
 
   .carousel-dot.is-active {
@@ -1044,8 +1052,13 @@ $breakpoints: (
   }
 }
 
+
 @media (max-width: 767px) and (prefers-reduced-motion: reduce) {
   .package-grid {
+    animation: none;
+  }
+
+  .client-carousel-track {
     animation: none;
   }
 }
@@ -1060,6 +1073,26 @@ $breakpoints: (
   }
 
   70% {
+    transform: translateX(0);
+  }
+}
+
+@keyframes swipe-tease {
+  0% {
+    transform: translateX(0);
+  }
+  25% {
+    transform: translateX(var(--swipe-tease-amp, 14px)) rotate(var(--swipe-tease-rotate, 1deg));
+  }
+  50% {
+    transform: translateX(calc(var(--swipe-tease-amp, 14px) * -0.6))
+      rotate(calc(var(--swipe-tease-rotate, 1deg) * -0.7));
+  }
+  75% {
+    transform: translateX(calc(var(--swipe-tease-amp, 14px) * 0.5))
+      rotate(calc(var(--swipe-tease-rotate, 1deg) * 0.5));
+  }
+  100% {
     transform: translateX(0);
   }
 }
@@ -1105,6 +1138,8 @@ $breakpoints: (
   padding: $space-2 0;
   -webkit-overflow-scrolling: touch;
   cursor: grab;
+  overscroll-behavior-x: contain;
+  scroll-behavior: smooth;
 }
 
 .client-carousel-track::-webkit-scrollbar {
@@ -1141,6 +1176,7 @@ $breakpoints: (
   max-height: 160px;
   object-fit: contain;
   display: block;
+  transition: transform 240ms $ease-premium, opacity 240ms $ease-premium;
 }
 
 .client-media.is-logo {
@@ -1158,7 +1194,12 @@ $breakpoints: (
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+  transition: transform 220ms $ease-premium, box-shadow 220ms $ease-premium,
+    border-color 220ms $ease-premium;
+}
+
+.carousel-arrow:active {
+  transform: scale(0.97);
 }
 
 .carousel-arrow span {
@@ -1177,6 +1218,40 @@ $breakpoints: (
   border-color: rgba(47, 95, 169, 0.35);
 }
 
+@media (hover: hover) {
+  .btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 10px 22px rgba(41, 30, 10, 0.12);
+  }
+
+  .btn:active {
+    transform: scale(0.97);
+  }
+
+  .btn:hover .icon {
+    transform: translateY(-1px);
+    opacity: 0.9;
+  }
+
+  .scroll-link:hover .icon {
+    transform: translateY(2px);
+  }
+
+  .client-slide {
+    transition: transform 240ms $ease-premium, box-shadow 240ms $ease-premium;
+  }
+
+  .client-slide:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 14px 28px rgba(42, 30, 10, 0.12);
+  }
+
+  .client-slide-link:hover .client-media {
+    transform: translateY(-1px);
+    opacity: 0.95;
+  }
+}
+
 .clients-dots {
   grid-column: 1 / -1;
   display: flex;
@@ -1190,7 +1265,7 @@ $breakpoints: (
   height: 6px;
   border-radius: 999px;
   background: rgba(43, 42, 38, 0.22);
-  transition: transform 200ms ease-out, background 200ms ease-out;
+  transition: transform 200ms $ease-premium, background 200ms $ease-premium;
 }
 
 .clients-dots .carousel-dot.is-active {
@@ -1225,6 +1300,7 @@ $breakpoints: (
     inset-inline-end: $space-2;
   }
 }
+
 
 .client-logos {
   display: grid;
@@ -1301,7 +1377,7 @@ $breakpoints: (
 .contact-link {
   color: $color-text;
   text-decoration: underline;
-  transition: color 0.2s ease;
+  transition: color 220ms $ease-premium;
 
   &:hover {
     color: $color-accent-dark;
@@ -1516,6 +1592,83 @@ $breakpoints: (
 // ==========================================================================
 // Motion
 // ==========================================================================
+@media (prefers-reduced-motion: no-preference) {
+  .hero [data-animate="hero"] {
+    opacity: 0;
+    transform: translateY(16px);
+    transition: opacity 420ms $ease-premium, transform 420ms $ease-premium;
+    transition-delay: var(--hero-delay, 0ms);
+    will-change: opacity, transform;
+  }
+
+  .hero [data-animate="hero"].is-inview {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  .reveal-item {
+    opacity: 0;
+    transform: translateY(16px);
+    transition: opacity 420ms $ease-premium, transform 420ms $ease-premium;
+    transition-delay: var(--reveal-delay, 0ms);
+    will-change: opacity, transform;
+  }
+
+  .reveal-item.is-revealed {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  [data-animate="swipe"] {
+    will-change: transform;
+    --swipe-tease-amp: 14px;
+    --swipe-tease-rotate: 1deg;
+  }
+
+  [data-animate="swipe"].is-swipe-tease {
+    animation: swipe-tease 1.6s $ease-premium 0.1s 1;
+  }
+}
+
+@media (max-width: 767px) and (prefers-reduced-motion: no-preference) {
+  .hero [data-animate="hero"],
+  .reveal-item {
+    transform: translateY(12px);
+  }
+
+  .hero [data-animate="hero"] {
+    transition-duration: 320ms;
+  }
+
+  .reveal-item {
+    transition-duration: 320ms;
+  }
+
+  [data-animate="swipe"].is-swipe-tease {
+    animation-duration: 1.25s;
+    --swipe-tease-amp: 12px;
+    --swipe-tease-rotate: 0.8deg;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero [data-animate="hero"],
+  .reveal-item {
+    opacity: 1 !important;
+    transform: none !important;
+    animation: none !important;
+    transition: none !important;
+  }
+
+  [data-animate="swipe"] {
+    animation: none !important;
+  }
+
+  .scroll-indicator {
+    animation: none;
+  }
+}
+
 @keyframes bounce {
 
   0%,
