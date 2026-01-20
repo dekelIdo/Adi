@@ -306,11 +306,12 @@ $breakpoints: (
 
 .hero-title-name {
   font-family: "Assistant", "Segoe UI", Arial, sans-serif;
-  font-weight: 300;
+  font-weight: 600;
   letter-spacing: -0.01em;
   display: block;
   margin-inline: auto;
   text-align: center;
+
 }
 
 .hero-text {
@@ -337,8 +338,9 @@ $breakpoints: (
   font-family: "Assistant", "Segoe UI", Arial, sans-serif;
   color: #1a1a1a;
   margin-bottom: $space-2;
-  padding: 0 8px 0 8px;
+  padding: 0 0 0 8px;
   text-align: center;
+  margin-top: 0;
 }
 
 .hero-sublead {
@@ -425,7 +427,7 @@ $breakpoints: (
 .btn .icon-message {
   display: block;
 }
-.icon-phone{
+.btn-phone-contact{
   margin-left: 10px;
 }
 .btn-whatsapp {
@@ -1082,15 +1084,13 @@ $breakpoints: (
     transform: translateX(0);
   }
   25% {
-    transform: translateX(var(--swipe-tease-amp, 14px)) rotate(var(--swipe-tease-rotate, 1deg));
+    transform: translateX(var(--swipe-shift-1, 14px)) rotate(var(--swipe-rot-1, 1deg));
   }
   50% {
-    transform: translateX(calc(var(--swipe-tease-amp, 14px) * -0.6))
-      rotate(calc(var(--swipe-tease-rotate, 1deg) * -0.7));
+    transform: translateX(var(--swipe-shift-2, -8px)) rotate(var(--swipe-rot-2, -0.7deg));
   }
   75% {
-    transform: translateX(calc(var(--swipe-tease-amp, 14px) * 0.5))
-      rotate(calc(var(--swipe-tease-rotate, 1deg) * 0.5));
+    transform: translateX(var(--swipe-shift-3, 6px)) rotate(var(--swipe-rot-3, 0.5deg));
   }
   100% {
     transform: translateX(0);
@@ -1621,12 +1621,17 @@ $breakpoints: (
 
   [data-animate="swipe"] {
     will-change: transform;
-    --swipe-tease-amp: 14px;
-    --swipe-tease-rotate: 1deg;
+    transform-origin: 50% 50%;
+    --swipe-shift-1: 16px;
+    --swipe-shift-2: -10px;
+    --swipe-shift-3: 8px;
+    --swipe-rot-1: 1.4deg;
+    --swipe-rot-2: -1deg;
+    --swipe-rot-3: 0.7deg;
   }
 
-  [data-animate="swipe"].is-swipe-tease {
-    animation: swipe-tease 1.6s $ease-premium 0.1s 1;
+  [data-animate="swipe"].is-inview {
+    animation: swipe-tease 4s $ease-premium 0.2s infinite;
   }
 }
 
@@ -1644,10 +1649,14 @@ $breakpoints: (
     transition-duration: 320ms;
   }
 
-  [data-animate="swipe"].is-swipe-tease {
-    animation-duration: 1.25s;
-    --swipe-tease-amp: 12px;
-    --swipe-tease-rotate: 0.8deg;
+  [data-animate="swipe"].is-inview {
+    animation-duration: 4s;
+    --swipe-shift-1: 14px;
+    --swipe-shift-2: -9px;
+    --swipe-shift-3: 7px;
+    --swipe-rot-1: 1.1deg;
+    --swipe-rot-2: -0.8deg;
+    --swipe-rot-3: 0.6deg;
   }
 }
 

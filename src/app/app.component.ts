@@ -31,6 +31,7 @@ export class AppComponent implements AfterViewInit, OnDestroy {
   private clientsDragging = false;
   private clientsDragStartX = 0;
   private clientsDragStartScroll = 0;
+  private packageCardClickHandlers = new Map<HTMLElement, (event: MouseEvent) => void>();
 
   ngAfterViewInit(): void {
     const supportsIntersectionObserver = 'IntersectionObserver' in window;
@@ -68,6 +69,10 @@ export class AppComponent implements AfterViewInit, OnDestroy {
       const handleCarousel = (isMobile: boolean) => {
         cards.forEach((card) => card.classList.remove('is-active'));
         this.carouselObserver?.disconnect();
+        this.packageCardClickHandlers.forEach((handler, card) => {
+          card.removeEventListener('click', handler);
+        });
+        this.packageCardClickHandlers.clear();
 
         if (this.dotsContainer) {
           this.dotsContainer.innerHTML = '';
@@ -134,6 +139,28 @@ export class AppComponent implements AfterViewInit, OnDestroy {
         );
 
         cards.forEach((card) => this.carouselObserver?.observe(card));
+
+        cards.forEach((card, index) => {
+          const handler = () => {
+            cards.forEach((item) => item.classList.remove('is-active'));
+            card.classList.add('is-active');
+            if (this.dotsContainer) {
+              Array.from(this.dotsContainer.children).forEach((dot, dotIndex) => {
+                dot.classList.toggle('is-active', dotIndex === index);
+              });
+            }
+            requestAnimationFrame(() => {
+              packageGrid.scrollTo({
+                left:
+                  card.offsetLeft -
+                  (packageGrid.clientWidth - card.offsetWidth) / 2,
+                behavior: 'smooth'
+              });
+            });
+          };
+          card.addEventListener('click', handler);
+          this.packageCardClickHandlers.set(card, handler);
+        });
       };
 
       handleCarousel(this.mediaQuery.matches);
