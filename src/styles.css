@@ -1,3 +1,158 @@
+@font-face {
+  font-family: "Rega";
+  src: url("/assets/fonts/Rega/Rega-Regular.woff2") format("woff2"),
+       url("/assets/fonts/Rega/Rega-Regular.woff") format("woff"),
+       url("/assets/fonts/Rega/Rega-Regular.ttf") format("truetype");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "HandwritingSoft";
+  src: url("/assets/fonts/HandwritingSoft/HandwritingSoft-Regular.woff2") format("woff2"),
+       url("/assets/fonts/HandwritingSoft/HandwritingSoft-Regular.woff") format("woff");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Assistant";
+  src: url("/assets/fonts/Assistant/static/Assistant-Regular.ttf") format("truetype");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Assistant";
+  src: url("/assets/fonts/Assistant/static/Assistant-ExtraLight.ttf") format("truetype");
+  font-weight: 200;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Assistant";
+  src: url("/assets/fonts/Assistant/static/Assistant-Light.ttf") format("truetype");
+  font-weight: 300;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Assistant";
+  src: url("/assets/fonts/Assistant/static/Assistant-Medium.ttf") format("truetype");
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Assistant";
+  src: url("/assets/fonts/Assistant/static/Assistant-SemiBold.ttf") format("truetype");
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Assistant";
+  src: url("/assets/fonts/Assistant/static/Assistant-Bold.ttf") format("truetype");
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Assistant";
+  src: url("/assets/fonts/Assistant/static/Assistant-ExtraBold.ttf") format("truetype");
+  font-weight: 800;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "PlaypenSansHebrew";
+  src: url("/assets/fonts/Playpen_Sans_Hebrew/static/PlaypenSansHebrew-Regular.ttf") format("truetype");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "PlaypenSansHebrew";
+  src: url("/assets/fonts/Playpen_Sans_Hebrew/static/PlaypenSansHebrew-Thin.ttf") format("truetype");
+  font-weight: 100;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "PlaypenSansHebrew";
+  src: url("/assets/fonts/Playpen_Sans_Hebrew/static/PlaypenSansHebrew-ExtraLight.ttf") format("truetype");
+  font-weight: 200;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "PlaypenSansHebrew";
+  src: url("/assets/fonts/Playpen_Sans_Hebrew/static/PlaypenSansHebrew-Light.ttf") format("truetype");
+  font-weight: 300;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "PlaypenSansHebrew";
+  src: url("/assets/fonts/Playpen_Sans_Hebrew/static/PlaypenSansHebrew-Medium.ttf") format("truetype");
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "PlaypenSansHebrew";
+  src: url("/assets/fonts/Playpen_Sans_Hebrew/static/PlaypenSansHebrew-SemiBold.ttf") format("truetype");
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "PlaypenSansHebrew";
+  src: url("/assets/fonts/Playpen_Sans_Hebrew/static/PlaypenSansHebrew-Bold.ttf") format("truetype");
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "PlaypenSansHebrew";
+  src: url("/assets/fonts/Playpen_Sans_Hebrew/static/PlaypenSansHebrew-ExtraBold.ttf") format("truetype");
+  font-weight: 800;
+  font-style: normal;
+  font-display: swap;
+}
+
+.font-rega {
+  font-family: "Rega", "Segoe UI", Arial, sans-serif;
+}
+
+.font-handwritingsoft {
+  font-family: "HandwritingSoft", "Segoe UI", Arial, sans-serif;
+}
+
+.font-assistant {
+  font-family: "Assistant", "Segoe UI", Arial, sans-serif;
+}
+
+.font-playpensanshebrew {
+  font-family: "PlaypenSansHebrew", "Segoe UI", Arial, sans-serif;
+}
+
 * {
   box-sizing: border-box;
   margin: 0;

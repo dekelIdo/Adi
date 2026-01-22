@@ -9,6 +9,13 @@
   font-display: swap;
 }
 
+@font-face {
+  font-family: "Rega";
+  src: local("Rega");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
 // ==========================================================================
 // Brand Tokens - Premium Mediterranean
 // ==========================================================================
@@ -124,18 +131,58 @@ $breakpoints: (
   font-family: "Assistant", "Segoe UI", Arial, sans-serif;
 }
 
+.hero-font-preview {
+  display: grid;
+  gap: $space-2;
+}
+
+.hero-title-script.font-rega {
+  font-family: "Rega", "Segoe UI", Arial, sans-serif;
+  font-weight: 400;
+}
+
+.hero-title-script.font-handwritingsoft {
+  font-family: "HandwritingSoft", "Segoe UI", Arial, sans-serif;
+  font-weight: 400;
+}
+.font-assistant-bold-name{
+  font-family: "Assistant", "Segoe UI", Arial, sans-serif;
+font-weight: 700;
+} 
+.hero-title-script.font-assistant {
+  font-family: "Assistant", "Segoe UI", Arial, sans-serif;
+  font-weight: 400;
+}
+
+.hero-title-script.font-assistant-thin {
+  font-family: "Assistant", "Segoe UI", Arial, sans-serif;
+  font-weight: 300;
+}
+.hero-title-script.font-assistant-bold {
+  font-family: "Assistant", "Segoe UI", Arial, sans-serif;
+  font-weight: 700;
+}
+
+.hero-title-script.font-playpensanshebrew {
+  font-family: "PlaypenSansHebrew", "Segoe UI", Arial, sans-serif;
+  font-weight:100;
+}
+
 .logo-circle {
   width: clamp(40px, 5vw, 64px);
   aspect-ratio: 1 / 1;
   display: grid;
   place-items: center;
   flex-shrink: 0;
+  overflow: hidden;
 }
 
 .logo-circle-img {
   width: 100%;
   object-fit: cover;
   display: block;
+  transform: scale(1.12);
+  transform-origin: center;
 }
 
 .stack-6>*+* {
@@ -1135,7 +1182,8 @@ $breakpoints: (
   overflow-x: auto;
   scroll-snap-type: x mandatory;
   scroll-padding-inline: $space-4;
-  padding: $space-2 0;
+  padding: $space-2 $space-4;
+  justify-content: center;
   -webkit-overflow-scrolling: touch;
   cursor: grab;
   overscroll-behavior-x: contain;
@@ -1280,6 +1328,7 @@ $breakpoints: (
 
   .client-carousel-track {
     scroll-padding-inline: $space-3;
+    padding-inline: $space-3;
   }
 
   .carousel-arrow {
@@ -1490,7 +1539,7 @@ $breakpoints: (
 
 @media (max-width: 767px) {
   .hero {
-    padding: $space-5 0 $space-5;
+    padding: 0 0 $space-5;
   }
 
   .header-inner {
@@ -1658,6 +1707,10 @@ $breakpoints: (
     --swipe-rot-2: -0.8deg;
     --swipe-rot-3: 0.6deg;
   }
+
+  .package-grid[data-animate="swipe"] {
+    animation: swipe-tease 4s $ease-premium 0.2s infinite;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -1688,4 +1741,12 @@ $breakpoints: (
   50% {
     transform: translateX(-50%) translateY($space-2);
   }
+}
+.rega-font-header{
+  font-family:"Segoe UI" !important;
+}
+.hero-title-name.font-assistant-bold-name{
+  font-family: "Assistant", "Segoe UI", Arial, sans-serif;
+  font-weight: 700 !important;
+  font-size: 1.5rem !important;
 }

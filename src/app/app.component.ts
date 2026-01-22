@@ -31,6 +31,7 @@ export class AppComponent implements AfterViewInit, OnDestroy {
   private clientsDragging = false;
   private clientsDragStartX = 0;
   private clientsDragStartScroll = 0;
+  private clientsResizeHandler?: () => void;
   private packageCardClickHandlers = new Map<HTMLElement, (event: MouseEvent) => void>();
 
   ngAfterViewInit(): void {
@@ -388,6 +389,12 @@ export class AppComponent implements AfterViewInit, OnDestroy {
       });
     }
 
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        this.centerClientsSlide(0, 'auto');
+      });
+    });
+
     const onPrev = () => this.scrollClientsBy(-1);
     const onNext = () => this.scrollClientsBy(1);
     this.clientsPrev?.addEventListener('click', onPrev);
@@ -443,6 +450,12 @@ export class AppComponent implements AfterViewInit, OnDestroy {
 
     this.startClientsAutoplay();
 
+    this.clientsResizeHandler = () => {
+      const activeIndex = this.getClientsActiveIndex();
+      this.centerClientsSlide(activeIndex, 'auto');
+    };
+    window.addEventListener('resize', this.clientsResizeHandler);
+
     this.cleanupClientsCarousel = () => {
       this.pauseClientsAutoplay();
       this.clientsPrev?.removeEventListener('click', onPrev);
@@ -456,6 +469,9 @@ export class AppComponent implements AfterViewInit, OnDestroy {
       window.removeEventListener('mousemove', onMouseMove);
       window.removeEventListener('mouseup', stopDrag);
       this.clientsTrack?.removeEventListener('mouseleave', stopDrag);
+      if (this.clientsResizeHandler) {
+        window.removeEventListener('resize', this.clientsResizeHandler);
+      }
       if (this.clientsScrollRaf) {
         cancelAnimationFrame(this.clientsScrollRaf);
       }
@@ -478,9 +494,20 @@ export class AppComponent implements AfterViewInit, OnDestroy {
     this.clientsTrack.scrollBy({ left: direction * step, behavior: 'smooth' });
   }
 
-  private updateClientsActiveDot(): void {
-    if (!this.clientsTrack || !this.clientsDots || this.clientsSlides.length === 0) {
+  private centerClientsSlide(index: number, behavior: ScrollBehavior): void {
+    if (!this.clientsTrack || this.clientsSlides.length === 0) {
       return;
+    }
+    const safeIndex = Math.min(Math.max(index, 0), this.clientsSlides.length - 1);
+    const slide = this.clientsSlides[safeIndex];
+    const offset =
+      slide.offsetLeft - (this.clientsTrack.clientWidth - slide.offsetWidth) / 2;
+    this.clientsTrack.scrollTo({ left: offset, behavior });
+  }
+
+  private getClientsActiveIndex(): number {
+    if (!this.clientsTrack || this.clientsSlides.length === 0) {
+      return 0;
     }
     const trackCenter = this.clientsTrack.scrollLeft + this.clientsTrack.clientWidth / 2;
     let closestIndex = 0;
@@ -493,6 +520,14 @@ export class AppComponent implements AfterViewInit, OnDestroy {
         closestIndex = index;
       }
     });
+    return closestIndex;
+  }
+
+  private updateClientsActiveDot(): void {
+    if (!this.clientsTrack || !this.clientsDots || this.clientsSlides.length === 0) {
+      return;
+    }
+    const closestIndex = this.getClientsActiveIndex();
     Array.from(this.clientsDots.children).forEach((dot, index) => {
       dot.classList.toggle('is-active', index === closestIndex);
     });
