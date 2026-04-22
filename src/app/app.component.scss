@@ -1,4 +1,4 @@
-@import url("https://fonts.googleapis.com/css2?family=Heebo:wght@300;400;500;600&family=Manrope:wght@300;400;500;600&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;600&family=Playfair+Display:wght@500;600;700&display=swap");
 
 $color-bg: #f8f6f3;
 $color-surface: #ffffff;
@@ -18,9 +18,9 @@ $color-blue: #bbddfa;
 $color-blue-dark: #bbddfa;
 $color-blue-tint: rgba(187, 221, 250, 0.22);
 
-$font-base: "Heebo", "Segoe UI", Arial, sans-serif;
-$font-display: "Manrope", "Heebo", "Segoe UI", Arial, sans-serif;
-$font-accent: "Heebo", "Segoe UI", Arial, sans-serif;
+$font-base: "Manrope", "Segoe UI", Arial, sans-serif;
+$font-display: "Playfair Display", "Times New Roman", serif;
+$font-accent: "Manrope", "Segoe UI", Arial, sans-serif;
 
 $radius-sm: 12px;
 $radius-md: 18px;
@@ -67,7 +67,7 @@ $breakpoints: (
   color: $color-text;
   background: $color-bg;
   direction: rtl;
-  line-height: 1.9;
+  line-height: 1.85;
 }
 
 *,
@@ -118,10 +118,14 @@ main > .section:not(.section-muted):not(.section-accent):nth-of-type(even) {
 
 #insight {
   background: rgba(248, 246, 243, 0.85);
+  position: relative;
+  overflow: hidden;
 }
 
 #services {
   background: rgba(245, 241, 234, 0.85);
+  position: relative;
+  overflow: hidden;
 }
 
 #honesty {
@@ -134,6 +138,29 @@ main > .section:not(.section-muted):not(.section-accent):nth-of-type(even) {
 
 #testimonials {
   padding-block: $space-4;
+}
+
+#insight::after,
+#services::after {
+  content: "";
+  position: absolute;
+  width: 120px;
+  height: 120px;
+  border-radius: 999px;
+  background: rgba(187, 221, 250, 0.18);
+  top: 14%;
+  left: 8%;
+  pointer-events: none;
+  animation: float-slow 14s ease-in-out infinite;
+}
+
+#services::after {
+  top: auto;
+  bottom: 12%;
+  left: auto;
+  right: 8%;
+  width: 140px;
+  height: 140px;
 }
 
 .section-muted {
@@ -158,8 +185,8 @@ main > .section:not(.section-muted):not(.section-accent):nth-of-type(even) {
 .section-title {
   font-family: $font-display;
   font-size: clamp(2.1rem, 3vw, 2.9rem);
-  line-height: 1.28;
-  letter-spacing: 0.015em;
+  line-height: 1.22;
+  letter-spacing: 0.02em;
   font-weight: 600;
   margin: 0 0 $space-3;
   text-wrap: balance;
@@ -197,7 +224,7 @@ main > .section:not(.section-muted):not(.section-accent):nth-of-type(even) {
 
 .quote {
   font-size: 1.15rem;
-  font-weight: 500;
+  font-weight: 600;
   margin: 0 0 $space-3;
 }
 
@@ -255,6 +282,10 @@ p {
   border-color: rgba(187, 221, 250, 0.6);
   color: $color-accent-dark;
   background: rgba(187, 221, 250, 0.22);
+}
+
+.btn:hover {
+  box-shadow: 0 10px 22px rgba(187, 221, 250, 0.25);
 }
 }
 
@@ -315,6 +346,7 @@ p {
   top: -60px;
   left: 6%;
   pointer-events: none;
+  animation: float-slow 12s ease-in-out infinite;
 }
 
 .hero-grid {
@@ -334,8 +366,8 @@ p {
 .hero-title {
   font-family: $font-display;
   font-size: clamp(2.15rem, 3.1vw, 3.05rem);
-  line-height: 1.3;
-  letter-spacing: 0.02em;
+  line-height: 1.24;
+  letter-spacing: 0.025em;
   font-weight: 600;
   margin: 0;
   text-wrap: balance;
@@ -343,7 +375,7 @@ p {
 
 .hero-lead {
   font-size: 1.02rem;
-  font-weight: 500;
+  font-weight: 600;
   margin: 0;
   max-width: 56ch;
 }
@@ -617,18 +649,28 @@ p {
 
 @media (hover: hover) {
   .service-card:hover {
-    transform: translateY(-3px);
+    transform: translateY(-3px) scale(1.02);
     box-shadow: $shadow-card;
   }
 
   .testimonial-card:hover {
-    transform: translateY(-2px);
+    transform: translateY(-2px) scale(1.01);
     box-shadow: $shadow-soft;
   }
 
   .portfolio-card:hover {
-    transform: translateY(-2px);
+    transform: translateY(-2px) scale(1.015);
     box-shadow: $shadow-card;
+  }
+
+  .problem-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 12px 26px rgba(187, 221, 250, 0.3);
+  }
+
+  .contrast-card:hover {
+    transform: translateY(-1px);
+    box-shadow: $shadow-soft;
   }
 
   .about-card:hover,
@@ -641,8 +683,11 @@ p {
 .reveal {
   opacity: 0;
   transform: translateY(14px);
-  transition: opacity 0.7s ease, transform 0.7s ease;
+  transition: opacity var(--reveal-duration, 0.7s) var(--reveal-ease, ease),
+    transform var(--reveal-duration, 0.7s) var(--reveal-ease, ease),
+    filter var(--reveal-duration, 0.7s) var(--reveal-ease, ease);
   transition-delay: var(--reveal-delay, 0ms);
+  filter: blur(0);
 }
 
 .reveal-soft {
@@ -660,14 +705,36 @@ p {
   transition-duration: 0.7s;
 }
 
+.reveal-float {
+  transform: translateY(16px) scale(0.99);
+  transition-duration: 0.75s;
+}
+
 .reveal-hero {
   transform: translateY(22px);
   transition-duration: 0.9s;
+  filter: blur(6px);
 }
 
 .reveal.is-visible {
   opacity: 1;
   transform: translateY(0) scale(1);
+  filter: blur(0);
+}
+
+.reveal-slow {
+  --reveal-duration: 0.95s;
+  --reveal-ease: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.reveal-tight {
+  --reveal-duration: 0.6s;
+  --reveal-ease: cubic-bezier(0.33, 1, 0.68, 1);
+}
+
+.reveal-delay {
+  --reveal-duration: 0.8s;
+  --reveal-ease: cubic-bezier(0.2, 0.9, 0.2, 1);
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -675,6 +742,7 @@ p {
     opacity: 1;
     transform: none;
     transition: none;
+    filter: none;
   }
 
   .service-card,
@@ -685,6 +753,28 @@ p {
   .about-card,
   .contrast-card {
     transition: none;
+  }
+}
+
+@media (max-width: 767px) {
+  .reveal-hero {
+    transform: translateY(16px);
+  }
+
+  .reveal-rise {
+    transform: translateY(12px);
+  }
+}
+
+@keyframes float-slow {
+  0% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(12px);
+  }
+  100% {
+    transform: translateY(0);
   }
 }
 
@@ -959,6 +1049,11 @@ p {
   .hero-card {
     align-self: stretch;
     font-size: 0.82rem;
+  }
+
+  #insight::after,
+  #services::after {
+    display: none;
   }
 }
 

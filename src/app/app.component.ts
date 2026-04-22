@@ -40,14 +40,28 @@ export class AppComponent implements AfterViewInit, OnDestroy {
     );
 
     heroElements.forEach((target, index) => {
-      target.classList.add('reveal', 'reveal-hero');
+      target.classList.add('reveal', 'reveal-hero', 'reveal-slow');
       target.style.setProperty('--reveal-delay', `${index * 120}ms`);
     });
 
     const restTargets = targets.filter((target) => !heroElements.includes(target));
+    const delayCounters = new Map<string, number>();
 
     restTargets.forEach((target, index) => {
       const sectionId = target.closest('section')?.id;
+      const sectionKey = sectionId ?? 'default';
+      const baseDelay =
+        sectionId === 'insight' || sectionId === 'services'
+          ? 120
+          : sectionId === 'solution' || sectionId === 'process'
+            ? 90
+            : sectionId === 'portfolio' || sectionId === 'testimonials'
+              ? 80
+              : 70;
+      const count = delayCounters.get(sectionKey) ?? 0;
+      delayCounters.set(sectionKey, count + 1);
+      const delay = count * baseDelay;
+
       const isCard =
         target.classList.contains('problem-card') ||
         target.classList.contains('contrast-card') ||
@@ -58,18 +72,37 @@ export class AppComponent implements AfterViewInit, OnDestroy {
         target.classList.contains('portfolio-card');
 
       if (isCard) {
-        target.classList.add('reveal', 'reveal-scale');
-        target.style.setProperty('--reveal-delay', `${(index % 6) * 80}ms`);
+        if (sectionId === 'portfolio' || sectionId === 'testimonials') {
+          target.classList.add('reveal', 'reveal-float', 'reveal-tight');
+        } else if (sectionId === 'problem') {
+          target.classList.add('reveal', 'reveal-rise', 'reveal-slow');
+        } else if (sectionId === 'services') {
+          target.classList.add('reveal', 'reveal-scale', 'reveal-tight');
+        } else if (sectionId === 'process') {
+          target.classList.add('reveal', 'reveal-rise', 'reveal-tight');
+        } else {
+          target.classList.add('reveal', 'reveal-scale', 'reveal-delay');
+        }
+
+        target.style.setProperty('--reveal-delay', `${delay}ms`);
         return;
       }
 
-      if (sectionId === 'insight' || sectionId === 'solution') {
-        target.classList.add('reveal', 'reveal-rise');
+      if (sectionId === 'insight') {
+        target.classList.add('reveal', 'reveal-rise', 'reveal-slow');
+      } else if (sectionId === 'solution') {
+        target.classList.add('reveal', 'reveal-rise', 'reveal-tight');
+      } else if (sectionId === 'about') {
+        target.classList.add('reveal', 'reveal-soft', 'reveal-delay');
+      } else if (sectionId === 'portfolio' || sectionId === 'testimonials') {
+        target.classList.add('reveal', 'reveal-float', 'reveal-tight');
+      } else if (sectionId === 'honesty' || sectionId === 'audience') {
+        target.classList.add('reveal', 'reveal-soft', 'reveal-slow');
       } else {
-        target.classList.add('reveal', 'reveal-soft');
+        target.classList.add('reveal', 'reveal-soft', 'reveal-delay');
       }
 
-      target.style.setProperty('--reveal-delay', `${(index % 4) * 90}ms`);
+      target.style.setProperty('--reveal-delay', `${delay}ms`);
     });
 
     if (!('IntersectionObserver' in window)) {
