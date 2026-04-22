@@ -1,3 +1,4 @@
+@use "sass:map";
 @import url("https://fonts.googleapis.com/css2?family=Fraunces:wght@500;600;700&family=Inter:wght@300;400;500;600&display=swap");
 
 $color-bg: var(--bg);
@@ -62,7 +63,7 @@ $breakpoints: (
 );
 
 @mixin respond($size) {
-  @media (min-width: map-get($breakpoints, $size)) {
+  @media (min-width: map.get($breakpoints, $size)) {
     @content;
   }
 }
@@ -164,6 +165,60 @@ textarea {
 
 main > .section:not(.section-muted):not(.section-accent):nth-of-type(even) {
   background: color-mix(in srgb, var(--bg) 60%, transparent);
+}
+
+.brand-strip-section {
+  padding: $space-3 0;
+  background: color-mix(in srgb, var(--bg) 70%, transparent);
+  border-block: 1px solid color-mix(in srgb, var(--border) 60%, transparent);
+}
+
+.brand-strip {
+  display: grid;
+  gap: $space-2;
+  align-items: center;
+}
+
+.brand-label {
+  font-size: $text-xs;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: $color-text-muted;
+}
+
+.brand-strip-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: $space-3;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.brand-item {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: $space-1 $space-2;
+  opacity: 0.65;
+  transition: transform $motion-hover, opacity $motion-hover;
+}
+
+.brand-item img {
+  height: $space-5;
+  width: auto;
+  max-width: calc(var(--space-7) * 2);
+  filter: grayscale(1);
+}
+
+.brand-item.is-primary img {
+  height: $space-6;
+}
+
+@media (hover: hover) {
+  .brand-item:hover {
+    opacity: 1;
+    transform: translateY(calc(var(--space-1) * -0.25)) scale(1.03);
+  }
 }
 
 #insight {
@@ -539,18 +594,18 @@ p {
   display: grid;
   gap: $space-2;
   grid-template-columns: repeat(auto-fit, minmax(calc(var(--space-7) * 3.5), 1fr));
-  grid-auto-rows: 1fr;
+  align-items: start;
 }
 
 .problem-card {
-  background: $color-surface;
+  background: color-mix(in srgb, var(--surface) 88%, transparent);
   border-radius: $radius-md;
   padding: $space-3;
-  border: 1px solid $color-border;
-  box-shadow: $shadow-soft;
+  border: 1px solid color-mix(in srgb, var(--border) 70%, transparent);
+  box-shadow: none;
   font-weight: 500;
   display: flex;
-  align-items: center;
+  align-items: flex-start;
 }
 
 .insight-grid {
@@ -562,11 +617,11 @@ p {
 .insight-cards {
   display: grid;
   gap: $space-3;
-  grid-auto-rows: 1fr;
+  align-items: start;
 }
 
 .contrast-card {
-  background: $color-surface;
+  background: color-mix(in srgb, var(--surface) 88%, transparent);
   border-radius: $radius-md;
   padding: $space-3;
   border: 1px solid $color-border;
@@ -574,6 +629,7 @@ p {
   display: flex;
   flex-direction: column;
   gap: $space-2;
+  align-items: flex-start;
 }
 
 .contrast-card h3 {
@@ -678,21 +734,17 @@ p {
 }
 
 .about-card {
-  background: $color-surface;
-  padding: $space-3;
+  background: transparent;
+  padding: 0;
   border-radius: $radius-md;
-  border: 1px solid $color-border;
-  box-shadow: $shadow-soft;
+  border: none;
+  box-shadow: none;
   display: flex;
   flex-direction: column;
   gap: $space-2;
+  align-items: flex-start;
 }
 
-.brand-list {
-  margin: $space-2 0 0;
-  font-weight: 600;
-  color: $color-accent-dark;
-}
 
 .story-card {
   background: $color-surface;
@@ -719,6 +771,7 @@ p {
   display: flex;
   flex-direction: column;
   gap: $space-1;
+  align-items: flex-start;
 }
 
 .step-number {
@@ -737,17 +790,19 @@ p {
   display: grid;
   gap: $space-2;
   grid-template-columns: repeat(auto-fit, minmax(calc(var(--space-7) * 3.5), 1fr));
-  grid-auto-rows: 1fr;
+  align-items: start;
 }
 
 .portfolio-card {
-  background: $color-surface;
+  background: color-mix(in srgb, var(--surface) 90%, transparent);
   border-radius: $radius-md;
   border: 1px solid $color-border;
   box-shadow: $shadow-soft;
   aspect-ratio: 16 / 9;
   position: relative;
   overflow: hidden;
+  background-size: cover;
+  background-position: center;
 }
 
 .portfolio-card::before {
@@ -756,22 +811,29 @@ p {
   inset: 0;
   background: linear-gradient(
     180deg,
-    color-mix(in srgb, var(--surface) 70%, transparent),
-    color-mix(in srgb, var(--surface) 90%, transparent)
+    color-mix(in srgb, var(--surface) 40%, transparent),
+    color-mix(in srgb, var(--surface) 85%, transparent)
   );
 }
 
 .portfolio-card::after {
-  content: "";
-  position: absolute;
-  width: calc(var(--space-5) * 1.4);
-  height: calc(var(--space-5) * 1.4);
-  border-radius: 50%;
-  border: 1px solid color-mix(in srgb, var(--accent) 40%, transparent);
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  background: color-mix(in srgb, var(--surface) 85%, transparent);
+  content: none;
+}
+
+.portfolio-card:nth-child(1) {
+  background-image: url("/assets/lovable-uploads/IMG_1726.jpg");
+}
+
+.portfolio-card:nth-child(2) {
+  background-image: url("/assets/lovable-uploads/IMG_1707%20(2).jpg");
+}
+
+.portfolio-card:nth-child(3) {
+  background-image: linear-gradient(
+    135deg,
+    color-mix(in srgb, var(--surface) 85%, transparent),
+    color-mix(in srgb, var(--bg) 70%, transparent)
+  );
 }
 
 .services-grid {
@@ -781,7 +843,7 @@ p {
 }
 
 .service-card {
-  background: $color-surface;
+  background: color-mix(in srgb, var(--surface) 88%, transparent);
   border-radius: $radius-md;
   padding: $space-3;
   border: 1px solid $color-border;
@@ -789,6 +851,7 @@ p {
   display: flex;
   flex-direction: column;
   gap: $space-2;
+  align-items: flex-start;
 }
 
 .service-card h3 {
@@ -995,17 +1058,29 @@ p {
   display: grid;
   gap: $space-3;
   grid-template-columns: repeat(auto-fit, minmax(calc(var(--space-7) * 3.5), 1fr));
-  grid-auto-rows: auto;
+  align-items: start;
 }
 
 .testimonial-card {
   background: $color-surface;
   border-radius: $radius-md;
-  padding: $space-4;
+  padding: $space-3;
   border: 1px solid $color-border;
   box-shadow: $shadow-soft;
   text-align: center;
   color: $color-text-muted;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: $space-2;
+}
+
+.about-card > *,
+.step-card > *,
+.service-card > *,
+.contrast-card > *,
+.testimonial-card > * {
+  margin: 0;
 }
 
 .testimonial-card img {
@@ -1284,6 +1359,21 @@ p {
   }
 
   .hero-actions .btn {
+    width: 100%;
+  }
+
+  .brand-strip {
+    text-align: center;
+  }
+
+  .brand-strip-row {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: $space-2;
+    justify-items: center;
+  }
+
+  .brand-item {
     width: 100%;
   }
 
