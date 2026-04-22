@@ -801,8 +801,6 @@ p {
   aspect-ratio: 16 / 9;
   position: relative;
   overflow: hidden;
-  background-size: cover;
-  background-position: center;
 }
 
 .portfolio-card::before {
@@ -817,23 +815,51 @@ p {
 }
 
 .portfolio-card::after {
-  content: none;
+  content: "";
+  position: absolute;
+  width: calc(var(--space-5) * 1.4);
+  height: calc(var(--space-5) * 1.4);
+  border-radius: 50%;
+  border: 1px solid color-mix(in srgb, var(--accent) 40%, transparent);
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: color-mix(in srgb, var(--surface) 85%, transparent);
 }
 
-.portfolio-card:nth-child(1) {
-  background-image: url("/assets/lovable-uploads/IMG_1726.jpg");
+.section-image {
+  position: absolute;
+  pointer-events: none;
+  z-index: 0;
+  width: calc(var(--space-7) * 3);
 }
 
-.portfolio-card:nth-child(2) {
-  background-image: url("/assets/lovable-uploads/IMG_1707%20(2).jpg");
+.section-image img {
+  width: 100%;
+  height: auto;
+  display: block;
+  border-radius: $radius-lg;
+  box-shadow: $shadow-soft;
 }
 
-.portfolio-card:nth-child(3) {
-  background-image: linear-gradient(
-    135deg,
-    color-mix(in srgb, var(--surface) 85%, transparent),
-    color-mix(in srgb, var(--bg) 70%, transparent)
-  );
+.hero-support-image {
+  top: $space-6;
+  inset-inline-start: $space-5;
+}
+
+#about {
+  position: relative;
+}
+
+#about .container {
+  position: relative;
+  z-index: 1;
+}
+
+.about-support-image {
+  bottom: $space-6;
+  inset-inline-end: $space-5;
+  width: calc(var(--space-7) * 3.2);
 }
 
 .services-grid {
@@ -1348,6 +1374,16 @@ p {
 
   .hero {
     padding-top: $space-6;
+  }
+
+  .section-image {
+    position: static;
+    width: 100%;
+    margin-top: $space-3;
+  }
+
+  .section-image img {
+    border-radius: $radius-md;
   }
 
   .hero-title {

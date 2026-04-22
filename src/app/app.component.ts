@@ -15,6 +15,7 @@ export class AppComponent implements AfterViewInit, OnDestroy {
         [
           '.hero-content > *',
           '.hero-media',
+          '.section-image',
           '.brand-label',
           '.brand-item',
           '.section-title',
