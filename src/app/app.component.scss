@@ -154,7 +154,7 @@ textarea {
 }
 
 .section {
-  padding: $space-5 0;
+  padding: $space-4 0;
   scroll-margin-top: $space-7;
 }
 
@@ -183,11 +183,11 @@ main > .section:not(.section-muted):not(.section-accent):nth-of-type(even) {
 }
 
 #portfolio {
-  padding-block: $space-4;
+  padding-block: $space-3;
 }
 
 #testimonials {
-  padding-block: $space-4;
+  padding-block: $space-3;
 }
 
 #insight::after,
@@ -551,7 +551,6 @@ p {
   font-weight: 500;
   display: flex;
   align-items: center;
-  min-height: 100%;
 }
 
 .insight-grid {
@@ -675,7 +674,7 @@ p {
   display: grid;
   gap: $space-3;
   margin-bottom: $space-4;
-  grid-auto-rows: 1fr;
+  align-items: start;
 }
 
 .about-card {
@@ -707,20 +706,19 @@ p {
 
 .steps-grid {
   display: grid;
-  gap: $space-3;
-  grid-auto-rows: 1fr;
+  gap: $space-2;
+  align-items: start;
 }
 
 .step-card {
   background: $color-surface;
   border-radius: $radius-md;
-  padding: $space-3;
+  padding: $space-2;
   border: 1px solid $color-border;
   box-shadow: $shadow-soft;
   display: flex;
   flex-direction: column;
-  gap: $space-2;
-  height: 100%;
+  gap: $space-1;
 }
 
 .step-number {
@@ -737,7 +735,7 @@ p {
 
 .portfolio-grid {
   display: grid;
-  gap: $space-3;
+  gap: $space-2;
   grid-template-columns: repeat(auto-fit, minmax(calc(var(--space-7) * 3.5), 1fr));
   grid-auto-rows: 1fr;
 }
@@ -745,15 +743,41 @@ p {
 .portfolio-card {
   background: $color-surface;
   border-radius: $radius-md;
-  min-height: calc(var(--space-6) * 4);
   border: 1px solid $color-border;
   box-shadow: $shadow-soft;
+  aspect-ratio: 16 / 9;
+  position: relative;
+  overflow: hidden;
+}
+
+.portfolio-card::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    180deg,
+    color-mix(in srgb, var(--surface) 70%, transparent),
+    color-mix(in srgb, var(--surface) 90%, transparent)
+  );
+}
+
+.portfolio-card::after {
+  content: "";
+  position: absolute;
+  width: calc(var(--space-5) * 1.4);
+  height: calc(var(--space-5) * 1.4);
+  border-radius: 50%;
+  border: 1px solid color-mix(in srgb, var(--accent) 40%, transparent);
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: color-mix(in srgb, var(--surface) 85%, transparent);
 }
 
 .services-grid {
   display: grid;
   gap: $space-3;
-  grid-auto-rows: 1fr;
+  align-items: start;
 }
 
 .service-card {
@@ -765,7 +789,6 @@ p {
   display: flex;
   flex-direction: column;
   gap: $space-2;
-  height: 100%;
 }
 
 .service-card h3 {
@@ -972,7 +995,7 @@ p {
   display: grid;
   gap: $space-3;
   grid-template-columns: repeat(auto-fit, minmax(calc(var(--space-7) * 3.5), 1fr));
-  grid-auto-rows: 1fr;
+  grid-auto-rows: auto;
 }
 
 .testimonial-card {
@@ -983,7 +1006,14 @@ p {
   box-shadow: $shadow-soft;
   text-align: center;
   color: $color-text-muted;
-  height: 100%;
+}
+
+.testimonial-card img {
+  width: 100%;
+  height: auto;
+  display: block;
+  border-radius: calc(#{$radius-md} - #{$space-1});
+  object-fit: cover;
 }
 
 .contact-grid {
@@ -1173,7 +1203,7 @@ p {
   }
 
   .section {
-    padding: $space-7 0;
+    padding: $space-6 0;
   }
 
   .hero-grid {
@@ -1183,12 +1213,38 @@ p {
 
   .hero-media {
     order: 1;
+    display: flex;
+    flex-direction: column;
+    gap: $space-3;
   }
 
   .hero-content {
     order: 2;
     max-width: 100%;
     gap: $space-3;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .hero-content .hero-title {
+    order: 1;
+  }
+
+  .hero-content .eyebrow {
+    order: 2;
+  }
+
+  .hero-content .hero-lead {
+    order: 3;
+  }
+
+  .hero-content .hero-body {
+    order: 4;
+  }
+
+  .hero-content .hero-actions {
+    order: 5;
   }
 
   .hero-title {
@@ -1208,6 +1264,7 @@ p {
     border: 1px solid color-mix(in srgb, var(--accent) 40%, transparent);
     backdrop-filter: blur(var(--space-1));
     box-shadow: 0 6px 18px color-mix(in srgb, var(--text-primary) 12%, transparent);
+    width: 100%;
     max-width: 100%;
     min-width: 0;
     transform: none !important;
@@ -1228,6 +1285,12 @@ p {
 
   .hero-actions .btn {
     width: 100%;
+  }
+
+  .problem-grid,
+  .portfolio-grid,
+  .testimonial-grid {
+    grid-template-columns: 1fr;
   }
 
   .header-cta {
