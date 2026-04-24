@@ -11,9 +11,10 @@
   --text:       #1a1a1a;
   --text-mid:   #3d3d3d;
   --text-muted: #787878;
-  --accent:     #bbddfa;
-  --accent-mid: #9fcef5;
-  --accent-deep:#5aadee;
+  // Slightly desaturated + softened vs #bbddfa/#9fcef5/#5aadee — same hue family, calmer
+  --accent:     #b1cff1;
+  --accent-mid: #9ac5ec;
+  --accent-deep:#559ce6;
   --border:     #e4e2de;
   --border-soft:#eeede9;
 
@@ -201,22 +202,6 @@ ul{list-style:none;padding:0;margin:0;}
 @media(hover:none){.btn:active{opacity:.78;transform:scale(.98);}}
 
 // ═══ TYPOGRAPHY ══════════════════════════════════════════════════════════════
-.eyebrow{
-  display:inline-flex;align-items:center;gap:var(--s3);
-  font-size:var(--t-xs);font-weight:500;
-  letter-spacing:.14em;text-transform:uppercase;
-  color:var(--text-muted);
-  margin:0 0 var(--s4);
-}
-.eyebrow::before{
-  content:"";
-  width:20px;height:1px;
-  background:currentColor;
-  opacity:.5;flex-shrink:0;
-}
-.eyebrow--light{color:rgba(255,255,255,.5);}
-.eyebrow--light::before{background:rgba(255,255,255,.4);}
-
 .section-title{
   font-family:var(--font-serif);
   font-size:var(--t-3xl);font-weight:600;
@@ -243,6 +228,12 @@ ul{list-style:none;padding:0;margin:0;}
   font-weight:600;font-style:italic;
   line-height:1.5;letter-spacing:.01em;
   margin:0 0 var(--s5);max-width:26ch;color:var(--text);
+}
+h2.quote{
+  // Same visual as block quote, single section heading
+  line-height:1.4;
+  font-size:clamp(1.12rem,3vw,1.45rem);
+  font-weight:600;
 }
 strong{font-weight:600;}
 
@@ -290,7 +281,7 @@ strong{font-weight:600;}
   position:absolute;inset:0;
   background:
     linear-gradient(0deg,  rgba(8,8,8,.92) 0%,rgba(8,8,8,.5) 40%,rgba(8,8,8,.0) 65%),
-    linear-gradient(148deg,rgba(187,221,250,.16) 0%,transparent 40%);
+    linear-gradient(148deg,color-mix(in srgb,var(--accent) 16%,transparent) 0%,transparent 40%);
 }
 // hero-layout: fills the hero (flex:1), then pushes its own content to the bottom.
 // This is the correct pattern for "image behind, text at bottom" hero.
@@ -312,18 +303,6 @@ strong{font-weight:600;}
 .hero-text{
   max-width:min(100%,520px);
 }
-.hero-eyebrow{
-  font-size:var(--t-xs);font-weight:500;
-  letter-spacing:.16em;text-transform:uppercase;
-  color:rgba(255,255,255,.55);
-  margin-bottom:var(--s4);
-  display:flex;align-items:center;gap:var(--s3);
-  animation:heroFadeIn 1.2s var(--ease) .1s both;
-}
-.hero-eyebrow::before{
-  content:"";width:22px;height:1px;
-  background:rgba(255,255,255,.35);flex-shrink:0;
-}
 .hero-title{
   font-family:var(--font-serif);
   // Fluid hero title — never too large on short/narrow viewports
@@ -337,7 +316,7 @@ strong{font-weight:600;}
 }
 .hero-title em{
   font-style:italic;font-weight:500;
-  color:rgba(187,221,250,.9);display:inline;
+  color:color-mix(in srgb,var(--accent) 90%,transparent);display:inline;
 }
 .hero-lead{
   font-size:clamp(.88rem,1.6vw,.98rem);
@@ -521,23 +500,24 @@ strong{font-weight:600;}
 .solution-copy .section-title{margin-bottom:var(--s4);}
 .pillar-row{display:flex;gap:var(--s2);flex-wrap:wrap;margin-top:var(--s5);}
 .pillar-tag{
-  background:rgba(187,221,250,.25);
-  border:1.5px solid rgba(159,206,245,.45);
+  background:color-mix(in srgb,var(--accent) 25%,transparent);
+  border:1.5px solid color-mix(in srgb,var(--accent-mid) 45%,transparent);
   border-radius:var(--r-pill);padding:6px 20px;
   font-size:var(--t-sm);font-weight:600;color:var(--text);letter-spacing:.03em;
   transition:background var(--dur-fast),border-color var(--dur-fast);
 }
-.pillar-tag:hover{background:rgba(187,221,250,.4);}
+.pillar-tag:hover{background:color-mix(in srgb,var(--accent) 40%,transparent);}
 
 // ═══ ABOUT ═══════════════════════════════════════════════════════════════════
 .about-layout{
   display:grid;gap:var(--s8);align-items:end;
-  margin-top:var(--s7);
+  margin-top:0;
 }
-.about-intro{
+.about-intro,
+h2.about-intro{
   font-family:var(--font-serif);font-size:var(--t-2xl);
   font-weight:600;line-height:1.38;
-  margin-bottom:var(--s3);max-width:26ch;
+  margin:0 0 var(--s3);max-width:26ch;
 }
 .story-card{
   background:var(--surface);
@@ -860,8 +840,8 @@ strong{font-weight:600;}
 .section-contact::before{
   content:"";position:absolute;inset:0;z-index:0;pointer-events:none;
   background:
-    radial-gradient(ellipse 55% 45% at 80% 10%,rgba(187,221,250,.1),transparent 60%),
-    radial-gradient(ellipse 45% 55% at 20% 90%,rgba(187,221,250,.06),transparent 60%);
+    radial-gradient(ellipse 55% 45% at 80% 10%,color-mix(in srgb,var(--accent) 10%,transparent),transparent 60%),
+    radial-gradient(ellipse 45% 55% at 20% 90%,color-mix(in srgb,var(--accent) 6%,transparent),transparent 60%);
 }
 // Mobile: single-column, image on top → content below
 .contact-layout{
@@ -898,7 +878,7 @@ strong{font-weight:600;}
 .contact-copy .section-title{
   color:white;margin-bottom:var(--s4);max-width:24ch;
 }
-.contact-copy .section-title em{color:rgba(187,221,250,.82);}
+.contact-copy .section-title em{color:color-mix(in srgb,var(--accent) 82%,#191714);}
 .contact-copy .section-body{color:rgba(255,255,255,.58);}
 .contact-checklist{margin:var(--s4) 0 var(--s5);display:grid;gap:var(--s3);}
 .contact-checklist li{
@@ -937,8 +917,8 @@ strong{font-weight:600;}
 }
 .contact-form input::placeholder{color:rgba(255,255,255,.22);}
 .contact-form input:focus{
-  border-color:rgba(187,221,250,.52);
-  box-shadow:0 0 0 3px rgba(187,221,250,.1);outline:none;
+  border-color:color-mix(in srgb,var(--accent) 52%,transparent);
+  box-shadow:0 0 0 3px color-mix(in srgb,var(--accent) 10%,transparent);outline:none;
 }
 .btn-submit{
   width:100%;padding:14px;
@@ -1027,7 +1007,7 @@ strong{font-weight:600;}
   .brand-track{animation:none;}
   .hero-bg img{animation:none;}
   .hero-scroll-hint span{animation:none;}
-  .hero-eyebrow,.hero-title,.hero-lead,.hero-cta-row,.hero-stats{animation:none;}
+  .hero-title,.hero-lead,.hero-cta-row,.hero-stats{animation:none;}
   // Disable header transition too — no flicker
   .site-header,.header-inner{transition:none;}
 }
@@ -1145,8 +1125,11 @@ strong{font-weight:600;}
     --t-3xl:clamp(1.4rem,5.5vw,1.82rem);
   }
 
-  // Fluid mobile section rhythm — tighter than desktop, never fixed
-  .section{padding:clamp(var(--s6),7vw,var(--s8)) 0;}
+  // Tighter vertical rhythm: less dead air between bands (mobile only)
+  .section{
+    padding:clamp(var(--s4),5.5vw,var(--s7)) 0;
+    scroll-margin-top:var(--s5);
+  }
 
   // ─ Hero mobile ───────────────────────────────────────────────────
   // Portrait images: keep subject (face) visible at top
@@ -1158,7 +1141,7 @@ strong{font-weight:600;}
   .hero-overlay{
     background:
       linear-gradient(0deg,rgba(3,3,3,.97) 0%,rgba(3,3,3,.65) 32%,rgba(3,3,3,.0) 58%),
-      linear-gradient(148deg,rgba(187,221,250,.1) 0%,transparent 34%);
+      linear-gradient(148deg,color-mix(in srgb,var(--accent) 10%,transparent) 0%,transparent 34%);
   }
   // Hero layout: fluid padding guarantees text never touches the image
   // even on Nexus 5 (360×640px) or iPhone SE 1st gen (320×568px)
@@ -1171,7 +1154,6 @@ strong{font-weight:600;}
     gap:clamp(var(--s3),2vh,var(--s5));
   }
   .hero-text{max-width:100%;}
-  .hero-eyebrow{margin-bottom:var(--s2);}
   .hero-title{
     line-height:1.08;
     margin-bottom:clamp(var(--s2),1.5vh,var(--s3));
@@ -1198,21 +1180,30 @@ strong{font-weight:600;}
   .brand-track{animation-duration:var(--dur-marquee-mob);}
   .brand-track-item{height:24px;opacity:.44;}
 
-  // ─ Layout spacing ────────────────────────────────────────────────
-  .problem-header{margin-bottom:var(--s5);}
-  .section-lead{margin-bottom:var(--s4);}
-  .split-grid{gap:clamp(var(--s5),6vw,var(--s7));}
-  .split-stack{gap:var(--s4);}
-  .about-layout{gap:var(--s5);margin-top:var(--s4);}
-  .story-card{padding:var(--s5) var(--s4);}
-  .why-wrap{gap:var(--s5);}
+  // ─ Layout spacing: one main vertical gap per block (avoid margin + lead stack)
+  .section-title{margin-bottom:var(--s4);}
+  .problem-header{margin-bottom:var(--s4);}
+  .section-lead{margin-bottom:var(--s3);}
+  .split-grid{gap:var(--s5);}
+  .split-grid--insight{gap:var(--s5);} // single gap between copy + image stack
+  .split-stack{gap:var(--s3);}
+  .about-layout{gap:var(--s4);}
+  .story-card{padding:var(--s5) var(--s4);margin-top:var(--s5);}
+  .why-wrap{gap:var(--s4);}
   .honesty-inner{max-width:100%;}
   .audience-flow{grid-template-columns:1fr;}
+  .brand-marquee-label{padding:var(--s1) 0 var(--s2);}
+  .faq-list{margin-top:var(--s5);}
 
-  // ─ Scrolls ───────────────────────────────────────────────────────
-  .hscroll-outer,.results-outer,.reviews-outer{
+  // ─ Scrolls: pull rails up toward section title (less title ↔ carousel gap)
+  .hscroll-outer,
+  .results-outer,
+  .reviews-outer{
+    margin-top:var(--s4);
     margin-inline:calc(var(--s4)*-.5);
+    padding-bottom:var(--s2);
   }
+  .reviews-outer{padding-block-start:0;}
   .hscroll-rail,.results-rail,.reviews-rail{padding-inline:var(--s4);}
 
   // ─ Reviews ───────────────────────────────────────────────────────
@@ -1221,10 +1212,17 @@ strong{font-weight:600;}
 
   // ─ Package ───────────────────────────────────────────────────────
   .package-card{padding:var(--s5) var(--s4);}
-  .package-pillars{grid-template-columns:1fr;}
+  .package-pillars{grid-template-columns:1fr;gap:var(--s5);}
   .package-pillar:first-child{padding-top:0;border-top:none;}
   .package-cta{margin-top:var(--s5);}
   .package-cta .btn-cta{padding:13px 36px;}
+
+  .solution-wrap{gap:var(--s5);}
+  .steps-scroll{margin-top:var(--s3);}
+  .section-close-note{margin-top:var(--s5);}
+  .contact-main{
+    padding:clamp(var(--s4),5vw,var(--s6)) 0 clamp(var(--s5),6vw,var(--s7));
+  }
 
   // ─ Contact — mobile: image full-width on top, content below ──────
   .contact-img{
@@ -1273,8 +1271,8 @@ strong{font-weight:600;}
   .stat-value{font-size:var(--t-lg);}
   // CTA buttons: slimmer
   .hero-cta-row .btn{padding:10px 18px;font-size:var(--t-xs);}
-  // Sections: tighter vertical rhythm
-  .section{padding:clamp(var(--s5),6vw,var(--s7)) 0;}
+  // Sections: tighter vertical rhythm (align with max-width:767 mobile band)
+  .section{padding:clamp(var(--s4),5vw,var(--s6)) 0;}
 }
 
 // ═══ LANDSCAPE SHORT-HEIGHT (Nexus in landscape / iPhone SE horizontal) ═════
