@@ -52,10 +52,10 @@
       </div>
     </section>
 
-    <!-- ─── BRAND STRIP ─── -->
+    <!-- ─── BRAND MARQUEE — always-running on all viewports ─── -->
     <section class="brand-marquee-section" aria-label="מותגים שעבדתי איתם">
       <p class="brand-marquee-label">מותגים שעבדתי איתם</p>
-      <!-- Desktop: auto-scroll marquee -->
+      <!-- Single marquee track — always running, speed adapts via CSS token -->
       <div class="brand-track-wrap brand-track-wrap--desktop">
         <div class="brand-track">
           <span class="brand-track-item"><img src="assets/brand-logos/clalit-active.svg"               alt="Clalit Active+" /></span>
@@ -63,20 +63,13 @@
           <span class="brand-track-item"><img src="assets/lovable-uploads/client-movement.png"         alt="Movement" /></span>
           <span class="brand-track-item"><img src="assets/lovable-uploads/client-moon-productions.png" alt="Moon Productions" /></span>
           <span class="brand-track-item"><img src="assets/brand-logos/ichilov-well.svg"                alt="Ichilov Well" /></span>
-          <span class="brand-track-item" aria-hidden="true"><img src="assets/brand-logos/clalit-active.svg" alt="" /></span>
-          <span class="brand-track-item" aria-hidden="true"><img src="assets/lovable-uploads/client-allen-carr.png" alt="" /></span>
-          <span class="brand-track-item" aria-hidden="true"><img src="assets/lovable-uploads/client-movement.png" alt="" /></span>
+          <!-- duplicate set for seamless loop -->
+          <span class="brand-track-item" aria-hidden="true"><img src="assets/brand-logos/clalit-active.svg"               alt="" /></span>
+          <span class="brand-track-item" aria-hidden="true"><img src="assets/lovable-uploads/client-allen-carr.png"       alt="" /></span>
+          <span class="brand-track-item" aria-hidden="true"><img src="assets/lovable-uploads/client-movement.png"         alt="" /></span>
           <span class="brand-track-item" aria-hidden="true"><img src="assets/lovable-uploads/client-moon-productions.png" alt="" /></span>
-          <span class="brand-track-item" aria-hidden="true"><img src="assets/brand-logos/ichilov-well.svg" alt="" /></span>
+          <span class="brand-track-item" aria-hidden="true"><img src="assets/brand-logos/ichilov-well.svg"                alt="" /></span>
         </div>
-      </div>
-      <!-- Mobile: static swipeable grid -->
-      <div class="brand-static-wrap brand-track-wrap--mobile">
-        <span class="brand-track-item"><img src="assets/brand-logos/clalit-active.svg"               alt="Clalit Active+" /></span>
-        <span class="brand-track-item"><img src="assets/lovable-uploads/client-allen-carr.png"       alt="Allen Carr" /></span>
-        <span class="brand-track-item"><img src="assets/lovable-uploads/client-movement.png"         alt="Movement" /></span>
-        <span class="brand-track-item"><img src="assets/lovable-uploads/client-moon-productions.png" alt="Moon Productions" /></span>
-        <span class="brand-track-item"><img src="assets/brand-logos/ichilov-well.svg"                alt="Ichilov Well" /></span>
       </div>
     </section>
 
@@ -488,42 +481,46 @@
 
     <!-- ─── CONTACT ─── -->
     <section id="contact" class="section section-contact">
-      <div class="container contact-layout">
-        <div class="contact-main">
-          <div class="contact-copy">
-            <span class="eyebrow eyebrow--light reveal">בואו נדבר</span>
-            <h2 class="section-title reveal delay-1">רוצה לבדוק אם זה מתאים לעסק שלך?</h2>
-            <p class="section-body reveal delay-2">השאירו פרטים ואחזור אליכם לשיחת היכרות קצרה.</p>
-            <ul class="contact-checklist reveal delay-3">
-              <li>מה מצב הסושיאל היום</li>
-              <li>מה המטרות של העסק</li>
-              <li>ואיזו חבילה הכי מתאימה לכם</li>
-            </ul>
-            <p class="contact-sign reveal delay-4">ניפגש בקרוב, עדי 🙂</p>
+      <!-- Image panel: edge-to-edge, gradient bleeds into section background -->
+      <figure class="contact-img reveal reveal-float">
+        <img
+          src="assets/lovable-uploads/MyAssets/ContactMe.jpg"
+          alt=""
+          loading="lazy"
+        />
+      </figure>
+      <!-- Content panel: copy + form below the image, same dark bg -->
+      <div class="container">
+        <div class="contact-layout">
+          <div class="contact-main">
+            <div class="contact-copy">
+              <span class="eyebrow eyebrow--light reveal">בואו נדבר</span>
+              <h2 class="section-title reveal delay-1">רוצה לבדוק אם זה מתאים לעסק שלך?</h2>
+              <p class="section-body reveal delay-2">השאירו פרטים ואחזור אליכם לשיחת היכרות קצרה.</p>
+              <ul class="contact-checklist reveal delay-3">
+                <li>מה מצב הסושיאל היום</li>
+                <li>מה המטרות של העסק</li>
+                <li>ואיזו חבילה הכי מתאימה לכם</li>
+              </ul>
+              <p class="contact-sign reveal delay-4">ניפגש בקרוב, עדי 🙂</p>
+            </div>
+            <form class="contact-form reveal delay-2">
+              <label>
+                <span>שם מלא</span>
+                <input type="text" name="fullName" placeholder="השם שלך" />
+              </label>
+              <label>
+                <span>טלפון</span>
+                <input type="tel" name="phone" placeholder="050-0000000" />
+              </label>
+              <label>
+                <span>מייל</span>
+                <input type="email" name="email" placeholder="your@email.com" />
+              </label>
+              <button class="btn-submit" type="submit">השאירו פרטים</button>
+            </form>
           </div>
-          <form class="contact-form reveal delay-2">
-            <label>
-              <span>שם מלא</span>
-              <input type="text" name="fullName" placeholder="השם שלך" />
-            </label>
-            <label>
-              <span>טלפון</span>
-              <input type="tel" name="phone" placeholder="050-0000000" />
-            </label>
-            <label>
-              <span>מייל</span>
-              <input type="email" name="email" placeholder="your@email.com" />
-            </label>
-            <button class="btn-submit" type="submit">השאירו פרטים</button>
-          </form>
         </div>
-        <figure class="contact-img reveal reveal-float delay-3">
-          <img
-            src="assets/lovable-uploads/MyAssets/ContactMe.jpg"
-            alt=""
-            loading="lazy"
-          />
-        </figure>
       </div>
     </section>
 
