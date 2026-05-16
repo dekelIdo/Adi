@@ -9,10 +9,12 @@ import { AfterViewInit, Component, OnDestroy } from '@angular/core';
 export class AppComponent implements AfterViewInit, OnDestroy {
   private observer?: IntersectionObserver;
   private scrollListener?: () => void;
+  backToTopVisible = false;
 
   ngAfterViewInit(): void {
     this.initScrollReveal();
     this.initHeaderShrink();
+    this.initBackToTop();
   }
 
   // ─── Scroll reveal ─────────────────────────────────────────────────────────
@@ -63,6 +65,23 @@ export class AppComponent implements AfterViewInit, OnDestroy {
 
     this.scrollListener = update;
     window.addEventListener('scroll', this.scrollListener, { passive: true });
+  }
+
+  // ─── Back to top ────────────────────────────────────────────────────────────
+  private initBackToTop(): void {
+    const updateVisibility = () => {
+      this.backToTopVisible = window.scrollY > 400;
+    };
+
+    updateVisibility();
+    window.addEventListener('scroll', updateVisibility, { passive: true });
+  }
+
+  scrollToTop(): void {
+    window.scrollTo({
+      top: 0,
+      behavior: 'smooth'
+    });
   }
 
   ngOnDestroy(): void {

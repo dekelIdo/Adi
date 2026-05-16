@@ -37,12 +37,8 @@
         </div>
         <div class="hero-stats reveal reveal-hero delay-4">
           <div class="stat-chip">
-            <span class="stat-value">10K+</span>
-            <span class="stat-label">צפיות לסרטון</span>
-          </div>
-          <div class="stat-chip">
-            <span class="stat-value">10+</span>
-            <span class="stat-label">לקוחות עסקיים</span>
+            <span class="stat-value">10K</span>
+            <span class="stat-label">צפיות ועשרות לקוחות</span>
           </div>
         </div>
       </div>
@@ -501,9 +497,9 @@
               </label>
               <label>
                 <span>מייל</span>
-                <input type="email" name="email" placeholder="האימייל שלך />
+                <input type="email" name="email" placeholder="האימייל שלך" />
               </label>
-              <button class="btn-submit" type="submit">השאירו פרטים</button>
+              <button class="btn btn-submit" type="submit">השאירו פרטים</button>
             </form>
           </div>
         </div>
@@ -551,4 +547,18 @@
       <p>© Adi Arieli Production 2026 | All rights reserved</p>
     </div>
   </footer>
+
+  <button
+    type="button"
+    class="back-to-top"
+    (click)="scrollToTop()"
+    [class.is-visible]="backToTopVisible"
+    [attr.aria-hidden]="!backToTopVisible"
+    [tabindex]="backToTopVisible ? 0 : -1"
+    aria-label="חזרה לראש הדף"
+  >
+    <svg class="back-to-top__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <path d="M6 15l6-6 6 6" />
+    </svg>
+  </button>
 </div>
