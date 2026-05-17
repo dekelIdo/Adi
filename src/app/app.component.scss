@@ -348,6 +348,15 @@ ul{list-style:none;padding:0;margin:0;}
   scroll-margin-top:var(--s6);
   position:relative;
 }
+// ── Rhythm variation — prevents uniform template spacing ──────────────────
+// Statement sections get more vertical breathing
+.section-honesty{padding:clamp(100px,14vh,160px) 0 clamp(90px,12vh,140px);}
+// Portfolio: reduced top (gradient bridge covers it) → more cinematic
+.section-portfolio{padding-top:clamp(32px,4vh,60px);padding-bottom:clamp(48px,7vh,80px);}
+// Results: slightly tighter for faster rhythm before services
+.section-results{padding-bottom:clamp(40px,5vh,70px);}
+// Process: generous breathing before dark portfolio
+.section-process{padding-bottom:clamp(60px,9vh,100px);}
 
 // ── Section glow accent element ─────────────────────────────────────────────
 .section-glow{
@@ -372,9 +381,9 @@ ul{list-style:none;padding:0;margin:0;}
 }
 .section-bg-tint{
   background:linear-gradient(170deg,
-    color-mix(in srgb,var(--brand) 2.5%,var(--surface-2)) 0%,
-    var(--surface-2) 60%,
-    color-mix(in srgb,var(--accent) 8%,var(--surface-2)) 100%);
+    color-mix(in srgb,var(--brand) 3.5%,var(--surface-2)) 0%,
+    var(--surface-2) 55%,
+    color-mix(in srgb,var(--accent) 10%,var(--surface-2)) 100%);
   position:relative;
 }
 
@@ -917,31 +926,30 @@ strong{font-weight:600;}
 }
 // Text zone — RIGHT side in RTL flex
 .hero-content-wrapper{
-  flex:0 0 52%;
+  flex:0 0 56%; // wider text zone — more breathing room, less portrait dominance
   min-width:0;
   display:flex;
   flex-direction:column;
-  justify-content:flex-end;
-  gap:clamp(var(--s3),2.2vh,var(--s5));
+  justify-content:center; // center vertically — cinematic editorial balance
+  gap:clamp(var(--s2),1.8vh,var(--s4));
   padding-top:clamp(80px,12vh,130px);
   padding-bottom:clamp(64px,9vh,110px);
-  padding-inline-start:clamp(32px,5vw,80px);
-  padding-inline-end:clamp(16px,2.5vw,40px);
-  // Atmospheric text zone gradient — deep dark right → transparent left
-  // Creates visual separation from portrait zone without hard edge
+  padding-inline-start:clamp(32px,5.5vw,88px); // right padding — generous right breathing
+  padding-inline-end:clamp(16px,3vw,48px);      // left padding toward portrait
+  // Atmospheric text zone: dark on right fading toward portrait left
   background:linear-gradient(to left,
-    rgba(8,6,5,1)  0%,
-    rgba(8,6,5,.96) 55%,
-    rgba(8,6,5,.62) 80%,
-    rgba(8,6,5,0)  100%);
+    rgba(8,6,5,1)   0%,
+    rgba(8,6,5,.98)  50%,
+    rgba(8,6,5,.72)  78%,
+    rgba(8,6,5,0)   100%);
   position:relative;z-index:1;
 }
 // Portrait panel — LEFT side in RTL flex (second flex child)
-// BOUNDED by flex-basis: portrait CANNOT extend beyond its 48% allocation
+// Strict flex-basis: portrait CANNOT extend beyond 44% of viewport
 .hero-bg{
-  flex:0 0 48%; // wider portrait — more visual presence
+  flex:0 0 44%; // editorial proportion — 42-46% per user direction
   min-width:0;
-  overflow:hidden; // hard clip — absolutely bounded
+  overflow:hidden;
   position:relative;
   z-index:0;
 }
@@ -949,13 +957,20 @@ strong{font-weight:600;}
   position:absolute;inset:0;
   width:100%;height:100%;
   object-fit:cover;
-  // Centered composition — works for any photo where subject is near center
-  object-position:50% 14%;
+  // Default (desktop): center subject horizontally, show upper body
+  object-position:48% 15%;
   transform:scale(1.08);
   animation:heroBreath 30s ease-in-out infinite;
   will-change:transform;
-  // Slightly lighter — portrait should feel VISIBLE, aspirational
-  filter:brightness(.72) saturate(.78) contrast(1.02);
+  filter:brightness(.74) saturate(.80) contrast(1.02);
+}
+// Tablet: slightly wider crop
+@media(min-width:768px) and (max-width:1100px){
+  .hero-bg img{object-position:45% 12%;}
+}
+// Large desktop: zoom out even more
+@media(min-width:1400px){
+  .hero-bg img{object-position:50% 18%;transform:scale(1.05);}
 }
 // Portrait overlay: cinematic atmospheric layers
 .hero-overlay{
@@ -1006,7 +1021,7 @@ strong{font-weight:600;}
 
 // ── Hero Text ─────────────────────────────────────────────────────────────
 // Narrower max-width: tighter composition, editorial feel, less visual density
-.hero-text{max-width:min(100%,460px);}
+.hero-text{max-width:min(100%,420px);} // editorial discipline — not a wide landing-page block
 .hero-eyebrow{
   font-size:var(--t-2xs);
   font-weight:700;
@@ -1823,11 +1838,22 @@ strong{font-weight:600;}
   background:#0e0c0a;
   overflow:hidden;
   position:relative;
-  // Cinematic top edge separator
+  // Gradient bridge: fades from the light process section above into portfolio's dark background
   &::before{
     content:"";
-    position:absolute;top:0;left:0;right:0;height:1px;
-    background:linear-gradient(90deg,transparent,rgba(187,221,250,.15) 30%,rgba(187,221,250,.25) 50%,rgba(187,221,250,.15) 70%,transparent);
+    position:absolute;top:0;left:0;right:0;
+    height:clamp(40px,5vh,80px);
+    background:linear-gradient(to bottom,
+      var(--bg) 0%,
+      transparent 100%);
+    z-index:1;pointer-events:none;
+  }
+  // Brand accent separator line below the gradient bridge
+  &::after{
+    content:"";
+    position:absolute;top:clamp(40px,5vh,80px);left:0;right:0;height:1px;
+    background:linear-gradient(90deg,transparent,rgba(187,221,250,.18) 30%,rgba(187,221,250,.28) 50%,rgba(187,221,250,.18) 70%,transparent);
+    pointer-events:none;
   }
 }
 .portfolio-orb{
@@ -1939,11 +1965,13 @@ strong{font-weight:600;}
   transition:transform 500ms cubic-bezier(0.16,1,0.3,1),
              opacity 500ms cubic-bezier(0.16,1,0.3,1);
 }
-// Focus hierarchy: non-hovered cards recede
+// Focus hierarchy: cinema spotlight — hovering creates a strong depth moment
+// Hovered card becomes the ANCHOR, all others dramatically recede
 @media(hover:hover){
   .portfolio-reel-outer:hover .reel-card:not(:hover){
-    transform:scale(.88) translateY(8px);
-    opacity:.5;
+    transform:scale(.76) translateY(14px);
+    opacity:.28;
+    filter:blur(1px);
   }
 }
 .reel-frame{
@@ -1961,8 +1989,10 @@ strong{font-weight:600;}
              box-shadow 500ms var(--ease);
 }
 .reel-card:hover{
-  transform:scale(1.04) translateY(-10px);
+  transform:scale(1.12) translateY(-14px); // dominant — elevated above neighbors
   opacity:1 !important;
+  filter:none !important;
+  z-index:10;
 }
 .reel-card:hover .reel-frame{
   box-shadow:
@@ -2141,19 +2171,20 @@ strong{font-weight:600;}
     transition:width 500ms var(--ease);
   }
   &:hover{
-    background:color-mix(in srgb,var(--brand) 3%,transparent);
-    transform:translateX(-4px);
-    &::after{width:55%;}
-    .services-row-num{color:rgba(187,221,250,.55);}
-    .services-row-title{color:var(--text);}
+    background:color-mix(in srgb,var(--brand) 4%,transparent);
+    transform:translateX(-6px);
+    &::after{width:60%;}
+    .services-row-num{color:color-mix(in srgb,var(--brand) 72%,var(--text-muted));}
+    .services-row-title{color:var(--text);font-weight:700;}
   }
 }
 .services-row-num{
   font-family:var(--font-serif);
   font-size:clamp(3rem,6vw,5rem);
   font-weight:700;line-height:1;
-  letter-spacing:-.04em;
-  color:rgba(187,221,250,.18);
+  letter-spacing:-.06em;
+  // Visible editorial accent — branded, not invisible
+  color:color-mix(in srgb,var(--brand) 42%,var(--text-muted));
   transition:color 360ms var(--ease);
   user-select:none;
 }
@@ -2181,7 +2212,18 @@ strong{font-weight:600;}
 }
 
 // ═══ WHY + AUDIENCE — Merged editorial split ══════════════════════════════════
-.section-why-merged{background:var(--bg);}
+.section-why-merged{
+  background:linear-gradient(170deg,
+    color-mix(in srgb,var(--brand) 5%,var(--surface-2)) 0%,
+    var(--bg) 100%);
+  position:relative;
+  // Subtle brand accent — small editorial divider line at top
+  &::before{
+    content:"";position:absolute;top:0;inset-inline:0;
+    height:2px;pointer-events:none;
+    background:linear-gradient(90deg,transparent,rgba(187,221,250,.18) 40%,rgba(187,221,250,.22) 60%,transparent);
+  }
+}
 .why-merged-grid{
   display:grid;
   grid-template-columns:1fr 1fr;
@@ -2269,6 +2311,14 @@ strong{font-weight:600;}
   color:white;
   overflow:hidden;
   position:relative;
+  // Gradient bridge: merges from the light services/why section above
+  &::before{
+    content:"";
+    position:absolute;top:0;left:0;right:0;
+    height:clamp(50px,7vh,100px);
+    background:linear-gradient(to bottom,var(--bg) 0%,transparent 100%);
+    z-index:1;pointer-events:none;
+  }
 }
 // Giant decorative background symbol
 .honesty-bg-num{
@@ -2429,6 +2479,17 @@ strong{font-weight:600;}
     radial-gradient(ellipse 800px 600px at 75% 20%,rgba(187,221,250,.10) 0%,transparent 60%),
     radial-gradient(ellipse 700px 900px at 25% 85%,rgba(228,213,201,.06) 0%,transparent 55%);
   animation:contactAtmosphere 24s ease-in-out infinite;
+}
+// Gradient bridge: reviews (light) → contact (dark) — fades bottom of reviews section
+.section-reviews{position:relative;}
+.section-reviews::after{
+  content:"";
+  position:absolute;bottom:0;left:0;right:0;
+  height:clamp(40px,6vh,80px);
+  background:linear-gradient(to top,
+    #191714 0%,
+    transparent 100%);
+  z-index:2;pointer-events:none;
 }
 .contact-layout{position:relative;z-index:1;display:flex;flex-direction:column;gap:0;}
 .contact-img{
@@ -2744,10 +2805,10 @@ strong{font-weight:600;}
 @media(min-width:768px){
   .section{padding:var(--section-gap-desktop) 0;}
 
-  // Hero flex layout — portrait 48% left, text 52% right
-  .hero-layout{flex-direction:row;} // ensure row on desktop (overrides any mobile override)
+  // Hero flex layout — portrait 44% left, text 56% right
+  .hero-layout{flex-direction:row;}
   .hero-content-wrapper{flex-direction:column;}
-  .hero-text{max-width:460px;}
+  .hero-text{max-width:420px;}
   .hero-stats{flex-direction:column;align-self:flex-end;margin-bottom:0;}
   .result-card{width:clamp(300px,28vw,400px);}
 
