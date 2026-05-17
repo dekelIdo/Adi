@@ -648,36 +648,74 @@
       </div>
     </section>
 
-    <!-- ─── FAQ ─── -->
-    <section id="faq" class="section section-bg-white">
+    <!-- ─── FAQ — Angular Accordion ─── -->
+    <section id="faq" class="section section-faq">
       <div class="container">
-        <h2 class="section-title reveal delay-1">שאלות ותשובות</h2>
+        <span class="section-eyebrow reveal delay-1">✦ שאלות ותשובות</span>
+        <h2 class="section-title reveal delay-1">שאלות נפוצות</h2>
         <div class="faq-list">
-          <details class="reveal reveal-soft delay-1">
-            <summary>אני צריך שיהיה לי כבר עמוד פעיל כדי לעבוד איתך?</summary>
-            <p>לא בהכרח. אפשר לעבוד גם עם עמוד קיים וגם להתחיל כמעט מאפס. בפגישת האפיון נבדוק איפה העסק נמצא היום ונבנה את הדרך הנכונה להתקדם.</p>
-          </details>
-          <details class="reveal reveal-soft delay-2">
-            <summary>כמה זמן לוקח לראות תוצאות?</summary>
-            <p>שיווק בסושיאל הוא תהליך. לפעמים אפשר לראות פניות כבר בחודשים הראשונים, אבל המטרה היא לבנות נוכחות יציבה שמביאה לקוחות לאורך זמן.</p>
-          </details>
-          <details class="reveal reveal-soft delay-3">
-            <summary>אני לא מצטלם טוב ולא רגיל להיות מול מצלמה</summary>
-            <p>אתה לא היחיד שמרגיש ככה 🙂 חלק גדול מהעבודה שלי הוא לעזור לבעלי עסקים להרגיש בנוח מול מצלמה ולמצוא את סוג התוכן שמתאים להם.</p>
-          </details>
-          <details class="reveal reveal-soft delay-4">
-            <summary>צריך ניסיון קודם בסושיאל?</summary>
-            <p>ממש לא. אני מלווה את התהליך מהשלב של הבנת העסק והקהל ועד ליצירת התוכן והניהול השוטף של העמודים.</p>
-          </details>
-          <details class="reveal reveal-soft delay-5">
-            <summary>איך יודעים איזו חבילה מתאימה לעסק שלי?</summary>
-            <p>בשיחת היכרות קצרה נבין את הצרכים של העסק, המטרות והתקציב — ומשם נדע מה הכי נכון עבורך.</p>
-          </details>
-          <details class="reveal reveal-soft delay-5">
-            <summary>אני לא בטוח שניהול סושיאל זה בתקציב שלי</summary>
-            <p>זו שאלה טבעית. לפעמים דווקא יום צילום מרוכז יכול להיות פתרון מצוין להתחלה.</p>
-            <p>ביום כזה אנחנו מצלמים יחד הרבה סרטונים ותכנים, ואני נותנת כיוון איך להשתמש בהם לאורך החודש — בלי להתחייב לניהול חודשי.</p>
-          </details>
+
+          <div class="faq-item reveal reveal-soft delay-1" [class.faq-item--open]="openFaqIndex === 0">
+            <button class="faq-q" (click)="toggleFaq(0)" [attr.aria-expanded]="openFaqIndex === 0">
+              <span>אני צריך שיהיה לי כבר עמוד פעיל כדי לעבוד איתך?</span>
+              <span class="faq-icon" aria-hidden="true"></span>
+            </button>
+            <div class="faq-body"><div>
+              <p>לא בהכרח. אפשר לעבוד גם עם עמוד קיים וגם להתחיל כמעט מאפס. בפגישת האפיון נבדוק איפה העסק נמצא היום ונבנה את הדרך הנכונה להתקדם.</p>
+            </div></div>
+          </div>
+
+          <div class="faq-item reveal reveal-soft delay-2" [class.faq-item--open]="openFaqIndex === 1">
+            <button class="faq-q" (click)="toggleFaq(1)" [attr.aria-expanded]="openFaqIndex === 1">
+              <span>כמה זמן לוקח לראות תוצאות?</span>
+              <span class="faq-icon" aria-hidden="true"></span>
+            </button>
+            <div class="faq-body"><div>
+              <p>שיווק בסושיאל הוא תהליך. לפעמים אפשר לראות פניות כבר בחודשים הראשונים, אבל המטרה היא לבנות נוכחות יציבה שמביאה לקוחות לאורך זמן.</p>
+            </div></div>
+          </div>
+
+          <div class="faq-item reveal reveal-soft delay-3" [class.faq-item--open]="openFaqIndex === 2">
+            <button class="faq-q" (click)="toggleFaq(2)" [attr.aria-expanded]="openFaqIndex === 2">
+              <span>אני לא מצטלם טוב ולא רגיל להיות מול מצלמה</span>
+              <span class="faq-icon" aria-hidden="true"></span>
+            </button>
+            <div class="faq-body"><div>
+              <p>אתה לא היחיד שמרגיש ככה 🙂 חלק גדול מהעבודה שלי הוא לעזור לבעלי עסקים להרגיש בנוח מול מצלמה ולמצוא את סוג התוכן שמתאים להם.</p>
+            </div></div>
+          </div>
+
+          <div class="faq-item reveal reveal-soft delay-4" [class.faq-item--open]="openFaqIndex === 3">
+            <button class="faq-q" (click)="toggleFaq(3)" [attr.aria-expanded]="openFaqIndex === 3">
+              <span>צריך ניסיון קודם בסושיאל?</span>
+              <span class="faq-icon" aria-hidden="true"></span>
+            </button>
+            <div class="faq-body"><div>
+              <p>ממש לא. אני מלווה את התהליך מהשלב של הבנת העסק והקהל ועד ליצירת התוכן והניהול השוטף של העמודים.</p>
+            </div></div>
+          </div>
+
+          <div class="faq-item reveal reveal-soft delay-5" [class.faq-item--open]="openFaqIndex === 4">
+            <button class="faq-q" (click)="toggleFaq(4)" [attr.aria-expanded]="openFaqIndex === 4">
+              <span>איך יודעים איזו חבילה מתאימה לעסק שלי?</span>
+              <span class="faq-icon" aria-hidden="true"></span>
+            </button>
+            <div class="faq-body"><div>
+              <p>בשיחת היכרות קצרה נבין את הצרכים של העסק, המטרות והתקציב — ומשם נדע מה הכי נכון עבורך.</p>
+            </div></div>
+          </div>
+
+          <div class="faq-item reveal reveal-soft delay-5" [class.faq-item--open]="openFaqIndex === 5">
+            <button class="faq-q" (click)="toggleFaq(5)" [attr.aria-expanded]="openFaqIndex === 5">
+              <span>אני לא בטוח שניהול סושיאל זה בתקציב שלי</span>
+              <span class="faq-icon" aria-hidden="true"></span>
+            </button>
+            <div class="faq-body"><div>
+              <p>זו שאלה טבעית. לפעמים דווקא יום צילום מרוכז יכול להיות פתרון מצוין להתחלה.</p>
+              <p>ביום כזה אנחנו מצלמים יחד הרבה סרטונים ותכנים, ואני נותנת כיוון איך להשתמש בהם לאורך החודש — בלי להתחייב לניהול חודשי.</p>
+            </div></div>
+          </div>
+
         </div>
       </div>
     </section>

@@ -11,8 +11,13 @@ export class AppComponent implements AfterViewInit, OnDestroy {
   private scrollListeners: Array<() => void> = [];
   private rafIds: number[] = [];
   backToTopVisible = false;
+  openFaqIndex: number | null = null;
 
   constructor(private zone: NgZone) {}
+
+  toggleFaq(i: number): void {
+    this.openFaqIndex = this.openFaqIndex === i ? null : i;
+  }
 
   ngAfterViewInit(): void {
     this.initScrollReveal();
@@ -22,6 +27,7 @@ export class AppComponent implements AfterViewInit, OnDestroy {
     this.initCursorGlow();
     this.initMagneticButtons();
     this.initCarouselDrag();
+    this.initPortfolioReel();
     this.initSectionProgress();
   }
 
@@ -105,8 +111,8 @@ export class AppComponent implements AfterViewInit, OnDestroy {
               const p = scrollY / heroH;
 
               if (heroBgImg) {
-                // Very subtle parallax — keeps object-position intact
-                heroBgImg.style.transform = `scale(1) translateY(${p * 6}%)`;
+                // Keep scale consistent with CSS (1.04) to avoid jitter
+                heroBgImg.style.transform = `scale(1.04) translateY(${p * 5}%)`;
               }
 
               orbs.forEach((orb, i) => {
@@ -235,6 +241,54 @@ export class AppComponent implements AfterViewInit, OnDestroy {
         lastX = e.pageX;
         container.scrollLeft = scrollStart - delta;
       });
+    });
+  }
+
+  // ─── Portfolio infinite reel — JS-driven with drag/touch + pause/resume ──
+  private initPortfolioReel(): void {
+    const outer = document.querySelector<HTMLElement>('.portfolio-reel-outer');
+    const track = document.querySelector<HTMLElement>('.portfolio-reel-track');
+    if (!outer || !track) return;
+
+    this.zone.runOutsideAngular(() => {
+      let isPaused = false;
+      let dragStartX = 0;
+      let isDragging = false;
+      let resumeTimer: ReturnType<typeof setTimeout>;
+
+      const pause = () => {
+        isPaused = true;
+        track.style.animationPlayState = 'paused';
+      };
+
+      const resume = () => {
+        isPaused = false;
+        track.style.animationPlayState = 'running';
+      };
+
+      // Pause on hover (desktop)
+      outer.addEventListener('mouseenter', pause, { passive: true });
+      outer.addEventListener('mouseleave', () => {
+        if (!isDragging) resume();
+      }, { passive: true });
+
+      // Touch: pause on touch, resume after finger lifts + brief delay
+      outer.addEventListener('touchstart', (e: TouchEvent) => {
+        pause();
+        dragStartX = e.touches[0].clientX;
+        isDragging = true;
+        clearTimeout(resumeTimer);
+      }, { passive: true });
+
+      outer.addEventListener('touchend', () => {
+        isDragging = false;
+        resumeTimer = setTimeout(resume, 800);
+      }, { passive: true });
+
+      outer.addEventListener('touchcancel', () => {
+        isDragging = false;
+        resumeTimer = setTimeout(resume, 800);
+      }, { passive: true });
     });
   }
 
