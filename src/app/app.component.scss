@@ -834,6 +834,8 @@ strong{font-weight:600;}
   display:flex;
   flex-direction:column;
   overflow:hidden;
+  // Dark atmospheric base — the text zone is always dark, portrait is separate
+  background:linear-gradient(125deg,#0e0b09 0%,#110f0d 100%);
 }
 
 // ── Floating Atmospheric Orbs ──────────────────────────────────────────────
@@ -876,48 +878,44 @@ strong{font-weight:600;}
   z-index:1;
 }
 
-// ── Hero Background ────────────────────────────────────────────────────────
+// ── Hero Background — Bounded Portrait Panel ──────────────────────────────
+// Portrait is a BOUNDED LEFT PANEL with overflow:hidden.
+// It can NEVER clip outside its container — no more right-side clipping.
 .hero-bg{
-  position:absolute;inset:0;z-index:0;
+  position:absolute;
+  left:0;top:0;bottom:0; // Physical left — portrait lives here
+  width:clamp(260px,54%,760px); // Bounded — hard container, never exceeds this
+  overflow:hidden; // Portrait can NEVER escape this box
+  z-index:0;
 }
 .hero-bg img{
   width:100%;height:100%;
   object-fit:cover;
-  // Portrait on LEFT (RTL), panning down slightly to show full figure not just face
-  object-position:24% 18%;
+  // Center the subject horizontally — safe for any portrait composition
+  object-position:center 10%;
   transform:scale(1.08);
   animation:heroBreath 30s ease-in-out infinite;
   will-change:transform;
-  // Slightly darker + desaturated — portrait integrates INTO the atmosphere
   filter:brightness(.68) saturate(.75) contrast(1.04);
 }
+// Portrait overlay: fades portrait into the dark hero background on right edge
 .hero-overlay{
   position:absolute;inset:0;
   background:
-    // Horizontal: LEFT (portrait, atmospheric) → RIGHT (text zone, fully dark)
-    linear-gradient(90deg,
-      rgba(8,6,5,.22) 0%,   // atmospheric dark on far left
-      rgba(8,6,5,.12) 20%,  // portrait zone — let the image breathe
-      rgba(8,6,5,.42) 44%,  // transition zone
-      rgba(8,6,5,.82) 60%,  // text zone starts darkening
-      rgba(8,6,5,.97) 78%,  // text fully legible
-      rgba(8,6,5,1)   100%),
-    // Bottom fog — CTA/metrics legibility
-    linear-gradient(0deg,
-      rgba(8,6,5,1)   0%,
-      rgba(8,6,5,.88) 18%,
-      rgba(8,6,5,.40) 40%,
-      rgba(8,6,5,.10) 56%,
-      rgba(8,6,5,.0)  72%),
-    // Top haze — portrait head blends into dark sky naturally
-    linear-gradient(180deg,
-      rgba(8,6,5,.50) 0%,
-      rgba(8,6,5,.12) 18%,
-      transparent     32%),
-    // Very subtle brand warmth in the portrait zone
-    radial-gradient(ellipse 60% 80% at 18% 50%,
-      rgba(187,221,250,.04) 0%,transparent 65%);
-  animation:overlayShift 24s ease-in-out infinite;
+    // Fade portrait toward right edge (blend into dark hero bg)
+    linear-gradient(to right,
+      transparent          25%,
+      rgba(8,6,5,.45)      60%,
+      rgba(8,6,5,.85)      82%,
+      rgba(8,6,5,1)       100%),
+    // Top haze — portrait head blends into darkness
+    linear-gradient(to bottom,
+      rgba(8,6,5,.55) 0%,
+      transparent     22%),
+    // Bottom fog
+    linear-gradient(to top,
+      rgba(8,6,5,.90) 0%,
+      rgba(8,6,5,.0)  42%);
 }
 
 // ── Hero Layout — RTL editorial split ─────────────────────────────────────
@@ -969,7 +967,8 @@ strong{font-weight:600;}
 }
 
 // ── Hero Text ─────────────────────────────────────────────────────────────
-.hero-text{max-width:min(100%,560px);}
+// Narrower max-width: tighter composition, editorial feel, less visual density
+.hero-text{max-width:min(100%,480px);}
 .hero-eyebrow{
   font-size:var(--t-xs);
   font-weight:600;
@@ -981,11 +980,12 @@ strong{font-weight:600;}
 }
 .hero-title{
   font-family:var(--font-serif);
-  font-size:clamp(2.8rem,9.5vw + .4vh,5.5rem);
-  font-weight:600;line-height:1.1;
-  letter-spacing:-.03em;
-  margin:0 0 clamp(var(--s4),2.8vh,var(--s5));
-  color:white;text-wrap:balance;
+  // Tighter clamp — not competing with portrait for space
+  font-size:clamp(2.6rem,7.5vw,4.8rem);
+  font-weight:600;line-height:1.08;
+  letter-spacing:-.032em;
+  margin:0 0 clamp(var(--s4),2.5vh,var(--s5));
+  color:#fff;text-wrap:balance;
   animation:heroTitleReveal 1.2s cubic-bezier(0.16,1,0.3,1) .15s both;
 }
 .hero-title em{
@@ -1005,35 +1005,36 @@ strong{font-weight:600;}
   opacity:.7;
 }
 .hero-lead{
-  font-size:clamp(.95rem,1.8vw,1.12rem);
-  font-weight:400;color:rgba(255,255,255,.75);
-  margin:0 0 clamp(var(--s5),4vh,var(--s6));
-  line-height:1.72;max-width:48ch;
+  font-size:clamp(.9rem,1.5vw,1.05rem);
+  font-weight:400;color:rgba(255,255,255,.62);
+  margin:0 0 clamp(var(--s4),3vh,var(--s5));
+  line-height:1.75;max-width:40ch; // tighter line length — editorial discipline
   animation:heroLeadReveal .95s cubic-bezier(0.16,1,0.3,1) .35s both;
 }
 .hero-cta-row{
-  display:flex;gap:var(--s4);flex-wrap:wrap;
+  display:flex;gap:var(--s3);flex-wrap:wrap;
   animation:heroCTAReveal .88s cubic-bezier(0.16,1,0.3,1) .55s both;
 }
+// Hero CTA buttons: precision-sized luxury controls — intentionally refined
 .hero-cta-row .btn{
-  padding:10px 26px;
+  padding:9px 22px;
   font-size:var(--t-2xs);
   font-weight:600;
-  letter-spacing:.14em;
-  min-height:40px;
+  letter-spacing:.13em;
+  min-height:36px;
   backdrop-filter:blur(18px);
   -webkit-backdrop-filter:blur(18px);
   position:relative;overflow:hidden;
   border-radius:var(--r-pill);
-  // Shimmer pass on hero buttons for premium feel
+  // Subtle shimmer — premium tactile signal
   &::before{
     content:"";
     position:absolute;
-    top:0;bottom:0;width:40%;
-    background:linear-gradient(90deg,transparent,rgba(255,255,255,.08),transparent);
+    top:0;bottom:0;width:36%;
+    background:linear-gradient(90deg,transparent,rgba(255,255,255,.07),transparent);
     transform:translateX(-120%) skewX(-12deg);
-    animation:shimmerPass 4s ease-in-out infinite;
-    animation-delay:2s;
+    animation:shimmerPass 5s ease-in-out infinite;
+    animation-delay:2.5s;
     pointer-events:none;
   }
 }
@@ -1295,19 +1296,23 @@ strong{font-weight:600;}
   will-change:transform;
 }
 .brand-track:hover{animation-play-state:paused;}
+// Brand logos: visible and prestigious, not faded icons
 .brand-track-item{
   display:flex;align-items:center;justify-content:center;
-  flex-shrink:0;height:38px;
-  opacity:.50;
-  filter:grayscale(.6) contrast(.92);
-  transition:opacity 400ms var(--ease),filter 400ms var(--ease),transform 400ms var(--ease-spring);
+  flex-shrink:0;height:42px;
+  // Higher base opacity: logos are RECOGNIZABLE, not ghosted
+  opacity:.70;
+  filter:grayscale(.40) contrast(1.0) brightness(0.85);
+  transition:opacity 380ms var(--ease),filter 380ms var(--ease),transform 380ms var(--ease-spring);
 }
 .brand-track-item:hover{
-  opacity:.92;filter:grayscale(0) contrast(1.05);transform:scale(1.12);
+  opacity:1.0;
+  filter:grayscale(0) contrast(1.05) brightness(1);
+  transform:scale(1.10);
 }
 .brand-track-item img{
-  height:100%;width:auto;max-width:140px;object-fit:contain;
-  filter:drop-shadow(0 2px 6px rgba(0,0,0,.06));
+  height:100%;width:auto;max-width:150px;object-fit:contain;
+  filter:drop-shadow(0 1px 4px rgba(0,0,0,.04));
 }
 
 // Decorative underline accent
@@ -1633,62 +1638,75 @@ strong{font-weight:600;}
 // ═══ PROCESS ══════════════════════════════════════════════════════════════════
 // ═══ PROCESS — Editorial Numbered Manifesto ══════════════════════════════════
 .section-process{
-  background:var(--bg);
+  // Darker, more atmospheric — process steps need visual weight
+  background:linear-gradient(168deg,
+    color-mix(in srgb,var(--brand) 4%,var(--surface-2)) 0%,
+    var(--bg) 100%);
 }
 .process-editorial{
-  margin-top:var(--s8);
-  border-top:1px solid var(--border-soft);
+  margin-top:var(--s7);
+  border-top:1.5px solid var(--border-soft);
 }
 .process-row{
   display:grid;
-  grid-template-columns:clamp(72px,9vw,110px) 1fr;
-  gap:var(--s6);
-  align-items:center;
-  padding:clamp(var(--s6),3.5vh,var(--s8)) 0;
+  grid-template-columns:clamp(64px,8vw,96px) 1fr;
+  gap:var(--s5);
+  align-items:start; // align to top for visual breathing
+  padding:clamp(var(--s5),3vh,var(--s7)) 0;
   border-bottom:1px solid var(--border-soft);
   cursor:default;
-  transition:background 380ms var(--ease),transform 380ms var(--ease-spring);
+  transition:
+    background 380ms var(--ease),
+    transform 380ms var(--ease-spring),
+    padding-inline-start 380ms var(--ease);
   position:relative;
   &:last-child{border-bottom:none;}
+  // Hover: brand accent line grows from start
   &::after{
     content:"";position:absolute;
     inset-inline-start:0;bottom:-1px;
     height:1px;width:0;
-    background:linear-gradient(90deg,var(--brand),transparent 80%);
-    transition:width 500ms var(--ease);
+    background:linear-gradient(90deg,
+      color-mix(in srgb,var(--brand) 70%,transparent),transparent 80%);
+    transition:width 500ms cubic-bezier(0.16,1,0.3,1);
   }
   &:hover{
-    background:color-mix(in srgb,var(--brand) 3%,transparent);
-    transform:translateX(-5px);
-    &::after{width:60%;}
-    .process-row-num{color:rgba(187,221,250,.55);}
+    background:color-mix(in srgb,var(--brand) 4%,transparent);
+    transform:translateX(-6px);
+    padding-inline-start:var(--s2);
+    &::after{width:50%;}
+    .process-row-num{
+      color:color-mix(in srgb,var(--brand) 45%,var(--text-muted));
+    }
     .process-row-title{color:var(--text);}
   }
 }
 .process-row-num{
   font-family:var(--font-serif);
-  font-size:clamp(3rem,6vw,5rem);
+  font-size:clamp(2.8rem,5.5vw,4.5rem);
   font-weight:700;line-height:1;
   letter-spacing:-.04em;
-  color:rgba(187,221,250,.18);
+  // Higher opacity: actually visible while still ghosted
+  color:color-mix(in srgb,var(--brand) 30%,var(--border-soft));
   transition:color 380ms var(--ease);
   user-select:none;
+  padding-top:.15em; // optical alignment with title
 }
 .process-row-title{
   font-family:var(--font-serif);
-  font-size:clamp(1.35rem,2.8vw,1.9rem);
+  font-size:clamp(1.25rem,2.5vw,1.75rem);
   font-weight:600;
-  letter-spacing:-.02em;
+  letter-spacing:-.022em;
   margin:0 0 var(--s2);
-  color:var(--text-mid);
+  color:var(--text);  // Full opacity title — clear hierarchy
   transition:color 380ms var(--ease);
-  line-height:1.25;
+  line-height:1.22;
 }
 .process-row-desc{
-  font-size:var(--t-base);
+  font-size:var(--t-sm);
   color:var(--text-muted);
-  line-height:1.8;
-  max-width:54ch;
+  line-height:1.78;
+  max-width:52ch;
   margin:0;
 }
 .section-close-note{
@@ -2770,22 +2788,26 @@ strong{font-weight:600;}
   }
   .section{padding:clamp(72px,13vh,100px) 0;scroll-margin-top:var(--s6);}
 
-  // Hero mobile — center portrait, heavy bottom gradient keeps text legible
+  // Hero mobile — portrait expands to full width as atmospheric background
+  .hero-bg{
+    width:100%;           // Full-bleed portrait on mobile
+    opacity:.82;          // Slightly ghosted for text contrast
+  }
   .hero-bg img{
-    object-position:38% 10%;
+    object-position:center 10%;
   }
   .hero-overlay{
+    // Mobile: heavy bottom fog so text panel is always readable
     background:
-      linear-gradient(0deg,
-        rgba(10,8,6,.99) 0%,
-        rgba(10,8,6,.86) 32%,
-        rgba(10,8,6,.30) 54%,
-        rgba(10,8,6,.08) 70%,
+      linear-gradient(to top,
+        rgba(10,8,6,1)   0%,
+        rgba(10,8,6,.92) 28%,
+        rgba(10,8,6,.42) 52%,
+        rgba(10,8,6,.08) 68%,
         rgba(10,8,6,.0)  82%),
-      linear-gradient(180deg,
-        rgba(10,8,6,.44) 0%,
-        transparent 22%),
-      linear-gradient(135deg,rgba(187,221,250,.05) 0%,transparent 50%);
+      linear-gradient(to bottom,
+        rgba(10,8,6,.48) 0%,
+        transparent      24%);
   }
   .hero-layout{
     grid-template-columns:1fr; // collapse to single column on mobile
@@ -2793,33 +2815,42 @@ strong{font-weight:600;}
     padding-top:clamp(60px,10vh,90px);
     padding-bottom:clamp(56px,8vh,90px);
   }
-  .hero-content-wrapper{gap:clamp(var(--s3),2.2vh,var(--s4));}
+  .hero-content-wrapper{gap:clamp(var(--s2),1.8vh,var(--s3));}
   .hero-text{max-width:100%;}
-  .hero-title{font-size:clamp(2.4rem,9vw,3.6rem);line-height:1.12;margin-bottom:clamp(var(--s4),2.5vh,var(--s5));letter-spacing:-.025em;}
+  // Mobile title: compact but impactful
+  .hero-title{
+    font-size:clamp(2.2rem,8vw,3.2rem);
+    line-height:1.1;
+    margin-bottom:clamp(var(--s3),2vh,var(--s4));
+    letter-spacing:-.026em;
+  }
   .hero-lead{
-    font-size:var(--t-base);max-width:100%;line-height:1.65;
-    margin-bottom:clamp(var(--s5),3vh,var(--s6));
-    color:rgba(255,255,255,.72);font-weight:400;
+    font-size:var(--t-sm);
+    max-width:100%;
+    line-height:1.68;
+    margin-bottom:clamp(var(--s4),2.5vh,var(--s5));
+    color:rgba(255,255,255,.65);
+    font-weight:400;
   }
   .hero-cta-row{flex-direction:row;gap:var(--s3);flex-wrap:wrap;}
   .hero-cta-row .btn{
-    padding:10px 22px;
+    padding:8px 20px;
     font-size:var(--t-2xs);
     font-weight:600;
     letter-spacing:.12em;
-    min-height:38px;
+    min-height:34px;
   }
   .hero-eyebrow{font-size:var(--t-2xs);letter-spacing:.14em;margin-bottom:var(--s2);}
-  .hero-live-pill{font-size:.68rem;padding:5px 12px;margin-bottom:var(--s2);}
-  .hero-stats{flex-direction:row;gap:var(--s3);width:100%;}
-  .stat-chip{padding:var(--s3) var(--s5);flex:1;min-width:0;}
-  .stat-value{font-size:var(--t-xl);font-weight:600;}
-  .stat-label{font-size:var(--t-xs);line-height:1.5;}
-  .hero-orb--1{width:250px;height:250px;filter:blur(50px);}
-  .hero-orb--2{width:180px;height:180px;filter:blur(40px);}
+  .hero-live-pill{font-size:.66rem;padding:4px 10px;margin-bottom:var(--s2);gap:6px;}
+  .hero-orb--1{width:200px;height:200px;filter:blur(60px);}
+  .hero-orb--2{width:150px;height:150px;filter:blur(45px);}
   .hero-orb--3{display:none;}
-  // Keep wordmark subtle on mobile
-  .hero-wordmark{font-size:clamp(52px,24vw,90px);-webkit-text-stroke:.5px rgba(187,221,250,.07);}
+  // Wordmark barely visible on mobile — texture only
+  .hero-wordmark{
+    font-size:clamp(48px,22vw,80px);
+    -webkit-text-stroke:.5px rgba(187,221,250,.06);
+    opacity:.5;
+  }
 
   // Statement strip mobile
   .statement-strip{padding:var(--s4) 0;}
@@ -2829,8 +2860,8 @@ strong{font-weight:600;}
   .brand-marquee-section{padding:var(--s6) 0;}
   .brand-track-wrap--desktop{display:block;}
   .brand-track{animation-duration:var(--dur-marquee-mob);gap:var(--s7);}
-  .brand-track-item{height:36px;opacity:.65;filter:grayscale(.45) contrast(.95);}
-  .brand-track-item img{max-width:130px;}
+  .brand-track-item{height:34px;opacity:.72;filter:grayscale(.35) contrast(.98);}
+  .brand-track-item img{max-width:120px;}
 
   // Spacing
   .section-title{margin-bottom:var(--s4);}
@@ -2939,19 +2970,24 @@ strong{font-weight:600;}
 
 // ═══ SHORT PORTRAIT ═══════════════════════════════════════════════════════════
 @media(max-height:700px) and (orientation:portrait){
-  :host{--t-hero:clamp(1.75rem,8vw,2.2rem);--t-3xl:clamp(1.35rem,5.5vw,1.75rem);}
+  :host{--t-hero:clamp(1.75rem,8vw,2.2rem);}
   .hero-layout{
     grid-template-columns:1fr;
     align-content:end;
-    padding-top:clamp(var(--s5),7vh,var(--s7));
-    padding-bottom:clamp(var(--s4),6vh,var(--s7));
+    padding-top:clamp(var(--s5),6vh,var(--s6));
+    padding-bottom:clamp(var(--s4),5vh,var(--s6));
   }
-  .hero-title{font-size:clamp(1.75rem,8vw,2.2rem);margin-bottom:clamp(var(--s2),1.5vh,var(--s3));}
-  .hero-lead{font-size:var(--t-xs);line-height:1.6;margin-bottom:clamp(var(--s2),2vh,var(--s3));}
-  .hero-stats{gap:var(--s2);}
-  .stat-chip{padding:var(--s1) var(--s2);}
-  .stat-value{font-size:var(--t-lg);}
-  .hero-cta-row .btn{padding:10px 18px;font-size:var(--t-xs);}
+  .hero-bg{width:100%;opacity:.78;} // full-bleed on compact screens
+  .hero-title{
+    font-size:clamp(1.75rem,7.5vw,2.2rem);
+    margin-bottom:clamp(var(--s2),1.2vh,var(--s3));
+  }
+  .hero-lead{
+    font-size:var(--t-xs);
+    line-height:1.6;
+    margin-bottom:clamp(var(--s2),1.5vh,var(--s3));
+  }
+  .hero-cta-row .btn{padding:7px 16px;font-size:var(--t-2xs);min-height:32px;}
   .section{padding:clamp(12px,4.2vw,40px) 0;}
   .hero-live-pill{display:none;}
 }
