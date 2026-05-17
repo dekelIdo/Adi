@@ -256,8 +256,8 @@ export class AppComponent implements AfterViewInit, OnDestroy {
     track.style.animation = 'none';
 
     this.zone.runOutsideAngular(() => {
-      const SPEED = 0.55;          // px per frame auto-scroll
-      const FRICTION = 0.88;       // momentum decay after drag release
+      const SPEED = 0.72;           // px per frame auto-scroll (cinematic pace)
+      const FRICTION = 0.90;        // momentum decay after drag release
 
       let offset = 0;
       let isDragging = false;
@@ -277,13 +277,13 @@ export class AppComponent implements AfterViewInit, OnDestroy {
 
       const tick = () => {
         if (!isDragging) {
-          if (!isHovered) {
-            offset -= SPEED;
-          } else if (Math.abs(velocity) > 0.3) {
-            // Apply momentum after drag while hovered
+          if (Math.abs(velocity) > 0.15) {
+            // Momentum carry after drag
             offset += velocity;
             velocity *= FRICTION;
           }
+          // Always auto-scroll — slower when hovered (luxury hover deceleration)
+          offset -= isHovered ? SPEED * 0.3 : SPEED;
           clampOffset();
           track.style.transform = `translateX(${offset}px)`;
         }
@@ -393,8 +393,8 @@ export class AppComponent implements AfterViewInit, OnDestroy {
     if (!outer || !track) return;
 
     this.zone.runOutsideAngular(() => {
-      const SPEED = 0.4;
-      const FRICTION = 0.88;
+      const SPEED = 0.55;            // slightly slower than portfolio for differentiation
+      const FRICTION = 0.90;
 
       let offset = 0;
       let isDragging = false;
@@ -413,12 +413,11 @@ export class AppComponent implements AfterViewInit, OnDestroy {
 
       const tick = () => {
         if (!isDragging) {
-          if (!isHovered) {
-            offset -= SPEED;
-          } else if (Math.abs(velocity) > 0.3) {
+          if (Math.abs(velocity) > 0.15) {
             offset += velocity;
             velocity *= FRICTION;
           }
+          offset -= isHovered ? SPEED * 0.25 : SPEED;
           clampOffset();
           track.style.transform = `translateX(${offset}px)`;
         }

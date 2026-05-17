@@ -36,15 +36,6 @@
       <div class="hero-orb hero-orb--2" aria-hidden="true"></div>
       <div class="hero-orb hero-orb--3" aria-hidden="true"></div>
 
-      <div class="hero-bg" aria-hidden="true">
-        <img
-          src="assets/lovable-uploads/627cda47-32b8-4e16-96e2-8b1f881f6100.jpg"
-          alt=""
-          fetchpriority="high"
-        />
-        <div class="hero-overlay"></div>
-      </div>
-
       <div class="hero-layout">
         <div class="hero-content-wrapper">
           <div class="hero-text">
@@ -81,6 +72,15 @@
               <span class="metric-label">פניות מלקוחות</span>
             </div>
           </div>
+        </div>
+        <!-- Portrait panel — grid column 2 (LEFT in RTL). Grid bounds it: portrait CANNOT exit its column -->
+        <div class="hero-bg" aria-hidden="true">
+          <img
+            src="assets/lovable-uploads/627cda47-32b8-4e16-96e2-8b1f881f6100.jpg"
+            alt=""
+            fetchpriority="high"
+          />
+          <div class="hero-overlay"></div>
         </div>
       </div>
 
@@ -401,8 +401,16 @@
     <!-- ─── RESULTS ─── -->
     <section id="results" class="section section-bg-tint">
       <div class="container">
-        <h2 class="section-title reveal delay-1">תוצאות שמדברות בעד עצמן</h2>
-        <p class="section-lead reveal delay-2">ביצועים אמיתיים מהשטח</p>
+        <!-- Asymmetric split header: title left, lead right — breaks centered symmetry -->
+        <div class="section-intro-split reveal">
+          <div>
+            <span class="section-eyebrow">✦ תוצאות</span>
+            <h2 class="section-title section-title--wide">תוצאות<br>שמדברות<br>בעד עצמן</h2>
+          </div>
+          <div>
+            <p class="section-lead">ביצועים אמיתיים מהשטח — מספרים שמגיעים מעבודה אמיתית עם לקוחות אמיתיים.</p>
+          </div>
+        </div>
       </div>
       <div class="results-outer">
         <div class="results-rail">

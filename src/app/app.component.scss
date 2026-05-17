@@ -291,36 +291,37 @@ ul{list-style:none;padding:0;margin:0;}
   overflow-x:hidden;
   position:relative;
 }
+// Ambient layer 1: brand cool light — upper left and lower right zones
 .page::before{
   content:"";
   position:fixed;
   inset:0;
   background:
-    radial-gradient(ellipse 1100px 900px at 8% 0%,
-      rgba(187,221,250,.09) 0%,transparent 55%),
-    radial-gradient(ellipse 800px 1000px at 92% 100%,
-      rgba(228,213,201,.07) 0%,transparent 50%),
-    radial-gradient(ellipse 600px 700px at 50% 50%,
-      rgba(187,221,250,.035) 0%,transparent 65%),
-    radial-gradient(ellipse 400px 400px at 75% 20%,
-      rgba(187,221,250,.04) 0%,transparent 55%);
+    radial-gradient(ellipse 1100px 900px at 5% 0%,
+      rgba(187,221,250,.14) 0%,transparent 52%),
+    radial-gradient(ellipse 750px 1000px at 96% 100%,
+      rgba(187,221,250,.10) 0%,transparent 48%),
+    radial-gradient(ellipse 550px 700px at 52% 48%,
+      rgba(187,221,250,.05) 0%,transparent 62%);
   pointer-events:none;
   z-index:0;
-  animation:atmosphereFloat 32s ease-in-out infinite;
+  animation:atmosphereFloat 38s ease-in-out infinite;
 }
-// Ambient cinematic glow — second layer, deeper color zones
+// Ambient layer 2: warm tone contrast — creates depth and emotional richness
 .page::after{
   content:"";
   position:fixed;
   inset:0;
   background:
-    radial-gradient(ellipse 700px 500px at 20% 60%,
-      rgba(187,221,250,.04) 0%,transparent 60%),
-    radial-gradient(ellipse 500px 400px at 80% 35%,
-      rgba(228,213,201,.03) 0%,transparent 55%);
+    radial-gradient(ellipse 900px 700px at 18% 58%,
+      rgba(187,221,250,.07) 0%,transparent 58%),
+    radial-gradient(ellipse 700px 600px at 82% 28%,
+      rgba(228,213,201,.06) 0%,transparent 52%),
+    radial-gradient(ellipse 400px 400px at 88% 88%,
+      rgba(187,221,250,.05) 0%,transparent 58%);
   pointer-events:none;
   z-index:0;
-  animation:atmosphereFloat 40s ease-in-out infinite reverse;
+  animation:atmosphereFloat 52s ease-in-out infinite reverse;
 }
 // Film grain — cinematic tactile texture layer
 .page-grain{
@@ -328,7 +329,7 @@ ul{list-style:none;padding:0;margin:0;}
   inset:0;
   z-index:500;
   pointer-events:none;
-  opacity:.028;
+  opacity:.032;
   background-image:
     url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='1'/%3E%3C/svg%3E");
   background-repeat:repeat;
@@ -777,7 +778,31 @@ ul{list-style:none;padding:0;margin:0;}
     color-mix(in srgb,var(--accent-deep) 45%,transparent),transparent);
   opacity:.45;
 }
+// Layout variation modifiers — break the "everything centered" symmetry
+// Apply to containers to create editorial asymmetry
 .section-title--sm{font-size:var(--t-2xl);}
+// Wide title: breaks the max-width constraint — editorial sweep
+.section-title--wide{
+  max-width:none;
+  font-size:clamp(2.2rem,5.5vw,3.8rem);
+}
+// Offset intro: side-by-side title + lead with visual tension
+.section-intro-split{
+  display:grid;
+  grid-template-columns:1.1fr .9fr;
+  gap:var(--s8);
+  align-items:end;
+  margin-bottom:var(--s7);
+}
+.section-intro-split .section-title{margin-bottom:0;}
+.section-intro-split .section-lead{margin-bottom:0;max-width:38ch;}
+@media(max-width:767px){
+  .section-intro-split{
+    grid-template-columns:1fr; // single column on mobile
+    gap:var(--s3);
+    margin-bottom:var(--s5);
+  }
+}
 .section-lead{
   font-size:var(--t-lg);
   color:var(--text-mid);
@@ -878,65 +903,78 @@ strong{font-weight:600;}
   z-index:1;
 }
 
-// ── Hero Background — Bounded Portrait Panel ──────────────────────────────
-// Portrait is a BOUNDED LEFT PANEL with overflow:hidden.
-// It can NEVER clip outside its container — no more right-side clipping.
+// ── Hero Layout — RTL flex split (flex is more predictable than grid in RTL) ───
+// In RTL flex-direction:row — first item = RIGHTMOST, second = next to left
+// hero-content-wrapper (first) → RIGHT (text zone)
+// hero-bg (second) → LEFT (portrait zone)
+.hero-layout{
+  position:relative;z-index:2;
+  width:100%;
+  flex:1;
+  display:flex;
+  flex-direction:row; // RTL: item 1 = right (text), item 2 = left (portrait)
+  align-items:stretch;
+}
+// Text zone — RIGHT side in RTL flex
+.hero-content-wrapper{
+  flex:0 0 52%;
+  min-width:0;
+  display:flex;
+  flex-direction:column;
+  justify-content:flex-end;
+  gap:clamp(var(--s3),2.2vh,var(--s5));
+  padding-top:clamp(80px,12vh,130px);
+  padding-bottom:clamp(64px,9vh,110px);
+  padding-inline-start:clamp(32px,5vw,80px);
+  padding-inline-end:clamp(16px,2.5vw,40px);
+  // Atmospheric text zone gradient — deep dark right → transparent left
+  // Creates visual separation from portrait zone without hard edge
+  background:linear-gradient(to left,
+    rgba(8,6,5,1)  0%,
+    rgba(8,6,5,.96) 55%,
+    rgba(8,6,5,.62) 80%,
+    rgba(8,6,5,0)  100%);
+  position:relative;z-index:1;
+}
+// Portrait panel — LEFT side in RTL flex (second flex child)
+// BOUNDED by flex-basis: portrait CANNOT extend beyond its 48% allocation
 .hero-bg{
-  position:absolute;
-  left:0;top:0;bottom:0; // Physical left — portrait lives here
-  width:clamp(260px,54%,760px); // Bounded — hard container, never exceeds this
-  overflow:hidden; // Portrait can NEVER escape this box
+  flex:0 0 48%; // wider portrait — more visual presence
+  min-width:0;
+  overflow:hidden; // hard clip — absolutely bounded
+  position:relative;
   z-index:0;
 }
 .hero-bg img{
+  position:absolute;inset:0;
   width:100%;height:100%;
   object-fit:cover;
-  // Center the subject horizontally — safe for any portrait composition
-  object-position:center 10%;
+  // Centered composition — works for any photo where subject is near center
+  object-position:50% 14%;
   transform:scale(1.08);
   animation:heroBreath 30s ease-in-out infinite;
   will-change:transform;
-  filter:brightness(.68) saturate(.75) contrast(1.04);
+  // Slightly lighter — portrait should feel VISIBLE, aspirational
+  filter:brightness(.72) saturate(.78) contrast(1.02);
 }
-// Portrait overlay: fades portrait into the dark hero background on right edge
+// Portrait overlay: cinematic atmospheric layers
 .hero-overlay{
   position:absolute;inset:0;
   background:
-    // Fade portrait toward right edge (blend into dark hero bg)
+    // Fade toward RIGHT edge (toward text zone)
     linear-gradient(to right,
-      transparent          25%,
-      rgba(8,6,5,.45)      60%,
-      rgba(8,6,5,.85)      82%,
-      rgba(8,6,5,1)       100%),
-    // Top haze — portrait head blends into darkness
+      transparent     18%,
+      rgba(8,6,5,.35) 55%,
+      rgba(8,6,5,.82) 80%,
+      rgba(8,6,5,1)  100%),
+    // Top haze — atmospheric portrait integration
     linear-gradient(to bottom,
-      rgba(8,6,5,.55) 0%,
-      transparent     22%),
+      rgba(8,6,5,.52)  0%,
+      transparent      18%),
     // Bottom fog
     linear-gradient(to top,
-      rgba(8,6,5,.90) 0%,
-      rgba(8,6,5,.0)  42%);
-}
-
-// ── Hero Layout — RTL editorial split ─────────────────────────────────────
-// In Hebrew RTL: column 1 = RIGHT (text zone, 58%), column 2 = LEFT (portrait zone, 42%)
-.hero-layout{
-  position:relative;z-index:2;
-  width:min(1260px,92%);
-  margin:0 auto;
-  flex:1;
-  display:grid;
-  grid-template-columns:58% 42%;
-  align-items:end;
-  align-content:end;
-  padding-top:clamp(80px,12vh,120px);
-  padding-bottom:clamp(64px,9vh,110px);
-}
-.hero-content-wrapper{
-  grid-column:1;
-  display:flex;
-  flex-direction:column;
-  gap:clamp(var(--s3),2.2vh,var(--s5));
+      rgba(8,6,5,.88)  0%,
+      rgba(8,6,5,.0)   42%);
 }
 
 // ── Hero Live Pill ─────────────────────────────────────────────────────────
@@ -968,47 +1006,46 @@ strong{font-weight:600;}
 
 // ── Hero Text ─────────────────────────────────────────────────────────────
 // Narrower max-width: tighter composition, editorial feel, less visual density
-.hero-text{max-width:min(100%,480px);}
+.hero-text{max-width:min(100%,460px);}
 .hero-eyebrow{
-  font-size:var(--t-xs);
-  font-weight:600;
-  letter-spacing:.18em;
+  font-size:var(--t-2xs);
+  font-weight:700;
+  letter-spacing:.22em;
   text-transform:uppercase;
-  color:rgba(255,255,255,.42);
+  color:rgba(187,221,250,.55); // brand tint — editorial prestige
   margin:0 0 var(--s3);
   animation:heroLeadReveal .85s cubic-bezier(0.16,1,0.3,1) .05s both;
 }
 .hero-title{
   font-family:var(--font-serif);
-  // Tighter clamp — not competing with portrait for space
-  font-size:clamp(2.6rem,7.5vw,4.8rem);
-  font-weight:600;line-height:1.08;
-  letter-spacing:-.032em;
-  margin:0 0 clamp(var(--s4),2.5vh,var(--s5));
+  font-size:clamp(2.4rem,6.5vw,4.4rem); // tighter max — not competing with portrait
+  font-weight:600;line-height:1.1;
+  letter-spacing:-.035em;
+  margin:0 0 clamp(var(--s3),2vh,var(--s5));
   color:#fff;text-wrap:balance;
   animation:heroTitleReveal 1.2s cubic-bezier(0.16,1,0.3,1) .15s both;
 }
 .hero-title em{
   font-style:italic;
   font-weight:400;
-  color:color-mix(in srgb,var(--brand) 90%,white);
+  color:color-mix(in srgb,var(--brand) 85%,white);
   display:inline;
   position:relative;
 }
 .hero-title em::after{
   content:"";
   position:absolute;
-  bottom:-.1em;left:0;right:0;
+  bottom:-.08em;left:0;right:0;
   height:1px;
   background:linear-gradient(90deg,
-    color-mix(in srgb,var(--brand) 65%,transparent),transparent);
-  opacity:.7;
+    color-mix(in srgb,var(--brand) 70%,transparent),transparent 70%);
+  opacity:.65;
 }
 .hero-lead{
-  font-size:clamp(.9rem,1.5vw,1.05rem);
-  font-weight:400;color:rgba(255,255,255,.62);
-  margin:0 0 clamp(var(--s4),3vh,var(--s5));
-  line-height:1.75;max-width:40ch; // tighter line length — editorial discipline
+  font-size:clamp(.88rem,1.4vw,1rem);
+  font-weight:400;color:rgba(255,255,255,.58);
+  margin:0 0 clamp(var(--s4),2.8vh,var(--s5));
+  line-height:1.82;max-width:38ch; // narrow editorial column for elegant rhythm
   animation:heroLeadReveal .95s cubic-bezier(0.16,1,0.3,1) .35s both;
 }
 .hero-cta-row{
@@ -1252,67 +1289,75 @@ strong{font-weight:600;}
 
 // ═══ BRAND MARQUEE — Premium Moving Wall ══════════════════════════════════════
 .brand-marquee-section{
-  background:linear-gradient(180deg,var(--surface-2) 0%,var(--surface) 50%,var(--surface-2) 100%);
-  padding:var(--s7) 0;
+  // Dark editorial — logos pop dramatically against deep background
+  background:
+    linear-gradient(180deg,
+      #0d0b09 0%,
+      #141210 40%,
+      #0d0b09 100%);
+  padding:var(--s8) 0 var(--s9);
   overflow:hidden;
   position:relative;
 }
+// Subtle ambient glow — prestige atmosphere
+.brand-marquee-section::before{
+  content:"";position:absolute;inset:0;pointer-events:none;
+  background:
+    radial-gradient(ellipse 900px 300px at 50% 50%,
+      rgba(187,221,250,.045) 0%,transparent 60%);
+}
+// Fade masks matching dark background
+.brand-marquee-section::after{
+  content:"";
+  position:absolute;top:0;bottom:0;inset-inline:0;
+  z-index:2;pointer-events:none;
+  background:
+    linear-gradient(to right, #0d0b09 0%, transparent 8%, transparent 92%, #0d0b09 100%);
+}
 .brand-marquee-label{
   text-align:center;
-  font-size:var(--t-xs);
-  letter-spacing:.18em;
+  font-size:var(--t-2xs);
+  letter-spacing:.24em;
   text-transform:uppercase;
-  color:var(--text-muted);
-  opacity:.5;
+  color:rgba(255,255,255,.32);
   font-weight:700;
-  padding:0 0 var(--s5);
+  padding:0 0 var(--s6);
+  position:relative;z-index:1;
 }
 .brand-marquee-label::after{
   content:"";
   display:block;
-  width:32px;height:1px;
-  background:linear-gradient(90deg,transparent,rgba(187,221,250,.5),transparent);
-  margin:var(--s2) auto 0;
+  width:40px;height:1px;
+  background:linear-gradient(90deg,transparent,rgba(187,221,250,.45),transparent);
+  margin:var(--s3) auto 0;
 }
-// Fade masks
-.brand-marquee-section::before{
-  content:"";position:absolute;top:0;bottom:0;right:0;
-  width:100px;z-index:2;pointer-events:none;
-  background:linear-gradient(to left,var(--surface-2) 20%,transparent);
-}
-.brand-marquee-section::after{
-  content:"";position:absolute;top:0;bottom:0;left:0;
-  width:100px;z-index:2;pointer-events:none;
-  background:linear-gradient(to right,var(--surface-2) 20%,transparent);
-}
-.brand-track-wrap--desktop{display:block;overflow:hidden;}
+.brand-track-wrap--desktop{display:block;overflow:hidden;position:relative;z-index:1;}
 .brand-track-wrap--mobile{display:none;}
 .brand-track{
   display:flex;align-items:center;
-  gap:var(--s9);
+  gap:clamp(var(--s7),6vw,var(--s10));
   width:max-content;
   animation:marquee var(--dur-marquee) linear infinite;
-  padding:var(--s1) 0;
+  padding:var(--s2) 0;
   will-change:transform;
 }
 .brand-track:hover{animation-play-state:paused;}
-// Brand logos: visible and prestigious, not faded icons
+// Brand logos on dark: crisp white/light, with intentional desaturation for editorial feel
 .brand-track-item{
   display:flex;align-items:center;justify-content:center;
-  flex-shrink:0;height:42px;
-  // Higher base opacity: logos are RECOGNIZABLE, not ghosted
-  opacity:.70;
-  filter:grayscale(.40) contrast(1.0) brightness(0.85);
-  transition:opacity 380ms var(--ease),filter 380ms var(--ease),transform 380ms var(--ease-spring);
+  flex-shrink:0;height:44px;
+  opacity:.65;
+  // Invert dark logos for dark background + grayscale for editorial consistency
+  filter:brightness(0) invert(1) grayscale(.15) opacity(.65);
+  transition:opacity 400ms var(--ease),filter 400ms var(--ease),transform 380ms var(--ease-spring);
 }
 .brand-track-item:hover{
   opacity:1.0;
-  filter:grayscale(0) contrast(1.05) brightness(1);
-  transform:scale(1.10);
+  filter:brightness(0) invert(1) grayscale(0) opacity(1);
+  transform:scale(1.12);
 }
 .brand-track-item img{
-  height:100%;width:auto;max-width:150px;object-fit:contain;
-  filter:drop-shadow(0 1px 4px rgba(0,0,0,.04));
+  height:100%;width:auto;max-width:160px;object-fit:contain;
 }
 
 // Decorative underline accent
@@ -1638,10 +1683,25 @@ strong{font-weight:600;}
 // ═══ PROCESS ══════════════════════════════════════════════════════════════════
 // ═══ PROCESS — Editorial Numbered Manifesto ══════════════════════════════════
 .section-process{
-  // Darker, more atmospheric — process steps need visual weight
-  background:linear-gradient(168deg,
-    color-mix(in srgb,var(--brand) 4%,var(--surface-2)) 0%,
-    var(--bg) 100%);
+  // Deep atmospheric background — editorial weight
+  background:
+    linear-gradient(168deg,
+      color-mix(in srgb,var(--brand) 8%,var(--surface-2)) 0%,
+      color-mix(in srgb,var(--brand) 3%,var(--surface)) 60%,
+      var(--bg) 100%);
+  position:relative;
+  overflow:hidden;
+  // Ambient corner glow for depth
+  &::before{
+    content:"";position:absolute;
+    inset-inline-end:-10%;top:-20%;
+    width:clamp(300px,50vw,700px);
+    height:clamp(300px,50vw,700px);
+    background:radial-gradient(circle,
+      rgba(187,221,250,.12) 0%,transparent 60%);
+    pointer-events:none;
+    animation:sectionGlowDrift 26s ease-in-out infinite;
+  }
 }
 .process-editorial{
   margin-top:var(--s7);
@@ -1683,14 +1743,14 @@ strong{font-weight:600;}
 }
 .process-row-num{
   font-family:var(--font-serif);
-  font-size:clamp(2.8rem,5.5vw,4.5rem);
+  font-size:clamp(3rem,6vw,5rem);
   font-weight:700;line-height:1;
-  letter-spacing:-.04em;
-  // Higher opacity: actually visible while still ghosted
-  color:color-mix(in srgb,var(--brand) 30%,var(--border-soft));
+  letter-spacing:-.06em;
+  // Visible brand accent — editorial numbered markers
+  color:color-mix(in srgb,var(--brand) 55%,var(--text-muted));
   transition:color 380ms var(--ease);
   user-select:none;
-  padding-top:.15em; // optical alignment with title
+  padding-top:.1em;
 }
 .process-row-title{
   font-family:var(--font-serif);
@@ -1872,10 +1932,10 @@ strong{font-weight:600;}
   .portfolio-reel-track{animation:none;}
 }
 
-// Cards: dramatically larger — immersive reel showcase
+// Cards: dramatically larger — cinematic immersive showcase
 .reel-card{
   flex-shrink:0;
-  width:clamp(220px,32vw,400px);
+  width:clamp(240px,34vw,440px);
   transition:transform 500ms cubic-bezier(0.16,1,0.3,1),
              opacity 500ms cubic-bezier(0.16,1,0.3,1);
 }
@@ -1968,40 +2028,63 @@ strong{font-weight:600;}
   user-select:none;
   will-change:transform;
 }
+// Results cards: different from portfolio reel — wider 4:5 format, lighter palette
+// Portfolio = dark cinematic tall reel | Results = light evidence showcase
 .result-card{
   flex-shrink:0;
-  width:clamp(260px,35vw,380px); // wider cards — editorial presence
+  width:clamp(200px,26vw,320px); // narrower than portfolio for faster browsing pace
+  transition:transform 450ms cubic-bezier(0.16,1,0.3,1),
+             opacity 450ms cubic-bezier(0.16,1,0.3,1);
 }
 .result-frame{
-  margin:0;border-radius:var(--r-2xl);overflow:hidden;
-  box-shadow:0 4px 20px rgba(0,0,0,.07),0 12px 48px rgba(0,0,0,.09);
-  background:linear-gradient(145deg,var(--surface-warm),var(--surface));
+  margin:0;
+  border-radius:16px; // slightly squarer than reel's heavy 2xl
+  overflow:hidden;
+  box-shadow:
+    0 2px 8px rgba(0,0,0,.05),
+    0 8px 24px rgba(0,0,0,.07),
+    0 0 0 1px rgba(0,0,0,.05);
+  background:var(--surface);
   position:relative;
+  aspect-ratio:3/4; // 4:3 proportion — feels like a phone screenshot/evidence card
   transition:transform 440ms var(--ease-spring),box-shadow 440ms var(--ease);
-  height:100%;
-}
-.result-frame::before{
-  content:"";position:absolute;inset:0;
-  background:linear-gradient(135deg,rgba(187,221,250,.10),transparent 50%,rgba(228,213,201,.08));
-  opacity:0;transition:opacity 500ms var(--ease);z-index:1;pointer-events:none;border-radius:inherit;
 }
 .result-card:hover .result-frame{
-  transform:translateY(-12px) scale(1.04);
-  box-shadow:0 12px 40px rgba(0,0,0,.14),0 24px 80px rgba(0,0,0,.16),var(--sh-brand);
+  transform:translateY(-10px) scale(1.03);
+  box-shadow:
+    0 4px 16px rgba(0,0,0,.08),
+    0 16px 48px rgba(0,0,0,.12),
+    0 0 0 1px rgba(187,221,250,.20),
+    0 0 28px rgba(187,221,250,.10);
 }
-.result-card:hover .result-frame::before{opacity:1;}
 .result-frame img{
-  width:100%;height:clamp(310px,52vw,480px);
-  object-fit:cover;object-position:top;display:block;
+  position:absolute;inset:0;
+  width:100%;height:100%;
+  object-fit:cover;object-position:top center;
+  display:block;
+  transition:transform 700ms cubic-bezier(0.16,1,0.3,1);
 }
+.result-card:hover .result-frame img{transform:scale(1.05);}
+// Metric overlay: prominent statistic at bottom of each card
 .result-overlay{
   position:absolute;bottom:0;inset-inline:0;
-  background:linear-gradient(to top,rgba(5,5,5,.88) 0%,transparent 100%);
-  padding:var(--s8) var(--s4) var(--s4);
-  display:flex;flex-direction:column;gap:4px;
+  background:linear-gradient(to top,rgba(8,6,5,.92) 0%,rgba(8,6,5,.0) 60%);
+  padding:var(--s6) var(--s4) var(--s4);
+  display:flex;flex-direction:column;gap:3px;
 }
-.result-value{font-family:var(--font-serif);font-size:var(--t-2xl);font-weight:700;color:white;line-height:1.1;}
-.result-desc{font-size:var(--t-xs);color:rgba(255,255,255,.6);font-weight:500;letter-spacing:.06em;text-transform:uppercase;}
+.result-value{
+  font-family:var(--font-serif);
+  font-size:clamp(1.6rem,3.5vw,2.2rem);
+  font-weight:700;color:white;line-height:1;
+  letter-spacing:-.02em;
+}
+.result-desc{
+  font-size:var(--t-2xs);
+  color:rgba(255,255,255,.55);
+  font-weight:600;
+  letter-spacing:.1em;
+  text-transform:uppercase;
+}
 
 // ═══ SERVICES — Editorial Manifesto Matrix ════════════════════════════════════
 .section-services-editorial{
@@ -2661,9 +2744,10 @@ strong{font-weight:600;}
 @media(min-width:768px){
   .section{padding:var(--section-gap-desktop) 0;}
 
-  .hero-layout{padding-bottom:clamp(64px,9vh,112px);grid-template-columns:58% 42%;}
+  // Hero flex layout — portrait 48% left, text 52% right
+  .hero-layout{flex-direction:row;} // ensure row on desktop (overrides any mobile override)
   .hero-content-wrapper{flex-direction:column;}
-  .hero-text{max-width:560px;}
+  .hero-text{max-width:460px;}
   .hero-stats{flex-direction:column;align-self:flex-end;margin-bottom:0;}
   .result-card{width:clamp(300px,28vw,400px);}
 
@@ -2788,32 +2872,45 @@ strong{font-weight:600;}
   }
   .section{padding:clamp(72px,13vh,100px) 0;scroll-margin-top:var(--s6);}
 
-  // Hero mobile — portrait expands to full width as atmospheric background
+  // Hero mobile — portrait becomes absolute background, text occupies full width
+  .hero-layout{
+    flex-direction:column; // stack: text on top of portrait
+    align-items:stretch;
+    position:relative; // needed for absolute portrait positioning
+  }
+  // Text wrapper: full width on mobile
+  .hero-content-wrapper{
+    flex:1;
+    padding-top:clamp(60px,10vh,90px);
+    padding-bottom:clamp(56px,8vh,90px);
+    padding-inline-start:clamp(24px,5vw,40px);
+    padding-inline-end:clamp(24px,5vw,40px);
+    justify-content:flex-end;
+    position:relative;z-index:1; // text above portrait
+    background:none; // mobile: overlay gradient from hero-overlay handles legibility
+  }
+  // Portrait becomes absolute-positioned behind the text on mobile
   .hero-bg{
-    width:100%;           // Full-bleed portrait on mobile
-    opacity:.82;          // Slightly ghosted for text contrast
+    flex:none; // remove from flex flow
+    position:absolute;inset:0;
+    z-index:0;opacity:.75;
   }
   .hero-bg img{
+    position:absolute;inset:0;
     object-position:center 10%;
   }
+  // Mobile overlay: heavy bottom fog for text legibility
   .hero-overlay{
-    // Mobile: heavy bottom fog so text panel is always readable
     background:
       linear-gradient(to top,
         rgba(10,8,6,1)   0%,
-        rgba(10,8,6,.92) 28%,
-        rgba(10,8,6,.42) 52%,
-        rgba(10,8,6,.08) 68%,
-        rgba(10,8,6,.0)  82%),
+        rgba(10,8,6,.92) 26%,
+        rgba(10,8,6,.40) 50%,
+        rgba(10,8,6,.08) 66%,
+        rgba(10,8,6,.0)  80%),
       linear-gradient(to bottom,
-        rgba(10,8,6,.48) 0%,
-        transparent      24%);
-  }
-  .hero-layout{
-    grid-template-columns:1fr; // collapse to single column on mobile
-    align-content:end;
-    padding-top:clamp(60px,10vh,90px);
-    padding-bottom:clamp(56px,8vh,90px);
+        rgba(10,8,6,.50) 0%,
+        transparent      22%);
   }
   .hero-content-wrapper{gap:clamp(var(--s2),1.8vh,var(--s3));}
   .hero-text{max-width:100%;}
@@ -2857,10 +2954,10 @@ strong{font-weight:600;}
   .s-word{font-size:clamp(22px,6.5vw,36px);}
 
   // Brand marquee mobile — bigger for credibility
-  .brand-marquee-section{padding:var(--s6) 0;}
+  .brand-marquee-section{padding:var(--s7) 0;}
   .brand-track-wrap--desktop{display:block;}
   .brand-track{animation-duration:var(--dur-marquee-mob);gap:var(--s7);}
-  .brand-track-item{height:34px;opacity:.72;filter:grayscale(.35) contrast(.98);}
+  .brand-track-item{height:36px;opacity:.60;filter:brightness(0) invert(1) grayscale(.15) opacity(.60);}
   .brand-track-item img{max-width:120px;}
 
   // Spacing
@@ -2972,12 +3069,12 @@ strong{font-weight:600;}
 @media(max-height:700px) and (orientation:portrait){
   :host{--t-hero:clamp(1.75rem,8vw,2.2rem);}
   .hero-layout{
-    grid-template-columns:1fr;
+    flex-direction:column; // stack vertically on short portrait screens
     align-content:end;
     padding-top:clamp(var(--s5),6vh,var(--s6));
     padding-bottom:clamp(var(--s4),5vh,var(--s6));
   }
-  .hero-bg{width:100%;opacity:.78;} // full-bleed on compact screens
+  .hero-bg{flex:none;position:absolute;inset:0;opacity:.72;} // full-bleed on compact screens
   .hero-title{
     font-size:clamp(1.75rem,7.5vw,2.2rem);
     margin-bottom:clamp(var(--s2),1.2vh,var(--s3));
@@ -2996,10 +3093,12 @@ strong{font-weight:600;}
 @media(max-height:500px) and (max-width:900px) and (orientation:landscape){
   .hero{min-height:max(100dvh,460px);}
   .hero-layout{
-    grid-template-columns:60% 40%;
+    flex-direction:row; // keep side-by-side on landscape
     align-content:end;
     padding-top:var(--s3);padding-bottom:var(--s3);
   }
+  .hero-content-wrapper{flex:0 0 60%;}
+  .hero-bg{flex:0 0 40%;position:relative;}
   .hero-title{font-size:clamp(1.6rem,6vw,2rem);}
   .hero-lead{display:none;}
   .hero-live-pill{display:none;}
