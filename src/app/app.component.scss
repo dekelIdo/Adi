@@ -162,6 +162,36 @@ ul{list-style:none;padding:0;margin:0;}
   50%{opacity:1;transform:scale(1.12) translate(-2%,2%);}
 }
 
+// ── Signature motion moments ────────────────────────────────────────────────
+@keyframes wordmarkDrift{
+  0%,100%{opacity:1;transform:translateY(-50%) translateX(0);}
+  50%{opacity:.8;transform:translateY(-51.5%) translateX(-0.8%);}
+}
+@keyframes statementScroll{
+  from{transform:translateX(0);}
+  to{transform:translateX(-50%);}
+}
+@keyframes portfolioAutoScroll{
+  from{transform:translateX(0);}
+  to{transform:translateX(-50%);}
+}
+@keyframes reviewFloat1{
+  0%,100%{transform:rotate(-3.5deg) translateY(-12px);}
+  50%{transform:rotate(-2deg) translateY(-22px);}
+}
+@keyframes reviewFloat2{
+  0%,100%{transform:rotate(1.5deg) translateY(24px);}
+  50%{transform:rotate(.5deg) translateY(14px);}
+}
+@keyframes reviewFloat3{
+  0%,100%{transform:rotate(3deg) translateY(-6px);}
+  50%{transform:rotate(1.5deg) translateY(-18px);}
+}
+@keyframes honestyHeadline{
+  from{opacity:0;transform:translateY(60px) scale(.94);filter:blur(12px);}
+  to{opacity:1;transform:none;filter:blur(0);}
+}
+
 // ── New premium motion ──────────────────────────────────────────────────────
 @keyframes orbFloat1{
   0%{transform:translate(0,0) scale(1);}
@@ -841,6 +871,57 @@ strong{font-weight:600;}
   animation:lineScroll 2.2s ease-in-out infinite;
 }
 
+// ── Hero Wordmark — oversized ghosted editorial depth ──────────────────────
+.hero-wordmark{
+  position:absolute;
+  top:50%;inset-inline-end:-2%;
+  transform:translateY(-50%);
+  font-size:clamp(72px,18vw,200px);
+  font-weight:800;
+  letter-spacing:.06em;
+  text-transform:uppercase;
+  color:transparent;
+  -webkit-text-stroke:1px rgba(187,221,250,.09);
+  line-height:1;
+  white-space:nowrap;
+  pointer-events:none;
+  user-select:none;
+  z-index:1;
+  animation:wordmarkDrift 22s ease-in-out infinite;
+  font-family:var(--font-serif);
+}
+
+// ═══ STATEMENT STRIP — Cinematic Bold-Italic Dark Marquee ══════════════════
+.statement-strip{
+  background:#0a0907;
+  padding:var(--s5) 0;
+  overflow:hidden;
+  position:relative;
+  z-index:2;
+  border-top:1px solid rgba(187,221,250,.06);
+  border-bottom:1px solid rgba(187,221,250,.06);
+}
+.statement-track{
+  display:flex;align-items:center;
+  gap:clamp(var(--s4),4vw,var(--s7));
+  width:max-content;
+  animation:statementScroll 20s linear infinite;
+  white-space:nowrap;
+}
+.s-word{
+  font-family:var(--font-serif);
+  font-size:clamp(26px,4.5vw,52px);
+  font-weight:500;
+  font-style:italic;
+  color:rgba(255,255,255,.82);
+  letter-spacing:-.01em;
+}
+.s-sep{
+  color:rgba(187,221,250,.55);
+  font-size:clamp(10px,1.8vw,20px);
+  flex-shrink:0;
+}
+
 // ═══ BRAND MARQUEE — Premium Moving Wall ══════════════════════════════════════
 .brand-marquee-section{
   background:linear-gradient(180deg,var(--surface-2) 0%,var(--surface) 50%,var(--surface-2) 100%);
@@ -1260,8 +1341,33 @@ strong{font-weight:600;}
 .section-portfolio .section-title{color:rgba(255,255,255,.9);}
 .section-portfolio .section-lead{color:rgba(255,255,255,.42);}
 
+// ── Portfolio Auto-Cinema Reel — never stops ────────────────────────────────
+.portfolio-reel-outer{
+  overflow:hidden;
+  position:relative;
+  padding:var(--s5) 0 var(--s7);
+  margin-top:var(--s5);
+  -webkit-mask-image:linear-gradient(90deg,transparent 0%,black 6%,black 94%,transparent 100%);
+  mask-image:linear-gradient(90deg,transparent 0%,black 6%,black 94%,transparent 100%);
+}
+.portfolio-reel-track{
+  display:flex;
+  align-items:flex-start;
+  gap:var(--s4);
+  width:max-content;
+  animation:portfolioAutoScroll 30s linear infinite;
+  padding-inline:var(--s5);
+  will-change:transform;
+}
+.portfolio-reel-track:hover{
+  animation-play-state:paused;
+}
+@media(prefers-reduced-motion:reduce){
+  .portfolio-reel-track{animation:none;}
+}
+
 .reel-card{
-  flex-shrink:0;scroll-snap-align:center;
+  flex-shrink:0;
   width:clamp(168px,42vw,220px);
   transition:transform 600ms cubic-bezier(0.16,1,0.3,1);
 }
@@ -1471,26 +1577,54 @@ strong{font-weight:600;}
 
 // ═══ HONESTY — CINEMATIC STATEMENT ═══════════════════════════════════════════
 .section-honesty{
-  background:#0f0e0d;
+  background:linear-gradient(170deg,#0a0907 0%,#0f0e0c 55%,#121110 100%);
   color:white;
   overflow:hidden;
+  position:relative;
 }
-.section-honesty .section-title{
+// Giant decorative background symbol
+.honesty-bg-num{
+  position:absolute;
+  top:50%;left:50%;
+  transform:translate(-50%,-50%);
+  font-size:clamp(220px,45vw,500px);
+  color:transparent;
+  -webkit-text-stroke:1px rgba(187,221,250,.04);
+  pointer-events:none;
+  user-select:none;
+  line-height:1;
+  z-index:0;
+  animation:wordmarkDrift 28s ease-in-out infinite;
+}
+// Manifesto-scale headline
+.honesty-headline{
+  font-family:var(--font-serif);
+  font-size:clamp(2.8rem,9vw,5.6rem);
+  line-height:1.08;
+  letter-spacing:-.04em;
   color:white;
-  font-size:clamp(2.2rem,6.5vw,3.4rem);
-  line-height:1.15;
-  letter-spacing:-.028em;
-  margin-bottom:var(--s5);
+  margin-bottom:var(--s6);
+  font-weight:700;
+  em{
+    font-style:italic;
+    color:rgba(187,221,250,.75);
+    display:block;
+  }
+  // Animate when revealed
+  .reveal.revealed &, &.revealed{
+    animation:honestyHeadline 1.2s cubic-bezier(0.16,1,0.3,1) forwards;
+  }
 }
-.section-honesty .section-body{
-  color:rgba(255,255,255,.6);
+.honesty-body{
+  color:rgba(255,255,255,.55);
   font-size:var(--t-lg);
   max-width:50ch;
   margin-inline:auto;
-  line-height:1.88;
+  line-height:1.9;
+  margin-bottom:var(--s4);
 }
 .honesty-inner{
-  max-width:640px;
+  max-width:680px;
   margin:0 auto;
   text-align:center;
   position:relative;z-index:1;
@@ -1553,7 +1687,7 @@ strong{font-weight:600;}
 .review-card{
   flex-shrink:0;scroll-snap-align:center;
   width:clamp(260px,76vw,320px);
-  transition:transform 600ms var(--ease-spring);
+  transition:transform 600ms var(--ease-spring),opacity 400ms var(--ease),box-shadow 400ms var(--ease);
 }
 @media(hover:hover){
   .review-card:not(:hover){transform:scale(.95);opacity:.88;}
@@ -1919,8 +2053,56 @@ strong{font-weight:600;}
   .package-card{padding:var(--s10) var(--s9);}
   .reel-card{width:clamp(148px,12vw,188px);}
   .result-card{width:clamp(248px,20vw,278px);}
-  .review-card{width:clamp(268px,22vw,312px);}
   .audience-flow{grid-template-columns:repeat(2,1fr);}
+
+  // Reviews — Desktop Floating Scatter Layout
+  .reviews-outer{
+    overflow:visible;
+    -webkit-mask:none;mask:none;
+    cursor:auto;
+    padding-bottom:var(--s8);
+  }
+  .reviews-rail{
+    display:grid;
+    grid-template-columns:repeat(3,1fr);
+    gap:var(--s7);
+    width:100%;
+    padding-inline:var(--s5);
+    align-items:start;
+  }
+  .review-card{
+    width:100%;
+    flex-shrink:unset;
+    scroll-snap-align:unset;
+  }
+  // Individual scatter float animations
+  .review-card--scatter-1{
+    transform:rotate(-3.5deg) translateY(-16px);
+    animation:reviewFloat1 13s ease-in-out infinite;
+  }
+  .review-card--scatter-2{
+    transform:rotate(1.5deg) translateY(28px);
+    z-index:2;
+    animation:reviewFloat2 10s ease-in-out infinite;
+    animation-delay:1.5s;
+  }
+  .review-card--scatter-3{
+    transform:rotate(3deg) translateY(-8px);
+    animation:reviewFloat3 15s ease-in-out infinite;
+    animation-delay:3s;
+  }
+  .review-card:hover{
+    transform:rotate(0deg) translateY(-24px) scale(1.04) !important;
+    z-index:10;
+    animation-play-state:paused;
+  }
+  // Let parent handle rotation — neutralize inner tilts on desktop
+  .review-inner--tilt-l,.review-inner--tilt-r{transform:none !important;}
+  @media(prefers-reduced-motion:reduce){
+    .review-card--scatter-1,
+    .review-card--scatter-2,
+    .review-card--scatter-3{animation:none;}
+  }
 }
 @media(min-width:1280px){
   .container{width:min(1280px,90%);}
@@ -1988,6 +2170,12 @@ strong{font-weight:600;}
   .hero-orb--1{width:250px;height:250px;filter:blur(50px);}
   .hero-orb--2{width:180px;height:180px;filter:blur(40px);}
   .hero-orb--3{display:none;}
+  // Keep wordmark subtle on mobile
+  .hero-wordmark{font-size:clamp(52px,24vw,90px);-webkit-text-stroke:.5px rgba(187,221,250,.07);}
+
+  // Statement strip mobile
+  .statement-strip{padding:var(--s4) 0;}
+  .s-word{font-size:clamp(22px,6.5vw,36px);}
 
   // Brand marquee mobile — bigger for credibility
   .brand-marquee-section{padding:var(--s6) 0;}
@@ -2046,10 +2234,34 @@ strong{font-weight:600;}
   .editorial-img--portrait img{height:clamp(260px,66vw,360px);}
   .editorial-img:hover img{transform:none;}
 
-  // Honesty mobile
-  .section-honesty .section-title{font-size:clamp(1.9rem,6vw,2.6rem);}
+  // Honesty mobile — keep headline dramatic
+  .honesty-headline{font-size:clamp(2.2rem,9vw,3.2rem);}
+  .honesty-body{font-size:var(--t-base);}
+  .honesty-bg-num{font-size:clamp(160px,55vw,280px);}
   .honesty-glow-1{width:300px;height:300px;}
   .honesty-glow-2{display:none;}
+
+  // Reviews mobile: restore standard scroll rail
+  .reviews-outer{
+    overflow-x:auto;
+    -webkit-mask-image:linear-gradient(90deg,transparent 0%,black 10%,black 90%,transparent 100%);
+    mask-image:linear-gradient(90deg,transparent 0%,black 10%,black 90%,transparent 100%);
+    cursor:grab;
+  }
+  .reviews-rail{
+    display:flex;
+    width:max-content;
+    align-items:flex-start;
+    padding-inline:var(--s4);
+    gap:var(--s4);
+  }
+  .review-card{width:clamp(240px,72vw,290px);}
+  .review-card--scatter-1,
+  .review-card--scatter-2,
+  .review-card--scatter-3{
+    transform:none;
+    animation:none;
+  }
 }
 
 // ═══ SHORT PORTRAIT ═══════════════════════════════════════════════════════════

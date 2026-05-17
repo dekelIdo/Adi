@@ -187,7 +187,7 @@ export class AppComponent implements AfterViewInit, OnDestroy {
   // Enables mouse-drag scrolling on desktop with smooth momentum decay.
   private initCarouselDrag(): void {
     const containers = Array.from(
-      document.querySelectorAll<HTMLElement>('.hscroll-outer, .results-outer, .reviews-outer')
+      document.querySelectorAll<HTMLElement>('.results-outer, .reviews-outer')
     );
 
     containers.forEach((container) => {
