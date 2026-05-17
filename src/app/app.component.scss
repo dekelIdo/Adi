@@ -414,9 +414,9 @@ ul{
   font-family:var(--font-serif);
   font-size:var(--t-3xl);
   font-weight:500;
-  line-height:1.25;
-  letter-spacing:-.02em;
-  margin:0 0 var(--s7);
+  line-height:1.22;
+  letter-spacing:-.022em;
+  margin:0 0 var(--s6);
   text-wrap:balance;
   position:relative;
 }
@@ -550,14 +550,31 @@ strong{font-weight:600;}
 .hero-overlay{
   position:absolute;inset:0;
   background:
-    linear-gradient(0deg, rgba(25,22,20,.92) 0%, rgba(25,22,20,.35) 50%, rgba(25,22,20,.0) 75%),
-    radial-gradient(ellipse at 30% 20%, rgba(187,221,250,.08) 0%, transparent 50%),
-    radial-gradient(ellipse at 70% 80%, rgba(228,213,201,.06) 0%, transparent 40%);
-  animation:overlayShift 15s ease-in-out infinite;
+    // Strong atmospheric bottom — text legibility
+    linear-gradient(0deg,
+      rgba(20,18,16,.95) 0%,
+      rgba(20,18,16,.55) 40%,
+      rgba(20,18,16,.12) 65%,
+      rgba(20,18,16,.0) 80%),
+    // Cinematic side vignette — depth
+    linear-gradient(90deg,
+      rgba(20,18,16,.35) 0%,
+      transparent 20%,
+      transparent 80%,
+      rgba(20,18,16,.35) 100%),
+    // Blue identity accent glow (top-right)
+    radial-gradient(ellipse 600px 400px at 70% 5%,
+      rgba(187,221,250,.07) 0%,
+      transparent 60%),
+    // Warm atmospheric glow (bottom-left)
+    radial-gradient(ellipse 500px 400px at 10% 85%,
+      rgba(228,213,201,.05) 0%,
+      transparent 55%);
+  animation:overlayShift 18s ease-in-out infinite;
 }
 @keyframes overlayShift{
   0%,100%{opacity:1;}
-  50%{opacity:.96;}
+  50%{opacity:.97;}
 }
 // hero-layout: fills the hero (flex:1), then pushes its own content to the bottom.
 // This is the correct pattern for "image behind, text at bottom" hero.
@@ -581,6 +598,15 @@ strong{font-weight:600;}
   display:flex;
   flex-direction:column;
   gap:clamp(var(--s4),3vh,var(--s6));
+}
+.hero-eyebrow{
+  font-size:var(--t-xs);
+  font-weight:600;
+  letter-spacing:.18em;
+  text-transform:uppercase;
+  color:rgba(255,255,255,.42);
+  margin:0 0 var(--s3);
+  animation:heroLeadReveal .85s cubic-bezier(0.16, 1, 0.3, 1) .05s both;
 }
 .hero-text{
   max-width:min(100%,580px);
@@ -829,24 +855,28 @@ strong{font-weight:600;}
   filter:drop-shadow(0 2px 4px rgba(0,0,0,.05));
 }
 
+// Decorative underline accent element (used in section headers)
+.underline-accent{
+  display:block;
+  width:56px;
+  height:2px;
+  background:linear-gradient(90deg,
+    var(--accent-deep),
+    color-mix(in srgb,var(--accent-deep) 35%,transparent));
+  border-radius:var(--r-pill);
+  margin-top:calc(var(--s3) * -1);
+  margin-bottom:var(--s7);
+  opacity:.7;
+}
+
 // ═══ PROBLEM — EDITORIAL NUMBERED LIST ═══════════════════════════════════════
 .problem-header{
-  margin-bottom:var(--s8);
+  margin-bottom:var(--s6);
   position:relative;
 }
 .problem-header .section-title{
   max-width:20ch;
-}
-.problem-header::after{
-  content:"";
-  display:block;
-  width:80px;
-  height:2px;
-  background:linear-gradient(90deg,
-    color-mix(in srgb,var(--accent-deep) 80%,transparent),
-    transparent);
-  margin-top:var(--s4);
-  opacity:.5;
+  margin-bottom:var(--s3);
 }
 .problem-list{
   display:grid;
@@ -993,20 +1023,26 @@ strong{font-weight:600;}
 }
 
 // Editorial Comparison — No Boxes, Pure Typography
+// ─── Duo Cards — Emotional Contrast (Positive vs Negative) ─────────────────
 .duo-cards{
   display:grid;
-  gap:var(--s7);
+  gap:var(--s5);
   padding:var(--s6) 0;
 }
+
+// ── Shared base
 .duo-card{
-  padding:var(--s5) 0 var(--s5) var(--s6);
-  border-radius:0;
+  padding:var(--s5) var(--s5) var(--s5) var(--s6);
+  border-radius:var(--r-xl);
   background:transparent;
-  border-inline-start:2px solid color-mix(in srgb,var(--accent-deep) 30%,transparent);
+  border-inline-start:2px solid color-mix(in srgb,var(--accent-deep) 25%,transparent);
   transition:
-    border-color var(--dur-fast) var(--ease),
-    transform var(--dur-fast) var(--ease);
+    border-color 350ms var(--ease),
+    transform 350ms var(--ease),
+    box-shadow 350ms var(--ease),
+    background 350ms var(--ease);
   position:relative;
+  overflow:hidden;
 }
 .duo-card::before{
   content:"";
@@ -1015,21 +1051,71 @@ strong{font-weight:600;}
   top:0;
   width:2px;
   height:0;
-  background:var(--accent-deep);
-  transition:height 400ms var(--ease);
-}
-.duo-card:hover::before{
-  height:100%;
+  transition:height 450ms cubic-bezier(0.16, 1, 0.3, 1);
 }
 .duo-card:hover{
   transform:translateX(var(--s2));
   border-color:transparent;
 }
-.duo-card--muted{
-  background:transparent;
-  border-inline-start-color:color-mix(in srgb,var(--accent) 20%,transparent);
-  opacity:.85;
+.duo-card:hover::before{
+  height:100%;
 }
+
+// ── Positive card: elevated, bright, confident
+.duo-card--positive{
+  background:linear-gradient(135deg,
+    color-mix(in srgb,var(--accent) 14%,transparent) 0%,
+    color-mix(in srgb,var(--accent-deep) 6%,transparent) 100%);
+  border-inline-start-color:color-mix(in srgb,var(--accent-deep) 45%,transparent);
+  box-shadow:
+    0 2px 12px color-mix(in srgb,var(--accent) 18%,transparent),
+    inset 0 1px 0 rgba(255,255,255,.5);
+}
+.duo-card--positive::before{
+  background:linear-gradient(180deg,var(--accent-deep),color-mix(in srgb,var(--accent-deep) 60%,transparent));
+}
+.duo-card--positive:hover{
+  background:linear-gradient(135deg,
+    color-mix(in srgb,var(--accent) 20%,transparent) 0%,
+    color-mix(in srgb,var(--accent-deep) 9%,transparent) 100%);
+  box-shadow:
+    0 6px 24px color-mix(in srgb,var(--accent) 22%,transparent),
+    inset 0 1px 0 rgba(255,255,255,.6);
+}
+
+// Subtle top glow on positive card
+.duo-card--positive::after{
+  content:"";
+  position:absolute;
+  top:0;
+  inset-inline:0;
+  height:1px;
+  background:linear-gradient(90deg,
+    transparent,
+    color-mix(in srgb,var(--accent-deep) 55%,transparent) 50%,
+    transparent);
+  pointer-events:none;
+}
+
+// ── Negative card: muted, desaturated, subdued warning energy
+.duo-card--muted{
+  background:color-mix(in srgb,var(--surface-3) 60%,transparent);
+  border-inline-start-color:color-mix(in srgb,#c9a8a0 22%,transparent);
+  opacity:1;
+  filter:saturate(.85);
+}
+.duo-card--muted::before{
+  background:linear-gradient(180deg,#c9a8a0,color-mix(in srgb,#c9a8a0 40%,transparent));
+}
+.duo-card--muted h3{
+  color:var(--text-muted);
+}
+.duo-card--muted:hover{
+  filter:saturate(.9);
+  background:color-mix(in srgb,var(--surface-3) 70%,transparent);
+}
+
+// ── Typography
 .duo-card h3{
   font-family:var(--font-serif);
   font-size:var(--t-xl);
@@ -1316,17 +1402,44 @@ h2.about-intro{
 .reviews-outer{margin-top:var(--s6);padding-bottom:var(--s5);padding-block-start:var(--s3);}
 .hscroll-rail{display:flex;gap:var(--s3);padding-inline:var(--s5);width:max-content;align-items:flex-start;}
 
-// ═══ PORTFOLIO — CINEMATIC REEL RAIL ═════════════════════════════════════════
-.section-portfolio{overflow:hidden;}
+// ═══ PORTFOLIO — CINEMATIC DARK SHOWCASE ════════════════════════════════════
+// The portfolio section breaks from the light palette — a moody, cinematic moment
+.section-portfolio{
+  background:#1b1916;
+  overflow:hidden;
+  position:relative;
+}
+.section-portfolio::before{
+  content:"";
+  position:absolute;
+  inset:0;
+  background:
+    radial-gradient(ellipse 700px 500px at 80% 10%,
+      rgba(187,221,250,.04) 0%,
+      transparent 55%),
+    radial-gradient(ellipse 600px 700px at 20% 90%,
+      rgba(228,213,201,.04) 0%,
+      transparent 50%);
+  pointer-events:none;
+  animation:deepSectionFloat 25s ease-in-out infinite;
+}
+.section-portfolio .section-title{
+  color:rgba(255,255,255,.9);
+}
+.section-portfolio .section-lead{
+  color:rgba(255,255,255,.45);
+}
 .reel-card{
   flex-shrink:0;
   scroll-snap-align:center;
   width:clamp(168px,42vw,220px);
   transition:transform 600ms cubic-bezier(0.16, 1, 0.3, 1);
 }
-.reel-card:not(:hover){
-  transform:scale(.95);
-  opacity:.85;
+@media(hover:hover){
+  .reel-card:not(:hover){
+    transform:scale(.95);
+    opacity:.85;
+  }
 }
 .reel-frame{
   margin:0;
@@ -1394,12 +1507,12 @@ h2.about-intro{
   color:white;padding:3px 10px;letter-spacing:.08em;
 }
 .reel-frame--placeholder{
-  background:color-mix(in srgb,var(--accent) 8%,var(--surface-2));
-  border:1.5px dashed color-mix(in srgb,var(--accent) 30%,transparent);
+  background:rgba(255,255,255,.04);
+  border:1.5px dashed rgba(255,255,255,.12);
 }
 .reel-placeholder-inner{
   width:100%;height:100%;display:flex;align-items:center;justify-content:center;
-  font-size:var(--t-sm);color:var(--text-muted);text-align:center;padding:var(--s4);
+  font-size:var(--t-sm);color:rgba(255,255,255,.35);text-align:center;padding:var(--s4);
 }
 
 // ═══ RESULTS — PERFORMANCE CARDS ════════════════════════════════════════════
@@ -1706,33 +1819,52 @@ h2.about-intro{
 
 // ═══ HONESTY — CENTERED EDITORIAL ═══════════════════════════════════════════
 .honesty-inner{
-  max-width:560px;
+  max-width:600px;
   margin:0 auto;
   text-align:center;
   position:relative;
+  z-index:1;
 }
 .honesty-inner .section-title{
   margin-bottom:var(--s5);
-  font-size:clamp(1.9rem,5.5vw,2.6rem);
+  font-size:clamp(2rem,6vw,3rem);
+  line-height:1.18;
+  letter-spacing:-.025em;
 }
 .honesty-inner .section-body{
   font-size:var(--t-lg);
   max-width:48ch;
+  margin-inline:auto;
+  line-height:1.85;
 }
 .honesty-sign{
   font-family:var(--font-serif);
-  font-size:var(--t-xl);
+  font-size:clamp(1.1rem,2.8vw,1.4rem);
   font-weight:500;
   font-style:italic;
   color:var(--text);
   margin-top:var(--s6);
   line-height:1.5;
+  position:relative;
+  display:inline-block;
+}
+.honesty-sign::before{
+  content:"";
+  display:block;
+  width:32px;
+  height:1px;
+  background:color-mix(in srgb,var(--accent-deep) 50%,transparent);
+  margin:0 auto var(--s3);
 }
 .honesty-blob{
   position:absolute;inset:0;
-  background:radial-gradient(ellipse 60% 50% at 50% 80%,
-    color-mix(in srgb,var(--accent) 14%,transparent),transparent 65%);
+  background:
+    radial-gradient(ellipse 70% 50% at 50% 80%,
+      color-mix(in srgb,var(--accent) 18%,transparent),transparent 65%),
+    radial-gradient(ellipse 40% 40% at 20% 20%,
+      color-mix(in srgb,var(--accent-deep) 8%,transparent),transparent 60%);
   pointer-events:none;
+  animation:blueFloat 20s ease-in-out infinite;
 }
 
 // ═══ REVIEWS — TILTED CAROUSEL ══════════════════════════════════════════════
@@ -1747,9 +1879,11 @@ h2.about-intro{
   width:clamp(260px,76vw,320px);
   transition:transform 600ms cubic-bezier(0.34, 1.56, 0.64, 1);
 }
-.review-card:not(:hover){
-  transform:scale(.96);
-  opacity:.9;
+@media(hover:hover){
+  .review-card:not(:hover){
+    transform:scale(.96);
+    opacity:.9;
+  }
 }
 .review-inner{
   border-radius:var(--r-2xl);
@@ -1852,31 +1986,42 @@ h2.about-intro{
   0%,100%{opacity:.7;transform:scale(1) translate(0,0);}
   50%{opacity:1;transform:scale(1.1) translate(-2%,2%);}
 }
-// Mobile: single-column, image on top → content below
+// Mobile: image on top (first child), content below
 .contact-layout{
-  position:relative;z-index:1;
-  display:grid;
-  grid-template-columns:1fr;
+  position:relative;
+  z-index:1;
+  display:flex;
+  flex-direction:column;
   gap:0;
 }
-// Image: edge-to-edge on mobile, fills its grid cell
+// Image column — full-bleed on mobile, edge-to-edge
 .contact-img{
-  margin:0;position:relative;overflow:hidden;
+  width:100vw;
+  margin-inline:calc(50% - 50vw);
+  position:relative;
+  overflow:hidden;
   border-radius:0;
+  order:1;
 }
-// Gradient bridge: bottom of image fades into the section dark background
-// This is what makes image + content feel like ONE piece, not two stacked blocks
+// Gradient bridge: bottom fades into dark bg
 .contact-img::after{
-  content:"";position:absolute;
-  inset:auto 0 0 0; // stick to the bottom of the image
+  content:"";
+  position:absolute;
+  inset:auto 0 0 0;
   height:60%;
   background:linear-gradient(to top,#191714 0%,rgba(25,23,20,.8) 35%,transparent 100%);
   pointer-events:none;
 }
 .contact-img img{
   width:100%;
-  height:clamp(280px,58vw,420px);
-  object-fit:cover;object-position:center 30%;display:block;
+  height:clamp(260px,55vw,380px);
+  object-fit:cover;
+  object-position:center 30%;
+  display:block;
+}
+// Content column
+.contact-main{
+  order:2;
 }
 // Content block: sits below the image on mobile, overlapping the gradient bridge
 .contact-main{
@@ -2182,8 +2327,9 @@ h2.about-intro{
 .delay-7{transition-delay:.56s;}
 .delay-8{transition-delay:.64s;}
 // Hero has custom timings in animation definitions
-.reveal-hero.delay-3{transition-delay:.35s;}
-.reveal-hero.delay-4{transition-delay:.5s;}
+.reveal-hero.delay-3{transition-delay:.28s;}
+.reveal-hero.delay-4{transition-delay:.44s;}
+.reveal-hero.delay-5{transition-delay:.62s;}
 // Advanced stagger for child elements
 .stagger-children > *:nth-child(1){transition-delay:.05s;}
 .stagger-children > *:nth-child(2){transition-delay:.10s;}
@@ -2298,49 +2444,57 @@ h2.about-intro{
   .duo-cards{grid-template-columns:1fr 1fr;}
 
   // ─ Contact: split composition on desktop ──────────────────────
-  // The section uses a grid to place image and content side-by-side.
-  // No absolute positioning — cleaner reflow on all viewports.
   .section-contact{
-    // Override: remove top padding so image fills from the very top
     padding:0;
     overflow:hidden;
   }
-  .contact-img{
-    // Reset mobile styles
-    position:relative;
-    border-radius:var(--r-2xl);
-    overflow:hidden;
-    // Fill the right column completely
-    height:100%;
-    min-height:100%;
-    // Image sits BESIDE the form, not stacked
-    display:block;
-    box-shadow:var(--sh-xl);
-    transform:translateX(-24px);
-  }
-  .contact-img::after{
-    // Gradient bleeds LEFT from the image into the dark section
-    background:linear-gradient(to right,#191714 8%,rgba(25,23,20,.6) 28%,transparent 60%);
-    // Correct absolute positioning within the image figure
-    inset:0;
-    width:65%;
-    height:100%;
-  }
-  .contact-img img{
-    height:100%;
-    min-height:520px;
-    object-position:center 28%;
+  .section-contact .container{
+    padding-inline:0;
+    width:100%;
+    max-width:100%;
   }
   .contact-layout{
-    // Two-column grid: content | image
+    // Switch from flex-column to side-by-side grid
     display:grid;
     grid-template-columns:1fr 1fr;
     align-items:stretch;
     gap:0;
+    flex-direction:unset;
+  }
+  .contact-img{
+    // Image is the right column (RTL: order:2 means it renders on left visually)
+    order:2;
+    width:auto;       // reset mobile 100vw
+    margin-inline:0;  // reset mobile full-bleed
+    position:relative;
+    border-radius:0;
+    overflow:hidden;
+    height:100%;
+    min-height:100%;
+    display:block;
+    box-shadow:none;
+    transform:none;
+  }
+  .contact-img::after{
+    // In RTL, image is on the left, content on the right — darken the right edge
+    background:linear-gradient(to right,transparent 38%,rgba(25,23,20,.72) 70%,#191714 100%);
+    inset:0;
+    width:100%;
+    height:100%;
+  }
+  .contact-img img{
+    height:100%;
+    width:100%;
+    min-height:560px;
+    object-fit:cover;
+    object-position:center 28%;
   }
   .contact-main{
-    // Content column gets its own padding
-    padding:clamp(var(--s7),8vh,var(--s10)) clamp(var(--s5),5vw,var(--s8));
+    order:1;
+    padding:clamp(var(--s7),8vh,var(--s10)) clamp(var(--s6),5vw,var(--s9));
+    display:flex;
+    flex-direction:column;
+    justify-content:center;
     gap:var(--s5);
   }
 }
@@ -2388,11 +2542,17 @@ h2.about-intro{
     object-position:center 18%;
     animation:none; // disable ken-burns on mobile (performance)
   }
-  // Deeper overlay on mobile — text MUST be legible at all image brightnesses
+  // Deeper overlay on mobile — text MUST be legible, face MUST stay visible
   .hero-overlay{
     background:
-      linear-gradient(0deg,rgba(25,22,20,.94) 0%,rgba(25,22,20,.58) 38%,rgba(25,22,20,.0) 62%),
-      linear-gradient(148deg,color-mix(in srgb,var(--accent) 15%,transparent) 0%,transparent 40%);
+      linear-gradient(0deg,
+        rgba(20,18,16,.96) 0%,
+        rgba(20,18,16,.62) 42%,
+        rgba(20,18,16,.08) 70%,
+        rgba(20,18,16,.0) 85%),
+      linear-gradient(135deg,
+        rgba(187,221,250,.06) 0%,
+        transparent 50%);
   }
   // Hero layout: fluid padding guarantees text never touches the image
   // even on Nexus 5 (360×640px) or iPhone SE 1st gen (320×568px)
@@ -2435,13 +2595,18 @@ h2.about-intro{
   .hero-cta-row .btn::before{
     display:none;
   }
+  .hero-eyebrow{
+    font-size:var(--t-2xs);
+    letter-spacing:.14em;
+    margin-bottom:var(--s2);
+  }
   .hero-stats{
     flex-direction:row;
     gap:var(--s3);
     width:100%;
   }
   .stat-chip{
-    padding:var(--s4) var(--s5);
+    padding:var(--s3) var(--s5);
     flex:1;
     min-width:0;
   }
