@@ -118,8 +118,36 @@ ul{list-style:none;padding:0;margin:0;}
   50%{transform:translate(5%,-5%) scale(1.12);}
 }
 @keyframes heroBreath{
-  0%,100%{transform:scale(1) translateY(0);}
-  50%{transform:scale(1.015) translateY(-0.5%);}
+  // Base scale matches JS parallax scale(1.04) — prevents jitter on scroll start
+  0%,100%{transform:scale(1.04) translateY(0);}
+  50%{transform:scale(1.055) translateY(-0.35%);}
+}
+// Letterbox bars retract inward — cinematic film opening
+@keyframes lbRetractTop{
+  0%{transform:scaleY(1);opacity:1;}
+  70%{opacity:1;}
+  100%{transform:scaleY(0);opacity:0;pointer-events:none;}
+}
+@keyframes lbRetractBottom{
+  0%{transform:scaleY(1);opacity:1;}
+  70%{opacity:1;}
+  100%{transform:scaleY(0);opacity:0;pointer-events:none;}
+}
+@keyframes chapterReveal{
+  from{opacity:0;transform:translateY(30px);}
+  to{opacity:1;transform:none;}
+}
+@keyframes brandBreakLine1{
+  from{opacity:0;transform:translateY(56px) skewY(-1.5deg);filter:blur(10px);}
+  to{opacity:1;transform:none;filter:blur(0);}
+}
+@keyframes brandBreakLine2{
+  from{opacity:0;transform:translateY(72px) skewY(-2deg);filter:blur(14px);}
+  to{opacity:1;transform:none;filter:blur(0);}
+}
+@keyframes brandBreakSub{
+  from{opacity:0;transform:translateY(28px);}
+  to{opacity:1;transform:none;}
 }
 @keyframes heroTitleReveal{
   from{opacity:0;transform:translateY(36px);filter:blur(8px);}
@@ -294,6 +322,20 @@ ul{list-style:none;padding:0;margin:0;}
   z-index:0;
   animation:atmosphereFloat 40s ease-in-out infinite reverse;
 }
+// Film grain — cinematic tactile texture layer
+.page-grain{
+  position:fixed;
+  inset:0;
+  z-index:500;
+  pointer-events:none;
+  opacity:.028;
+  background-image:
+    url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='1'/%3E%3C/svg%3E");
+  background-repeat:repeat;
+  background-size:128px 128px;
+  mix-blend-mode:overlay;
+  will-change:auto;
+}
 .container{
   width:min(1200px,92%);
   margin:0 auto;
@@ -389,6 +431,24 @@ ul{list-style:none;padding:0;margin:0;}
   letter-spacing:-.04em;
   line-height:1;
   display:block;
+}
+.brand-break-line-sub{
+  display:block;
+  font-size:var(--t-xs);
+  letter-spacing:.22em;
+  text-transform:uppercase;
+  color:rgba(187,221,250,.35);
+  margin-top:clamp(var(--s4),3vh,var(--s6));
+}
+// Staggered cinematic reveal on scroll
+.brand-break-reveal-1.is-visible{
+  animation:brandBreakLine1 1.1s cubic-bezier(0.16,1,0.3,1) both;
+}
+.brand-break-reveal-2.is-visible{
+  animation:brandBreakLine2 1.3s cubic-bezier(0.16,1,0.3,1) 0.12s both;
+}
+.brand-break-reveal-3.is-visible{
+  animation:brandBreakSub 1s cubic-bezier(0.16,1,0.3,1) 0.55s both;
 }
 @media(max-width:767px){
   .brand-break{padding:clamp(var(--s8),12vh,var(--s10)) 0;}
@@ -1030,6 +1090,49 @@ strong{font-weight:600;}
   z-index:1;
   animation:wordmarkDrift 22s ease-in-out infinite;
   font-family:var(--font-serif);
+}
+
+// ── Cinematic Letterbox Bars — film opening effect ─────────────────────────
+.hero-lb{
+  position:absolute;
+  inset-inline:0;
+  height:clamp(50px,10vh,100px);
+  background:#020100;
+  z-index:9;
+  pointer-events:none;
+}
+.hero-lb--top{
+  top:0;
+  transform-origin:top center;
+  animation:lbRetractTop 1.8s cubic-bezier(0.77,0,0.175,1) 0.1s forwards;
+}
+.hero-lb--bottom{
+  bottom:0;
+  transform-origin:bottom center;
+  animation:lbRetractBottom 1.8s cubic-bezier(0.77,0,0.175,1) 0.1s forwards;
+}
+@media(prefers-reduced-motion:reduce){
+  .hero-lb{display:none;}
+}
+
+// ── Hero Chapter Number — luxury editorial floating depth ──────────────────
+.hero-chapter{
+  position:absolute;
+  bottom:clamp(var(--s6),11vh,var(--s9));
+  inset-inline-end:clamp(var(--s5),4vw,var(--s9));
+  font-family:var(--font-serif);
+  font-size:clamp(5rem,14vw,12rem);
+  font-weight:700;
+  color:transparent;
+  -webkit-text-stroke:1px rgba(187,221,250,.07);
+  line-height:1;
+  pointer-events:none;
+  user-select:none;
+  z-index:1;
+  animation:chapterReveal 1.4s cubic-bezier(0.16,1,0.3,1) 1.6s both;
+}
+@media(max-width:767px){
+  .hero-chapter{font-size:clamp(4rem,22vw,7rem);bottom:var(--s8);}
 }
 
 // ── Hero Vertical Brand Tag — luxury editorial side marker ─────────────────
