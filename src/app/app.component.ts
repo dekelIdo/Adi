@@ -112,8 +112,8 @@ export class AppComponent implements AfterViewInit, OnDestroy {
               const p = scrollY / heroH;
 
               if (heroBgImg) {
-                // Keep scale consistent with CSS (1.04) to avoid jitter
-                heroBgImg.style.transform = `scale(1.04) translateY(${p * 5}%)`;
+                // Keep scale consistent with CSS heroBreath base (1.08) — prevents edge reveal
+                heroBgImg.style.transform = `scale(1.08) translateY(${p * 4.5}%)`;
               }
 
               orbs.forEach((orb, i) => {
