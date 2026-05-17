@@ -12,8 +12,13 @@
 
   <main id="main-content">
 
-    <!-- ─── HERO ─── -->
+    <!-- ─── HERO — CINEMATIC FASHION CAMPAIGN ─── -->
     <section id="hero" class="hero">
+      <!-- Floating atmospheric orbs -->
+      <div class="hero-orb hero-orb--1" aria-hidden="true"></div>
+      <div class="hero-orb hero-orb--2" aria-hidden="true"></div>
+      <div class="hero-orb hero-orb--3" aria-hidden="true"></div>
+
       <div class="hero-bg" aria-hidden="true">
         <img
           src="assets/lovable-uploads/627cda47-32b8-4e16-96e2-8b1f881f6100.jpg"
@@ -22,9 +27,14 @@
         />
         <div class="hero-overlay"></div>
       </div>
+
       <div class="hero-layout">
         <div class="hero-content-wrapper">
           <div class="hero-text">
+            <div class="hero-live-pill reveal reveal-hero delay-1">
+              <span class="hero-live-dot"></span>
+              פועלת כרגע · מקבלת לקוחות חדשים
+            </div>
             <p class="hero-eyebrow reveal reveal-hero delay-1">Social-Li ✦ עדי אריאלי</p>
             <h1 class="hero-title reveal reveal-hero delay-2">
               הגיע הזמן שהסושיאל שלך יתחיל <em>לעבוד בשבילך</em>
@@ -33,27 +43,53 @@
               יותר חשיפה, יותר לקוחות ויותר מכירות — כולל אסטרטגיה, יצירת תוכן וניהול שוטף.
             </p>
             <div class="hero-cta-row reveal reveal-hero delay-4">
-              <a class="btn btn-glass" href="#contact">השאירו פרטים</a>
+              <a class="btn btn-glass btn-glass--brand" href="#contact">השאירו פרטים</a>
               <a class="btn btn-secondary" href="#portfolio">לתיק העבודות</a>
             </div>
           </div>
           <div class="hero-stats reveal reveal-hero delay-5">
             <div class="stat-chip">
-              <span class="stat-value">10K</span>
-              <span class="stat-label">צפיות ועשרות לקוחות</span>
+              <span class="stat-value">10K+</span>
+              <span class="stat-label">צפיות לסרטון</span>
+            </div>
+            <div class="stat-chip stat-chip--sm">
+              <span class="stat-value">3+</span>
+              <span class="stat-label">שנות ניסיון</span>
             </div>
           </div>
         </div>
       </div>
+
+      <!-- Cinematic ticker strip -->
+      <div class="hero-ticker" aria-hidden="true">
+        <div class="hero-ticker-track">
+          <span>אסטרטגיה</span><span class="ticker-sep">✦</span>
+          <span>יצירת תוכן</span><span class="ticker-sep">✦</span>
+          <span>ניהול סושיאל</span><span class="ticker-sep">✦</span>
+          <span>צמיחה אורגנית</span><span class="ticker-sep">✦</span>
+          <span>אינסטגרם</span><span class="ticker-sep">✦</span>
+          <span>רילס</span><span class="ticker-sep">✦</span>
+          <span>תוכן מקצועי</span><span class="ticker-sep">✦</span>
+          <span>מיתוג דיגיטלי</span><span class="ticker-sep">✦</span>
+          <span>אסטרטגיה</span><span class="ticker-sep">✦</span>
+          <span>יצירת תוכן</span><span class="ticker-sep">✦</span>
+          <span>ניהול סושיאל</span><span class="ticker-sep">✦</span>
+          <span>צמיחה אורגנית</span><span class="ticker-sep">✦</span>
+          <span>אינסטגרם</span><span class="ticker-sep">✦</span>
+          <span>רילס</span><span class="ticker-sep">✦</span>
+          <span>תוכן מקצועי</span><span class="ticker-sep">✦</span>
+          <span>מיתוג דיגיטלי</span><span class="ticker-sep">✦</span>
+        </div>
+      </div>
+
       <div class="hero-scroll-hint" aria-hidden="true">
         <span></span>
       </div>
     </section>
 
-    <!-- ─── BRAND MARQUEE — always-running on all viewports ─── -->
+    <!-- ─── BRAND MARQUEE ─── -->
     <section class="brand-marquee-section" aria-label="מותגים שעבדתי איתם">
       <p class="brand-marquee-label">מותגים שעבדתי איתם</p>
-      <!-- Single marquee track — always running, speed adapts via CSS token -->
       <div class="brand-track-wrap brand-track-wrap--desktop">
         <div class="brand-track">
           <span class="brand-track-item"><img src="assets/brand-logos/clalit-active.svg"               alt="Clalit Active+" /></span>
@@ -61,7 +97,6 @@
           <span class="brand-track-item"><img src="assets/lovable-uploads/client-movement.png"         alt="Movement" /></span>
           <span class="brand-track-item"><img src="assets/lovable-uploads/client-moon-productions.png" alt="Moon Productions" /></span>
           <span class="brand-track-item"><img src="assets/brand-logos/ichilov-well.svg"                alt="Ichilov Well" /></span>
-          <!-- duplicate set for seamless loop -->
           <span class="brand-track-item" aria-hidden="true"><img src="assets/brand-logos/clalit-active.svg"               alt="" /></span>
           <span class="brand-track-item" aria-hidden="true"><img src="assets/lovable-uploads/client-allen-carr.png"       alt="" /></span>
           <span class="brand-track-item" aria-hidden="true"><img src="assets/lovable-uploads/client-movement.png"         alt="" /></span>
@@ -73,6 +108,7 @@
 
     <!-- ─── PROBLEM ─── -->
     <section id="problem" class="section section-bg-white">
+      <div class="section-glow section-glow--brand" aria-hidden="true"></div>
       <div class="container">
         <div class="problem-header">
           <h2 class="section-title reveal delay-1">אולי גם אצלך זה מרגיש ככה…</h2>
@@ -126,6 +162,7 @@
           </figure>
           <div class="duo-cards">
             <div class="duo-card duo-card--positive reveal reveal-rise delay-2">
+              <div class="duo-card-glow" aria-hidden="true"></div>
               <h3>עסקים שמבינים ←</h3>
               <ul>
                 <li>נמצאים בתודעת הלקוחות</li>
@@ -142,7 +179,7 @@
       </div>
     </section>
 
-    <!-- ─── SOLUTION (image left / text right) ─── -->
+    <!-- ─── SOLUTION ─── -->
     <section id="solution" class="section section-bg-blue">
       <div class="container solution-wrap">
         <figure class="editorial-img solution-visual-wrap reveal reveal-float">
@@ -233,8 +270,10 @@
       </div>
     </section>
 
-    <!-- ─── PORTFOLIO (horizontal scroll reels) ─── -->
-    <section id="portfolio" class="section section-portfolio section-bg-white">
+    <!-- ─── PORTFOLIO (cinematic dark showcase) ─── -->
+    <section id="portfolio" class="section section-portfolio">
+      <div class="portfolio-orb portfolio-orb--1" aria-hidden="true"></div>
+      <div class="portfolio-orb portfolio-orb--2" aria-hidden="true"></div>
       <div class="container">
         <h2 class="section-title reveal delay-1">מהתיק עבודות</h2>
         <p class="section-lead reveal delay-2">סרטונים ותוכן שיצרתי עבור לקוחות</p>
@@ -267,7 +306,7 @@
           </div>
           <div class="reel-card reveal reveal-float delay-5">
             <figure class="reel-frame reel-frame--placeholder">
-              <div class="reel-placeholder-inner"><span>עוד תוכן בדרך</span></div>
+              <div class="reel-placeholder-inner"><span>עוד תוכן בדרך ✦</span></div>
             </figure>
           </div>
         </div>
@@ -318,6 +357,7 @@
         <h2 class="section-title reveal delay-1">מה מחכה לך בתוך <em>חבילת Social-Li?</em></h2>
         <p class="section-lead reveal delay-2">עסקים שעובדים איתי מקבלים מעטפת מלאה לניהול הסושיאל שלהם.</p>
         <div class="package-card reveal reveal-rise delay-2">
+          <div class="package-shimmer" aria-hidden="true"></div>
           <div class="package-pillars">
             <div class="package-pillar">
               <span class="package-pillar-icon">✦</span>
@@ -415,19 +455,25 @@
       </div>
     </section>
 
-    <!-- ─── HONESTY ─── -->
-    <section id="honesty" class="section section-bg-blue" style="text-align:center;">
+    <!-- ─── HONESTY — CINEMATIC STATEMENT ─── -->
+    <section id="honesty" class="section section-bg-deep section-honesty">
       <div class="honesty-blob" aria-hidden="true"></div>
+      <div class="honesty-glow-1" aria-hidden="true"></div>
+      <div class="honesty-glow-2" aria-hidden="true"></div>
       <div class="container">
         <div class="honesty-inner">
+          <span class="honesty-eyebrow reveal delay-1">✦ האמת</span>
           <h2 class="section-title reveal delay-1">ניהול סושיאל הוא לא קסם.</h2>
-          <p class="section-body reveal delay-2" style="margin-inline:auto;">
+          <p class="section-body reveal delay-2">
             אבל כשהוא נעשה נכון — הוא יכול להפוך את העסק שלך להרבה יותר נוכח, מבוקש ורווחי.
           </p>
-          <p class="section-body reveal delay-2" style="margin-inline:auto;">
+          <p class="section-body reveal delay-2">
             עסקים שמייצרים תוכן בצורה חכמה בונים קהילה, אמון ולקוחות חוזרים.
           </p>
           <p class="honesty-sign reveal delay-3">וזה בדיוק מה שאנחנו הולכים לעשות.</p>
+          <div class="honesty-cta reveal delay-4">
+            <a class="btn btn-glass btn-glass--brand" href="#contact">בואו נתחיל</a>
+          </div>
         </div>
       </div>
     </section>
@@ -469,7 +515,6 @@
     <section id="contact" class="section section-contact">
       <div class="container">
         <div class="contact-layout">
-          <!-- Image column: lives inside the grid so desktop side-by-side works -->
           <figure class="contact-img reveal reveal-float">
             <img
               src="assets/lovable-uploads/MyAssets/ContactMe.jpg"
@@ -509,7 +554,6 @@
     </section>
 
     <!-- ─── FAQ ─── -->
-
     <section id="faq" class="section section-bg-white">
       <div class="container">
         <h2 class="section-title reveal delay-1">שאלות ותשובות</h2>
