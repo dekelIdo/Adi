@@ -112,15 +112,13 @@ export class AppComponent implements AfterViewInit, OnDestroy {
               const p = scrollY / heroH;
 
               if (heroBgImg) {
-                // Keep scale consistent with CSS heroBreath base (1.08) — prevents edge reveal
-                heroBgImg.style.transform = `scale(1.08) translateY(${p * 4.5}%)`;
+                heroBgImg.style.transform = `scale(0.88) translateY(${p * 3}%)`;
               }
 
               orbs.forEach((orb, i) => {
-                const speed = [0.10, 0.07, 0.05][i] ?? 0.08;
+                const speed = 0.08;
                 const dir = i % 2 === 0 ? 1 : -1;
-                // Don't override the CSS animation — translate on top of it
-                orb.style.marginTop = `${scrollY * speed * dir * 0.5}px`;
+                orb.style.marginTop = `${scrollY * speed * dir * 0.4}px`;
               });
             }
             ticking = false;
@@ -262,6 +260,7 @@ export class AppComponent implements AfterViewInit, OnDestroy {
       let offset = 0;
       let isDragging = false;
       let isHovered = false;
+      let isPaused = false;
       let dragStartX = 0;
       let dragOffsetStart = 0;
       let velocity = 0;
@@ -276,14 +275,12 @@ export class AppComponent implements AfterViewInit, OnDestroy {
       };
 
       const tick = () => {
-        if (!isDragging) {
+        if (!isDragging && !isPaused) {
           if (Math.abs(velocity) > 0.15) {
-            // Momentum carry after drag
             offset += velocity;
             velocity *= FRICTION;
           }
-          // Always auto-scroll — slower when hovered (luxury hover deceleration)
-          offset -= isHovered ? SPEED * 0.3 : SPEED;
+          offset -= isHovered ? SPEED * 0.35 : SPEED;
           clampOffset();
           track.style.transform = `translateX(${offset}px)`;
         }
@@ -293,10 +290,10 @@ export class AppComponent implements AfterViewInit, OnDestroy {
 
       tick();
 
-      // ── Desktop mouse drag ──────────────────────────────────────────────
       outer.addEventListener('mouseenter', () => { isHovered = true; }, { passive: true });
       outer.addEventListener('mouseleave', () => {
         isHovered = false;
+        isPaused = false;
         if (isDragging) {
           isDragging = false;
           outer.style.cursor = 'grab';
@@ -306,6 +303,7 @@ export class AppComponent implements AfterViewInit, OnDestroy {
 
       outer.addEventListener('mousedown', (e: MouseEvent) => {
         isDragging = true;
+        isPaused = true;
         isHovered = true;
         dragStartX = e.clientX;
         dragOffsetStart = offset;
@@ -327,13 +325,13 @@ export class AppComponent implements AfterViewInit, OnDestroy {
       window.addEventListener('mouseup', () => {
         if (!isDragging) return;
         isDragging = false;
+        isPaused = false;
         outer.style.cursor = 'grab';
-        // Momentum carries, then auto-scroll resumes via isHovered going false
       });
 
-      // ── Touch drag ──────────────────────────────────────────────────────
       outer.addEventListener('touchstart', (e: TouchEvent) => {
         isDragging = true;
+        isPaused = true;
         isHovered = true;
         dragStartX = e.touches[0].clientX;
         dragOffsetStart = offset;
@@ -353,14 +351,32 @@ export class AppComponent implements AfterViewInit, OnDestroy {
 
       outer.addEventListener('touchend', () => {
         isDragging = false;
-        resumeTimer = setTimeout(() => { isHovered = false; velocity = 0; }, 900);
+        isPaused = false;
+        resumeTimer = setTimeout(() => {
+          isHovered = false;
+          velocity = 0;
+        }, 400);
       }, { passive: true });
 
       outer.addEventListener('touchcancel', () => {
         isDragging = false;
         isHovered = false;
+        isPaused = false;
         velocity = 0;
       }, { passive: true });
+
+      const cards = track.querySelectorAll<HTMLElement>('.reel-card');
+      const centerObs = new IntersectionObserver(
+        (entries) => {
+          entries.forEach((entry) => {
+            if (!entry.isIntersecting || entry.intersectionRatio < 0.52) return;
+            cards.forEach((c) => c.classList.remove('reel-card--center'));
+            entry.target.classList.add('reel-card--center');
+          });
+        },
+        { root: outer, threshold: [0.52, 0.65, 0.8] }
+      );
+      cards.forEach((c) => centerObs.observe(c));
     });
   }
 

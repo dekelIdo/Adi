@@ -15,28 +15,22 @@
 
   <main id="main-content">
 
-    <!-- ─── HERO — CINEMATIC FASHION CAMPAIGN ─── -->
+    <!-- ─── HERO — Editorial luxury (restrained, mobile-stable) ─── -->
     <section id="hero" class="hero">
-      <!-- Cinematic letterbox bars — retract on load like a film opening -->
-      <div class="hero-lb hero-lb--top" aria-hidden="true"></div>
-      <div class="hero-lb hero-lb--bottom" aria-hidden="true"></div>
-
-      <!-- Oversized ghosted brand wordmark — luxury editorial depth -->
-      <div class="hero-wordmark" aria-hidden="true">SOCIAL·LI</div>
-
-      <!-- Vertical editorial brand identity marker -->
-      <div class="hero-brand-tag" aria-hidden="true">
-        <span class="hero-brand-tag-line"></span>
-        <span class="hero-brand-tag-text">SOCIAL MEDIA BRAND STUDIO</span>
-        <span class="hero-brand-tag-line"></span>
-      </div>
-
-      <!-- Floating atmospheric orbs -->
       <div class="hero-orb hero-orb--1" aria-hidden="true"></div>
-      <div class="hero-orb hero-orb--2" aria-hidden="true"></div>
-      <div class="hero-orb hero-orb--3" aria-hidden="true"></div>
+      <div class="hero-soft-glow" aria-hidden="true"></div>
 
       <div class="hero-layout">
+        <!-- Portrait: own row on mobile — never behind text -->
+        <div class="hero-bg" aria-hidden="true">
+          <img
+            src="assets/lovable-uploads/627cda47-32b8-4e16-96e2-8b1f881f6100.jpg"
+            alt=""
+            fetchpriority="high"
+          />
+          <div class="hero-bg-fade" aria-hidden="true"></div>
+        </div>
+
         <div class="hero-content-wrapper">
           <div class="hero-text">
             <div class="hero-live-pill reveal reveal-hero delay-1">
@@ -55,7 +49,6 @@
               <a class="btn btn-secondary" href="#portfolio">לתיק העבודות</a>
             </div>
           </div>
-          <!-- Editorial metrics — pure serif numbers, no glass cards -->
           <div class="hero-metrics reveal reveal-hero delay-5">
             <div class="metric">
               <span class="metric-value">10K+</span>
@@ -73,19 +66,6 @@
             </div>
           </div>
         </div>
-        <!-- Portrait panel — grid column 2 (LEFT in RTL). Grid bounds it: portrait CANNOT exit its column -->
-        <div class="hero-bg" aria-hidden="true">
-          <img
-            src="assets/lovable-uploads/627cda47-32b8-4e16-96e2-8b1f881f6100.jpg"
-            alt=""
-            fetchpriority="high"
-          />
-          <div class="hero-overlay"></div>
-        </div>
-      </div>
-
-      <div class="hero-scroll-hint" aria-hidden="true">
-        <span></span>
       </div>
     </section>
 
