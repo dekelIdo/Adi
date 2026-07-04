@@ -146,7 +146,7 @@
 }
 
 .font-assistant {
-  font-family: "Assistant", "Segoe UI", Arial, sans-serif;
+  font-family: "Assistant", Arial, Helvetica, sans-serif;
 }
 
 .font-playpensanshebrew {
@@ -160,7 +160,7 @@
 }
 
 body {
-  font-family: "Inter", "Segoe UI", Arial, sans-serif;
+  font-family: "Assistant", Arial, Helvetica, sans-serif;
   line-height: 1.6;
   background: #ffffff;
 }

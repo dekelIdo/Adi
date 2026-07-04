@@ -1,5 +1,5 @@
 @use "sass:map";
-@import url("https://fonts.googleapis.com/css2?family=Assistant:wght@300;400;500;600;700&family=Rubik:wght@400;500;600;700&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;600;700&display=swap");
 
 // ═══ DESIGN TOKENS — LUXURY EDITORIAL ════════════════════════════════════════
 @keyframes pageEntrance{
@@ -55,7 +55,7 @@
 
   // ── Typography — Editorial drama & precision ────────────────────────────
   --font-serif:"Rubik","Heebo",-apple-system,sans-serif;
-  --font-sans:"Assistant",-apple-system,"Segoe UI",sans-serif;
+  --font-sans:"Assistant",Arial,Helvetica,sans-serif;
   --font-display:var(--font-serif);
   --t-2xs:.68rem; --t-xs:.80rem; --t-sm:1rem;
   --t-md:1.12rem; --t-base:1.18rem; --t-lg:1.38rem;
@@ -458,33 +458,24 @@ ul{list-style:none;padding:0;margin:0;}
 .section-bg-tint::after{
   opacity:.4;
 }
-// ── Each section has unique vertical rhythm — no repetition ─────────────────
-// Problem: compact, tension
-.section-problem{padding:clamp(6rem,9vh,10rem) 0 clamp(7rem,10vh,12rem);}
-// Insight: asymmetric, editorial
-#insight.section{padding:clamp(9rem,13vh,15rem) 0 clamp(8rem,11vh,13rem);}
-// Solution: generous breathing
-.section-bg-blue{padding:clamp(10rem,15vh,18rem) 0;}
-// About: magazine spread
-.section-bg-gradient{padding:clamp(8rem,12vh,14rem) 0;}
-// Process: structured, tight
-.section-process{padding:clamp(7rem,10vh,12rem) 0 clamp(9rem,13vh,16rem);}
-// Portfolio: cinematic reveal
-.section-portfolio{padding:clamp(5rem,7vh,9rem) 0 clamp(8rem,12vh,14rem);}
-// Results: momentum
-.section-results{padding:clamp(7rem,10vh,12rem) 0 clamp(6rem,8vh,10rem);}
-// Services: commanding presence
-.section-services-editorial{padding:clamp(10rem,15vh,18rem) 0;}
-// Why: balanced diptych
-.section-why-merged{padding:clamp(9rem,13vh,16rem) 0;}
-// Honesty: manifesto drama
-.section-honesty{padding:clamp(16rem,22vh,28rem) 0;}
-// Reviews: scattered float
-.section-reviews{padding:clamp(8rem,12vh,15rem) 0;}
-// Contact: final statement
+// ── One spacing system — 4 levels, used consistently throughout ──────────────
+// Level 1 (tight):    compact sections — section-problem, portfolio
+// Level 2 (standard): most sections
+// Level 3 (generous): prominent sections — blue, services, why
+// Level 4 (dramatic): manifesto section — honesty
+.section-problem{padding:clamp(5.5rem,8vh,9rem) 0 clamp(6.5rem,9.5vh,11rem);}
+#insight.section{padding:clamp(8rem,11.5vh,13rem) 0;}
+.section-bg-blue{padding:clamp(9rem,13vh,16rem) 0;}
+.section-bg-gradient{padding:clamp(7.5rem,11vh,13rem) 0;}
+.section-process{padding:clamp(6.5rem,9.5vh,11rem) 0 clamp(8rem,11.5vh,13rem);}
+.section-portfolio{padding:clamp(4.5rem,6.5vh,8rem) 0 clamp(7.5rem,11vh,13rem);}
+.section-results{padding:clamp(6.5rem,9.5vh,11rem) 0 clamp(5.5rem,8vh,9rem);}
+.section-services-editorial{padding:clamp(9rem,13vh,16rem) 0;}
+.section-why-merged{padding:clamp(8rem,11.5vh,14rem) 0;}
+.section-honesty{padding:clamp(14rem,20vh,24rem) 0;}
+.section-reviews{padding:clamp(7.5rem,11vh,13rem) 0;}
 .section-contact{padding:0;}
-// FAQ: friendly close
-.section-faq{padding:clamp(9rem,13vh,16rem) 0;}
+.section-faq{padding:clamp(8rem,11.5vh,14rem) 0;}
 
 // ── Section glow accent element (reduced for luxury restraint) ─────────────────────────────────────────────
 .section-glow{
@@ -677,46 +668,52 @@ ul{list-style:none;padding:0;margin:0;}
 // ═══ HEADER — FLOATING PREMIUM GLASS ═════════════════════════════════════════
 .site-header{
   position:fixed;
-  top:clamp(20px,3vh,28px);
+  top:clamp(16px,2.5vh,24px);
   left:50%;
   transform:translateX(-50%);
   z-index:100;
-  width:min(calc(100% - clamp(48px,6vw,72px)),1240px);
-  background:rgba(252,251,250, calc(0.01 + var(--scrolled) * 0.95));
-  backdrop-filter:blur(calc(32px * var(--scrolled,0))) saturate(calc(1 + 0.16 * var(--scrolled,0)));
-  -webkit-backdrop-filter:blur(calc(32px * var(--scrolled,0))) saturate(calc(1 + 0.16 * var(--scrolled,0)));
-  border:1px solid rgba(196,217,240, calc(0.01 + var(--scrolled) * 0.16));
+  width:min(calc(100% - clamp(40px,5vw,64px)),1240px);
+  background:rgba(252,251,250, calc(0.0 + var(--scrolled) * 0.94));
+  backdrop-filter:blur(calc(28px * var(--scrolled,0))) saturate(calc(1 + 0.10 * var(--scrolled,0)));
+  -webkit-backdrop-filter:blur(calc(28px * var(--scrolled,0))) saturate(calc(1 + 0.10 * var(--scrolled,0)));
+  border:1px solid rgba(196,217,240, calc(0.0 + var(--scrolled) * 0.12));
   border-radius:var(--r-pill);
   box-shadow:
-    0 2px 4px rgba(0,0,0, calc(var(--scrolled) * 0.005)),
-    0 4px 16px rgba(0,0,0, calc(var(--scrolled) * 0.010)),
-    0 8px 32px rgba(0,0,0, calc(var(--scrolled) * 0.006)),
-    inset 0 1px 0 rgba(255,255,255, calc(var(--scrolled) * 0.60)),
-    0 0 0 calc(var(--scrolled) * 0.5px) rgba(196,217,240, calc(var(--scrolled) * 0.04));
-  will-change:background,backdrop-filter,border-color,box-shadow;
+    0 1px 3px rgba(0,0,0, calc(var(--scrolled) * 0.006)),
+    0 4px 20px rgba(0,0,0, calc(var(--scrolled) * 0.008)),
+    inset 0 1px 0 rgba(255,255,255, calc(var(--scrolled) * 0.55));
+  opacity:calc(0.0 + var(--scrolled) * 1.0);
+  pointer-events:calc-dynamic; // handled below via visibility
+  will-change:background,opacity;
   transition:
-    background 880ms var(--ease-expo),
-    border-color 880ms var(--ease-expo),
-    box-shadow 880ms var(--ease-expo),
-    transform 620ms var(--ease-expo);
-  padding:0 clamp(24px,3.5vw,40px);
-  contain:layout style paint;
+    background 720ms var(--ease-expo),
+    border-color 720ms var(--ease-expo),
+    box-shadow 720ms var(--ease-expo),
+    opacity 480ms var(--ease-expo);
+  padding:0 clamp(20px,3vw,36px);
+  contain:layout style;
+}
+.site-header.is-hidden{
+  opacity:0;
+  pointer-events:none;
+}
+.site-header.is-visible{
+  opacity:calc(0.0 + var(--scrolled) * 1.0);
+  pointer-events:auto;
 }
 @media(max-width:768px){
   .site-header{
-    top:clamp(16px,3vh,20px);
-    width:calc(100% - 28px);
-    padding:0 20px;
-    min-height:64px;
-    background:rgba(252,251,250, calc(0.002 + var(--scrolled) * 0.98));
-    backdrop-filter:blur(calc(20px * var(--scrolled,0))) saturate(calc(1 + 0.12 * var(--scrolled,0)));
-    -webkit-backdrop-filter:blur(calc(20px * var(--scrolled,0))) saturate(calc(1 + 0.12 * var(--scrolled,0)));
-    border:1px solid rgba(196,217,240, calc(0.002 + var(--scrolled) * 0.12));
-    opacity:calc(0.3 + var(--scrolled) * 0.7);
+    top:clamp(14px,2.5vh,18px);
+    width:calc(100% - 32px); // 4px more symmetrical margin each side
+    padding:0 16px; // matches the reduced margin
+    background:rgba(252,251,250, calc(0.0 + var(--scrolled) * 0.96));
+    backdrop-filter:blur(calc(18px * var(--scrolled,0))) saturate(calc(1 + 0.08 * var(--scrolled,0)));
+    -webkit-backdrop-filter:blur(calc(18px * var(--scrolled,0))) saturate(calc(1 + 0.08 * var(--scrolled,0)));
+    border:1px solid rgba(196,217,240, calc(0.0 + var(--scrolled) * 0.10));
     box-shadow:
-      0 2px 6px rgba(0,0,0, calc(var(--scrolled) * 0.004)),
-      0 4px 12px rgba(0,0,0, calc(var(--scrolled) * 0.006)),
-      inset 0 1px 0 rgba(255,255,255, calc(var(--scrolled) * 0.50));
+      0 1px 4px rgba(0,0,0, calc(var(--scrolled) * 0.005)),
+      0 3px 12px rgba(0,0,0, calc(var(--scrolled) * 0.006)),
+      inset 0 1px 0 rgba(255,255,255, calc(var(--scrolled) * 0.45));
   }
 }
 @supports (env(safe-area-inset-top)){
@@ -725,7 +722,7 @@ ul{list-style:none;padding:0;margin:0;}
   }
   @media(max-width:768px){
     .site-header{
-      top:max(clamp(16px,2.5vh,20px), calc(env(safe-area-inset-top) + 8px));
+      top:max(clamp(14px,2.5vh,18px), calc(env(safe-area-inset-top) + 8px));
     }
   }
 }
@@ -734,15 +731,15 @@ ul{list-style:none;padding:0;margin:0;}
   align-items:center;
   justify-content:space-between;
   column-gap:clamp(var(--s4),4vw,var(--s6));
-  min-height:calc(72px - var(--scrolled) * 18px);
-  padding:clamp(12px,2vh,16px) 0;
-  transition:min-height 820ms var(--ease-expo);
+  min-height:64px;
+  padding:0;
+  transition:min-height 720ms var(--ease-expo);
 }
 @media(max-width:768px){
   .header-inner{
     min-height:64px;
-    padding:10px 0;
-    column-gap:var(--s5);
+    padding:0;
+    column-gap:var(--s4);
   }
 }
 .header-logo{
@@ -804,14 +801,15 @@ ul{list-style:none;padding:0;margin:0;}
 }
 @media(max-width:768px){
   .logo-frame{
-    width:38px;
-    height:38px;
+    width:36px;
+    height:36px;
   }
   .header-cta{
-    padding:9px 18px;
-    min-height:38px;
-    font-size:.72rem;
+    padding:9px 16px; // 1px less vertical — optically centers in 64px capsule
+    min-height:38px; // 2px taller — matches logo visual weight
+    font-size:.69rem;
     letter-spacing:.12em;
+    border-radius:var(--r-pill);
   }
 }
 
@@ -1272,15 +1270,15 @@ strong{font-weight:600;}
   gap:0;
 }
 
-// PORTRAIT AS BRANDING ASSET - Fashion campaign treatment
+// PORTRAIT AS BRANDING ASSET — No rectangular feeling, seamless composition
 .hero-bg{
-  flex:0 0 58%;
+  flex:0 0 56%;
   min-width:0;
-  overflow:hidden;
+  overflow:visible; // allow fade to bleed beyond bounds
   position:relative;
   z-index:0;
   order:2;
-  border-radius:clamp(48px,5vw,72px) 0 0 clamp(48px,5vw,72px);
+  border-radius:0; // no radius — fades blend it naturally
 }
 .hero-bg img{
   position:absolute;
@@ -1288,10 +1286,10 @@ strong{font-weight:600;}
   width:100%;
   height:100%;
   object-fit:cover;
-  object-position:center 28%;
-  transform:scale(0.92);
+  object-position:center 22%; // eyes naturally in upper third
+  transform:scale(0.96);
   will-change:transform;
-  filter:brightness(.70) saturate(.70) contrast(1.06);
+  filter:brightness(.68) saturate(.68) contrast(1.06);
   animation:heroBreath 40s ease-in-out infinite;
 }
 .hero-bg-fade{
@@ -1302,32 +1300,46 @@ strong{font-weight:600;}
   background:
     linear-gradient(to top,
       rgba(10,8,6,1) 0%,
-      rgba(10,8,6,.85) 18%,
-      rgba(10,8,6,.42) 38%,
-      rgba(10,8,6,.12) 52%,
-      transparent 68%),
+      rgba(10,8,6,.90) 14%,
+      rgba(10,8,6,.52) 30%,
+      rgba(10,8,6,.18) 46%,
+      transparent 62%),
     linear-gradient(to right,
       transparent 0%,
-      rgba(10,8,6,.12) 52%,
-      rgba(10,8,6,.68) 82%,
-      rgba(10,8,6,1) 100%);
+      rgba(10,8,6,.06) 44%,
+      rgba(10,8,6,.56) 72%,
+      rgba(10,8,6,1) 100%),
+    linear-gradient(to bottom,
+      rgba(10,8,6,.72) 0%,
+      rgba(10,8,6,.20) 18%,
+      transparent 36%);
 }
 .hero-bg::after{
   content:"";
   position:absolute;
   inset:0;
   background:
-    radial-gradient(ellipse 55% 48% at 52% 34%,
+    radial-gradient(ellipse 62% 52% at 54% 36%,
       transparent 0%,
-      rgba(10,8,6,.14) 60%,
-      rgba(10,8,6,.32) 100%);
+      transparent 42%,
+      rgba(10,8,6,.12) 62%,
+      rgba(10,8,6,.28) 100%);
   pointer-events:none;
   z-index:2;
 }
-@media(max-width:768px){
-  .hero-bg{
-    border-radius:clamp(var(--r-2xl),4vw,var(--r-3xl));
-  }
+// side atmospheric bleed — no hard edge
+.hero-bg::before{
+  content:"";
+  position:absolute;
+  inset:0 -60px 0 0;
+  background:linear-gradient(to left,
+    rgba(10,8,6,.0) 0%,
+    rgba(10,8,6,.0) 70%,
+    rgba(10,8,6,.28) 88%,
+    rgba(10,8,6,.64) 96%,
+    rgba(10,8,6,.88) 100%);
+  pointer-events:none;
+  z-index:3;
 }
 
 .hero-content-wrapper{
@@ -1350,9 +1362,7 @@ strong{font-weight:600;}
 }
 @media(max-width:768px){
   .hero-content-wrapper{
-    padding-inline-start:0;
-    padding-inline-end:0;
-    background:#0a0806;
+    background:#0a0806; // desktop gradient removed — atmospheric portrait handles it
   }
 }
 
@@ -1581,82 +1591,81 @@ strong{font-weight:600;}
 // Mobile: editorial portrait → elegant content
 @media(max-width:768px){
   // ═══ MOBILE HERO — LUXURY FASHION CAMPAIGN ════════════════════════════════════
-  // Complete redesign: portrait as luxury focus, not scaled desktop
   .hero-layout{
     flex-direction:column;
     align-items:center;
     gap:0;
     width:100%;
-    min-height:calc(100svh - 90px);
+    min-height:100svh;
     padding:0;
     display:flex;
-    justify-content:center;
+    flex-direction:column;
+    justify-content:flex-start;
   }
   
-  // PORTRAIT — FASHION CAMPAIGN TREATMENT
+  // PORTRAIT — full-bleed, no rectangle, blends into page
   .hero-bg{
     flex:none;
     order:1;
-    width:92%;
+    width:100%;
     height:0;
-    padding-bottom:calc(92% * 1.38); // Taller aspect for vertical portrait
+    padding-bottom:116%; // slightly shorter — less vertical stretch on smaller iPhones
     flex-shrink:0;
-    border-radius:clamp(36px,8vw,48px);
+    border-radius:0;
     position:relative;
-    margin-bottom:clamp(-64px,-14vw,-80px); // Elegant overlap with content
-    box-shadow:
-      0 24px 72px rgba(0,0,0,.42),
-      0 0 0 1px rgba(196,217,240,.06),
-      0 0 120px rgba(196,217,240,.05);
+    overflow:hidden;
+    margin-bottom:clamp(-108px,-24vw,-126px); // 6-8px deeper — erases any gap at content edge
+    box-shadow:none;
   }
   .hero-bg img{
-    transform:scale(1);
-    object-position:center 22%; // Eyes in upper third
-    filter:brightness(.72) saturate(.70) contrast(1.08);
+    transform:scale(1.04);
+    object-position:center 16%; // 2% higher — eyes slightly more commanding
+    filter:brightness(.64) saturate(.66) contrast(1.09); // tiny contrast bump — more depth
     animation:mobilePortraitFloat 48s ease-in-out infinite;
   }
   
-  // ATMOSPHERIC LIGHT — SOFT FASHION FADE
+  // ATMOSPHERIC FADE — portrait dissolves into background, no hard edge
   .hero-bg-fade{
     background:
       linear-gradient(to bottom,
-        transparent 0%,
-        transparent 12%,
-        rgba(10,8,6,.08) 42%,
-        rgba(10,8,6,.68) 78%,
+        rgba(10,8,6,.42) 0%,
+        rgba(10,8,6,.12) 10%,
+        transparent 28%,
+        transparent 52%,
+        rgba(10,8,6,.28) 68%,
+        rgba(10,8,6,.72) 82%,
         rgba(10,8,6,.96) 92%,
-        rgba(10,8,6,1) 100%);
+        rgba(10,8,6,1) 100%),
+      linear-gradient(to right,
+        rgba(10,8,6,.16) 0%,
+        transparent 8%,
+        transparent 92%,
+        rgba(10,8,6,.16) 100%);
   }
   .hero-bg::after{
     background:
-      radial-gradient(ellipse 68% 48% at 50% 28%,
+      radial-gradient(ellipse 80% 56% at 50% 24%,
         transparent 0%,
-        transparent 32%,
-        rgba(10,8,6,.08) 58%,
-        rgba(10,8,6,.28) 86%);
+        transparent 38%,
+        rgba(10,8,6,.06) 58%,
+        rgba(10,8,6,.22) 86%);
+  }
+  .hero-bg::before{
+    display:none; // no side bleed on mobile — full width
   }
   
   // SOFT ATMOSPHERIC GLOW
-  .hero-bg::before{
-    content:"";
-    position:absolute;
-    inset:-40px;
-    background:radial-gradient(ellipse 96% 82% at 50% 38%,
-      rgba(196,217,240,.06) 0%,
-      rgba(196,217,240,.02) 52%,
-      transparent 78%);
-    filter:blur(48px);
-    z-index:-1;
-    pointer-events:none;
-    animation:breathingGlow 52s ease-in-out infinite;
+  .hero-bg + .hero-bg::before, // reset any inherited glow
+  .hero-soft-glow{
+    opacity:.4;
   }
-  // TYPOGRAPHY — CENTERED, ELEGANT, BREATHING
+  // TYPOGRAPHY — CENTERED, OVER PORTRAIT, BREATHING
   .hero-content-wrapper{
     order:2;
     flex:none;
     width:100%;
-    padding:clamp(56px,10vh,80px) clamp(28px,7vw,36px) clamp(48px,9vh,64px);
-    background:#0a0806;
+    padding:clamp(44px,9vh,60px) clamp(26px,6.5vw,34px) clamp(48px,8.5vh,64px); // top += 4px for optical balance
+    background:transparent;
     display:flex;
     flex-direction:column;
     align-items:center;
@@ -1671,71 +1680,75 @@ strong{font-weight:600;}
     align-items:center;
   }
   
-  // LIVE PILL — REFINED ELEGANCE
+  // LIVE PILL — refined, legible against portrait
   .hero-live-pill{
-    margin-bottom:clamp(20px,3.5vh,24px);
-    padding:10px 22px;
-    font-size:.70rem;
-    background:rgba(196,217,240,.08);
-    border:1px solid rgba(196,217,240,.18);
-    backdrop-filter:blur(12px);
-    -webkit-backdrop-filter:blur(12px);
+    margin-bottom:clamp(16px,2.8vh,20px); // 2px tighter — optically closer to eyebrow
+    padding:8px 19px; // 1px less — crisper
+    font-size:.67rem;
+    background:rgba(10,8,6,.54);
+    border:1px solid rgba(196,217,240,.20);
+    backdrop-filter:blur(16px);
+    -webkit-backdrop-filter:blur(16px);
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.07);
+    letter-spacing:.16em; // slightly looser — more legible small text
   }
   .hero-eyebrow{
-    margin-bottom:clamp(16px,2.5vh,20px);
+    margin-bottom:clamp(12px,1.8vh,16px); // 2px tighter — rhythmic
     text-align:center;
   }
   .hero-eyebrow::after{
     display:none;
   }
   
-  // HEADLINE — LUXURY SCALE, BREATHING ROOM
+  // HEADLINE — magazine scale, tight tracking, no orphan
   .hero-title{
-    font-size:clamp(2.8rem,11.5vw,4.2rem);
-    line-height:1.06;
-    max-width:100%;
+    font-size:clamp(2.6rem,10.8vw,3.8rem);
+    line-height:1.04; // 0.01 tighter — crisper stacked lines
+    max-width:16ch; // tighter — forces better line breaks
     text-align:center;
-    margin-bottom:clamp(32px,6vh,40px);
+    margin-bottom:clamp(24px,4.5vh,32px); // 4px tighter — lead closer to headline
     font-weight:600;
-    letter-spacing:-.062em;
+    letter-spacing:-.060em;
     text-shadow:
-      0 2px 12px rgba(0,0,0,.24),
-      0 6px 32px rgba(0,0,0,.28);
+      0 2px 14px rgba(0,0,0,.30),
+      0 5px 36px rgba(0,0,0,.34);
+    text-wrap:balance;
   }
   
-  // LEAD — ELEGANT, GENEROUS BREATHING
+  // LEAD — editorial width, comfortable column
   .hero-lead{
-    max-width:88%;
-    margin-bottom:clamp(40px,7vh,52px);
-    font-size:clamp(1.08rem,1.85vw,1.24rem);
+    max-width:84%; // 2% wider — one fewer line on 390px
+    margin-bottom:clamp(32px,5.8vh,44px); // 4px tighter
+    font-size:clamp(1.06rem,1.82vw,1.20rem);
     text-align:center;
-    line-height:1.72;
-    color:rgba(255,255,255,.84);
+    line-height:1.73;
+    color:rgba(255,255,255,.80); // 2% more transparent — recedes behind headline
+    text-shadow:0 1px 6px rgba(0,0,0,.22);
   }
   
-  // BUTTONS — FULL WIDTH, PREMIUM TOUCH
+  // BUTTONS — full width, premium touch feedback
   .hero-cta-row{
-    gap:14px;
+    gap:10px; // 2px tighter — buttons closer together, feels intentional
     width:100%;
-    max-width:380px;
+    max-width:min(340px,86vw); // 20px narrower — prevents over-stretched buttons on 430px
     flex-direction:column;
-    margin-bottom:clamp(52px,9vh,68px);
+    margin-bottom:clamp(36px,7vh,52px); // tighter — closes gap before metrics
   }
   .hero-cta-row .btn{
     width:100%;
-    min-height:56px;
-    padding:16px 28px;
-    font-size:0.86rem;
-    letter-spacing:.16em;
+    min-height:52px; // 2px less — slightly less blocky
+    padding:14px 24px;
+    font-size:0.82rem;
+    letter-spacing:.14em;
     justify-content:center;
     touch-action:manipulation;
     -webkit-tap-highlight-color:transparent;
-    border-radius:clamp(16px,3.5vw,20px);
+    border-radius:16px; // 2px less — matches metric pill radius
+    text-shadow:none;
   }
   
-  // METRICS — ELEGANT PILLS
   .hero-metrics{
-    gap:clamp(20px,4.5vw,28px);
+    gap:clamp(14px,3vw,20px); // tighter — pills feel like a group, not scattered
     margin-top:0;
     width:100%;
     justify-content:center;
@@ -1746,25 +1759,24 @@ strong{font-weight:600;}
   .metric{
     text-align:center;
     align-items:center;
-    background:rgba(196,217,240,.04);
-    border:1px solid rgba(196,217,240,.10);
-    border-radius:clamp(16px,3vw,18px);
-    padding:clamp(14px,2.8vh,18px) clamp(20px,5vw,28px);
-    backdrop-filter:blur(8px);
-    -webkit-backdrop-filter:blur(8px);
+    background:rgba(10,8,6,.52);
+    border:1px solid rgba(196,217,240,.11);
+    border-radius:14px; // slightly tighter radius — more precise
+    padding:clamp(11px,2.2vh,14px) clamp(16px,4vw,22px); // uniform pill feel
+    backdrop-filter:blur(14px);
+    -webkit-backdrop-filter:blur(14px);
+    min-width:max-content; // all pills same height, no wrapping within
   }
   .metric-value{
-    font-size:clamp(2.4rem,5.5vw,3.4rem);
+    font-size:clamp(2.0rem,4.8vw,2.8rem); // slightly smaller — better proportion
     font-weight:600;
-    background:linear-gradient(135deg,#fff 0%,rgba(255,255,255,.82) 100%);
-    -webkit-background-clip:text;
-    -webkit-text-fill-color:transparent;
-    background-clip:text;
+    line-height:1.08;
   }
   .metric-label{
-    font-size:clamp(0.74rem,1.15vw,0.82rem);
-    color:rgba(255,255,255,.68);
-    letter-spacing:.02em;
+    font-size:clamp(0.66rem,1.05vw,0.74rem); // fine, secondary, precise
+    color:rgba(255,255,255,.60);
+    letter-spacing:.04em;
+    margin-top:3px;
   }
   .metric-divider{
     display:none;
@@ -3846,23 +3858,23 @@ strong{font-weight:600;}
 @media(max-width:768px){
   // Safe area support for iPhone notch/dynamic island
   .hero{
-    padding-top:max(90px,calc(env(safe-area-inset-top) + 70px));
+    padding-top:max(80px,calc(env(safe-area-inset-top) + 64px));
   }
   
-  // Mobile spacing system: consistent 96px base, 112px for emphasis, 128px for drama
-  .section{padding:clamp(88px,17vh,104px) 0;}
-  .section-problem{padding:clamp(76px,15vh,88px) 0 clamp(88px,17vh,104px);}
-  #insight.section{padding:clamp(104px,20vh,120px) 0;}
-  .section-bg-blue{padding:clamp(104px,20vh,120px) 0;}
-  .section-bg-gradient{padding:clamp(88px,17vh,104px) 0;}
-  .section-process{padding:clamp(88px,17vh,104px) 0 clamp(104px,20vh,120px);}
-  .section-portfolio{padding:clamp(76px,15vh,88px) 0 clamp(104px,20vh,120px);}
-  .section-results{padding:clamp(88px,17vh,104px) 0 clamp(76px,15vh,88px);}
-  .section-services-editorial{padding:clamp(104px,20vh,120px) 0;}
-  .section-why-merged{padding:clamp(104px,20vh,120px) 0;}
-  .section-honesty{padding:clamp(120px,23vh,136px) 0;}
-  .section-reviews{padding:clamp(88px,17vh,104px) 0;}
-  .section-faq{padding:clamp(104px,20vh,120px) 0;}
+  // Mobile spacing system — 4 consistent levels
+  .section{padding:clamp(84px,16vh,100px) 0;}
+  .section-problem{padding:clamp(72px,14vh,88px) 0 clamp(84px,16vh,100px);}
+  #insight.section{padding:clamp(96px,18.5vh,116px) 0;}
+  .section-bg-blue{padding:clamp(96px,18.5vh,116px) 0;}
+  .section-bg-gradient{padding:clamp(84px,16vh,100px) 0;}
+  .section-process{padding:clamp(84px,16vh,100px) 0 clamp(96px,18.5vh,116px);}
+  .section-portfolio{padding:clamp(72px,14vh,88px) 0 clamp(96px,18.5vh,116px);}
+  .section-results{padding:clamp(84px,16vh,100px) 0 clamp(72px,14vh,88px);}
+  .section-services-editorial{padding:clamp(96px,18.5vh,116px) 0;}
+  .section-why-merged{padding:clamp(96px,18.5vh,116px) 0;}
+  .section-honesty{padding:clamp(112px,21.5vh,132px) 0;}
+  .section-reviews{padding:clamp(84px,16vh,100px) 0;}
+  .section-faq{padding:clamp(96px,18.5vh,116px) 0;}
   
   // CINEMATIC SECTION TRANSITIONS — Continuous film feeling
   .section::before{
@@ -3903,25 +3915,28 @@ strong{font-weight:600;}
     max-width:100vw;
   }
   
-  // Section titles - mobile hierarchy
+  // Mobile typography system
   .section-title{
-    font-size:clamp(2.4rem,9vw,3.2rem);
-    line-height:1.12;
-    margin-bottom:32px;
-    letter-spacing:-.048em;
-  }
-  
-  .section-lead{
-    font-size:clamp(1.08rem,1.9vw,1.22rem);
-    line-height:1.70;
-    margin-bottom:40px;
+    font-size:clamp(2.2rem,8.8vw,3.0rem);
+    line-height:1.12; // 0.02 more — breathes at large mobile sizes
+    margin-bottom:clamp(24px,5vh,34px); // tighter floor — less gap before content
+    letter-spacing:-.048em; // 0.002 less — more legible at smaller sizes
+    text-wrap:balance;
     max-width:100%;
   }
   
+  .section-lead{
+    font-size:clamp(1.06rem,1.88vw,1.20rem);
+    line-height:1.72;
+    margin-bottom:clamp(32px,6.5vh,42px); // 4px tighter — closer to CTA/content
+    max-width:min(42ch,100%);
+    hyphens:none;
+  }
+  
   .section-body{
-    font-size:clamp(1.02rem,1.65vw,1.14rem);
-    line-height:1.82;
-    margin-bottom:24px;
+    font-size:clamp(1.00rem,1.62vw,1.12rem);
+    line-height:1.78; // very slightly tighter — consistent with brand
+    margin-bottom:clamp(20px,4vh,28px);
     max-width:100%;
   }
   
@@ -4039,12 +4054,16 @@ strong{font-weight:600;}
     pointer-events:none;
   }
   .portfolio-reel-track{
-    gap:clamp(28px,6vw,36px);
-    padding-inline:clamp(28px,7vw,40px);
+    gap:clamp(24px,5.5vw,32px);
+    padding-inline:clamp(24px,6vw,36px);
     display:flex;
     overflow-x:auto;
+    -webkit-overflow-scrolling:touch;
     scroll-snap-type:x mandatory;
-    scroll-padding:clamp(28px,7vw,40px);
+    scroll-padding-inline:clamp(24px,6vw,36px);
+    scrollbar-width:none;
+    overscroll-behavior-x:contain;
+    &::-webkit-scrollbar{display:none;}
   }
   .reel-card{
     width:clamp(285px,81vw,365px);
@@ -4104,10 +4123,14 @@ strong{font-weight:600;}
     pointer-events:none;
   }
   .results-rail{
-    gap:clamp(24px,5.5vw,32px);
-    padding-inline:clamp(28px,7vw,40px);
+    gap:clamp(20px,4.5vw,28px);
+    padding-inline:clamp(24px,6vw,36px);
     scroll-snap-type:x mandatory;
+    scroll-padding-inline:clamp(24px,6vw,36px);
     -webkit-overflow-scrolling:touch;
+    scrollbar-width:none;
+    overscroll-behavior-x:contain;
+    &::-webkit-scrollbar{display:none;}
   }
   .result-card{
     width:clamp(270px,77vw,330px);
@@ -4184,10 +4207,14 @@ strong{font-weight:600;}
     pointer-events:none;
   }
   .reviews-rail{
-    gap:clamp(24px,5.5vw,32px);
-    padding-inline:clamp(28px,7vw,40px);
+    gap:clamp(20px,4.5vw,28px);
+    padding-inline:clamp(24px,6vw,36px);
     scroll-snap-type:x mandatory;
+    scroll-padding-inline:clamp(24px,6vw,36px);
     -webkit-overflow-scrolling:touch;
+    scrollbar-width:none;
+    overscroll-behavior-x:contain;
+    &::-webkit-scrollbar{display:none;}
   }
   .review-card{
     width:clamp(305px,86vw,370px);
@@ -4223,7 +4250,7 @@ strong{font-weight:600;}
       0 0 0 1px rgba(196,217,240,.08);
   }
   
-  // CONTACT — EMOTIONAL FINALE, LUXURY PORTRAIT ENDING
+  // CONTACT — EMOTIONAL FINALE, full-bleed portrait, no inserted-feel
   .contact-layout{
     display:flex;
     flex-direction:column;
@@ -4231,16 +4258,13 @@ strong{font-weight:600;}
   }
   .contact-img{
     order:1;
-    width:92%;
-    margin:0 auto clamp(-48px,-10vw,-64px);
-    border-radius:clamp(32px,7vw,44px);
+    width:100%; // full bleed — no inset
+    margin:0 0 clamp(-88px,-18vw,-108px); // deep overlap — portrait INTO content
+    border-radius:0; // no pill — seamless
     overflow:hidden;
     position:relative;
     z-index:2;
-    box-shadow:
-      0 24px 64px rgba(0,0,0,.36),
-      0 0 0 1px rgba(196,217,240,.06),
-      0 0 96px rgba(196,217,240,.04);
+    box-shadow:none; // fade handles the edges
   }
   .contact-img::after{
     content:"";
@@ -4248,39 +4272,37 @@ strong{font-weight:600;}
     inset:0;
     background:
       linear-gradient(to bottom,
-        transparent 0%,
-        transparent 28%,
-        rgba(25,23,20,.06) 58%,
-        rgba(25,23,20,.58) 82%,
-        rgba(25,23,20,.92) 96%);
+        rgba(10,8,6,.28) 0%,
+        transparent 14%,
+        transparent 48%,
+        rgba(10,8,6,.32) 68%,
+        rgba(10,8,6,.78) 84%,
+        rgba(10,8,6,.98) 96%,
+        rgba(10,8,6,1) 100%),
+      linear-gradient(to right,
+        rgba(10,8,6,.10) 0%,
+        transparent 6%,
+        transparent 94%,
+        rgba(10,8,6,.10) 100%);
     pointer-events:none;
     z-index:1;
   }
   .contact-img::before{
-    content:"";
-    position:absolute;
-    inset:-32px;
-    background:radial-gradient(ellipse 88% 72% at 50% 42%,
-      rgba(196,217,240,.05) 0%,
-      rgba(196,217,240,.02) 48%,
-      transparent 76%);
-    filter:blur(40px);
-    z-index:-1;
-    pointer-events:none;
-    animation:breathingGlow 56s ease-in-out infinite;
+    display:none;
   }
   .contact-img img{
-    height:clamp(420px,88vw,600px);
+    height:clamp(440px,90vw,600px);
     width:100%;
     object-fit:cover;
-    object-position:center 24%;
-    filter:brightness(.80) saturate(.76) contrast(1.06);
+    object-position:center 20%; // face as focal point — eyes visible
+    filter:brightness(.76) saturate(.74) contrast(1.06);
   }
   .contact-main{
     order:2;
-    padding:clamp(72px,14vh,96px) clamp(24px,6vw,32px) clamp(64px,12vh,88px);
+    padding:clamp(60px,11.5vh,80px) clamp(24px,6vw,32px) clamp(60px,11vh,80px); // 8px less top — text closer to portrait face
     position:relative;
     z-index:3;
+    background:#0a0806;
   }
   .contact-copy{
     margin-bottom:clamp(48px,9vh,64px);
@@ -4469,45 +4491,36 @@ strong{font-weight:600;}
     white-space:nowrap;
   }
   
-  // ABOUT SECTION MOBILE — PORTRAIT AS FASHION STATEMENT
+  // ABOUT SECTION MOBILE — seamless portrait, no pill feeling
   .about-layout{
     grid-template-columns:1fr;
-    gap:clamp(56px,11vh,80px);
+    gap:clamp(40px,8vh,56px); // 8px tighter — image and text feel connected
   }
   .about-photo-wrap{
-    transform:translateY(-32px);
+    transform:none;
     order:-1;
     position:relative;
-  }
-  .about-photo-wrap::before{
-    content:"";
-    position:absolute;
-    inset:-36px;
-    background:radial-gradient(ellipse 88% 70% at 50% 40%,
-      rgba(196,217,240,.04) 0%,
-      rgba(196,217,240,.015) 48%,
-      transparent 74%);
-    filter:blur(44px);
-    z-index:-1;
-    pointer-events:none;
-    animation:breathingGlow 58s ease-in-out infinite;
+    width:108%; // slight bleed — removes box feeling
+    margin-inline:-4%;
   }
   .about-photo-wrap .editorial-img{
-    border-radius:clamp(28px,6vw,38px);
+    border-radius:clamp(24px,5vw,32px);
+    overflow:hidden;
     box-shadow:
-      0 20px 64px rgba(0,0,0,.32),
-      0 0 0 1px rgba(196,217,240,.06),
-      0 0 88px rgba(196,217,240,.04);
+      0 16px 48px rgba(0,0,0,.28),
+      0 0 0 1px rgba(196,217,240,.05);
   }
   .about-photo-wrap .editorial-img--portrait img{
-    height:clamp(400px,82vw,580px);
-    object-position:center 26%;
-    filter:brightness(.76) saturate(.74) contrast(1.06);
+    height:clamp(380px,78vw,520px);
+    object-position:center 22%; // 2% higher — subtle adjustment for face center
+    object-fit:cover;
+    filter:brightness(.74) saturate(.72) contrast(1.06);
   }
   .about-intro{
-    font-size:clamp(1.82rem,4.5vw,2.4rem);
-    line-height:1.28;
-    letter-spacing:-.038em;
+    font-size:clamp(1.72rem,4.2vw,2.24rem);
+    line-height:1.30;
+    letter-spacing:-.036em;
+    text-wrap:balance;
   }
   
   // Solution section mobile
@@ -4656,17 +4669,27 @@ strong{font-weight:600;}
     transform:scale(.98);
   }
   
-  // Ensure no horizontal overflow
-  body,html{
+  // Prevent horizontal overflow globally on mobile
+  html,body{
     overflow-x:hidden;
     max-width:100vw;
+    overscroll-behavior-x:none;
   }
+  // Sections can scroll their carousels, not the page
   .section,
   .container,
   .hero,
   .brand-marquee-section,
   .statement-strip{
-    overflow-x:hidden;
+    overflow-x:clip; // clip without creating scroll context
+    max-width:100vw;
+  }
+  // Carousels need their own scroll
+  .hscroll-outer,
+  .reviews-outer,
+  .results-outer,
+  .portfolio-reel-outer{
+    overflow-x:auto;
     max-width:100vw;
   }
   
@@ -4678,37 +4701,29 @@ strong{font-weight:600;}
   }
 }
 
-// Specific breakpoint optimizations
+// Specific breakpoint optimizations (legacy — kept narrow)
 @media(max-width:430px){
-  .container{width:92%;}
-  .hero-bg{width:88%;}
-  .section-title{font-size:clamp(2.2rem,8.5vw,2.8rem);}
+  .hero-bg{width:100%;border-radius:0;}
 }
 
 @media(max-width:375px){
-  .container{width:94%;padding-inline:12px;}
-  .hero-bg{width:90%;}
-  .hero-content-wrapper{padding:40px 20px 32px;}
-  .section{padding:80px 0;}
-  .section-title{font-size:2.2rem;}
-  .faq-q{padding:28px 20px;}
+  .container{width:93%;padding-inline:14px;}
+  .section{padding:76px 0;}
+  .section-title{font-size:2.18rem;}
 }
 
 @media(max-width:360px){
-  .hero-bg{width:92%;}
-  .hero-title{font-size:2.4rem;}
-  .section{padding:72px 0;}
-  .problem-item{padding:28px 12px;}
+  .hero-title{font-size:2.38rem;}
+  .section{padding:68px 0;}
+  .problem-item{padding:26px 14px;}
 }
 
 @media(max-width:320px){
-  .container{width:96%;padding-inline:8px;}
-  .hero-bg{width:94%;}
-  .hero-content-wrapper{padding:36px 16px 28px;}
-  .section{padding:64px 0;}
-  .section-title{font-size:2rem;}
-  .hero-title{font-size:2.2rem;}
-  .faq-q{padding:24px 16px;font-size:1.08rem;}
+  .container{width:95%;padding-inline:10px;}
+  .section{padding:60px 0;}
+  .section-title{font-size:1.96rem;}
+  .hero-title{font-size:2.12rem;}
+  .faq-q{padding:22px 14px;font-size:1.06rem;}
 }
 
 // ═══ DESKTOP 768px+ — LUXURY PREMIUM SPACING ═════════════════════════════════
@@ -5000,187 +5015,186 @@ strong{font-weight:600;}
 }
 
 // ═══ iPHONE SPECIFIC OPTIMIZATIONS ═══════════════════════════════════════════
+// All sizes tuned per-model — pixel-perfect, not responsive
 
-// iPhone 17 Pro Max, 16 Pro Max, 15 Pro Max, 14 Pro Max (430px)
+// iPhone 17 Pro Max, 16 Plus (430px) — largest canvas
 @media(min-width:415px) and (max-width:430px){
   .container{
-    width:89%;
-    padding-inline:20px;
+    width:88%;
+    padding-inline:22px;
   }
   .hero-bg{
-    width:90%;
-    padding-bottom:calc(90% * 1.36);
-    margin-bottom:-70px;
+    width:100%;
+    padding-bottom:115%;
+    margin-bottom:-114px; // deeper on larger screen
   }
   .hero-title{
-    font-size:3.05rem;
-    line-height:1.05;
+    font-size:3.0rem;
+    line-height:1.04;
     letter-spacing:-.064em;
   }
   .hero-lead{
     font-size:1.12rem;
-    line-height:1.72;
-    max-width:86%;
+    line-height:1.74;
+    max-width:80%;
   }
   .hero-cta-row{
-    max-width:400px;
+    max-width:376px;
   }
   .hero-cta-row .btn{
-    min-height:57px;
-    padding:16px 29px;
+    min-height:54px;
+    font-size:0.84rem;
   }
   .metric{
-    padding:16px 30px;
+    padding:12px 24px;
   }
-  .reel-card{
-    width:340px;
-  }
-  .result-card{
-    width:315px;
-  }
-  .review-card{
-    width:355px;
-  }
+  .reel-card{width:clamp(300px,78vw,345px);}
+  .result-card{width:clamp(280px,74vw,325px);}
+  .review-card{width:clamp(316px,82vw,360px);}
   .contact-img{
-    width:90%;
-    margin-bottom:-68px;
+    width:100%;
+    border-radius:0;
+    margin-bottom:-106px;
+  }
+  .contact-img img{
+    height:clamp(440px,90vw,600px);
   }
   .section-title{
-    font-size:2.95rem;
-    line-height:1.10;
+    font-size:2.88rem;
+    line-height:1.09;
   }
   .faq-q{
-    padding:34px 26px;
+    padding:32px 24px;
   }
 }
 
 // iPhone 16 Pro, iPhone 16 (402px)
 @media(min-width:395px) and (max-width:414px){
   .container{
-    width:89.5%;
-    padding-inline:19px;
+    width:88%;
+    padding-inline:20px;
   }
   .hero-bg{
-    width:91%;
-    padding-bottom:calc(91% * 1.37);
-    margin-bottom:-68px;
+    width:100%;
+    padding-bottom:116%;
+    margin-bottom:-110px; // consistent with base clamp
   }
   .hero-title{
-    font-size:2.92rem;
-    line-height:1.06;
+    font-size:2.90rem;
+    line-height:1.05;
     letter-spacing:-.063em;
   }
   .hero-lead{
     font-size:1.10rem;
-    max-width:87%;
-  }
-  .hero-cta-row{
-    max-width:390px;
+    max-width:82%;
+    line-height:1.73;
   }
   .hero-cta-row .btn{
-    min-height:56px;
+    min-height:53px;
   }
-  .reel-card{
-    width:330px;
-  }
-  .result-card{
-    width:305px;
-  }
-  .review-card{
-    width:345px;
-  }
+  .reel-card{width:clamp(295px,78vw,338px);}
+  .result-card{width:clamp(272px,74vw,316px);}
+  .review-card{width:clamp(308px,82vw,350px);}
   .contact-img{
-    width:91%;
-    margin-bottom:-66px;
+    width:100%;
+    border-radius:0;
+    margin-bottom:-104px;
+  }
+  .contact-img img{
+    height:clamp(430px,88vw,580px);
   }
   .section-title{
-    font-size:2.82rem;
+    font-size:2.80rem;
+    line-height:1.09;
   }
 }
 
 // iPhone 15 Pro, iPhone 14 Pro (393px)
 @media(min-width:391px) and (max-width:394px){
   .container{
-    width:90%;
-    padding-inline:18px;
+    width:88%;
+    padding-inline:20px;
   }
   .hero-bg{
-    width:91.5%;
-    padding-bottom:calc(91.5% * 1.37);
-    margin-bottom:-66px;
+    width:100%;
+    padding-bottom:116%;
+    margin-bottom:-108px;
   }
   .hero-title{
-    font-size:2.88rem;
-    line-height:1.06;
+    font-size:2.86rem;
+    line-height:1.05;
     letter-spacing:-.062em;
   }
   .hero-lead{
     font-size:1.09rem;
-    max-width:88%;
+    max-width:83%;
+    line-height:1.73;
   }
   .hero-cta-row .btn{
-    min-height:56px;
+    min-height:52px;
   }
-  .reel-card{
-    width:325px;
-  }
-  .result-card{
-    width:300px;
-  }
-  .review-card{
-    width:340px;
-  }
+  .reel-card{width:clamp(290px,78vw,334px);}
+  .result-card{width:clamp(268px,74vw,310px);}
+  .review-card{width:clamp(304px,82vw,345px);}
   .contact-img{
-    width:91.5%;
-    margin-bottom:-65px;
+    width:100%;
+    border-radius:0;
+    margin-bottom:-102px;
+  }
+  .contact-img img{
+    height:clamp(425px,87vw,570px);
   }
   .section-title{
-    font-size:2.78rem;
+    font-size:2.76rem;
+    line-height:1.09;
   }
 }
 
-// iPhone 13/14/15 (390px)
+// iPhone 13/14/15 (390px) — most common
 @media(min-width:388px) and (max-width:392px){
   .container{
-    width:90%;
-    padding-inline:18px;
+    width:88%;
+    padding-inline:20px;
   }
   .hero-bg{
-    width:92%;
-    padding-bottom:calc(92% * 1.38);
-    margin-bottom:-64px;
+    width:100%;
+    padding-bottom:116%;
+    margin-bottom:-106px; // raised 6px — matches the new base clamp rhythm
   }
   .hero-title{
-    font-size:2.85rem;
-    line-height:1.06;
+    font-size:2.82rem;
+    line-height:1.04; // 0.01 tighter — matches base
     letter-spacing:-.062em;
   }
   .hero-lead{
     font-size:1.09rem;
-    line-height:1.72;
-    max-width:88%;
+    line-height:1.73;
+    max-width:84%;
+  }
+  .hero-cta-row{
+    max-width:346px; // 8px narrower — better fit at 390
   }
   .hero-cta-row .btn{
-    min-height:56px;
+    min-height:52px;
+    font-size:0.83rem;
   }
-  .reel-card{
-    width:320px;
-  }
-  .result-card{
-    width:295px;
-  }
-  .review-card{
-    width:335px;
-  }
+  .reel-card{width:clamp(288px,78vw,330px);}
+  .result-card{width:clamp(264px,74vw,306px);}
+  .review-card{width:clamp(300px,82vw,340px);}
   .contact-img{
-    width:92%;
-    margin-bottom:-64px;
+    width:100%;
+    border-radius:0;
+    margin-bottom:-100px;
+  }
+  .contact-img img{
+    height:clamp(420px,86vw,560px);
   }
   .section-title{
-    font-size:2.75rem;
+    font-size:2.72rem;
+    line-height:1.09;
   }
   .faq-q{
-    padding:32px 24px;
+    padding:30px 22px;
   }
 }
 
