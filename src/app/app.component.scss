@@ -144,9 +144,39 @@ ul{list-style:none;padding:0;margin:0;}
   0%,100%{transform:translate(0,0) scale(1);}
   50%{transform:translate(5%,-5%) scale(1.12);}
 }
+// LUXURY PORTRAIT ANIMATION — Subtle breathing, floating, alive
 @keyframes heroBreath{
-  0%,100%{transform:scale(0.86) translateY(0);}
-  50%{transform:scale(0.88) translateY(-0.2%);}
+  0%,100%{
+    transform:scale(0.86) translateY(0);
+  }
+  50%{
+    transform:scale(0.88) translateY(-0.3%);
+  }
+}
+
+// MOBILE PORTRAIT — Slow floating motion
+@keyframes mobilePortraitFloat{
+  0%,100%{
+    transform:scale(1) translateY(0);
+  }
+  33%{
+    transform:scale(1.002) translateY(-6px);
+  }
+  66%{
+    transform:scale(0.999) translateY(4px);
+  }
+}
+
+// BREATHING GLOW — Soft atmospheric light
+@keyframes breathingGlow{
+  0%,100%{
+    opacity:.06;
+    filter:blur(48px);
+  }
+  50%{
+    opacity:.09;
+    filter:blur(56px);
+  }
 }
 // Letterbox bars retract inward — cinematic film opening
 @keyframes lbRetractTop{
@@ -674,13 +704,19 @@ ul{list-style:none;padding:0;margin:0;}
 }
 @media(max-width:768px){
   .site-header{
-    top:clamp(12px,2.5vh,16px);
-    width:calc(100% - 32px);
-    padding:0 16px;
-    background:rgba(252,251,250, calc(0.005 + var(--scrolled) * 0.97));
-    backdrop-filter:blur(calc(24px * var(--scrolled,0))) saturate(calc(1 + 0.14 * var(--scrolled,0)));
-    -webkit-backdrop-filter:blur(calc(24px * var(--scrolled,0))) saturate(calc(1 + 0.14 * var(--scrolled,0)));
-    border:1px solid rgba(196,217,240, calc(0.005 + var(--scrolled) * 0.14));
+    top:clamp(16px,3vh,20px);
+    width:calc(100% - 28px);
+    padding:0 20px;
+    min-height:64px;
+    background:rgba(252,251,250, calc(0.002 + var(--scrolled) * 0.98));
+    backdrop-filter:blur(calc(20px * var(--scrolled,0))) saturate(calc(1 + 0.12 * var(--scrolled,0)));
+    -webkit-backdrop-filter:blur(calc(20px * var(--scrolled,0))) saturate(calc(1 + 0.12 * var(--scrolled,0)));
+    border:1px solid rgba(196,217,240, calc(0.002 + var(--scrolled) * 0.12));
+    opacity:calc(0.3 + var(--scrolled) * 0.7);
+    box-shadow:
+      0 2px 6px rgba(0,0,0, calc(var(--scrolled) * 0.004)),
+      0 4px 12px rgba(0,0,0, calc(var(--scrolled) * 0.006)),
+      inset 0 1px 0 rgba(255,255,255, calc(var(--scrolled) * 0.50));
   }
 }
 @supports (env(safe-area-inset-top)){
@@ -704,8 +740,9 @@ ul{list-style:none;padding:0;margin:0;}
 }
 @media(max-width:768px){
   .header-inner{
-    min-height:calc(52px - var(--scrolled) * 8px);
-    padding:8px 0;
+    min-height:64px;
+    padding:10px 0;
+    column-gap:var(--s5);
   }
 }
 .header-logo{
@@ -767,14 +804,14 @@ ul{list-style:none;padding:0;margin:0;}
 }
 @media(max-width:768px){
   .logo-frame{
-    width:34px;
-    height:34px;
+    width:38px;
+    height:38px;
   }
   .header-cta{
-    padding:7px 14px;
-    min-height:34px;
-    font-size:.68rem;
-    letter-spacing:.10em;
+    padding:9px 18px;
+    min-height:38px;
+    font-size:.72rem;
+    letter-spacing:.12em;
   }
 }
 
@@ -1543,68 +1580,89 @@ strong{font-weight:600;}
 
 // Mobile: editorial portrait → elegant content
 @media(max-width:768px){
+  // ═══ MOBILE HERO — LUXURY FASHION CAMPAIGN ════════════════════════════════════
+  // Complete redesign: portrait as luxury focus, not scaled desktop
   .hero-layout{
     flex-direction:column;
     align-items:center;
     gap:0;
     width:100%;
-    padding-top:clamp(90px,15vh,120px);
+    min-height:calc(100svh - 90px);
+    padding:0;
+    display:flex;
+    justify-content:center;
   }
+  
+  // PORTRAIT — FASHION CAMPAIGN TREATMENT
   .hero-bg{
     flex:none;
     order:1;
-    width:86%;
+    width:92%;
     height:0;
-    padding-bottom:calc(86% * 1.25);
+    padding-bottom:calc(92% * 1.38); // Taller aspect for vertical portrait
     flex-shrink:0;
-    border-radius:clamp(28px,6vw,36px);
+    border-radius:clamp(36px,8vw,48px);
     position:relative;
+    margin-bottom:clamp(-64px,-14vw,-80px); // Elegant overlap with content
     box-shadow:
-      0 16px 48px rgba(0,0,0,.38),
-      0 0 0 1px rgba(196,217,240,.05),
-      0 0 64px rgba(196,217,240,.04);
+      0 24px 72px rgba(0,0,0,.42),
+      0 0 0 1px rgba(196,217,240,.06),
+      0 0 120px rgba(196,217,240,.05);
   }
   .hero-bg img{
     transform:scale(1);
-    object-position:center 25%;
-    filter:brightness(.68) saturate(.68) contrast(1.10);
+    object-position:center 22%; // Eyes in upper third
+    filter:brightness(.72) saturate(.70) contrast(1.08);
+    animation:mobilePortraitFloat 48s ease-in-out infinite;
   }
+  
+  // ATMOSPHERIC LIGHT — SOFT FASHION FADE
   .hero-bg-fade{
     background:
       linear-gradient(to bottom,
         transparent 0%,
-        rgba(10,8,6,.12) 50%,
-        rgba(10,8,6,.82) 86%,
+        transparent 12%,
+        rgba(10,8,6,.08) 42%,
+        rgba(10,8,6,.68) 78%,
+        rgba(10,8,6,.96) 92%,
         rgba(10,8,6,1) 100%);
   }
   .hero-bg::after{
     background:
-      radial-gradient(ellipse 58% 42% at 50% 38%,
+      radial-gradient(ellipse 68% 48% at 50% 28%,
         transparent 0%,
-        rgba(10,8,6,.16) 62%,
-        rgba(10,8,6,.36) 100%);
+        transparent 32%,
+        rgba(10,8,6,.08) 58%,
+        rgba(10,8,6,.28) 86%);
   }
+  
+  // SOFT ATMOSPHERIC GLOW
   .hero-bg::before{
     content:"";
     position:absolute;
-    inset:-28px;
-    background:radial-gradient(ellipse 92% 76% at 50% 50%,
-      rgba(196,217,240,.05) 0%,
-      transparent 72%);
-    filter:blur(32px);
+    inset:-40px;
+    background:radial-gradient(ellipse 96% 82% at 50% 38%,
+      rgba(196,217,240,.06) 0%,
+      rgba(196,217,240,.02) 52%,
+      transparent 78%);
+    filter:blur(48px);
     z-index:-1;
     pointer-events:none;
+    animation:breathingGlow 52s ease-in-out infinite;
   }
+  // TYPOGRAPHY — CENTERED, ELEGANT, BREATHING
   .hero-content-wrapper{
     order:2;
     flex:none;
     width:100%;
-    padding:clamp(48px,9vh,64px) clamp(24px,6vw,32px) clamp(32px,6vh,48px);
+    padding:clamp(56px,10vh,80px) clamp(28px,7vw,36px) clamp(48px,9vh,64px);
     background:#0a0806;
     display:flex;
     flex-direction:column;
     align-items:center;
     text-align:center;
+    position:relative;
+    z-index:2;
   }
   .hero-text{
     max-width:100%;
@@ -1612,69 +1670,105 @@ strong{font-weight:600;}
     flex-direction:column;
     align-items:center;
   }
+  
+  // LIVE PILL — REFINED ELEGANCE
   .hero-live-pill{
-    margin-bottom:clamp(16px,3vh,20px);
-    padding:8px 20px;
-    font-size:.68rem;
+    margin-bottom:clamp(20px,3.5vh,24px);
+    padding:10px 22px;
+    font-size:.70rem;
+    background:rgba(196,217,240,.08);
+    border:1px solid rgba(196,217,240,.18);
+    backdrop-filter:blur(12px);
+    -webkit-backdrop-filter:blur(12px);
   }
   .hero-eyebrow{
-    margin-bottom:clamp(12px,2vh,16px);
+    margin-bottom:clamp(16px,2.5vh,20px);
     text-align:center;
   }
   .hero-eyebrow::after{
     display:none;
   }
+  
+  // HEADLINE — LUXURY SCALE, BREATHING ROOM
   .hero-title{
-    font-size:clamp(2.6rem,10.5vw,3.8rem);
-    line-height:1.08;
+    font-size:clamp(2.8rem,11.5vw,4.2rem);
+    line-height:1.06;
     max-width:100%;
     text-align:center;
-    margin-bottom:clamp(24px,4.5vh,32px);
-    font-weight:600;
-    letter-spacing:-.058em;
-  }
-  .hero-lead{
-    max-width:100%;
     margin-bottom:clamp(32px,6vh,40px);
-    font-size:clamp(1.06rem,1.7vw,1.20rem);
-    text-align:center;
-    line-height:1.70;
+    font-weight:600;
+    letter-spacing:-.062em;
+    text-shadow:
+      0 2px 12px rgba(0,0,0,.24),
+      0 6px 32px rgba(0,0,0,.28);
   }
+  
+  // LEAD — ELEGANT, GENEROUS BREATHING
+  .hero-lead{
+    max-width:88%;
+    margin-bottom:clamp(40px,7vh,52px);
+    font-size:clamp(1.08rem,1.85vw,1.24rem);
+    text-align:center;
+    line-height:1.72;
+    color:rgba(255,255,255,.84);
+  }
+  
+  // BUTTONS — FULL WIDTH, PREMIUM TOUCH
   .hero-cta-row{
-    gap:12px;
+    gap:14px;
     width:100%;
+    max-width:380px;
     flex-direction:column;
-    margin-bottom:clamp(40px,7vh,56px);
+    margin-bottom:clamp(52px,9vh,68px);
   }
   .hero-cta-row .btn{
     width:100%;
-    min-height:54px;
-    padding:14px 24px;
-    font-size:0.84rem;
+    min-height:56px;
+    padding:16px 28px;
+    font-size:0.86rem;
+    letter-spacing:.16em;
     justify-content:center;
     touch-action:manipulation;
     -webkit-tap-highlight-color:transparent;
+    border-radius:clamp(16px,3.5vw,20px);
   }
+  
+  // METRICS — ELEGANT PILLS
   .hero-metrics{
-    gap:clamp(24px,5vw,32px);
+    gap:clamp(20px,4.5vw,28px);
     margin-top:0;
     width:100%;
     justify-content:center;
+    display:flex;
+    flex-wrap:wrap;
+    padding:0 clamp(16px,4vw,24px);
   }
   .metric{
     text-align:center;
     align-items:center;
+    background:rgba(196,217,240,.04);
+    border:1px solid rgba(196,217,240,.10);
+    border-radius:clamp(16px,3vw,18px);
+    padding:clamp(14px,2.8vh,18px) clamp(20px,5vw,28px);
+    backdrop-filter:blur(8px);
+    -webkit-backdrop-filter:blur(8px);
   }
   .metric-value{
-    font-size:clamp(2.2rem,5vw,3.2rem);
+    font-size:clamp(2.4rem,5.5vw,3.4rem);
+    font-weight:600;
+    background:linear-gradient(135deg,#fff 0%,rgba(255,255,255,.82) 100%);
+    -webkit-background-clip:text;
+    -webkit-text-fill-color:transparent;
+    background-clip:text;
   }
   .metric-label{
-    font-size:clamp(0.72rem,1.05vw,0.78rem);
+    font-size:clamp(0.74rem,1.15vw,0.82rem);
+    color:rgba(255,255,255,.68);
+    letter-spacing:.02em;
   }
   .metric-divider{
     display:none;
   }
-}
 
 // ── Hero Ticker ────────────────────────────────────────────────────────────
 .hero-ticker{
@@ -3770,6 +3864,38 @@ strong{font-weight:600;}
   .section-reviews{padding:96px 0;}
   .section-faq{padding:112px 0;}
   
+  // CINEMATIC SECTION TRANSITIONS — Continuous film feeling
+  .section::before{
+    height:clamp(80px,12vh,140px);
+    background:
+      linear-gradient(to bottom,
+        var(--bg) 0%,
+        rgba(10,8,6,.92) 12%,
+        rgba(10,8,6,.72) 28%,
+        rgba(10,8,6,.38) 52%,
+        transparent 100%);
+    opacity:.7;
+  }
+  .section::after{
+    height:clamp(80px,12vh,140px);
+    background:
+      linear-gradient(to top,
+        var(--bg) 0%,
+        rgba(10,8,6,.92) 12%,
+        rgba(10,8,6,.72) 28%,
+        rgba(10,8,6,.38) 52%,
+        transparent 100%);
+    opacity:.6;
+  }
+  .section-bg-white::before,
+  .section-bg-tint::before{
+    opacity:.72;
+  }
+  .section-bg-white::after,
+  .section-bg-tint::after{
+    opacity:.68;
+  }
+  
   // Container breathing
   .container{
     width:90%;
@@ -3873,47 +3999,131 @@ strong{font-weight:600;}
     font-size:clamp(1.28rem,2.6vw,1.72rem);
   }
   
-  // Portfolio mobile - premium gallery
+  // PORTFOLIO MOBILE — LUXURY EXHIBITION GALLERY
   .portfolio-reel-outer{
-    padding:40px 0 64px;
+    padding:clamp(48px,9vh,72px) 0 clamp(72px,13vh,96px);
     scroll-snap-type:x mandatory;
     -webkit-overflow-scrolling:touch;
+    position:relative;
+  }
+  .portfolio-reel-outer::before{
+    content:"";
+    position:absolute;
+    top:0;
+    left:0;
+    width:clamp(32px,8vw,48px);
+    height:100%;
+    background:linear-gradient(to right,
+      var(--bg) 0%,
+      rgba(10,8,6,.92) 18%,
+      transparent 100%);
+    z-index:2;
+    pointer-events:none;
+  }
+  .portfolio-reel-outer::after{
+    content:"";
+    position:absolute;
+    top:0;
+    right:0;
+    width:clamp(32px,8vw,48px);
+    height:100%;
+    background:linear-gradient(to left,
+      var(--bg) 0%,
+      rgba(10,8,6,.92) 18%,
+      transparent 100%);
+    z-index:2;
+    pointer-events:none;
   }
   .portfolio-reel-track{
-    gap:24px;
-    padding-inline:24px;
+    gap:clamp(28px,6vw,36px);
+    padding-inline:clamp(28px,7vw,40px);
     display:flex;
     overflow-x:auto;
     scroll-snap-type:x mandatory;
-    scroll-padding:24px;
+    scroll-padding:clamp(28px,7vw,40px);
   }
   .reel-card{
-    width:clamp(260px,75vw,320px);
+    width:clamp(280px,80vw,360px);
     scroll-snap-align:center;
-    scroll-snap-stop:normal;
-    transition:transform 420ms var(--ease-spring),opacity 420ms var(--ease);
+    scroll-snap-stop:always;
+    transition:transform 480ms var(--ease),opacity 480ms var(--ease),filter 480ms var(--ease);
+    filter:brightness(.92);
   }
-  .reel-card:not(:focus-within){
-    opacity:.94;
+  .reel-card:focus-within,
+  .reel-card--center{
+    filter:brightness(1);
+    transform:scale(1.02);
+  }
+  .reel-card:not(:focus-within):not(.reel-card--center){
+    opacity:.88;
   }
   .reel-frame{
-    border-radius:20px;
+    border-radius:clamp(24px,5vw,32px);
+    overflow:hidden;
+    box-shadow:
+      0 20px 56px rgba(0,0,0,.32),
+      0 0 0 1px rgba(196,217,240,.06),
+      0 0 80px rgba(196,217,240,.04);
+    border:1px solid rgba(196,217,240,.08);
   }
   
-  // Results mobile
+  // RESULTS MOBILE — PREMIUM DATA SHOWCASE
+  .results-outer{
+    position:relative;
+  }
+  .results-outer::before{
+    content:"";
+    position:absolute;
+    top:0;
+    left:0;
+    width:clamp(28px,7vw,40px);
+    height:100%;
+    background:linear-gradient(to right,
+      var(--bg) 0%,
+      rgba(10,8,6,.92) 18%,
+      transparent 100%);
+    z-index:2;
+    pointer-events:none;
+  }
+  .results-outer::after{
+    content:"";
+    position:absolute;
+    top:0;
+    right:0;
+    width:clamp(28px,7vw,40px);
+    height:100%;
+    background:linear-gradient(to left,
+      var(--bg) 0%,
+      rgba(10,8,6,.92) 18%,
+      transparent 100%);
+    z-index:2;
+    pointer-events:none;
+  }
   .results-rail{
-    gap:24px;
-    padding-inline:24px;
+    gap:clamp(24px,5.5vw,32px);
+    padding-inline:clamp(28px,7vw,40px);
     scroll-snap-type:x mandatory;
     -webkit-overflow-scrolling:touch;
   }
   .result-card{
-    width:clamp(240px,72vw,300px);
+    width:clamp(260px,75vw,320px);
     scroll-snap-align:center;
-    transition:transform 420ms var(--ease-spring);
+    scroll-snap-stop:always;
+    transition:transform 480ms var(--ease),filter 480ms var(--ease);
+    filter:brightness(.94);
+  }
+  .result-card:focus-within{
+    filter:brightness(1);
+    transform:scale(1.015);
   }
   .result-frame{
-    border-radius:20px;
+    border-radius:clamp(22px,5vw,28px);
+    overflow:hidden;
+    box-shadow:
+      0 16px 44px rgba(0,0,0,.28),
+      0 0 0 1px rgba(196,217,240,.06),
+      0 0 64px rgba(196,217,240,.04);
+    border:1px solid rgba(196,217,240,.08);
   }
   
   // Services mobile
@@ -3932,45 +4142,284 @@ strong{font-weight:600;}
     font-size:clamp(1.32rem,2.8vw,1.82rem);
   }
   
-  // Reviews mobile
+  // REVIEWS MOBILE — EMOTIONAL EDITORIAL TESTIMONIALS
+  .reviews-outer{
+    position:relative;
+  }
+  .reviews-outer::before{
+    content:"";
+    position:absolute;
+    top:0;
+    left:0;
+    width:clamp(28px,7vw,40px);
+    height:100%;
+    background:linear-gradient(to right,
+      var(--bg) 0%,
+      rgba(10,8,6,.92) 18%,
+      transparent 100%);
+    z-index:2;
+    pointer-events:none;
+  }
+  .reviews-outer::after{
+    content:"";
+    position:absolute;
+    top:0;
+    right:0;
+    width:clamp(28px,7vw,40px);
+    height:100%;
+    background:linear-gradient(to left,
+      var(--bg) 0%,
+      rgba(10,8,6,.92) 18%,
+      transparent 100%);
+    z-index:2;
+    pointer-events:none;
+  }
   .reviews-rail{
-    gap:24px;
-    padding-inline:24px;
+    gap:clamp(24px,5.5vw,32px);
+    padding-inline:clamp(28px,7vw,40px);
     scroll-snap-type:x mandatory;
     -webkit-overflow-scrolling:touch;
   }
   .review-card{
-    width:clamp(280px,82vw,340px);
+    width:clamp(300px,85vw,360px);
     scroll-snap-align:center;
-    transition:transform 420ms var(--ease-spring),opacity 420ms var(--ease);
+    scroll-snap-stop:always;
+    transition:transform 480ms var(--ease),opacity 480ms var(--ease),filter 480ms var(--ease);
+    filter:brightness(.94);
+  }
+  .review-card:focus-within{
+    filter:brightness(1);
+    transform:scale(1.015);
   }
   .review-card:not(:focus-within){
-    opacity:.96;
+    opacity:.92;
   }
   .review-inner{
-    border-radius:24px;
+    border-radius:clamp(26px,5.5vw,34px);
+    background:rgba(252,251,250,.015);
+    border:1px solid rgba(196,217,240,.10);
+    box-shadow:
+      0 16px 48px rgba(0,0,0,.24),
+      0 0 0 1px rgba(196,217,240,.05),
+      inset 0 1px 0 rgba(255,255,255,.02);
   }
   .review-frame{
-    padding:20px;
-    border-radius:20px;
+    padding:clamp(24px,5vh,32px);
+    border-radius:clamp(24px,5vw,32px);
+  }
+  .review-frame img{
+    border-radius:clamp(18px,4vw,24px);
+    box-shadow:
+      0 8px 28px rgba(0,0,0,.20),
+      0 0 0 1px rgba(196,217,240,.08);
   }
   
-  // Contact mobile
+  // CONTACT — EMOTIONAL FINALE, LUXURY PORTRAIT ENDING
+  .contact-layout{
+    display:flex;
+    flex-direction:column;
+    gap:0;
+  }
+  .contact-img{
+    order:1;
+    width:92%;
+    margin:0 auto clamp(-48px,-10vw,-64px);
+    border-radius:clamp(32px,7vw,44px);
+    overflow:hidden;
+    position:relative;
+    z-index:2;
+    box-shadow:
+      0 24px 64px rgba(0,0,0,.36),
+      0 0 0 1px rgba(196,217,240,.06),
+      0 0 96px rgba(196,217,240,.04);
+  }
+  .contact-img::after{
+    content:"";
+    position:absolute;
+    inset:0;
+    background:
+      linear-gradient(to bottom,
+        transparent 0%,
+        transparent 28%,
+        rgba(25,23,20,.06) 58%,
+        rgba(25,23,20,.58) 82%,
+        rgba(25,23,20,.92) 96%);
+    pointer-events:none;
+    z-index:1;
+  }
+  .contact-img::before{
+    content:"";
+    position:absolute;
+    inset:-32px;
+    background:radial-gradient(ellipse 88% 72% at 50% 42%,
+      rgba(196,217,240,.05) 0%,
+      rgba(196,217,240,.02) 48%,
+      transparent 76%);
+    filter:blur(40px);
+    z-index:-1;
+    pointer-events:none;
+    animation:breathingGlow 56s ease-in-out infinite;
+  }
   .contact-img img{
-    height:clamp(280px,55vw,400px);
+    height:clamp(420px,88vw,600px);
+    width:100%;
+    object-fit:cover;
+    object-position:center 24%;
+    filter:brightness(.80) saturate(.76) contrast(1.06);
   }
   .contact-main{
-    padding:64px 0 80px;
+    order:2;
+    padding:clamp(72px,14vh,96px) clamp(24px,6vw,32px) clamp(64px,12vh,88px);
+    position:relative;
+    z-index:3;
+  }
+  .contact-copy{
+    margin-bottom:clamp(48px,9vh,64px);
+  }
+  .contact-copy .section-title{
+    font-size:clamp(2.6rem,10vw,3.6rem);
+    line-height:1.08;
+    margin-bottom:clamp(24px,4vh,32px);
+    max-width:100%;
+    letter-spacing:-.056em;
+  }
+  .contact-copy .section-body{
+    font-size:clamp(1.08rem,1.9vw,1.24rem);
+    line-height:1.72;
+    color:rgba(255,255,255,.80);
+    margin-bottom:clamp(32px,6vh,40px);
+    max-width:100%;
+  }
+  .contact-checklist{
+    list-style:none;
+    padding:0;
+    margin:clamp(32px,6vh,40px) 0;
+    display:flex;
+    flex-direction:column;
+    gap:clamp(16px,3vh,20px);
+  }
+  .contact-checklist li{
+    position:relative;
+    padding-inline-start:32px;
+    font-size:clamp(1.02rem,1.8vw,1.16rem);
+    line-height:1.60;
+    color:rgba(255,255,255,.76);
+  }
+  .contact-checklist li::before{
+    content:"✓";
+    position:absolute;
+    inset-inline-start:0;
+    width:20px;
+    height:20px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    background:rgba(196,217,240,.10);
+    border-radius:50%;
+    font-size:.82rem;
+    font-weight:600;
+    color:rgba(196,217,240,.88);
+  }
+  .contact-sign{
+    margin-top:clamp(32px,6vh,40px);
+    font-size:clamp(1.04rem,1.85vw,1.18rem);
+    font-style:italic;
+    color:rgba(255,255,255,.68);
   }
   .contact-form{
-    padding:40px 24px;
-    border-radius:32px;
-    gap:24px;
+    padding:clamp(44px,8vh,56px) clamp(28px,6vw,36px);
+    border-radius:clamp(28px,6vw,36px);
+    gap:clamp(20px,4vh,28px);
+    background:rgba(252,251,250,.015);
+    border:1px solid rgba(196,217,240,.08);
+    backdrop-filter:blur(16px);
+    -webkit-backdrop-filter:blur(16px);
+    box-shadow:
+      0 8px 32px rgba(0,0,0,.12),
+      inset 0 1px 0 rgba(255,255,255,.02);
+  }
+  .contact-form label{
+    display:flex;
+    flex-direction:column;
+    gap:10px;
+  }
+  .contact-form label span{
+    font-size:clamp(0.82rem,1.45vw,0.92rem);
+    font-weight:500;
+    letter-spacing:.02em;
+    color:rgba(255,255,255,.68);
   }
   .contact-form input{
-    padding:18px 20px;
-    min-height:54px;
-    font-size:clamp(1.06rem,1.75vw,1.18rem);
+    padding:clamp(16px,3vh,20px) clamp(18px,4vw,24px);
+    min-height:56px;
+    font-size:clamp(1.06rem,1.85vw,1.20rem);
+    background:rgba(252,251,250,.02);
+    border:1px solid rgba(196,217,240,.12);
+    border-radius:clamp(14px,3vw,18px);
+    color:#fff;
+    transition:border-color 320ms var(--ease),background 320ms var(--ease);
+  }
+  .contact-form input::placeholder{
+    color:rgba(255,255,255,.32);
+  }
+  .contact-form input:focus{
+    outline:none;
+    border-color:rgba(196,217,240,.28);
+    background:rgba(252,251,250,.04);
+  }
+  .btn.btn-submit{
+    width:100%;
+    min-height:58px;
+    margin-top:clamp(12px,2vh,16px);
+    border-radius:clamp(14px,3vw,18px);
+    font-size:clamp(0.84rem,1.5vw,0.94rem);
+    letter-spacing:.16em;
+    background:linear-gradient(135deg,rgba(196,217,240,.12),rgba(196,217,240,.08));
+    border:1px solid rgba(196,217,240,.24);
+    color:#fff;
+    box-shadow:
+      0 4px 16px rgba(196,217,240,.08),
+      inset 0 1px 0 rgba(255,255,255,.12);
+  }
+  
+  // MOBILE BUTTONS — PREMIUM BRAND OBJECTS
+  .btn{
+    border-radius:clamp(16px,3.5vw,20px);
+    backdrop-filter:blur(12px);
+    -webkit-backdrop-filter:blur(12px);
+    box-shadow:
+      0 4px 20px rgba(0,0,0,.08),
+      0 0 0 1px rgba(196,217,240,.06),
+      inset 0 1px 0 rgba(255,255,255,.06);
+    transition:
+      transform 320ms var(--ease),
+      box-shadow 320ms var(--ease),
+      background 320ms var(--ease),
+      border-color 320ms var(--ease);
+  }
+  .btn:active{
+    transform:scale(0.975);
+    box-shadow:
+      0 2px 12px rgba(0,0,0,.12),
+      inset 0 1px 2px rgba(0,0,0,.06);
+  }
+  .btn-glass{
+    background:rgba(252,251,250,.06);
+    border-color:rgba(196,217,240,.18);
+  }
+  .btn-glass--brand{
+    background:linear-gradient(135deg,
+      rgba(196,217,240,.14),
+      rgba(196,217,240,.10));
+    border-color:rgba(196,217,240,.26);
+    box-shadow:
+      0 6px 24px rgba(196,217,240,.10),
+      0 0 0 1px rgba(196,217,240,.08),
+      inset 0 1px 0 rgba(255,255,255,.14);
+  }
+  .btn-secondary{
+    background:rgba(252,251,250,.03);
+    border-color:rgba(196,217,240,.14);
   }
   
   // FAQ mobile
@@ -4014,17 +4463,45 @@ strong{font-weight:600;}
     font-size:clamp(1.00rem,1.7vw,1.14rem);
   }
   
-  // About section mobile
+  // ABOUT SECTION MOBILE — PORTRAIT AS FASHION STATEMENT
   .about-layout{
     grid-template-columns:1fr;
-    gap:48px;
+    gap:clamp(56px,11vh,80px);
   }
   .about-photo-wrap{
-    transform:none;
+    transform:translateY(-32px);
     order:-1;
+    position:relative;
+  }
+  .about-photo-wrap::before{
+    content:"";
+    position:absolute;
+    inset:-36px;
+    background:radial-gradient(ellipse 88% 70% at 50% 40%,
+      rgba(196,217,240,.04) 0%,
+      rgba(196,217,240,.015) 48%,
+      transparent 74%);
+    filter:blur(44px);
+    z-index:-1;
+    pointer-events:none;
+    animation:breathingGlow 58s ease-in-out infinite;
+  }
+  .about-photo-wrap .editorial-img{
+    border-radius:clamp(28px,6vw,38px);
+    box-shadow:
+      0 20px 64px rgba(0,0,0,.32),
+      0 0 0 1px rgba(196,217,240,.06),
+      0 0 88px rgba(196,217,240,.04);
+  }
+  .about-photo-wrap .editorial-img--portrait img{
+    height:clamp(400px,82vw,580px);
+    object-position:center 26%;
+    filter:brightness(.76) saturate(.74) contrast(1.06);
   }
   .about-intro{
-    font-size:clamp(1.68rem,4vw,2.2rem);
+    font-size:clamp(1.82rem,4.5vw,2.4rem);
+    line-height:1.28;
+    letter-spacing:-.038em;
   }
   
   // Solution section mobile
@@ -4490,23 +4967,148 @@ strong{font-weight:600;}
   .hero-ticker{display:none;}
 }
 
-// ═══ SMALL SCREENS 360-390px ══════════════════════════════════════════════════
-@media(min-width:360px) and (max-width:390px){
-  .hero-title{font-size:clamp(1.9rem,8vw,2.2rem);line-height:1.14;}
-  .hero-lead{font-size:var(--t-sm);line-height:1.65;}
-  .section-title{font-size:clamp(1.6rem,6vw,1.9rem);}
+// ═══ iPHONE SPECIFIC OPTIMIZATIONS ═══════════════════════════════════════════
+
+// iPhone 17 Pro Max, 16 Pro Max, 15 Pro Max, 14 Pro Max (430px)
+@media(min-width:415px) and (max-width:430px){
+  .hero-bg{
+    width:90%;
+    padding-bottom:calc(90% * 1.36);
+  }
+  .hero-title{
+    font-size:clamp(2.9rem,11.2vw,4.0rem);
+    line-height:1.05;
+  }
+  .hero-lead{
+    font-size:clamp(1.10rem,1.9vw,1.26rem);
+  }
+  .hero-cta-row{
+    max-width:400px;
+  }
+  .metric{
+    padding:16px 30px;
+  }
+  .contact-img{
+    width:90%;
+  }
+  .section-title{
+    font-size:clamp(2.8rem,9.5vw,3.4rem);
+  }
 }
 
-// ═══ VERY SMALL <360px ════════════════════════════════════════════════════════
-@media(max-width:360px){
-  :host{--t-hero:clamp(1.7rem,8.5vw,2.1rem);--t-3xl:clamp(1.45rem,6.5vw,1.75rem);}
-  .hero-layout{
-    padding-top:clamp(var(--s5),8vh,var(--s7));
-    padding-bottom:clamp(var(--s5),7vh,var(--s7));
+// iPhone 16 Pro, iPhone 16 (402px)
+@media(min-width:395px) and (max-width:414px){
+  .hero-bg{
+    width:91%;
+    padding-bottom:calc(91% * 1.37);
   }
-  .hero-title{font-size:clamp(1.7rem,8.5vw,2.1rem);line-height:1.2;margin-bottom:var(--s4);}
-  .hero-lead{font-size:var(--t-sm);margin-bottom:var(--s4);}
-  .stat-chip{padding:var(--s3) var(--s4);}
-  .stat-value{font-size:var(--t-lg);}
-  .hero-cta-row .btn{padding:12px 20px;min-height:48px;}
+  .hero-title{
+    font-size:clamp(2.85rem,11vw,3.9rem);
+  }
+  .hero-cta-row{
+    max-width:390px;
+  }
+  .contact-img{
+    width:91%;
+  }
+}
+
+// iPhone 15 Pro, iPhone 14 Pro (393px)
+@media(min-width:391px) and (max-width:394px){
+  .hero-bg{
+    width:91.5%;
+    padding-bottom:calc(91.5% * 1.37);
+  }
+  .hero-title{
+    font-size:clamp(2.82rem,11vw,3.85rem);
+  }
+  .contact-img{
+    width:91.5%;
+  }
+}
+
+// iPhone 13/14/15 (390px)
+@media(min-width:388px) and (max-width:392px){
+  .hero-bg{
+    width:92%;
+    padding-bottom:calc(92% * 1.38);
+  }
+  .hero-title{
+    font-size:clamp(2.8rem,11.5vw,3.8rem);
+  }
+  .hero-lead{
+    font-size:clamp(1.08rem,1.85vw,1.24rem);
+  }
+  .contact-img{
+    width:92%;
+  }
+}
+
+// General smaller iPhones (360-387px)
+@media(min-width:360px) and (max-width:387px){
+  .hero-bg{
+    width:92%;
+    padding-bottom:calc(92% * 1.40);
+  }
+  .hero-title{
+    font-size:clamp(2.6rem,10.8vw,3.6rem);
+    line-height:1.08;
+  }
+  .hero-lead{
+    font-size:clamp(1.06rem,1.82vw,1.20rem);
+  }
+  .hero-cta-row{
+    max-width:360px;
+  }
+  .hero-cta-row .btn{
+    min-height:54px;
+    padding:15px 26px;
+  }
+  .metric{
+    padding:15px 26px;
+  }
+  .contact-img{
+    width:92%;
+  }
+  .section-title{
+    font-size:clamp(2.5rem,9.2vw,3.1rem);
+  }
+}
+
+// VERY SMALL SCREENS (<360px)
+@media(max-width:360px){
+  :host{
+    --t-hero:clamp(1.7rem,8.5vw,2.1rem);
+    --t-3xl:clamp(1.45rem,6.5vw,1.75rem);
+  }
+  .hero-bg{
+    width:94%;
+    padding-bottom:calc(94% * 1.42);
+  }
+  .hero-title{
+    font-size:clamp(2.4rem,10.5vw,3.2rem);
+    line-height:1.10;
+    margin-bottom:clamp(28px,5vh,36px);
+  }
+  .hero-lead{
+    font-size:clamp(1.04rem,1.78vw,1.16rem);
+    margin-bottom:clamp(36px,7vh,48px);
+  }
+  .hero-cta-row{
+    max-width:340px;
+  }
+  .hero-cta-row .btn{
+    padding:14px 24px;
+    min-height:52px;
+    font-size:0.82rem;
+  }
+  .metric{
+    padding:14px 24px;
+  }
+  .contact-img{
+    width:94%;
+  }
+  .section-title{
+    font-size:clamp(2.2rem,8.8vw,2.8rem);
+  }
 }
