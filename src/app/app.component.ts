@@ -280,7 +280,9 @@ export class AppComponent implements AfterViewInit, OnDestroy {
             offset += velocity;
             velocity *= FRICTION;
           }
-          offset -= isHovered ? SPEED * 0.35 : SPEED;
+          if (!isHovered) {
+            offset -= SPEED;
+          }
           clampOffset();
           track.style.transform = `translateX(${offset}px)`;
         }
@@ -415,6 +417,7 @@ export class AppComponent implements AfterViewInit, OnDestroy {
       let offset = 0;
       let isDragging = false;
       let isHovered = false;
+      let isPaused = false;
       let dragStartX = 0;
       let dragOffsetStart = 0;
       let velocity = 0;
@@ -428,12 +431,14 @@ export class AppComponent implements AfterViewInit, OnDestroy {
       };
 
       const tick = () => {
-        if (!isDragging) {
+        if (!isDragging && !isPaused) {
           if (Math.abs(velocity) > 0.15) {
             offset += velocity;
             velocity *= FRICTION;
           }
-          offset -= isHovered ? SPEED * 0.25 : SPEED;
+          if (!isHovered) {
+            offset -= SPEED;
+          }
           clampOffset();
           track.style.transform = `translateX(${offset}px)`;
         }
@@ -446,12 +451,13 @@ export class AppComponent implements AfterViewInit, OnDestroy {
       outer.addEventListener('mouseenter', () => { isHovered = true; }, { passive: true });
       outer.addEventListener('mouseleave', () => {
         isHovered = false;
+        isPaused = false;
         if (isDragging) { isDragging = false; outer.style.cursor = 'grab'; }
         velocity = 0;
       }, { passive: true });
 
       outer.addEventListener('mousedown', (e: MouseEvent) => {
-        isDragging = true; isHovered = true;
+        isDragging = true; isHovered = true; isPaused = true;
         dragStartX = e.clientX; dragOffsetStart = offset;
         prevX = e.clientX; velocity = 0;
         outer.style.cursor = 'grabbing';
@@ -470,11 +476,12 @@ export class AppComponent implements AfterViewInit, OnDestroy {
       window.addEventListener('mouseup', () => {
         if (!isDragging) return;
         isDragging = false;
+        isPaused = false;
         outer.style.cursor = 'grab';
       });
 
       outer.addEventListener('touchstart', (e: TouchEvent) => {
-        isDragging = true; isHovered = true;
+        isDragging = true; isHovered = true; isPaused = true;
         dragStartX = e.touches[0].clientX; dragOffsetStart = offset;
         prevX = e.touches[0].clientX; velocity = 0;
         clearTimeout(resumeTimer);
@@ -491,11 +498,12 @@ export class AppComponent implements AfterViewInit, OnDestroy {
 
       outer.addEventListener('touchend', () => {
         isDragging = false;
+        isPaused = false;
         resumeTimer = setTimeout(() => { isHovered = false; velocity = 0; }, 800);
       }, { passive: true });
 
       outer.addEventListener('touchcancel', () => {
-        isDragging = false; isHovered = false; velocity = 0;
+        isDragging = false; isHovered = false; isPaused = false; velocity = 0;
       }, { passive: true });
     });
   }
