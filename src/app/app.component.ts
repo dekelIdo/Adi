@@ -27,25 +27,25 @@ export class AppComponent implements AfterViewInit, OnDestroy {
     {
       id: 'onaction',
       title: 'OnAction',
-      category: 'מיתוג אישי',
-      image: 'assets/lovable-uploads/MyAssets/ContactMe.jpg',
+      category: 'מיתוג אישי · קמפיין',
+      image: 'assets/lovable-uploads/MyAssets/AdiArieli/Me3 (2).jpg',
       aspectRatio: 'portrait',
       imageMode: 'cover',
-      alt: 'OnAction - מיתוג אישי'
+      alt: 'OnAction - מיתוג אישי וקמפיין'
     },
     {
       id: 'social-growth',
       title: 'צמיחה ברשתות',
-      category: 'תוצאות',
+      category: 'תוצאות · 10K+ צפיות',
       image: 'assets/lovable-uploads/MyAssets/Results/IMG_7629.PNG',
       aspectRatio: 'landscape',
       imageMode: 'contain',
-      alt: '10K+ צפיות לסרטון'
+      alt: '10K+ צפיות לסרטון - תוצאות אמיתיות'
     },
     {
       id: 'engagement',
       title: 'מעורבות גבוהה',
-      category: 'תוצאות',
+      category: 'תוצאות · ביצועים',
       image: 'assets/lovable-uploads/MyAssets/Results/IMG_7323.PNG',
       aspectRatio: 'landscape',
       imageMode: 'contain',
@@ -53,12 +53,12 @@ export class AppComponent implements AfterViewInit, OnDestroy {
     },
     {
       id: 'growth',
-      title: 'צמיחה חודשית',
-      category: 'תוצאות',
+      title: 'צמיחה אורגנית',
+      category: 'תוצאות · עוקבים',
       image: 'assets/lovable-uploads/MyAssets/Results/IMG_3572.PNG',
       aspectRatio: 'landscape',
       imageMode: 'contain',
-      alt: 'צמיחה חודשית בעוקבים'
+      alt: 'צמיחה חודשית בעוקבים - גרף ביצועים'
     }
   ];
 
