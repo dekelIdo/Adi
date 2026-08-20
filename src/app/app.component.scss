@@ -18,14 +18,14 @@
   --text-muted: #6a6664;
   --text-light: #9a9694;
 
-  // ─── Unified Spacing Scale (intentionally tighter than before)
-  --space-xs: clamp(12px, 2vh, 16px);
-  --space-sm: clamp(20px, 3.5vh, 32px);
-  --space-md: clamp(40px, 6vh, 64px);
-  --space-lg: clamp(56px, 8vh, 88px);
-  --space-xl: clamp(80px, 11vh, 120px);
+  // ─── AGGRESSIVELY REDUCED Spacing Scale (30-40% tighter)
+  --space-xs: clamp(8px, 1.4vh, 12px);
+  --space-sm: clamp(14px, 2.4vh, 22px);
+  --space-md: clamp(26px, 4vh, 42px);
+  --space-lg: clamp(38px, 5.5vh, 58px);
+  --space-xl: clamp(52px, 7.5vh, 78px);
 
-  // ─── Typography Scale (clear hierarchy)
+  // ─── Typography Scale
   --text-xs: clamp(0.72rem, 1.8vw, 0.82rem);
   --text-sm: clamp(0.88rem, 2.2vw, 0.98rem);
   --text-base: clamp(1.08rem, 2.6vw, 1.18rem);
@@ -38,8 +38,8 @@
 
   // ─── Container System
   --container-max: 1240px;
-  --container-padding: clamp(24px, 5vw, 48px);
-  --container-padding-mobile: clamp(20px, 5vw, 28px);
+  --container-padding: clamp(22px, 4.5vw, 42px);
+  --container-padding-mobile: clamp(18px, 4.5vw, 24px);
 
   // ─── Border Radius
   --r-sm: 10px;
@@ -79,6 +79,7 @@ body {
   line-height: 1.6;
   color: var(--text);
   background: var(--bg);
+  direction: rtl; // RTL FIRST-CLASS SUPPORT
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
@@ -129,7 +130,7 @@ img {
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' /%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)' opacity='0.4'/%3E%3C/svg%3E");
 }
 
-// ─────── HEADER — INTEGRATED PREMIUM STICKY ────────────────────────────────────
+// ─────── HEADER — CONTEXT-AWARE PREMIUM STICKY ────────────────────────────────
 
 .site-header {
   position: fixed;
@@ -138,11 +139,14 @@ img {
   transform: translateX(-50%);
   width: min(calc(100% - clamp(28px, 4vw, 56px)), var(--container-max));
   z-index: 1000;
-  transition: all 640ms var(--ease-expo);
+  transition: all 560ms var(--ease-expo);
+  border-radius: var(--r-xl);
 
-  // Dynamic glass morphism based on scroll
+  // DEFAULT LIGHT THEME
   background: rgba(252, 251, 250, calc(0.02 + var(--scrolled) * 0.92));
   border: 1px solid rgba(196, 217, 240, calc(0.05 + var(--scrolled) * 0.18));
+  color: var(--text);
+  
   backdrop-filter: blur(calc(4px + 22px * var(--scrolled))) saturate(calc(1 + 0.18 * var(--scrolled)));
   -webkit-backdrop-filter: blur(calc(4px + 22px * var(--scrolled))) saturate(calc(1 + 0.18 * var(--scrolled)));
   
@@ -150,7 +154,40 @@ img {
     0 1px 0 rgba(255, 255, 255, calc(0.06 + var(--scrolled) * 0.52)) inset,
     0 0 0 1px rgba(255, 255, 255, calc(var(--scrolled) * 0.2)) inset;
 
-  border-radius: var(--r-xl);
+  // DARK THEME (for hero, portfolio, dark sections)
+  &[data-theme="dark"] {
+    background: rgba(12, 10, 8, calc(0.02 + var(--scrolled) * 0.90));
+    border-color: rgba(196, 217, 240, calc(0.08 + var(--scrolled) * 0.14));
+    color: rgba(255, 255, 255, 0.92);
+    
+    box-shadow: 0 10px 36px rgba(0, 0, 0, calc(var(--scrolled) * 0.24)),
+      0 1px 0 rgba(255, 255, 255, calc(0.02 + var(--scrolled) * 0.08)) inset,
+      0 0 0 1px rgba(255, 255, 255, calc(var(--scrolled) * 0.06)) inset;
+
+    .header-logo,
+    .header-cta {
+      color: rgba(255, 255, 255, 0.92);
+    }
+
+    .logo-frame {
+      border-color: rgba(196, 217, 240, calc(0.18 + var(--scrolled) * 0.24));
+      background: linear-gradient(145deg, rgba(255, 255, 255, 0.12), rgba(248, 246, 243, 0.08)),
+        radial-gradient(circle at 35% 18%, rgba(196, 217, 240, 0.14), transparent 58%);
+      box-shadow: 0 6px 20px rgba(0, 0, 0, calc(var(--scrolled) * 0.18)),
+        0 0 20px rgba(196, 217, 240, calc(var(--scrolled) * 0.08)) inset;
+    }
+
+    .header-cta {
+      background: linear-gradient(145deg, 
+        rgba(255, 255, 255, calc(0.12 + var(--scrolled) * 0.14)), 
+        rgba(196, 217, 240, calc(0.08 + var(--scrolled) * 0.10)));
+      border-color: rgba(196, 217, 240, calc(0.24 + var(--scrolled) * 0.18));
+      
+      &:hover {
+        background: linear-gradient(145deg, rgba(255, 255, 255, 0.28), rgba(196, 217, 240, 0.20));
+      }
+    }
+  }
 }
 
 .header-inner {
@@ -634,7 +671,7 @@ img {
 
 .section {
   position: relative;
-  padding: var(--space-lg) 0;
+  padding: var(--space-lg) 0; // SIGNIFICANTLY reduced from --space-xl
   isolation: isolate;
 }
 
@@ -695,7 +732,7 @@ img {
   line-height: 1.08;
   letter-spacing: -0.052em;
   color: var(--text);
-  margin-bottom: var(--space-sm);
+  margin-bottom: var(--space-sm); // REDUCED from var(--space-sm) to tighter gap
 
   em {
     font-style: italic;
@@ -713,6 +750,13 @@ img {
   line-height: 1.72;
   color: color-mix(in srgb, var(--text-muted) 86%, var(--text));
   max-width: 68ch;
+  
+  // CRITICAL: Tighter paragraph spacing
+  margin-bottom: var(--space-xs); // Much tighter than before
+
+  &:last-child {
+    margin-bottom: 0;
+  }
 
   strong {
     color: var(--text);
@@ -724,14 +768,15 @@ img {
   font-size: var(--text-lg);
   line-height: 1.68;
   color: var(--text-muted);
+  margin-bottom: var(--space-sm); // Slightly more for lead paragraphs
 }
 
 // Asymmetric split header layout
 .section-intro-split {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: var(--space-lg);
-  margin-bottom: var(--space-lg);
+  gap: var(--space-md); // REDUCED from var(--space-lg)
+  margin-bottom: var(--space-md); // REDUCED from var(--space-lg)
   align-items: start;
 }
 
@@ -1813,9 +1858,15 @@ img {
 
 .audience-mark {
   flex-shrink: 0;
-  font-size: var(--text-xl);
+  width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: var(--text-sm);
   font-weight: 700;
   color: var(--brand-accent);
+  line-height: 1;
 }
 
 // ─────── HONESTY SECTION ───────────────────────────────────────────────────────
@@ -2319,16 +2370,17 @@ img {
 
 @media (max-width: 1024px) {
   :host {
-    --space-xs: clamp(10px, 2vh, 14px);
-    --space-sm: clamp(18px, 3vh, 26px);
-    --space-md: clamp(32px, 5vh, 48px);
-    --space-lg: clamp(48px, 7vh, 68px);
-    --space-xl: clamp(64px, 9vh, 92px);
+    // MOBILE: EVEN TIGHTER spacing (40-50% reduction from desktop)
+    --space-xs: clamp(6px, 1.2vh, 10px);
+    --space-sm: clamp(12px, 2vh, 18px);
+    --space-md: clamp(22px, 3.2vh, 34px);
+    --space-lg: clamp(32px, 4.6vh, 46px);
+    --space-xl: clamp(42px, 6.2vh, 64px);
     
     --container-padding: var(--container-padding-mobile);
   }
 
-  // Header
+  // Header mobile
   .site-header {
     top: max(12px, calc(env(safe-area-inset-top) + 8px));
     width: calc(100% - 24px);
@@ -2350,11 +2402,11 @@ img {
     font-size: clamp(0.68rem, 1.8vw, 0.76rem);
   }
 
-  // Hero
+  // Hero mobile: tighter, more focused
   .hero {
     min-height: max(560px, 75vh);
     padding-top: max(78px, calc(env(safe-area-inset-top) + 70px));
-    padding-bottom: var(--space-md);
+    padding-bottom: var(--space-md); // REDUCED
   }
 
   .hero-bg {
@@ -2373,7 +2425,7 @@ img {
   }
 
   .hero-content-wrapper {
-    padding: clamp(48px, 8vh, 64px) var(--container-padding-mobile) clamp(52px, 8vh, 68px);
+    padding: clamp(42px, 7.5vh, 58px) var(--container-padding-mobile) clamp(46px, 7.5vh, 62px); // TIGHTER
   }
 
   .hero-text {
@@ -2384,14 +2436,14 @@ img {
     font-size: clamp(2.8rem, 11vw, 4rem);
     line-height: 1.04;
     max-width: 16ch;
-    margin-bottom: var(--space-sm);
+    margin-bottom: var(--space-sm); // TIGHTER
   }
 
   .hero-lead {
     max-width: 90%;
     font-size: clamp(1.08rem, 3.8vw, 1.22rem);
     color: rgba(255, 255, 255, 0.82);
-    margin-bottom: var(--space-sm);
+    margin-bottom: var(--space-sm); // TIGHTER
   }
 
   .hero-cta-row {

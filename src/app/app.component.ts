@@ -18,10 +18,12 @@ interface PortfolioProject {
 })
 export class AppComponent implements AfterViewInit, OnDestroy {
   private observer?: IntersectionObserver;
+  private headerThemeObserver?: IntersectionObserver;
   private scrollListeners: Array<() => void> = [];
   private rafIds: number[] = [];
   backToTopVisible = false;
   openFaqIndex: number | null = null;
+  currentHeaderTheme: 'light' | 'dark' = 'dark'; // Start with dark for hero
 
   portfolioProjects: PortfolioProject[] = [
     {
@@ -71,6 +73,7 @@ export class AppComponent implements AfterViewInit, OnDestroy {
   ngAfterViewInit(): void {
     this.initScrollReveal();
     this.initHeaderGlass();
+    this.initHeaderTheme(); // NEW: Context-aware header theme
     this.initBackToTop();
     this.initHeroParallax();
     this.initCursorGlow();
@@ -129,6 +132,39 @@ export class AppComponent implements AfterViewInit, OnDestroy {
     update();
     this.scrollListeners.push(update);
     window.addEventListener('scroll', update, { passive: true });
+  }
+
+  // ─── Header context-aware theme switcher ──────────────────────────────────────
+  // Dynamically switches header between light/dark based on section underneath
+  private initHeaderTheme(): void {
+    const header = document.querySelector<HTMLElement>('.site-header');
+    if (!header) return;
+
+    const sections = Array.from(
+      document.querySelectorAll<HTMLElement>('[data-header-theme]')
+    );
+
+    if (sections.length === 0) return;
+
+    this.headerThemeObserver = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting && entry.intersectionRatio > 0.3) {
+            const theme = (entry.target as HTMLElement).getAttribute('data-header-theme') as 'light' | 'dark';
+            if (theme && theme !== this.currentHeaderTheme) {
+              this.currentHeaderTheme = theme;
+              header.setAttribute('data-theme', theme);
+            }
+          }
+        });
+      },
+      {
+        threshold: [0.1, 0.3, 0.5],
+        rootMargin: '-80px 0px 0px 0px' // Offset by header height
+      }
+    );
+
+    sections.forEach((section) => this.headerThemeObserver!.observe(section));
   }
 
   // ─── Back to top ───────────────────────────────────────────────────────────
@@ -565,6 +601,7 @@ export class AppComponent implements AfterViewInit, OnDestroy {
 
   ngOnDestroy(): void {
     this.observer?.disconnect();
+    this.headerThemeObserver?.disconnect();
     this.rafIds.forEach((id) => cancelAnimationFrame(id));
     this.scrollListeners.forEach((fn) => window.removeEventListener('scroll', fn));
   }
