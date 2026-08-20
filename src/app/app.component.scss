@@ -1586,21 +1586,18 @@ img {
   overflow: hidden;
   background: rgba(255, 255, 255, 0.96);
   box-shadow: var(--shadow-lg), 0 0 0 1px rgba(196, 217, 240, 0.14);
-  transition: all 540ms var(--ease-expo);
-  padding-bottom: 75%; // Landscape ratio for screenshots
-
+  transition: all 480ms var(--ease-expo);
+  
+  // Let images maintain natural aspect ratio
   img {
-    position: absolute;
-    inset: 0;
     width: 100%;
-    height: 100%;
-    object-fit: contain;
-    padding: 16px;
+    height: auto;
+    display: block;
   }
 
   &:hover {
     box-shadow: var(--shadow-xl), 0 0 0 1.5px rgba(196, 217, 240, 0.26), 0 0 48px rgba(196, 217, 250, 0.2);
-    transform: translateY(-4px);
+    transform: translateY(-3px);
   }
 }
 
