@@ -337,7 +337,7 @@ img {
 
 .hero {
   position: relative;
-  min-height: clamp(620px, 92vh, 840px);
+  min-height: clamp(640px, 94vh, 860px);
   overflow: hidden;
   background: #0a0806;
 }
@@ -353,7 +353,7 @@ img {
   justify-content: flex-end;
 }
 
-// ────── Portrait: Full presence, no container ──────
+// ────── Portrait: Full cinematic presence ──────
 
 .hero-portrait-full {
   position: absolute;
@@ -362,46 +362,57 @@ img {
   width: 100%;
   height: 100%;
   z-index: 1;
+  
+  &::after {
+    content: "";
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 40%;
+    background: linear-gradient(to top, rgba(10, 8, 6, 0.92), transparent);
+    pointer-events: none;
+  }
 }
 
 .hero-img {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  object-position: 54% 18%;
-  filter: brightness(0.92) saturate(1.04) contrast(1.02);
+  object-position: 53% 16%;
+  filter: brightness(0.9) saturate(1.05) contrast(1.02);
 }
 
-// ────── Identity: Signature typography in negative space ──────
+// ────── Identity: Editorial typography in negative space ──────
 
 .hero-identity {
   position: relative;
   z-index: 2;
   padding: 0 clamp(22px, 5.8vw, 32px);
-  margin-bottom: clamp(18px, 3vh, 28px);
+  margin-bottom: clamp(16px, 2.8vh, 24px);
 }
 
 .hero-signature {
   font-family: "Assistant", Arial, sans-serif;
-  font-size: clamp(0.72rem, 2vw, 0.84rem);
+  font-size: clamp(0.7rem, 1.9vw, 0.82rem);
   font-weight: 500;
-  letter-spacing: 0.14em;
+  letter-spacing: 0.16em;
   text-transform: uppercase;
-  color: rgba(255, 255, 255, 0.7);
-  margin-bottom: 10px;
+  color: rgba(187, 221, 250, 0.76);
+  margin-bottom: 9px;
 }
 
 .hero-essence {
   font-family: "Assistant", Arial, sans-serif;
-  font-size: clamp(2.4rem, 7.2vw, 3.8rem);
+  font-size: clamp(2.5rem, 7.4vw, 3.9rem);
   font-weight: 400;
-  line-height: 1.14;
-  letter-spacing: -0.024em;
-  color: rgba(255, 255, 255, 0.96);
+  line-height: 1.13;
+  letter-spacing: -0.026em;
+  color: rgba(255, 255, 255, 0.97);
   text-wrap: balance;
-  max-width: 14ch;
+  max-width: 13ch;
   
-  text-shadow: 0 2px 12px rgba(0, 0, 0, 0.16), 0 1px 4px rgba(0, 0, 0, 0.12);
+  text-shadow: 0 2px 11px rgba(0, 0, 0, 0.18), 0 1px 4px rgba(0, 0, 0, 0.14);
 }
 
 // ────── Quiet CTA: Editorial link, not button ──────
@@ -410,20 +421,20 @@ img {
   position: relative;
   z-index: 2;
   padding: 0 clamp(22px, 5.8vw, 32px);
-  margin-bottom: clamp(32px, 5vh, 48px);
+  margin-bottom: clamp(34px, 5.2vh, 50px);
 }
 
 .hero-link {
   display: inline-flex;
   align-items: center;
   font-family: "Assistant", Arial, sans-serif;
-  font-size: clamp(0.92rem, 2.4vw, 1.04rem);
+  font-size: clamp(0.93rem, 2.4vw, 1.05rem);
   font-weight: 500;
-  color: rgba(255, 255, 255, 0.88);
+  color: rgba(255, 255, 255, 0.9);
   text-decoration: none;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.24);
-  padding-bottom: 3px;
-  transition: all 320ms var(--ease-smooth);
+  border-bottom: 1px solid rgba(187, 221, 250, 0.28);
+  padding-bottom: 2px;
+  transition: all 300ms var(--ease-smooth);
   
   &:hover {
     color: rgba(255, 255, 255, 1);
@@ -440,22 +451,22 @@ img {
   left: 50%;
   transform: translateX(-50%);
   width: 1px;
-  height: 28px;
-  background: linear-gradient(to bottom, transparent, rgba(187, 221, 250, 0.3), transparent);
+  height: 26px;
+  background: linear-gradient(to bottom, transparent, rgba(187, 221, 250, 0.32), transparent);
   z-index: 3;
-  animation: continuationPulse 2.4s ease-in-out infinite;
+  animation: continuationPulse 2.6s ease-in-out infinite;
 }
 
 @keyframes continuationPulse {
-  0%, 100% { opacity: 0.4; }
-  50% { opacity: 0.8; }
+  0%, 100% { opacity: 0.38; }
+  50% { opacity: 0.82; }
 }
 
 // ────── Desktop: Asymmetric editorial layout ──────
 
 @media (min-width: 1025px) {
   .hero {
-    min-height: clamp(680px, 86vh, 880px);
+    min-height: clamp(700px, 88vh, 900px);
   }
 
   .hero-campaign {
@@ -466,40 +477,40 @@ img {
   }
 
   .hero-portrait-full {
-    width: 58%;
+    width: 56%;
     right: 0;
     left: auto;
   }
 
   .hero-img {
-    object-position: 56% 18%;
-    filter: brightness(0.9) saturate(1.04) contrast(1.02);
+    object-position: 55% 18%;
+    filter: brightness(0.91) saturate(1.04) contrast(1.02);
   }
 
   .hero-identity {
-    max-width: 560px;
+    max-width: 580px;
     padding: 0;
-    margin-bottom: clamp(22px, 3.8vh, 34px);
+    margin-bottom: clamp(20px, 3.6vh, 32px);
   }
 
   .hero-signature {
-    font-size: clamp(0.76rem, 1.4vw, 0.88rem);
-    margin-bottom: 12px;
+    font-size: clamp(0.78rem, 1.4vw, 0.9rem);
+    margin-bottom: 11px;
   }
 
   .hero-essence {
-    font-size: clamp(2.8rem, 5.2vw, 4.4rem);
-    line-height: 1.12;
-    max-width: 16ch;
+    font-size: clamp(2.9rem, 5.4vw, 4.6rem);
+    line-height: 1.11;
+    max-width: 15ch;
   }
 
   .hero-quiet-cta {
     padding: 0;
-    margin-bottom: clamp(40px, 6vh, 60px);
+    margin-bottom: clamp(44px, 6.4vh, 64px);
   }
 
   .hero-link {
-    font-size: clamp(1rem, 1.8vw, 1.12rem);
+    font-size: clamp(1.02rem, 1.8vw, 1.14rem);
   }
 }
 
@@ -507,31 +518,31 @@ img {
 
 .statement-strip {
   position: relative;
-  padding: var(--space-sm) 0;
-  background: linear-gradient(135deg, rgba(10, 8, 6, 0.96), rgba(6, 5, 4, 0.98));
-  border-top: 1px solid rgba(196, 217, 240, 0.08);
-  border-bottom: 1px solid rgba(196, 217, 240, 0.08);
+  padding: clamp(7px, 1.4vh, 11px) 0;
+  background: linear-gradient(135deg, rgba(10, 8, 6, 0.98), rgba(6, 5, 4, 0.99));
+  border-top: 1px solid rgba(196, 217, 240, 0.06);
+  border-bottom: 1px solid rgba(196, 217, 240, 0.06);
   overflow: hidden;
 }
 
 .statement-track {
   display: flex;
-  gap: 32px;
+  gap: 28px;
   white-space: nowrap;
-  animation: marquee 40s linear infinite;
+  animation: marquee 42s linear infinite;
 }
 
 .s-word {
-  font-size: var(--text-lg);
-  font-weight: 600;
+  font-size: var(--text-base);
+  font-weight: 500;
   font-style: italic;
-  color: rgba(255, 255, 255, 0.82);
-  letter-spacing: 0.02em;
+  color: rgba(255, 255, 255, 0.78);
+  letter-spacing: 0.015em;
 }
 
 .s-sep {
   color: var(--brand-accent);
-  opacity: 0.5;
+  opacity: 0.42;
 }
 
 @keyframes marquee {
@@ -546,18 +557,18 @@ img {
 // ─────── BRAND MARQUEE ─────────────────────────────────────────────────────────
 
 .brand-marquee-section {
-  padding: var(--space-lg) 0;
+  padding: clamp(30px, 5vh, 48px) 0;
   background: var(--bg);
 }
 
 .brand-marquee-label {
   text-align: center;
-  font-size: var(--text-sm);
-  font-weight: 600;
+  font-size: clamp(0.7rem, 1.7vw, 0.8rem);
+  font-weight: 500;
   color: var(--text-light);
-  letter-spacing: 0.1em;
+  letter-spacing: 0.12em;
   text-transform: uppercase;
-  margin-bottom: var(--space-md);
+  margin-bottom: clamp(20px, 3.2vh, 32px);
 }
 
 .brand-track-wrap {
@@ -687,16 +698,17 @@ img {
 .section-title {
   font-family: "Assistant", Arial, sans-serif;
   font-size: var(--text-4xl);
-  font-weight: 600;
-  line-height: 1.1;
-  letter-spacing: -0.018em;
+  font-weight: 500;
+  line-height: 1.08;
+  letter-spacing: -0.022em;
   color: var(--text);
   margin-bottom: var(--space-xs);
+  max-width: 22ch;
 
   em {
     font-style: italic;
     font-weight: 400;
-    color: color-mix(in srgb, var(--brand-accent) 68%, var(--text));
+    color: color-mix(in srgb, var(--brand-accent) 70%, var(--text));
   }
 }
 
@@ -1354,18 +1366,18 @@ img {
 
 .process-row-num {
   flex-shrink: 0;
-  width: 54px;
-  height: 54px;
+  width: 58px;
+  height: 58px;
   display: flex;
   align-items: center;
   justify-content: center;
   border-radius: 50%;
-  background: linear-gradient(140deg, var(--brand-accent), var(--brand-accent-dim));
-  font-size: clamp(1.6rem, 3.8vw, 1.9rem);
-  font-weight: 700;
+  background: linear-gradient(138deg, var(--brand-accent), var(--brand-accent-dim));
+  font-size: clamp(1.7rem, 4vw, 2rem);
+  font-weight: 600;
   color: var(--text);
-  letter-spacing: -0.02em;
-  box-shadow: 0 4px 14px rgba(187, 221, 250, 0.28), 0 1px 4px rgba(187, 221, 250, 0.12);
+  letter-spacing: -0.024em;
+  box-shadow: 0 4px 13px rgba(187, 221, 250, 0.3), 0 1px 4px rgba(187, 221, 250, 0.14);
 }
 
 .process-row-content {
@@ -1738,18 +1750,18 @@ img {
 
 .services-row-num {
   flex-shrink: 0;
-  width: 52px;
-  height: 52px;
+  width: 54px;
+  height: 54px;
   display: flex;
   align-items: center;
   justify-content: center;
   border-radius: 50%;
-  background: linear-gradient(140deg, var(--brand-accent), var(--brand-accent-dim));
-  font-size: clamp(1.5rem, 3.2vw, 1.7rem);
-  font-weight: 700;
+  background: linear-gradient(138deg, var(--brand-accent), var(--brand-accent-dim));
+  font-size: clamp(1.6rem, 3.4vw, 1.8rem);
+  font-weight: 600;
   color: var(--text);
-  letter-spacing: -0.02em;
-  box-shadow: 0 4px 14px rgba(187, 221, 250, 0.28), 0 1px 4px rgba(187, 221, 250, 0.12);
+  letter-spacing: -0.024em;
+  box-shadow: 0 4px 13px rgba(187, 221, 250, 0.3), 0 1px 4px rgba(187, 221, 250, 0.14);
 }
 
 .services-row-body {
@@ -2397,37 +2409,38 @@ img {
 
   // Hero mobile: Cinematic portrait composition for 375-430px
   .hero {
-    min-height: clamp(580px, 88vh, 740px);
+    min-height: clamp(600px, 90vh, 760px);
   }
 
   .hero-img {
-    object-position: 52% 14%;
-    filter: brightness(0.88) saturate(1.06) contrast(1.03);
+    object-position: 51% 13%;
+    filter: brightness(0.87) saturate(1.07) contrast(1.03);
   }
 
   .hero-identity {
     padding: 0 clamp(20px, 5.2vw, 24px);
-    margin-bottom: clamp(14px, 2.4vh, 20px);
+    margin-bottom: clamp(13px, 2.3vh, 19px);
   }
 
   .hero-signature {
-    font-size: clamp(0.68rem, 1.8vw, 0.76rem);
+    font-size: clamp(0.67rem, 1.8vw, 0.75rem);
     margin-bottom: 8px;
+    letter-spacing: 0.18em;
   }
 
   .hero-essence {
-    font-size: clamp(2.1rem, 7.8vw, 2.8rem);
-    line-height: 1.16;
-    max-width: 12ch;
+    font-size: clamp(2.2rem, 8vw, 2.9rem);
+    line-height: 1.15;
+    max-width: 11ch;
   }
 
   .hero-quiet-cta {
     padding: 0 clamp(20px, 5.2vw, 24px);
-    margin-bottom: clamp(26px, 4.2vh, 38px);
+    margin-bottom: clamp(28px, 4.4vh, 40px);
   }
 
   .hero-link {
-    font-size: clamp(0.88rem, 2.3vw, 0.98rem);
+    font-size: clamp(0.89rem, 2.3vw, 0.99rem);
   }
 
   // Statement strip
