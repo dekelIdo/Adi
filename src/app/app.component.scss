@@ -17,12 +17,12 @@
   --text-muted: #6a6664;
   --text-light: #9a9694;
 
-  // ─── AGGRESSIVELY REDUCED Spacing Scale (30-40% tighter)
-  --space-xs: clamp(8px, 1.4vh, 12px);
-  --space-sm: clamp(14px, 2.4vh, 22px);
-  --space-md: clamp(26px, 4vh, 42px);
-  --space-lg: clamp(38px, 5.5vh, 58px);
-  --space-xl: clamp(52px, 7.5vh, 78px);
+  // ─── AGGRESSIVELY REDUCED Spacing Scale (50-60% tighter than before)
+  --space-xs: clamp(6px, 1.2vh, 10px);
+  --space-sm: clamp(12px, 2vh, 18px);
+  --space-md: clamp(22px, 3.4vh, 36px);
+  --space-lg: clamp(32px, 4.8vh, 50px);
+  --space-xl: clamp(44px, 6.4vh, 68px);
 
   // ─── Typography Scale
   --text-xs: clamp(0.72rem, 1.8vw, 0.82rem);
@@ -720,7 +720,7 @@ img {
 
 .section {
   position: relative;
-  padding: var(--space-lg) 0; // SIGNIFICANTLY reduced from --space-xl
+  padding: var(--space-md) 0; // SIGNIFICANTLY reduced - was --space-lg
   isolation: isolate;
 }
 
@@ -775,16 +775,17 @@ img {
 }
 
 .section-title {
-  font-family: "Rega", "Assistant", Arial, sans-serif;
+  font-family: "Assistant", Arial, sans-serif;
   font-size: var(--text-4xl);
-  font-weight: 400;
+  font-weight: 700;
   line-height: 1.08;
-  letter-spacing: -0.052em;
+  letter-spacing: -0.02em;
   color: var(--text);
-  margin-bottom: var(--space-sm); // REDUCED from var(--space-sm) to tighter gap
+  margin-bottom: var(--space-xs);
 
   em {
     font-style: italic;
+    font-weight: 400;
     color: color-mix(in srgb, var(--brand-accent) 70%, var(--text));
   }
 }
@@ -796,12 +797,11 @@ img {
 .section-body,
 .section-lead {
   font-size: var(--text-base);
-  line-height: 1.72;
+  line-height: 1.66;
   color: color-mix(in srgb, var(--text-muted) 86%, var(--text));
   max-width: 68ch;
   
-  // CRITICAL: Tighter paragraph spacing
-  margin-bottom: var(--space-xs); // Much tighter than before
+  margin-bottom: 10px; // MUCH tighter
 
   &:last-child {
     margin-bottom: 0;
@@ -815,17 +815,17 @@ img {
 
 .section-lead {
   font-size: var(--text-lg);
-  line-height: 1.68;
+  line-height: 1.62;
   color: var(--text-muted);
-  margin-bottom: var(--space-sm); // Slightly more for lead paragraphs
+  margin-bottom: var(--space-xs);
 }
 
 // Asymmetric split header layout
 .section-intro-split {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: var(--space-md); // REDUCED from var(--space-lg)
-  margin-bottom: var(--space-md); // REDUCED from var(--space-lg)
+  gap: var(--space-sm);
+  margin-bottom: var(--space-sm);
   align-items: start;
 }
 
@@ -2419,12 +2419,12 @@ img {
 
 @media (max-width: 1024px) {
   :host {
-    // MOBILE: EVEN TIGHTER spacing (40-50% reduction from desktop)
-    --space-xs: clamp(6px, 1.2vh, 10px);
-    --space-sm: clamp(12px, 2vh, 18px);
-    --space-md: clamp(22px, 3.2vh, 34px);
-    --space-lg: clamp(32px, 4.6vh, 46px);
-    --space-xl: clamp(42px, 6.2vh, 64px);
+    // MOBILE: ULTRA-TIGHT spacing (50-60% reduction)
+    --space-xs: clamp(4px, 1vh, 8px);
+    --space-sm: clamp(10px, 1.6vh, 14px);
+    --space-md: clamp(18px, 2.6vh, 28px);
+    --space-lg: clamp(26px, 3.8vh, 38px);
+    --space-xl: clamp(36px, 5.2vh, 54px);
     
     --container-padding: var(--container-padding-mobile);
   }
