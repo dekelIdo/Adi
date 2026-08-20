@@ -18,11 +18,11 @@
   --text-light: #9a9694;
 
   // ─── AGGRESSIVELY REDUCED Spacing Scale (editorial rhythm)
-  --space-xs: clamp(5px, 1vh, 9px);
-  --space-sm: clamp(10px, 1.8vh, 16px);
-  --space-md: clamp(18px, 3vh, 32px);
-  --space-lg: clamp(28px, 4.2vh, 44px);
-  --space-xl: clamp(38px, 5.8vh, 60px);
+  --space-xs: clamp(4px, 0.9vh, 8px);
+  --space-sm: clamp(9px, 1.6vh, 14px);
+  --space-md: clamp(16px, 2.8vh, 28px);
+  --space-lg: clamp(24px, 3.8vh, 40px);
+  --space-xl: clamp(34px, 5.2vh, 56px);
 
   // ─── Typography Scale
   --text-xs: clamp(0.72rem, 1.8vw, 0.82rem);
@@ -332,21 +332,21 @@ img {
 
 .hero {
   position: relative;
-  min-height: clamp(540px, 78vh, 680px);
+  min-height: clamp(520px, 76vh, 660px);
   overflow: hidden;
   
-  background: linear-gradient(168deg, #fdfcfb 0%, #faf7f4 100%);
+  background: linear-gradient(170deg, #fdfcfb 0%, #faf7f4 100%);
   
   &::before {
     content: "";
     position: absolute;
-    top: -3%;
-    right: 8%;
-    width: 42%;
-    height: 60%;
-    background: radial-gradient(ellipse, rgba(187, 221, 250, 0.05), transparent 72%);
+    top: -2%;
+    right: 7%;
+    width: 40%;
+    height: 58%;
+    background: radial-gradient(ellipse, rgba(187, 221, 250, 0.045), transparent 74%);
     pointer-events: none;
-    filter: blur(100px);
+    filter: blur(105px);
   }
 }
 
@@ -354,11 +354,11 @@ img {
   position: relative;
   max-width: var(--container-max);
   margin: 0 auto;
-  padding: clamp(80px, 11vh, 110px) var(--page-gutter-desktop) clamp(32px, 4vh, 50px);
+  padding: clamp(76px, 10.5vh, 105px) var(--page-gutter-desktop) clamp(30px, 3.8vh, 48px);
   
   display: grid;
-  grid-template-columns: 1.65fr 1.25fr;
-  gap: clamp(28px, 3.5vw, 56px);
+  grid-template-columns: 1.7fr 1.2fr;
+  gap: clamp(26px, 3.2vw, 52px);
   align-items: center;
 }
 
@@ -432,12 +432,12 @@ img {
 
 .hero-statement {
   font-family: "Assistant", Arial, sans-serif;
-  font-size: clamp(2.3rem, 5.2vw, 3.6rem);
+  font-size: clamp(2.2rem, 5vw, 3.4rem);
   font-weight: 500;
-  line-height: 1.18;
-  letter-spacing: -0.02em;
+  line-height: 1.2;
+  letter-spacing: -0.018em;
   color: var(--text);
-  margin-bottom: 17px;
+  margin-bottom: 16px;
   
   text-wrap: balance;
 }
@@ -617,7 +617,7 @@ img {
 
 .section {
   position: relative;
-  padding: clamp(26px, 3.8vh, 44px) 0;
+  padding: clamp(22px, 3.4vh, 40px) 0;
   isolation: isolate;
 }
 
@@ -694,11 +694,11 @@ img {
 .section-body,
 .section-lead {
   font-size: var(--text-base);
-  line-height: 1.66;
+  line-height: 1.68;
   color: color-mix(in srgb, var(--text-muted) 86%, var(--text));
   max-width: 68ch;
   
-  margin-bottom: 10px; // MUCH tighter
+  margin-bottom: 8px;
 
   &:last-child {
     margin-bottom: 0;
@@ -2326,11 +2326,11 @@ img {
 @media (max-width: 1024px) {
   :host {
     // MOBILE: Tight editorial rhythm
-    --space-xs: clamp(4px, 0.9vh, 7px);
-    --space-sm: clamp(8px, 1.4vh, 12px);
-    --space-md: clamp(14px, 2.2vh, 24px);
-    --space-lg: clamp(22px, 3.2vh, 34px);
-    --space-xl: clamp(32px, 4.6vh, 48px);
+    --space-xs: clamp(3px, 0.8vh, 6px);
+    --space-sm: clamp(7px, 1.3vh, 11px);
+    --space-md: clamp(13px, 2vh, 22px);
+    --space-lg: clamp(20px, 3vh, 32px);
+    --space-xl: clamp(29px, 4.4vh, 46px);
 
     --container-padding: var(--page-gutter-mobile);
   }
@@ -2359,13 +2359,13 @@ img {
 
   // Hero mobile: Designed composition for 375-430px
   .hero {
-    min-height: clamp(520px, 84vh, 640px);
+    min-height: clamp(500px, 82vh, 620px);
   }
 
   .hero-world {
     grid-template-columns: 1fr;
-    padding: clamp(64px, 9vh, 84px) var(--page-gutter-mobile) clamp(30px, 4vh, 44px);
-    gap: 26px;
+    padding: clamp(60px, 8.5vh, 80px) var(--page-gutter-mobile) clamp(28px, 3.8vh, 42px);
+    gap: 24px;
   }
 
   .hero-portrait-zone {
@@ -2375,55 +2375,55 @@ img {
 
   .hero-portrait {
     max-width: 100%;
-    aspect-ratio: 3 / 4.7;
-    object-position: center 20%;
+    aspect-ratio: 3 / 4.8;
+    object-position: center 18%;
   }
 
   .hero-live {
-    top: 12px;
-    right: 12px;
-    padding: 6px 11px;
-    font-size: 0.72rem;
+    top: 11px;
+    right: 11px;
+    padding: 6px 10px;
+    font-size: 0.7rem;
   }
 
   .hero-live-pulse {
-    width: 5px;
-    height: 5px;
+    width: 4px;
+    height: 4px;
   }
 
   .hero-name {
-    font-size: 0.78rem;
-    margin-bottom: 13px;
+    font-size: 0.76rem;
+    margin-bottom: 12px;
   }
 
   .hero-statement {
-    font-size: clamp(1.9rem, 8.8vw, 2.6rem);
+    font-size: clamp(1.85rem, 8.5vw, 2.5rem);
     font-weight: 500;
-    line-height: 1.22;
-    margin-bottom: 15px;
+    line-height: 1.24;
+    margin-bottom: 14px;
   }
 
   .hero-promise {
-    font-size: clamp(0.96rem, 3.6vw, 1.06rem);
-    line-height: 1.64;
-    margin-bottom: 24px;
+    font-size: clamp(0.94rem, 3.5vw, 1.04rem);
+    line-height: 1.66;
+    margin-bottom: 22px;
   }
 
   .hero-action {
     flex-direction: column;
-    gap: 9px;
-    margin-bottom: 18px;
+    gap: 8px;
+    margin-bottom: 17px;
   }
 
   .btn-hero-primary,
   .btn-hero-secondary {
     width: 100%;
     justify-content: center;
-    padding: 13px 24px;
+    padding: 13px 22px;
   }
 
   .hero-proof {
-    font-size: 0.8rem;
+    font-size: 0.78rem;
   }
 
   // Statement strip
