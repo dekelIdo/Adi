@@ -1,8 +1,9 @@
 @use "sass:map";
+@import url("https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;600;700&display=swap");
 
 // ═══════════════════════════════════════════════════════════════════════════════
-// ADI ARIELI — PREMIUM CREATIVE STUDIO
-// Editorial campaign design · Mobile-first · Hebrew typography · RTL excellence
+// ADI ARIELI PRODUCTION — FINAL COHESIVE DESIGN SYSTEM
+// Premium creative studio · Mobile-first · Intentional spacing · Editorial flow
 // ═══════════════════════════════════════════════════════════════════════════════
 
 // ─────── DESIGN TOKENS ─────────────────────────────────────────────────────────
@@ -17,12 +18,12 @@
   --text-muted: #6a6664;
   --text-light: #9a9694;
 
-  // ─── AGGRESSIVELY REDUCED Spacing Scale (50-60% tighter than before)
-  --space-xs: clamp(6px, 1.2vh, 10px);
-  --space-sm: clamp(12px, 2vh, 18px);
-  --space-md: clamp(22px, 3.4vh, 36px);
-  --space-lg: clamp(32px, 4.8vh, 50px);
-  --space-xl: clamp(44px, 6.4vh, 68px);
+  // ─── AGGRESSIVELY REDUCED Spacing Scale (30-40% tighter)
+  --space-xs: clamp(8px, 1.4vh, 12px);
+  --space-sm: clamp(14px, 2.4vh, 22px);
+  --space-md: clamp(26px, 4vh, 42px);
+  --space-lg: clamp(38px, 5.5vh, 58px);
+  --space-xl: clamp(52px, 7.5vh, 78px);
 
   // ─── Typography Scale
   --text-xs: clamp(0.72rem, 1.8vw, 0.82rem);
@@ -35,10 +36,10 @@
   --text-4xl: clamp(3.6rem, 9vw, 6rem);
   --text-hero: clamp(4rem, 11vw, 8rem);
 
-  // ─── Container System with PROPER MOBILE GUTTERS (20-24px minimum)
+  // ─── Container System
   --container-max: 1240px;
-  --container-padding: clamp(24px, 5vw, 52px);
-  --container-padding-mobile: clamp(20px, 5vw, 24px); // MINIMUM 20px on mobile
+  --container-padding: clamp(22px, 4.5vw, 42px);
+  --container-padding-mobile: clamp(18px, 4.5vw, 24px);
 
   // ─── Border Radius
   --r-sm: 10px;
@@ -319,207 +320,247 @@ img {
   color: var(--text);
 }
 
-// ─────── HERO — BOLD EDITORIAL COMPOSITION ────────────────────────────────────
-
-// ═══════════════════════════════════════════════════════════════════════════════
-// HERO — EDITORIAL CAMPAIGN COMPOSITION
-// Art-directed image + typography integration · No UI decoration · Premium feel
-// ═══════════════════════════════════════════════════════════════════════════════
+// ─────── HERO — EDITORIAL LUXURY OPENING ───────────────────────────────────────
 
 .hero {
   position: relative;
-  min-height: clamp(600px, 85vh, 780px);
+  min-height: max(640px, 80vh);
+  display: flex;
+  align-items: center;
+  padding-top: clamp(90px, 14vh, 120px);
+  padding-bottom: var(--space-lg);
   overflow: hidden;
   
-  // Light, breathable background
-  background: linear-gradient(160deg, #fdfcfb 0%, #fbf9f6 100%);
+  background: radial-gradient(ellipse 62% 58% at 68% 24%, rgba(196, 217, 240, 0.1), transparent 62%),
+    radial-gradient(ellipse 44% 42% at 18% 80%, rgba(230, 216, 204, 0.07), transparent 68%),
+    linear-gradient(135deg, #060504 0%, #0b0806 48%, #14110e 100%);
+}
+
+// Cinematic overlay
+.hero::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 1;
   
-  // Subtle brand accent — minimal
-  &::before {
-    content: "";
-    position: absolute;
-    top: -10%;
-    right: 15%;
-    width: 50%;
-    height: 70%;
-    background: radial-gradient(ellipse, rgba(187, 221, 250, 0.08), transparent 68%);
-    pointer-events: none;
-    filter: blur(80px);
+  background: linear-gradient(115deg, rgba(255, 255, 255, 0.04) 0%, transparent 26%, transparent 74%, rgba(196, 217, 240, 0.05) 100%),
+    radial-gradient(ellipse 56% 70% at 74% 34%, transparent 0%, transparent 48%, rgba(10, 8, 6, 0.38) 100%);
+  
+  mix-blend-mode: screen;
+  opacity: 0.88;
+}
+
+// Atmospheric glow
+.hero-soft-glow {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  
+  background: radial-gradient(ellipse 74% 56% at 76% 12%, rgba(196, 217, 240, 0.08), transparent 74%),
+    radial-gradient(ellipse 52% 40% at 12% 88%, rgba(230, 216, 204, 0.05), transparent 70%);
+  
+  opacity: 1;
+}
+
+// Floating orb (subtle decoration)
+.hero-orb {
+  position: absolute;
+  border-radius: 50%;
+  pointer-events: none;
+  will-change: margin-top;
+  
+  &--1 {
+    top: 18%;
+    right: 12%;
+    width: clamp(180px, 28vw, 360px);
+    height: clamp(180px, 28vw, 360px);
+    background: radial-gradient(circle, rgba(196, 217, 240, 0.075), transparent 72%);
+    opacity: 1;
   }
 }
 
-.hero-stage {
+.hero-layout {
+  position: relative;
+  z-index: 2;
+  width: 100%;
+}
+
+// Portrait background image
+.hero-bg {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: min(46%, 580px);
+  height: 100%;
+  z-index: 0;
+  overflow: hidden;
+  border-radius: var(--r-3xl) 0 0 var(--r-3xl);
+
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center 22%;
+    filter: brightness(0.76) saturate(0.78) contrast(1.12);
+    transform: scale(0.99);
+    will-change: transform;
+  }
+}
+
+// Cinematic fade on portrait
+.hero-bg-fade {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  
+  background: linear-gradient(to top, rgba(10, 8, 6, 1) 0%, rgba(10, 8, 6, 0.86) 12%, rgba(10, 8, 6, 0.44) 28%, rgba(10, 8, 6, 0.14) 46%, transparent 64%),
+    linear-gradient(to right, transparent 0%, rgba(10, 8, 6, 0.02) 36%, rgba(10, 8, 6, 0.44) 66%, rgba(10, 8, 6, 0.98) 100%),
+    radial-gradient(ellipse 50% 44% at 50% 26%, transparent 0%, transparent 52%, rgba(10, 8, 6, 0.26) 100%),
+    linear-gradient(to bottom, rgba(10, 8, 6, 0.72) 0%, rgba(10, 8, 6, 0.18) 18%, transparent 38%);
+}
+
+.hero-content-wrapper {
   position: relative;
   max-width: var(--container-max);
   margin: 0 auto;
-  padding: clamp(100px, 14vh, 140px) var(--page-gutter-desktop) clamp(50px, 7vh, 70px);
-  
-  display: grid;
-  grid-template-columns: 1.5fr 1.15fr;
-  gap: clamp(40px, 5vw, 80px);
-  align-items: center;
+  padding: 0 var(--container-padding);
+  z-index: 2;
 }
-
-// ────── PORTRAIT: Dominant, editorial ──────
-
-.hero-portrait {
-  position: relative;
-}
-
-.hero-img {
-  width: 100%;
-  max-width: 560px;
-  aspect-ratio: 3 / 4.2;
-  object-fit: cover;
-  object-position: center 28%;
-  border-radius: var(--r-3xl);
-  
-  // Minimal shadow — no heavy UI treatment
-  box-shadow: 
-    0 20px 60px rgba(0, 0, 0, 0.08),
-    0 8px 24px rgba(0, 0, 0, 0.05);
-  
-  filter: brightness(1.01) saturate(1.05);
-}
-
-// Live indicator: Minimal, not a UI badge
-.hero-live {
-  position: absolute;
-  top: 18px;
-  right: 18px;
-  display: inline-flex;
-  align-items: center;
-  gap: 7px;
-  padding: 8px 14px;
-  
-  background: rgba(255, 255, 255, 0.92);
-  backdrop-filter: blur(10px);
-  border-radius: 60px;
-  border: 1px solid rgba(187, 221, 250, 0.2);
-  
-  font-size: 0.8rem;
-  font-weight: 600;
-  color: var(--text);
-}
-
-.live-dot {
-  width: 7px;
-  height: 7px;
-  border-radius: 50%;
-  background: var(--brand-accent);
-  box-shadow: 0 0 10px rgba(187, 221, 250, 0.7);
-  animation: pulseLive 2.4s ease-in-out infinite;
-}
-
-@keyframes pulseLive {
-  0%, 100% { opacity: 1; transform: scale(1); }
-  50% { opacity: 0.65; transform: scale(1.12); }
-}
-
-// ────── CONTENT: Typography creates the structure ──────
 
 .hero-text {
-  position: relative;
-  padding-right: 0; // RTL: no extra padding
+  max-width: min(52%, 680px);
 }
 
-// Brand mark: Elegant, minimal
-.hero-brand {
-  font-size: 0.88rem;
-  font-weight: 600;
-  letter-spacing: 0.03em;
-  color: var(--text-muted);
-  margin-bottom: 14px;
-}
-
-// Headline: Distinctive, intentional line breaks
-.hero-heading {
-  font-family: "Assistant", Arial, sans-serif;
-  font-size: clamp(2.6rem, 6vw, 4.2rem);
-  font-weight: 600;
-  line-height: 1.12;
-  letter-spacing: -0.025em;
-  color: var(--text);
-  margin-bottom: 16px;
+// Live status pill
+.hero-live-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 18px;
+  margin-bottom: var(--space-sm);
+  border-radius: 60px;
+  border: 1px solid rgba(196, 217, 240, 0.36);
   
-  // Natural Hebrew flow
-  text-wrap: balance;
+  background: linear-gradient(135deg, rgba(196, 217, 240, 0.18), rgba(255, 255, 255, 0.08));
+  
+  box-shadow: 0 10px 34px rgba(0, 0, 0, 0.2), 
+    0 0 32px rgba(196, 217, 250, 0.14), 
+    inset 0 1px 0 rgba(255, 255, 255, 0.18);
+
+  color: rgba(255, 255, 255, 0.88);
+  font-size: var(--text-xs);
+  font-weight: 500;
+  letter-spacing: 0.02em;
 }
 
-// Lead: Clear, confident
+.hero-live-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #bbddfa, #a5c9e8);
+  box-shadow: 0 0 16px rgba(187, 221, 250, 0.6);
+  animation: pulse 2s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.7;
+    transform: scale(1.12);
+  }
+}
+
+// Eyebrow
+.hero-eyebrow {
+  font-size: var(--text-sm);
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.74);
+  letter-spacing: 0.06em;
+  margin-bottom: var(--space-xs);
+}
+
+// Main title
+.hero-title {
+  font-family: "Rega", "Assistant", Arial, sans-serif;
+  font-size: var(--text-hero);
+  font-weight: 400;
+  line-height: 1.02;
+  letter-spacing: -0.055em;
+  color: #ffffff;
+  margin-bottom: var(--space-md);
+  
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.32), 
+    0 10px 42px rgba(0, 0, 0, 0.38), 
+    0 0 64px rgba(196, 217, 250, 0.18);
+
+  em {
+    font-style: italic;
+    color: color-mix(in srgb, var(--brand-accent) 90%, #fff);
+    text-shadow: 0 0 32px rgba(196, 217, 250, 0.26);
+  }
+}
+
+// Lead text
 .hero-lead {
-  font-size: clamp(1.08rem, 2.4vw, 1.28rem);
-  line-height: 1.55;
-  color: var(--text-muted);
-  max-width: 42ch;
-  margin-bottom: 28px;
+  font-size: var(--text-lg);
+  line-height: 1.7;
+  color: rgba(255, 255, 255, 0.74);
+  max-width: 44ch;
+  margin-bottom: var(--space-md);
 }
 
-// Actions: Clean, side-by-side
-.hero-actions {
+// CTA buttons
+.hero-cta-row {
   display: flex;
-  gap: 12px;
-  margin-bottom: 20px;
+  gap: 14px;
+  flex-wrap: wrap;
+  margin-bottom: var(--space-md);
+}
+
+// Metrics row
+.hero-metrics {
+  display: flex;
+  gap: 20px;
   flex-wrap: wrap;
 }
 
-.hero-btn-primary {
-  display: inline-flex;
-  align-items: center;
-  padding: 14px 30px;
-  font-size: 1rem;
-  font-weight: 600;
-  color: var(--text);
-  
-  background: linear-gradient(135deg, var(--brand-accent) 0%, #a5c9e8 100%);
-  border: none;
-  border-radius: 60px;
-  
-  box-shadow: 0 6px 24px rgba(187, 221, 250, 0.32);
-  
-  transition: all 0.32s var(--ease-expo);
-  text-decoration: none;
-  white-space: nowrap;
-  
-  &:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 10px 32px rgba(187, 221, 250, 0.42);
-  }
-}
-
-.hero-btn-secondary {
-  display: inline-flex;
-  align-items: center;
-  padding: 14px 30px;
-  font-size: 1rem;
-  font-weight: 600;
-  color: var(--text);
-  
-  background: rgba(248, 246, 243, 0.7);
-  border: 1px solid rgba(42, 40, 38, 0.08);
-  border-radius: 60px;
-  
-  transition: all 0.32s var(--ease-expo);
-  text-decoration: none;
-  white-space: nowrap;
-  
-  &:hover {
-    background: rgba(255, 255, 255, 0.95);
-    transform: translateY(-2px);
-  }
-}
-
-// Proof: Minimal, integrated
-.hero-proof {
+.metric {
   display: flex;
-  align-items: center;
-  gap: 10px;
-  font-size: 0.88rem;
-  color: var(--text-light);
+  flex-direction: column;
+  align-items: flex-start;
+  padding: 16px 24px;
+  border-radius: var(--r-lg);
+  border: 1px solid rgba(196, 217, 240, 0.18);
   
-  span {
-    white-space: nowrap;
-  }
+  background: linear-gradient(145deg, rgba(255, 255, 255, 0.08), rgba(196, 217, 240, 0.045));
+  
+  box-shadow: 0 16px 44px rgba(0, 0, 0, 0.2), 
+    inset 0 1px 0 rgba(255, 255, 255, 0.14);
+}
+
+.metric-value {
+  font-size: var(--text-2xl);
+  font-weight: 700;
+  color: #ffffff;
+  letter-spacing: -0.02em;
+  line-height: 1;
+  margin-bottom: 6px;
+}
+
+.metric-label {
+  font-size: var(--text-xs);
+  color: rgba(255, 255, 255, 0.68);
+}
+
+.metric-divider {
+  width: 1px;
+  height: auto;
+  background: linear-gradient(to bottom, transparent, rgba(255, 255, 255, 0.2), transparent);
 }
 
 // ─────── STATEMENT STRIP — MARQUEE ─────────────────────────────────────────────
@@ -630,7 +671,7 @@ img {
 
 .section {
   position: relative;
-  padding: var(--space-sm) 0; // Even tighter rhythm
+  padding: var(--space-lg) 0; // SIGNIFICANTLY reduced from --space-xl
   isolation: isolate;
 }
 
@@ -685,17 +726,16 @@ img {
 }
 
 .section-title {
-  font-family: "Assistant", Arial, sans-serif;
+  font-family: "Rega", "Assistant", Arial, sans-serif;
   font-size: var(--text-4xl);
-  font-weight: 700;
+  font-weight: 400;
   line-height: 1.08;
-  letter-spacing: -0.02em;
+  letter-spacing: -0.052em;
   color: var(--text);
-  margin-bottom: var(--space-xs);
+  margin-bottom: var(--space-sm); // REDUCED from var(--space-sm) to tighter gap
 
   em {
     font-style: italic;
-    font-weight: 400;
     color: color-mix(in srgb, var(--brand-accent) 70%, var(--text));
   }
 }
@@ -707,11 +747,12 @@ img {
 .section-body,
 .section-lead {
   font-size: var(--text-base);
-  line-height: 1.66;
+  line-height: 1.72;
   color: color-mix(in srgb, var(--text-muted) 86%, var(--text));
   max-width: 68ch;
   
-  margin-bottom: 10px; // MUCH tighter
+  // CRITICAL: Tighter paragraph spacing
+  margin-bottom: var(--space-xs); // Much tighter than before
 
   &:last-child {
     margin-bottom: 0;
@@ -725,17 +766,17 @@ img {
 
 .section-lead {
   font-size: var(--text-lg);
-  line-height: 1.62;
+  line-height: 1.68;
   color: var(--text-muted);
-  margin-bottom: var(--space-xs);
+  margin-bottom: var(--space-sm); // Slightly more for lead paragraphs
 }
 
 // Asymmetric split header layout
 .section-intro-split {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: var(--space-sm);
-  margin-bottom: var(--space-sm);
+  gap: var(--space-md); // REDUCED from var(--space-lg)
+  margin-bottom: var(--space-md); // REDUCED from var(--space-lg)
   align-items: start;
 }
 
@@ -2329,14 +2370,14 @@ img {
 
 @media (max-width: 1024px) {
   :host {
-    // MOBILE: ULTRA-TIGHT spacing (50-60% reduction)
-    --space-xs: clamp(4px, 1vh, 8px);
-    --space-sm: clamp(10px, 1.6vh, 14px);
-    --space-md: clamp(18px, 2.6vh, 28px);
-    --space-lg: clamp(26px, 3.8vh, 38px);
-    --space-xl: clamp(36px, 5.2vh, 54px);
-
-    --container-padding: var(--page-gutter-mobile);
+    // MOBILE: EVEN TIGHTER spacing (40-50% reduction from desktop)
+    --space-xs: clamp(6px, 1.2vh, 10px);
+    --space-sm: clamp(12px, 2vh, 18px);
+    --space-md: clamp(22px, 3.2vh, 34px);
+    --space-lg: clamp(32px, 4.6vh, 46px);
+    --space-xl: clamp(42px, 6.2vh, 64px);
+    
+    --container-padding: var(--container-padding-mobile);
   }
 
   // Header mobile
@@ -2361,79 +2402,73 @@ img {
     font-size: clamp(0.68rem, 1.8vw, 0.76rem);
   }
 
-  // Hero mobile: Campaign composition
+  // Hero mobile: tighter, more focused
   .hero {
-    min-height: clamp(600px, 90vh, 720px);
+    min-height: max(560px, 75vh);
+    padding-top: max(78px, calc(env(safe-area-inset-top) + 70px));
+    padding-bottom: var(--space-md); // REDUCED
   }
 
-  .hero-stage {
-    grid-template-columns: 1fr;
-    padding: clamp(80px, 11vh, 100px) var(--page-gutter-mobile) clamp(40px, 6vh, 60px);
-    gap: 32px;
-  }
-
-  .hero-portrait {
+  .hero-bg {
+    position: relative;
     width: 100%;
-    max-width: 100%;
+    height: auto;
+    padding-bottom: 115%;
+    border-radius: var(--r-2xl) var(--r-2xl) 0 0;
+    margin-bottom: clamp(-120px, -26vw, -140px);
+
+    img {
+      object-position: center 18%;
+      transform: scale(1.06);
+      filter: brightness(0.72) saturate(0.78) contrast(1.14);
+    }
   }
 
-  .hero-img {
-    max-width: 100%;
-    aspect-ratio: 3 / 4.5;
-    object-position: center 24%;
-  }
-
-  .hero-live {
-    top: 14px;
-    right: 14px;
-    padding: 7px 13px;
-    font-size: 0.76rem;
-  }
-
-  .live-dot {
-    width: 6px;
-    height: 6px;
+  .hero-content-wrapper {
+    padding: clamp(42px, 7.5vh, 58px) var(--container-padding-mobile) clamp(46px, 7.5vh, 62px); // TIGHTER
   }
 
   .hero-text {
-    padding-right: 0;
+    max-width: 100%;
   }
 
-  .hero-brand {
-    font-size: 0.82rem;
-    margin-bottom: 12px;
-  }
-
-  .hero-heading {
-    font-size: clamp(2.2rem, 9.5vw, 3.2rem);
-    line-height: 1.14;
-    margin-bottom: 14px;
+  .hero-title {
+    font-size: clamp(2.8rem, 11vw, 4rem);
+    line-height: 1.04;
+    max-width: 16ch;
+    margin-bottom: var(--space-sm); // TIGHTER
   }
 
   .hero-lead {
-    font-size: clamp(1rem, 4vw, 1.12rem);
-    line-height: 1.6;
-    margin-bottom: 24px;
-    max-width: none;
+    max-width: 90%;
+    font-size: clamp(1.08rem, 3.8vw, 1.22rem);
+    color: rgba(255, 255, 255, 0.82);
+    margin-bottom: var(--space-sm); // TIGHTER
   }
 
-  .hero-actions {
+  .hero-cta-row {
     flex-direction: column;
-    gap: 10px;
-    margin-bottom: 18px;
+    max-width: min(340px, 88vw);
+    gap: 12px;
+    margin-bottom: var(--space-sm);
+
+    .btn {
+      width: 100%;
+      min-height: 52px;
+      border-radius: 16px;
+    }
   }
 
-  .hero-btn-primary,
-  .hero-btn-secondary {
-    width: 100%;
-    justify-content: center;
-    padding: 15px 28px;
-    font-size: 0.98rem;
+  .hero-metrics {
+    gap: 16px;
   }
 
-  .hero-proof {
-    justify-content: flex-start;
-    font-size: 0.84rem;
+  .metric {
+    padding: 14px 20px;
+  }
+
+  .metric-value {
+    font-size: var(--text-xl);
   }
 
   // Statement strip
