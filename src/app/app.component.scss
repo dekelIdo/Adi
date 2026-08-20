@@ -1625,9 +1625,9 @@ img {
   position: relative;
   border-radius: var(--r-2xl);
   overflow: hidden;
-  background: rgba(255, 255, 255, 0.96);
-  box-shadow: var(--shadow-lg), 0 0 0 1px rgba(196, 217, 240, 0.14);
-  transition: all 480ms var(--ease-expo);
+  background: rgba(255, 255, 255, 0.97);
+  box-shadow: var(--shadow-lg), 0 0 0 1px rgba(196, 217, 240, 0.13);
+  transition: all 420ms var(--ease-expo);
   
   // Let images maintain natural aspect ratio
   img {
@@ -1637,8 +1637,8 @@ img {
   }
 
   &:hover {
-    box-shadow: var(--shadow-xl), 0 0 0 1.5px rgba(196, 217, 240, 0.26), 0 0 48px rgba(196, 217, 250, 0.2);
-    transform: translateY(-3px);
+    box-shadow: var(--shadow-xl), 0 0 0 1.5px rgba(196, 217, 240, 0.24), 0 0 44px rgba(196, 217, 250, 0.18);
+    transform: translateY(-2px);
   }
 }
 
@@ -2155,19 +2155,19 @@ img {
 
   input {
     width: 100%;
-    padding: 14px 18px;
-    border: 1px solid rgba(196, 217, 240, 0.24);
+    padding: 13px 17px;
+    border: 1px solid rgba(196, 217, 240, 0.22);
     border-radius: var(--r-md);
-    background: rgba(255, 255, 255, 0.92);
+    background: rgba(255, 255, 255, 0.94);
     font-size: var(--text-base);
     font-family: inherit;
     color: var(--text);
-    transition: all 320ms var(--ease-smooth);
+    transition: all 280ms var(--ease-smooth);
 
     &:focus {
       outline: none;
       border-color: var(--brand-accent);
-      box-shadow: 0 0 0 3px rgba(187, 221, 250, 0.12);
+      box-shadow: 0 0 0 3px rgba(187, 221, 250, 0.14), 0 2px 8px rgba(187, 221, 250, 0.08);
     }
 
     &::placeholder {
@@ -2192,18 +2192,19 @@ img {
 
 .faq-item {
   border-radius: var(--r-xl);
-  background: linear-gradient(145deg, rgba(255, 255, 255, 0.9), rgba(248, 246, 243, 0.72));
-  border: 1px solid rgba(196, 217, 240, 0.14);
+  background: linear-gradient(145deg, rgba(255, 255, 255, 0.92), rgba(248, 246, 243, 0.74));
+  border: 1px solid rgba(196, 217, 240, 0.13);
   box-shadow: var(--shadow-sm);
   overflow: hidden;
-  transition: all 420ms var(--ease-smooth);
+  transition: all 380ms var(--ease-smooth);
 
   &:hover {
     box-shadow: var(--shadow-md);
+    transform: translateY(-1px);
   }
 
   &--open {
-    box-shadow: var(--shadow-md), 0 0 32px rgba(187, 221, 250, 0.14);
+    box-shadow: var(--shadow-md), 0 0 30px rgba(187, 221, 250, 0.13);
   }
 }
 
@@ -2221,31 +2222,31 @@ img {
   color: var(--text);
   text-align: right;
   cursor: pointer;
-  transition: all 320ms var(--ease-smooth);
+  transition: all 280ms var(--ease-smooth);
 
   &:hover {
-    color: color-mix(in srgb, var(--brand-accent) 60%, var(--text));
+    color: color-mix(in srgb, var(--brand-accent) 58%, var(--text));
   }
 }
 
 .faq-icon {
   flex-shrink: 0;
-  width: 28px;
-  height: 28px;
+  width: 27px;
+  height: 27px;
   border-radius: 50%;
   background: linear-gradient(145deg, var(--brand-accent), var(--brand-accent-dim));
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: all 320ms var(--ease-smooth);
+  transition: all 280ms var(--ease-smooth);
 
   &::before {
     content: "+";
     font-size: var(--text-xl);
-    font-weight: 700;
+    font-weight: 600;
     color: var(--text);
     line-height: 1;
-    transition: all 320ms var(--ease-smooth);
+    transition: all 280ms var(--ease-smooth);
   }
 
   .faq-item--open & {
@@ -2282,8 +2283,8 @@ img {
 
 .site-footer {
   padding: var(--space-sm) 0;
-  background: linear-gradient(135deg, rgba(10, 8, 6, 0.96), rgba(6, 5, 4, 0.98));
-  border-top: 1px solid rgba(196, 217, 240, 0.08);
+  background: linear-gradient(135deg, rgba(10, 8, 6, 0.97), rgba(6, 5, 4, 0.99));
+  border-top: 1px solid rgba(196, 217, 240, 0.07);
 
   .container {
     text-align: center;
@@ -2291,7 +2292,8 @@ img {
 
   p {
     font-size: var(--text-sm);
-    color: rgba(255, 255, 255, 0.64);
+    color: rgba(255, 255, 255, 0.62);
+    line-height: 1.7;
   }
 }
 
