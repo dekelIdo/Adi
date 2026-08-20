@@ -995,6 +995,7 @@ img {
 
 .split-grid--insight {
   padding: var(--space-lg) 0;
+  
 }
 
 .split-copy {
