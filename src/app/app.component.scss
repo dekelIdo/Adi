@@ -330,197 +330,177 @@ img {
 // ─────── HERO — BOLD EDITORIAL COMPOSITION ────────────────────────────────────
 
 // ═══════════════════════════════════════════════════════════════════════════════
-// HERO — ADI'S DIGITAL WORLD
-// One unforgettable composition · Portrait + Typography as brand identity
+// HERO — CINEMATIC INTRODUCTION
+// Fashion editorial · Woman enters the screen · No advertisement DNA
+// Psychology: "WHO IS SHE?" before "WHAT IS SHE SELLING?"
 // ═══════════════════════════════════════════════════════════════════════════════
 
 .hero {
   position: relative;
-  min-height: clamp(520px, 76vh, 660px);
+  min-height: clamp(620px, 92vh, 840px);
   overflow: hidden;
-  
-  background: linear-gradient(170deg, #fdfcfb 0%, #faf7f4 100%);
-  
-  &::before {
-    content: "";
-    position: absolute;
-    top: -2%;
-    right: 7%;
-    width: 40%;
-    height: 58%;
-    background: radial-gradient(ellipse, rgba(187, 221, 250, 0.045), transparent 74%);
-    pointer-events: none;
-    filter: blur(105px);
-  }
+  background: #0a0806;
 }
 
-.hero-world {
+// ────── Campaign container ──────
+
+.hero-campaign {
   position: relative;
-  max-width: var(--container-max);
-  margin: 0 auto;
-  padding: clamp(76px, 10.5vh, 105px) var(--page-gutter-desktop) clamp(30px, 3.8vh, 48px);
-  
-  display: grid;
-  grid-template-columns: 1.7fr 1.2fr;
-  gap: clamp(26px, 3.2vw, 52px);
-  align-items: center;
-}
-
-// ────── PORTRAIT: Brand visual identity ──────
-
-.hero-portrait-zone {
-  position: relative;
-}
-
-.hero-portrait {
-  width: 100%;
-  max-width: 520px;
-  aspect-ratio: 3 / 4.4;
-  object-fit: cover;
-  object-position: 57% 20%;
-  border-radius: var(--r-3xl);
-  
-  box-shadow: 
-    0 12px 36px rgba(0, 0, 0, 0.048),
-    0 4px 12px rgba(0, 0, 0, 0.028);
-  
-  filter: brightness(1.01) saturate(1.05) contrast(1.008);
-}
-
-.hero-live {
-  position: absolute;
-  top: 16px;
-  right: 16px;
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 6px 11px;
-  
-  background: rgba(255, 255, 255, 0.92);
-  backdrop-filter: blur(8px);
-  border-radius: 60px;
-  border: 1px solid rgba(187, 221, 250, 0.12);
-  
-  font-size: 0.74rem;
-  font-weight: 600;
-  color: var(--text);
-}
-
-.live-pulse {
-  width: 4.5px;
-  height: 4.5px;
-  border-radius: 50%;
-  background: var(--brand-accent);
-  box-shadow: 0 0 6px rgba(187, 221, 250, 0.5);
-  animation: pulse 2.6s ease-in-out infinite;
-}
-
-@keyframes pulse {
-  0%, 100% { opacity: 1; transform: scale(1); }
-  50% { opacity: 0.55; transform: scale(1.08); }
-}
-
-// ────── VOICE: Editorial typography hierarchy ──────
-
-.hero-voice {
-  position: relative;
-}
-
-.hero-name {
-  font-size: 0.84rem;
-  font-weight: 600;
-  letter-spacing: 0.05em;
-  color: var(--text-muted);
-  margin-bottom: 15px;
-}
-
-.hero-statement {
-  font-family: "Assistant", Arial, sans-serif;
-  font-size: clamp(2.2rem, 5vw, 3.4rem);
-  font-weight: 500;
-  line-height: 1.18;
-  letter-spacing: -0.02em;
-  color: var(--text);
-  margin-bottom: 16px;
-  
-  text-wrap: balance;
-  max-width: 18ch;
-}
-
-.hero-promise {
-  font-size: clamp(1.04rem, 2.2vw, 1.22rem);
-  font-weight: 400;
-  line-height: 1.58;
-  color: var(--text-muted);
-  max-width: 40ch;
-  margin-bottom: 28px;
-}
-
-.hero-action {
+  height: 100%;
+  min-height: inherit;
   display: flex;
-  gap: 11px;
-  margin-bottom: 22px;
+  flex-direction: column;
+  justify-content: flex-end;
 }
 
-.btn-hero-primary {
-  display: inline-flex;
-  align-items: center;
-  padding: 13px 28px;
-  font-size: 0.98rem;
-  font-weight: 600;
-  color: var(--text);
-  
-  background: linear-gradient(135deg, var(--brand-accent) 0%, #a5c9e8 100%);
-  border: none;
-  border-radius: 60px;
-  
-  box-shadow: 0 4px 16px rgba(187, 221, 250, 0.24);
-  
-  transition: all 0.26s var(--ease-expo);
-  text-decoration: none;
-  white-space: nowrap;
-  
-  &:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 6px 24px rgba(187, 221, 250, 0.34);
-  }
-  
-  &:active {
-    transform: translateY(0);
-  }
+// ────── Portrait: Full presence, no container ──────
+
+.hero-portrait-full {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 1;
 }
 
-.btn-hero-secondary {
-  display: inline-flex;
-  align-items: center;
-  padding: 13px 28px;
-  font-size: 0.98rem;
-  font-weight: 600;
-  color: var(--text);
-  
-  background: rgba(248, 246, 243, 0.5);
-  border: 1px solid rgba(42, 40, 38, 0.06);
-  border-radius: 60px;
-  
-  transition: all 0.26s var(--ease-expo);
-  text-decoration: none;
-  white-space: nowrap;
-  
-  &:hover {
-    background: rgba(255, 255, 255, 0.85);
-    transform: translateY(-2px);
-    border-color: rgba(42, 40, 38, 0.09);
-  }
-  
-  &:active {
-    transform: translateY(0);
-  }
+.hero-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: 54% 18%;
+  filter: brightness(0.92) saturate(1.04) contrast(1.02);
 }
 
-.hero-proof {
-  font-size: 0.84rem;
+// ────── Identity: Signature typography in negative space ──────
+
+.hero-identity {
+  position: relative;
+  z-index: 2;
+  padding: 0 clamp(22px, 5.8vw, 32px);
+  margin-bottom: clamp(18px, 3vh, 28px);
+}
+
+.hero-signature {
+  font-family: "Assistant", Arial, sans-serif;
+  font-size: clamp(0.72rem, 2vw, 0.84rem);
   font-weight: 500;
-  color: var(--text-light);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.7);
+  margin-bottom: 10px;
+}
+
+.hero-essence {
+  font-family: "Assistant", Arial, sans-serif;
+  font-size: clamp(2.4rem, 7.2vw, 3.8rem);
+  font-weight: 400;
+  line-height: 1.14;
+  letter-spacing: -0.024em;
+  color: rgba(255, 255, 255, 0.96);
+  text-wrap: balance;
+  max-width: 14ch;
+  
+  text-shadow: 0 2px 12px rgba(0, 0, 0, 0.16), 0 1px 4px rgba(0, 0, 0, 0.12);
+}
+
+// ────── Quiet CTA: Editorial link, not button ──────
+
+.hero-quiet-cta {
+  position: relative;
+  z-index: 2;
+  padding: 0 clamp(22px, 5.8vw, 32px);
+  margin-bottom: clamp(32px, 5vh, 48px);
+}
+
+.hero-link {
+  display: inline-flex;
+  align-items: center;
+  font-family: "Assistant", Arial, sans-serif;
+  font-size: clamp(0.92rem, 2.4vw, 1.04rem);
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.88);
+  text-decoration: none;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.24);
+  padding-bottom: 3px;
+  transition: all 320ms var(--ease-smooth);
+  
+  &:hover {
+    color: rgba(255, 255, 255, 1);
+    border-bottom-color: var(--brand-accent);
+    transform: translateX(-2px);
+  }
+}
+
+// ────── Continuation: Subtle scroll cue ──────
+
+.hero-continuation {
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 1px;
+  height: 28px;
+  background: linear-gradient(to bottom, transparent, rgba(187, 221, 250, 0.3), transparent);
+  z-index: 3;
+  animation: continuationPulse 2.4s ease-in-out infinite;
+}
+
+@keyframes continuationPulse {
+  0%, 100% { opacity: 0.4; }
+  50% { opacity: 0.8; }
+}
+
+// ────── Desktop: Asymmetric editorial layout ──────
+
+@media (min-width: 1025px) {
+  .hero {
+    min-height: clamp(680px, 86vh, 880px);
+  }
+
+  .hero-campaign {
+    max-width: var(--container-max);
+    margin: 0 auto;
+    padding-left: clamp(32px, 5vw, 80px);
+    padding-right: clamp(32px, 5vw, 80px);
+  }
+
+  .hero-portrait-full {
+    width: 58%;
+    right: 0;
+    left: auto;
+  }
+
+  .hero-img {
+    object-position: 56% 18%;
+    filter: brightness(0.9) saturate(1.04) contrast(1.02);
+  }
+
+  .hero-identity {
+    max-width: 560px;
+    padding: 0;
+    margin-bottom: clamp(22px, 3.8vh, 34px);
+  }
+
+  .hero-signature {
+    font-size: clamp(0.76rem, 1.4vw, 0.88rem);
+    margin-bottom: 12px;
+  }
+
+  .hero-essence {
+    font-size: clamp(2.8rem, 5.2vw, 4.4rem);
+    line-height: 1.12;
+    max-width: 16ch;
+  }
+
+  .hero-quiet-cta {
+    padding: 0;
+    margin-bottom: clamp(40px, 6vh, 60px);
+  }
+
+  .hero-link {
+    font-size: clamp(1rem, 1.8vw, 1.12rem);
+  }
 }
 
 // ─────── STATEMENT STRIP — MARQUEE ─────────────────────────────────────────────
@@ -2415,77 +2395,39 @@ img {
     font-size: clamp(0.68rem, 1.8vw, 0.76rem);
   }
 
-  // Hero mobile: Designed composition for 375-430px
+  // Hero mobile: Cinematic portrait composition for 375-430px
   .hero {
-    min-height: clamp(490px, 80vh, 610px);
+    min-height: clamp(580px, 88vh, 740px);
   }
 
-  .hero-world {
-    grid-template-columns: 1fr;
-    padding: clamp(58px, 8vh, 76px) var(--page-gutter-mobile) clamp(26px, 3.6vh, 40px);
-    gap: 22px;
+  .hero-img {
+    object-position: 52% 14%;
+    filter: brightness(0.88) saturate(1.06) contrast(1.03);
   }
 
-  .hero-portrait-zone {
-    width: 100%;
-    max-width: 100%;
+  .hero-identity {
+    padding: 0 clamp(20px, 5.2vw, 24px);
+    margin-bottom: clamp(14px, 2.4vh, 20px);
   }
 
-  .hero-portrait {
-    max-width: 100%;
-    aspect-ratio: 3 / 4.8;
-    object-position: 55% 18%;
+  .hero-signature {
+    font-size: clamp(0.68rem, 1.8vw, 0.76rem);
+    margin-bottom: 8px;
   }
 
-  .hero-live {
-    top: 12px;
-    right: 12px;
-    padding: 5px 9px;
-    font-size: 0.69rem;
-    gap: 5px;
+  .hero-essence {
+    font-size: clamp(2.1rem, 7.8vw, 2.8rem);
+    line-height: 1.16;
+    max-width: 12ch;
   }
 
-  .live-pulse {
-    width: 4px;
-    height: 4px;
+  .hero-quiet-cta {
+    padding: 0 clamp(20px, 5.2vw, 24px);
+    margin-bottom: clamp(26px, 4.2vh, 38px);
   }
 
-  .hero-name {
-    font-size: 0.75rem;
-    margin-bottom: 11px;
-  }
-
-  .hero-statement {
-    font-size: clamp(1.9rem, 8.8vw, 2.6rem);
-    font-weight: 500;
-    line-height: 1.22;
-    margin-bottom: 13px;
-    max-width: none;
-  }
-
-  .hero-promise {
-    font-size: clamp(0.95rem, 3.6vw, 1.05rem);
-    line-height: 1.62;
-    margin-bottom: 21px;
-    max-width: none;
-  }
-
-  .hero-action {
-    flex-direction: column;
-    gap: 9px;
-    margin-bottom: 18px;
-  }
-
-  .btn-hero-primary,
-  .btn-hero-secondary {
-    width: 100%;
-    justify-content: center;
-    padding: 12px 22px;
-    font-size: 0.96rem;
-  }
-
-  .hero-proof {
-    font-size: 0.77rem;
+  .hero-link {
+    font-size: clamp(0.88rem, 2.3vw, 0.98rem);
   }
 
   // Statement strip
