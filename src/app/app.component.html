@@ -14,79 +14,78 @@
 
   <main id="main-content">
 
-    <section id="hero" class="hero" data-header-theme="dark">
-      <!-- Editorial campaign-style Hero: Image + Content as unified composition -->
-      <div class="hero-container">
+    <section id="hero" class="hero" data-header-theme="light">
+      <div class="hero-stage">
         
-        <!-- Left: Editorial portrait with brand accent -->
-        <div class="hero-visual">
-          <div class="hero-portrait-frame">
+        <!-- HERO IMAGE: Large, confident, takes 60% of stage -->
+        <div class="hero-image-wrapper">
+          <div class="hero-image-frame">
             <img
               src="assets/lovable-uploads/627cda47-32b8-4e16-96e2-8b1f881f6100.jpg"
-              alt="עדי אריאלי"
+              alt="עדי אריאלי - Social-Li"
               fetchpriority="high"
-              class="hero-portrait"
+              class="hero-image"
             />
-            <div class="hero-portrait-accent" aria-hidden="true"></div>
           </div>
           
-          <!-- Social proof integrated into visual -->
-          <div class="hero-social-proof">
-            <div class="proof-item">
-              <span class="proof-value">10K+</span>
-              <span class="proof-label">צפיות ממוצעות</span>
+          <!-- Floating status badge on image -->
+          <div class="hero-live-badge">
+            <span class="live-dot"></span>
+            <span>פועלת כרגע</span>
+          </div>
+          
+          <!-- Social proof integrated with image -->
+          <div class="hero-stats-float">
+            <div class="stat-pill">
+              <strong>10K+</strong>
+              <span>צפיות</span>
             </div>
-            <div class="proof-divider"></div>
-            <div class="proof-item">
-              <span class="proof-value">3+</span>
-              <span class="proof-label">שנות ניסיון</span>
+            <div class="stat-pill">
+              <strong>3+</strong>
+              <span>שנים</span>
             </div>
           </div>
         </div>
 
-        <!-- Right: Campaign message with strong hierarchy -->
-        <div class="hero-content">
-          <div class="hero-content-inner">
-            
-            <!-- Status indicator - energetic and feminine -->
-            <div class="hero-status">
-              <span class="status-dot"></span>
-              <span class="status-text">פועלת כרגע · מקבלת לקוחות חדשים</span>
-            </div>
-
-            <!-- Brand identity -->
-            <p class="hero-brand">Social-Li <span class="brand-sep">✦</span> עדי אריאלי</p>
-
-            <!-- Hero statement - strong editorial hierarchy -->
-            <h1 class="hero-headline">
-              הגיע הזמן<br/>
-              שהסושיאל שלך<br/>
-              <span class="hero-headline-em">יתחיל לעבוד בשבילך</span>
-            </h1>
-
-            <!-- Supporting message -->
-            <p class="hero-message">
-              אסטרטגיה שיווקית, יצירת תוכן מקצועית וניהול סושיאל שמביא לקוחות לעסק שלך.
-            </p>
-
-            <!-- CTA group -->
-            <div class="hero-actions">
-              <a class="hero-cta hero-cta-primary" href="#contact">
-                <span class="cta-text">בואו נדבר</span>
-                <span class="cta-icon" aria-hidden="true">←</span>
-              </a>
-              <a class="hero-cta hero-cta-secondary" href="#portfolio">
-                תיק עבודות
-              </a>
-            </div>
-
-            <!-- Trust element -->
-            <p class="hero-trust">
-              <span class="trust-icon">✓</span>
-              עובדת עם מותגים מובילים בישראל
-            </p>
-
+        <!-- CONTENT: Overlapping bottom-right, tight and confident -->
+        <div class="hero-content-card">
+          
+          <!-- Brand mark -->
+          <div class="hero-brand-mark">
+            <span class="brand-name">עדי אריאלי</span>
+            <span class="brand-separator">·</span>
+            <span class="brand-tagline">Social-Li</span>
           </div>
+
+          <!-- Headline: Shorter, punchier -->
+          <h1 class="hero-title">
+            הסושיאל שלך<br/>
+            <span class="hero-title-highlight">יכול להיות שונה</span>
+          </h1>
+
+          <!-- One-line value prop -->
+          <p class="hero-subtitle">
+            אסטרטגיה, תוכן וניהול שמביאים לקוחות אמיתיים
+          </p>
+
+          <!-- CTAs: Tight, side by side -->
+          <div class="hero-ctas">
+            <a href="#contact" class="hero-btn hero-btn-primary">
+              בואו נתחיל
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                <path d="M6 12L10 8L6 4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </a>
+            <a href="#portfolio" class="hero-btn hero-btn-secondary">
+              תיק עבודות
+            </a>
+          </div>
+
+          <!-- Trust line: Subtle, compact -->
+          <p class="hero-trust-line">
+            ✓ עובדת עם מותגים מובילים
+          </p>
+
         </div>
 
       </div>
