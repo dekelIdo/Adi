@@ -369,8 +369,8 @@ img {
     bottom: 0;
     left: 0;
     right: 0;
-    height: 40%;
-    background: linear-gradient(to top, rgba(10, 8, 6, 0.92), transparent);
+    height: 42%;
+    background: linear-gradient(to top, rgba(10, 8, 6, 0.94), rgba(10, 8, 6, 0.72) 50%, transparent);
     pointer-events: none;
   }
 }
@@ -583,19 +583,19 @@ img {
 
 .brand-track-item {
   flex-shrink: 0;
-  width: clamp(100px, 14vw, 160px);
+  width: clamp(102px, 14.2vw, 164px);
   display: flex;
   align-items: center;
   justify-content: center;
-  filter: grayscale(1) opacity(0.5);
-  transition: all 360ms var(--ease-smooth);
+  filter: grayscale(1) opacity(0.48);
+  transition: all 340ms var(--ease-smooth);
   text-decoration: none;
   cursor: pointer;
-  outline-offset: 4px;
+  outline-offset: 3px;
 
   &:hover {
     filter: grayscale(0) opacity(1);
-    transform: translateY(-1px);
+    transform: translateY(-1px) scale(1.02);
   }
   
   &:focus-visible {
@@ -605,7 +605,7 @@ img {
   }
   
   &:active {
-    transform: translateY(0);
+    transform: translateY(0) scale(1);
   }
 
   img {
@@ -617,7 +617,7 @@ img {
 }
 
 .brand-track-item--large {
-  width: clamp(130px, 18vw, 210px);
+  width: clamp(134px, 18.4vw, 215px);
 }
 
 @keyframes brandScroll {
@@ -641,7 +641,7 @@ img {
 
 .section {
   position: relative;
-  padding: clamp(20px, 3.2vh, 38px) 0;
+  padding: clamp(18px, 3vh, 36px) 0;
   isolation: isolate;
 }
 
@@ -699,16 +699,16 @@ img {
   font-family: "Assistant", Arial, sans-serif;
   font-size: var(--text-4xl);
   font-weight: 500;
-  line-height: 1.08;
-  letter-spacing: -0.022em;
+  line-height: 1.06;
+  letter-spacing: -0.024em;
   color: var(--text);
   margin-bottom: var(--space-xs);
-  max-width: 22ch;
+  max-width: 20ch;
 
   em {
     font-style: italic;
     font-weight: 400;
-    color: color-mix(in srgb, var(--brand-accent) 70%, var(--text));
+    color: color-mix(in srgb, var(--brand-accent) 72%, var(--text));
   }
 }
 
@@ -719,11 +719,11 @@ img {
 .section-body,
 .section-lead {
   font-size: var(--text-base);
-  line-height: 1.64;
+  line-height: 1.62;
   color: color-mix(in srgb, var(--text-muted) 86%, var(--text));
-  max-width: 66ch;
+  max-width: 64ch;
 
-  margin-bottom: 7px;
+  margin-bottom: 6px;
 
   &:last-child {
     margin-bottom: 0;
@@ -737,7 +737,7 @@ img {
 
 .section-lead {
   font-size: var(--text-lg);
-  line-height: 1.58;
+  line-height: 1.56;
   color: var(--text-muted);
   margin-bottom: var(--space-xs);
 }
@@ -2409,38 +2409,42 @@ img {
 
   // Hero mobile: Cinematic portrait composition for 375-430px
   .hero {
-    min-height: clamp(600px, 90vh, 760px);
+    min-height: clamp(610px, 92vh, 770px);
   }
 
   .hero-img {
-    object-position: 51% 13%;
-    filter: brightness(0.87) saturate(1.07) contrast(1.03);
+    object-position: 50% 12%;
+    filter: brightness(0.86) saturate(1.07) contrast(1.04);
+  }
+
+  .hero-portrait-full::after {
+    height: 44%;
   }
 
   .hero-identity {
     padding: 0 clamp(20px, 5.2vw, 24px);
-    margin-bottom: clamp(13px, 2.3vh, 19px);
+    margin-bottom: clamp(12px, 2.2vh, 18px);
   }
 
   .hero-signature {
-    font-size: clamp(0.67rem, 1.8vw, 0.75rem);
-    margin-bottom: 8px;
-    letter-spacing: 0.18em;
+    font-size: clamp(0.66rem, 1.8vw, 0.74rem);
+    margin-bottom: 7px;
+    letter-spacing: 0.19em;
   }
 
   .hero-essence {
-    font-size: clamp(2.2rem, 8vw, 2.9rem);
-    line-height: 1.15;
+    font-size: clamp(2.25rem, 8.2vw, 3rem);
+    line-height: 1.14;
     max-width: 11ch;
   }
 
   .hero-quiet-cta {
     padding: 0 clamp(20px, 5.2vw, 24px);
-    margin-bottom: clamp(28px, 4.4vh, 40px);
+    margin-bottom: clamp(30px, 4.6vh, 42px);
   }
 
   .hero-link {
-    font-size: clamp(0.89rem, 2.3vw, 0.99rem);
+    font-size: clamp(0.9rem, 2.3vw, 1rem);
   }
 
   // Statement strip
@@ -2458,11 +2462,11 @@ img {
   }
 
   .brand-track-item {
-    width: clamp(90px, 18vw, 120px);
+    width: clamp(92px, 18.2vw, 122px);
   }
 
   .brand-track-item--large {
-    width: clamp(115px, 23vw, 155px);
+    width: clamp(118px, 23.4vw, 158px);
   }
 
   // Section intro split becomes vertical

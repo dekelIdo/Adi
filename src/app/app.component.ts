@@ -339,7 +339,7 @@ export class AppComponent implements AfterViewInit, OnDestroy {
     track.style.animation = 'none';
 
     this.zone.runOutsideAngular(() => {
-      const SPEED = 0.38; // px per frame (ultra-calm, premium pace)
+      const SPEED = 0.35; // px per frame (ultra-calm, luxury pace)
 
       let offset = 0;
 
@@ -354,6 +354,7 @@ export class AppComponent implements AfterViewInit, OnDestroy {
         offset -= SPEED;
         clampOffset();
         track.style.transform = `translateX(${offset}px)`;
+        track.style.willChange = 'transform';
         const id = requestAnimationFrame(tick);
         this.rafIds.push(id);
       };
