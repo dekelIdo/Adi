@@ -373,14 +373,14 @@ img {
   max-width: 520px;
   aspect-ratio: 3 / 4.4;
   object-fit: cover;
-  object-position: center 24%;
+  object-position: 58% 22%;
   border-radius: var(--r-3xl);
   
   box-shadow: 
     0 12px 38px rgba(0, 0, 0, 0.05),
     0 4px 14px rgba(0, 0, 0, 0.03);
   
-  filter: brightness(1.005) saturate(1.03);
+  filter: brightness(1.008) saturate(1.06) contrast(1.01);
 }
 
 .hero-live {
@@ -594,6 +594,10 @@ img {
     height: auto;
     object-fit: contain;
   }
+}
+
+.brand-track-item--large {
+  width: clamp(130px, 18vw, 210px);
 }
 
 @keyframes brandScroll {
@@ -2376,7 +2380,7 @@ img {
   .hero-portrait {
     max-width: 100%;
     aspect-ratio: 3 / 4.8;
-    object-position: center 18%;
+    object-position: 56% 16%;
   }
 
   .hero-live {
@@ -2442,6 +2446,10 @@ img {
 
   .brand-track-item {
     width: clamp(90px, 18vw, 120px);
+  }
+
+  .brand-track-item--large {
+    width: clamp(115px, 23vw, 155px);
   }
 
   // Section intro split becomes vertical

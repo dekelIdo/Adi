@@ -79,6 +79,7 @@ export class AppComponent implements AfterViewInit, OnDestroy {
     this.initCursorGlow();
     this.initMagneticButtons();
     this.initCarouselDrag();
+    this.initBrandCarousel(); // NEW: Seamless infinite brand carousel
     this.initPortfolioReel();
     this.initResultsReel();
     this.initSectionProgress();
@@ -325,6 +326,39 @@ export class AppComponent implements AfterViewInit, OnDestroy {
         lastX = e.pageX;
         container.scrollLeft = scrollStart - delta;
       });
+    });
+  }
+
+  // ─── Brand carousel — seamless infinite loop ─────────────────────────────
+  // Pure JS rAF marquee: continuous movement, no visible seam, no pause
+  private initBrandCarousel(): void {
+    const track = document.querySelector<HTMLElement>('.brand-track');
+    if (!track) return;
+
+    // Remove CSS animation — JS handles everything
+    track.style.animation = 'none';
+
+    this.zone.runOutsideAngular(() => {
+      const SPEED = 0.45; // px per frame (calm, premium pace)
+
+      let offset = 0;
+
+      // Seamless loop: when we've scrolled one full set (-50% of track), reset
+      const clampOffset = () => {
+        const half = track.scrollWidth / 2;
+        if (-offset >= half) offset += half;
+        if (offset > 0) offset -= half;
+      };
+
+      const tick = () => {
+        offset -= SPEED;
+        clampOffset();
+        track.style.transform = `translateX(${offset}px)`;
+        const id = requestAnimationFrame(tick);
+        this.rafIds.push(id);
+      };
+
+      tick();
     });
   }
 
