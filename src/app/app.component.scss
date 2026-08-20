@@ -2707,6 +2707,7 @@ strong{font-weight:600;}
   .metric-divider{
     display:none;
   }
+} // END @media(max-width:768px) from line 2518
 
 // ── Hero Ticker ────────────────────────────────────────────────────────────
 .hero-ticker{
@@ -2978,7 +2979,7 @@ strong{font-weight:600;}
 }
 .problem-item--final{
   color:var(--text);
-  .problem-num{color:rgba(187,221,250,.7);opacity:1;}
+  .problem-num{color:rgba(187,221,250,.75);}
   p{font-style:normal;font-weight:600;}
 }
 
@@ -3418,7 +3419,7 @@ strong{font-weight:600;}
   line-height:1;
   letter-spacing:-.052em;
   color:var(--text-muted);
-  opacity:0.18;
+  opacity:0.48;
   transition:opacity 520ms var(--ease);
   user-select:none;
 }
