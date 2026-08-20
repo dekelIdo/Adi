@@ -15,55 +15,80 @@
   <main id="main-content">
 
     <section id="hero" class="hero" data-header-theme="dark">
-      <div class="hero-orb hero-orb--1" aria-hidden="true"></div>
-      <div class="hero-soft-glow" aria-hidden="true"></div>
-
-      <div class="hero-layout">
-        <!-- Portrait: own row on mobile — never behind text -->
-        <div class="hero-bg" aria-hidden="true">
-          <img
-            src="assets/lovable-uploads/627cda47-32b8-4e16-96e2-8b1f881f6100.jpg"
-            alt=""
-            fetchpriority="high"
-          />
-          <div class="hero-bg-fade" aria-hidden="true"></div>
+      <!-- Editorial campaign-style Hero: Image + Content as unified composition -->
+      <div class="hero-container">
+        
+        <!-- Left: Editorial portrait with brand accent -->
+        <div class="hero-visual">
+          <div class="hero-portrait-frame">
+            <img
+              src="assets/lovable-uploads/627cda47-32b8-4e16-96e2-8b1f881f6100.jpg"
+              alt="עדי אריאלי"
+              fetchpriority="high"
+              class="hero-portrait"
+            />
+            <div class="hero-portrait-accent" aria-hidden="true"></div>
+          </div>
+          
+          <!-- Social proof integrated into visual -->
+          <div class="hero-social-proof">
+            <div class="proof-item">
+              <span class="proof-value">10K+</span>
+              <span class="proof-label">צפיות ממוצעות</span>
+            </div>
+            <div class="proof-divider"></div>
+            <div class="proof-item">
+              <span class="proof-value">3+</span>
+              <span class="proof-label">שנות ניסיון</span>
+            </div>
+          </div>
         </div>
 
-        <div class="hero-content-wrapper">
-          <div class="hero-text">
-            <div class="hero-live-pill reveal reveal-hero delay-1">
-              <span class="hero-live-dot"></span>
-              פועלת כרגע · מקבלת לקוחות חדשים
+        <!-- Right: Campaign message with strong hierarchy -->
+        <div class="hero-content">
+          <div class="hero-content-inner">
+            
+            <!-- Status indicator - energetic and feminine -->
+            <div class="hero-status">
+              <span class="status-dot"></span>
+              <span class="status-text">פועלת כרגע · מקבלת לקוחות חדשים</span>
             </div>
-            <p class="hero-eyebrow reveal reveal-hero delay-1">Social-Li ✦ עדי אריאלי</p>
-            <h1 class="hero-title reveal reveal-hero delay-2">
-              הגיע הזמן שהסושיאל שלך<br/> יתחיל <em> לעבוד בשבילך</em>
+
+            <!-- Brand identity -->
+            <p class="hero-brand">Social-Li <span class="brand-sep">✦</span> עדי אריאלי</p>
+
+            <!-- Hero statement - strong editorial hierarchy -->
+            <h1 class="hero-headline">
+              הגיע הזמן<br/>
+              שהסושיאל שלך<br/>
+              <span class="hero-headline-em">יתחיל לעבוד בשבילך</span>
             </h1>
-            <p class="hero-lead reveal reveal-hero delay-3">
-              יותר חשיפה, יותר לקוחות ויותר מכירות. כולל אסטרטגיה, יצירת תוכן וניהול שוטף.
+
+            <!-- Supporting message -->
+            <p class="hero-message">
+              אסטרטגיה שיווקית, יצירת תוכן מקצועית וניהול סושיאל שמביא לקוחות לעסק שלך.
             </p>
-            <div class="hero-cta-row reveal reveal-hero delay-4">
-              <a class="btn btn-glass btn-glass--brand" href="#contact">השאירו פרטים</a>
-              <a class="btn btn-secondary" href="#portfolio">לתיק העבודות</a>
+
+            <!-- CTA group -->
+            <div class="hero-actions">
+              <a class="hero-cta hero-cta-primary" href="#contact">
+                <span class="cta-text">בואו נדבר</span>
+                <span class="cta-icon" aria-hidden="true">←</span>
+              </a>
+              <a class="hero-cta hero-cta-secondary" href="#portfolio">
+                תיק עבודות
+              </a>
             </div>
-          </div>
-          <div class="hero-metrics reveal reveal-hero delay-5">
-            <div class="metric">
-              <span class="metric-value">10K+</span>
-              <span class="metric-label">צפיות לסרטון</span>
-            </div>
-            <div class="metric-divider" aria-hidden="true"></div>
-            <div class="metric">
-              <span class="metric-value">3+</span>
-              <span class="metric-label">שנות ניסיון</span>
-            </div>
-            <div class="metric-divider" aria-hidden="true"></div>
-            <div class="metric">
-              <span class="metric-value">200</span>
-              <span class="metric-label">פניות מלקוחות</span>
-            </div>
+
+            <!-- Trust element -->
+            <p class="hero-trust">
+              <span class="trust-icon">✓</span>
+              עובדת עם מותגים מובילים בישראל
+            </p>
+
           </div>
         </div>
+
       </div>
     </section>
 
