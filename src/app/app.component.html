@@ -325,55 +325,33 @@
       <div class="portfolio-reel-outer">
         <div class="portfolio-reel-track">
           <!-- Set 1 -->
-          <div class="reel-card">
-            <figure class="reel-frame">
-              <img src="assets/lovable-uploads/MyAssets/AdiArieli/Me1.jpg" alt="תיק עבודות" loading="lazy" />
-              <div class="reel-overlay"><span class="reel-badge">Reels</span></div>
-            </figure>
-          </div>
-          <div class="reel-card">
-            <figure class="reel-frame">
-              <img src="assets/lovable-uploads/MyAssets/AdiArieli/Me2.jpg" alt="תיק עבודות" loading="lazy" />
-              <div class="reel-overlay"><span class="reel-badge">Content</span></div>
-            </figure>
-          </div>
-          <div class="reel-card">
-            <figure class="reel-frame">
-              <img src="assets/lovable-uploads/MyAssets/AdiArieli/Me3.jpg" alt="תיק עבודות" loading="lazy" />
-              <div class="reel-overlay"><span class="reel-badge">Reels</span></div>
-            </figure>
-          </div>
-          <div class="reel-card">
-            <figure class="reel-frame">
-              <img src="assets/lovable-uploads/MyAssets/AdiArieli/Me3 (2).jpg" alt="תיק עבודות" loading="lazy" />
-              <div class="reel-overlay"><span class="reel-badge">Brand</span></div>
-            </figure>
-          </div>
+          @for (project of portfolioProjects; track project.id) {
+            <article class="reel-card" [attr.data-aspect]="project.aspectRatio">
+              <figure class="reel-frame" [attr.data-mode]="project.imageMode">
+                <div class="reel-frame-inner">
+                  <img [src]="project.image" [alt]="project.alt" loading="lazy" />
+                </div>
+                <div class="reel-content">
+                  <h3 class="reel-title">{{ project.title }}</h3>
+                  <span class="reel-category">{{ project.category }}</span>
+                </div>
+              </figure>
+            </article>
+          }
           <!-- Set 2 — duplicate for seamless infinite loop -->
-          <div class="reel-card" aria-hidden="true">
-            <figure class="reel-frame">
-              <img src="assets/lovable-uploads/MyAssets/AdiArieli/Me1.jpg" alt="" loading="lazy" />
-              <div class="reel-overlay"><span class="reel-badge">Reels</span></div>
-            </figure>
-          </div>
-          <div class="reel-card" aria-hidden="true">
-            <figure class="reel-frame">
-              <img src="assets/lovable-uploads/MyAssets/AdiArieli/Me2.jpg" alt="" loading="lazy" />
-              <div class="reel-overlay"><span class="reel-badge">Content</span></div>
-            </figure>
-          </div>
-          <div class="reel-card" aria-hidden="true">
-            <figure class="reel-frame">
-              <img src="assets/lovable-uploads/MyAssets/AdiArieli/Me3.jpg" alt="" loading="lazy" />
-              <div class="reel-overlay"><span class="reel-badge">Reels</span></div>
-            </figure>
-          </div>
-          <div class="reel-card" aria-hidden="true">
-            <figure class="reel-frame">
-              <img src="assets/lovable-uploads/MyAssets/AdiArieli/Me3 (2).jpg" alt="" loading="lazy" />
-              <div class="reel-overlay"><span class="reel-badge">Brand</span></div>
-            </figure>
-          </div>
+          @for (project of portfolioProjects; track project.id + '-dup') {
+            <article class="reel-card" [attr.data-aspect]="project.aspectRatio" aria-hidden="true">
+              <figure class="reel-frame" [attr.data-mode]="project.imageMode">
+                <div class="reel-frame-inner">
+                  <img [src]="project.image" alt="" loading="lazy" />
+                </div>
+                <div class="reel-content">
+                  <h3 class="reel-title">{{ project.title }}</h3>
+                  <span class="reel-category">{{ project.category }}</span>
+                </div>
+              </figure>
+            </article>
+          }
         </div>
       </div>
     </section>

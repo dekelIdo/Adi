@@ -1,5 +1,15 @@
 import { AfterViewInit, Component, OnDestroy, NgZone } from '@angular/core';
 
+interface PortfolioProject {
+  id: string;
+  title: string;
+  category: string;
+  image: string;
+  aspectRatio: 'portrait' | 'landscape' | 'square';
+  imageMode: 'cover' | 'contain';
+  alt: string;
+}
+
 @Component({
   selector: 'app-root',
   standalone: true,
@@ -12,6 +22,45 @@ export class AppComponent implements AfterViewInit, OnDestroy {
   private rafIds: number[] = [];
   backToTopVisible = false;
   openFaqIndex: number | null = null;
+
+  portfolioProjects: PortfolioProject[] = [
+    {
+      id: 'onaction',
+      title: 'OnAction',
+      category: 'מיתוג אישי',
+      image: 'assets/lovable-uploads/MyAssets/ContactMe.jpg',
+      aspectRatio: 'portrait',
+      imageMode: 'cover',
+      alt: 'OnAction - מיתוג אישי'
+    },
+    {
+      id: 'social-growth',
+      title: 'צמיחה ברשתות',
+      category: 'תוצאות',
+      image: 'assets/lovable-uploads/MyAssets/Results/IMG_7629.PNG',
+      aspectRatio: 'landscape',
+      imageMode: 'contain',
+      alt: '10K+ צפיות לסרטון'
+    },
+    {
+      id: 'engagement',
+      title: 'מעורבות גבוהה',
+      category: 'תוצאות',
+      image: 'assets/lovable-uploads/MyAssets/Results/IMG_7323.PNG',
+      aspectRatio: 'landscape',
+      imageMode: 'contain',
+      alt: 'מעורבות גבוהה ברשתות חברתיות'
+    },
+    {
+      id: 'growth',
+      title: 'צמיחה חודשית',
+      category: 'תוצאות',
+      image: 'assets/lovable-uploads/MyAssets/Results/IMG_3572.PNG',
+      aspectRatio: 'landscape',
+      imageMode: 'contain',
+      alt: 'צמיחה חודשית בעוקבים'
+    }
+  ];
 
   constructor(private zone: NgZone) {}
 
@@ -280,9 +329,7 @@ export class AppComponent implements AfterViewInit, OnDestroy {
             offset += velocity;
             velocity *= FRICTION;
           }
-          if (!isHovered) {
-            offset -= SPEED;
-          }
+          offset -= isHovered ? SPEED * 0.35 : SPEED;
           clampOffset();
           track.style.transform = `translateX(${offset}px)`;
         }
@@ -292,7 +339,10 @@ export class AppComponent implements AfterViewInit, OnDestroy {
 
       tick();
 
-      outer.addEventListener('mouseenter', () => { isHovered = true; }, { passive: true });
+      outer.addEventListener('mouseenter', () => {
+        isHovered = true;
+        isPaused = true;
+      }, { passive: true });
       outer.addEventListener('mouseleave', () => {
         isHovered = false;
         isPaused = false;
@@ -436,9 +486,7 @@ export class AppComponent implements AfterViewInit, OnDestroy {
             offset += velocity;
             velocity *= FRICTION;
           }
-          if (!isHovered) {
-            offset -= SPEED;
-          }
+          offset -= isHovered ? SPEED * 0.25 : SPEED;
           clampOffset();
           track.style.transform = `translateX(${offset}px)`;
         }
@@ -448,7 +496,10 @@ export class AppComponent implements AfterViewInit, OnDestroy {
 
       tick();
 
-      outer.addEventListener('mouseenter', () => { isHovered = true; }, { passive: true });
+      outer.addEventListener('mouseenter', () => {
+        isHovered = true;
+        isPaused = true;
+      }, { passive: true });
       outer.addEventListener('mouseleave', () => {
         isHovered = false;
         isPaused = false;
