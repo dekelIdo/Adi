@@ -337,7 +337,7 @@ img {
 
 .hero {
   position: relative;
-  min-height: clamp(640px, 94vh, 860px);
+  min-height: clamp(610px, 90vh, 820px);
   overflow: hidden;
   background: #0a0806;
 }
@@ -389,7 +389,7 @@ img {
   position: relative;
   z-index: 2;
   padding: 0 clamp(22px, 5.8vw, 32px);
-  margin-bottom: clamp(16px, 2.8vh, 24px);
+  margin-bottom: clamp(14px, 2.4vh, 20px);
 }
 
 .hero-signature {
@@ -421,7 +421,7 @@ img {
   position: relative;
   z-index: 2;
   padding: 0 clamp(22px, 5.8vw, 32px);
-  margin-bottom: clamp(34px, 5.2vh, 50px);
+  margin-bottom: clamp(28px, 4.4vh, 42px);
 }
 
 .hero-link {
@@ -557,13 +557,13 @@ img {
 // ─────── BRAND MARQUEE ─────────────────────────────────────────────────────────
 
 .brand-marquee-section {
-  padding: clamp(26px, 4.4vh, 42px) 0 clamp(32px, 5.2vh, 50px);
+  padding: clamp(22px, 3.8vh, 36px) 0 clamp(28px, 4.6vh, 44px);
   background: var(--bg);
 }
 
 .brand-marquee-intro {
   text-align: center;
-  margin-bottom: clamp(22px, 3.6vh, 34px);
+  margin-bottom: clamp(18px, 3vh, 28px);
 }
 
 .brand-marquee-eyebrow {
@@ -599,7 +599,7 @@ img {
 
 .brand-track-item {
   flex-shrink: 0;
-  width: clamp(102px, 14.2vw, 164px);
+  width: clamp(98px, 13.6vw, 156px);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -633,11 +633,11 @@ img {
 }
 
 .brand-track-item--large {
-  width: clamp(134px, 18.4vw, 215px);
+  width: clamp(128px, 17.6vw, 205px);
 }
 
 .brand-track-item--clalit {
-  width: clamp(138px, 19vw, 225px);
+  width: clamp(180px, 24vw, 290px);
 }
 
 @keyframes brandScroll {
@@ -661,7 +661,7 @@ img {
 
 .section {
   position: relative;
-  padding: clamp(18px, 3vh, 36px) 0;
+  padding: clamp(16px, 2.6vh, 32px) 0;
   isolation: isolate;
 }
 
@@ -2429,7 +2429,7 @@ img {
 
   // Hero mobile: Cinematic portrait composition for 375-430px
   .hero {
-    min-height: clamp(610px, 92vh, 770px);
+    min-height: clamp(590px, 88vh, 740px);
   }
 
   .hero-img {
@@ -2443,7 +2443,7 @@ img {
 
   .hero-identity {
     padding: 0 clamp(20px, 5.2vw, 24px);
-    margin-bottom: clamp(12px, 2.2vh, 18px);
+    margin-bottom: clamp(10px, 1.8vh, 15px);
   }
 
   .hero-signature {
@@ -2460,7 +2460,7 @@ img {
 
   .hero-quiet-cta {
     padding: 0 clamp(20px, 5.2vw, 24px);
-    margin-bottom: clamp(30px, 4.6vh, 42px);
+    margin-bottom: clamp(24px, 3.8vh, 36px);
   }
 
   .hero-link {
@@ -2486,15 +2486,15 @@ img {
   }
 
   .brand-track-item {
-    width: clamp(94px, 18.6vw, 124px);
+    width: clamp(82px, 16.4vw, 110px);
   }
 
   .brand-track-item--large {
-    width: clamp(120px, 23.8vw, 160px);
+    width: clamp(106px, 21.2vw, 142px);
   }
   
   .brand-track-item--clalit {
-    width: clamp(128px, 27vw, 172px);
+    width: clamp(145px, 32vw, 195px);
   }
 
   // Section intro split becomes vertical

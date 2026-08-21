@@ -339,7 +339,7 @@ export class AppComponent implements AfterViewInit, OnDestroy {
     track.style.animation = 'none';
 
     this.zone.runOutsideAngular(() => {
-      const SPEED = 0.35; // px per frame (ultra-calm, luxury pace)
+      const SPEED = 0.55; // px per frame (obvious movement, premium pace)
 
       let offset = 0;
 
