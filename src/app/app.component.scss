@@ -18,11 +18,12 @@
   --text-light: #9a9694;
 
   // ─── AGGRESSIVELY REDUCED Spacing Scale (editorial rhythm)
-  --space-xs: clamp(4px, 0.85vh, 7px);
-  --space-sm: clamp(8px, 1.5vh, 13px);
-  --space-md: clamp(15px, 2.7vh, 27px);
-  --space-lg: clamp(23px, 3.7vh, 38px);
-  --space-xl: clamp(32px, 5vh, 54px);
+  --space-xs: clamp(4px, 0.7vh, 6px);
+  --space-sm: clamp(8px, 1.3vh, 12px);
+  --space-md: clamp(14px, 2.4vh, 24px);
+  --space-lg: clamp(20px, 3.2vh, 32px);
+  --space-xl: clamp(28px, 4.4vh, 48px);
+  --brand-gap: clamp(28px, 5.6vw, 52px);
 
   // ─── Typography Scale
   --text-xs: clamp(0.72rem, 1.8vw, 0.82rem);
@@ -32,7 +33,7 @@
   --text-xl: clamp(1.68rem, 4vw, 2rem);
   --text-2xl: clamp(2.2rem, 5.5vw, 3rem);
   --text-3xl: clamp(2.8rem, 7vw, 4.2rem);
-  --text-4xl: clamp(3.6rem, 9vw, 6rem);
+  --text-4xl: clamp(2.6rem, 7.2vw, 4.2rem);
   --text-hero: clamp(4rem, 11vw, 8rem);
 
   // ─── Container System with PROPER MOBILE GUTTERS
@@ -232,23 +233,6 @@ img {
     height: 100%;
     object-fit: cover;
   }
-
-  // Subtle rotating glow effect
-  &::before {
-    content: "";
-    position: absolute;
-    inset: -50%;
-    background: conic-gradient(from 0deg, transparent 0%, rgba(187, 221, 250, 0.3) 40%, transparent 80%);
-    opacity: calc(0.3 + var(--scrolled) * 0.5);
-    animation: logoGlow 6s linear infinite;
-    mix-blend-mode: overlay;
-  }
-}
-
-@keyframes logoGlow {
-  to {
-    transform: rotate(360deg);
-  }
 }
 
 .header-cta {
@@ -337,7 +321,7 @@ img {
 
 .hero {
   position: relative;
-  min-height: clamp(610px, 90vh, 820px);
+  min-height: clamp(580px, 86svh, 780px);
   overflow: hidden;
   background: #0a0806;
 }
@@ -369,8 +353,8 @@ img {
     bottom: 0;
     left: 0;
     right: 0;
-    height: 45%;
-    background: linear-gradient(to top, rgba(10, 8, 6, 0.96), rgba(10, 8, 6, 0.76) 48%, transparent);
+    height: 40%;
+    background: linear-gradient(to top, rgba(10, 8, 6, 0.92), rgba(10, 8, 6, 0.58) 55%, transparent);
     pointer-events: none;
   }
 }
@@ -379,8 +363,8 @@ img {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  object-position: 50% 28%;
-  filter: brightness(0.87) saturate(1.06) contrast(1.04);
+  object-position: 50% 24%;
+  filter: brightness(0.9) saturate(1.04) contrast(1.03);
 }
 
 // ────── Identity: Editorial typography in negative space ──────
@@ -388,45 +372,31 @@ img {
 .hero-identity {
   position: relative;
   z-index: 2;
-  padding: 0 clamp(22px, 5.8vw, 32px);
-  margin-bottom: clamp(14px, 2.4vh, 20px);
+  padding: 0 clamp(20px, 5.4vw, 24px);
+  margin-bottom: clamp(12px, 2vh, 18px);
 }
 
 .hero-signature {
   font-family: "Assistant", Arial, sans-serif;
-  font-size: clamp(0.7rem, 1.9vw, 0.82rem);
+  font-size: clamp(0.68rem, 1.8vw, 0.8rem);
   font-weight: 500;
-  letter-spacing: 0.18em;
+  letter-spacing: 0.22em;
   text-transform: uppercase;
   color: var(--brand-accent);
-  opacity: 0.88;
-  margin-bottom: 10px;
-  position: relative;
-  padding-bottom: 8px;
-  
-  &::after {
-    content: "";
-    position: absolute;
-    bottom: 0;
-    right: 0;
-    width: 32px;
-    height: 1px;
-    background: linear-gradient(to left, var(--brand-accent), transparent);
-    opacity: 0.4;
-  }
+  opacity: 0.9;
+  margin-bottom: 8px;
 }
 
 .hero-essence {
   font-family: "Assistant", Arial, sans-serif;
-  font-size: clamp(2.4rem, 7vw, 3.7rem);
-  font-weight: 400;
-  line-height: 1.14;
-  letter-spacing: -0.028em;
-  color: rgba(255, 255, 255, 0.97);
+  font-size: clamp(2.2rem, 6.6vw, 3.4rem);
+  font-weight: 300;
+  line-height: 1.18;
+  letter-spacing: -0.02em;
+  color: rgba(255, 255, 255, 0.96);
   text-wrap: balance;
-  max-width: 13ch;
-  
-  text-shadow: 0 2px 12px rgba(0, 0, 0, 0.22), 0 1px 5px rgba(0, 0, 0, 0.16);
+  max-width: 12ch;
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.18);
 }
 
 // ────── Quiet CTA: Editorial link, not button ──────
@@ -434,60 +404,51 @@ img {
 .hero-quiet-cta {
   position: relative;
   z-index: 2;
-  padding: 0 clamp(22px, 5.8vw, 32px);
-  margin-bottom: clamp(28px, 4.4vh, 42px);
+  padding: 0 clamp(20px, 5.4vw, 24px);
+  margin-bottom: clamp(24px, 3.8vh, 36px);
 }
 
 .hero-link {
   display: inline-flex;
   align-items: center;
   font-family: "Assistant", Arial, sans-serif;
-  font-size: clamp(0.93rem, 2.4vw, 1.05rem);
-  font-weight: 500;
-  color: rgba(255, 255, 255, 0.9);
+  font-size: clamp(0.88rem, 2.2vw, 0.98rem);
+  font-weight: 400;
+  color: rgba(255, 255, 255, 0.78);
   text-decoration: none;
-  border-bottom: 1px solid rgba(187, 221, 250, 0.28);
+  border-bottom: 1px solid rgba(187, 221, 250, 0.32);
   padding-bottom: 2px;
-  transition: all 300ms var(--ease-smooth);
+  transition: color 280ms var(--ease-smooth), border-color 280ms var(--ease-smooth);
   
   &:hover {
-    color: rgba(255, 255, 255, 1);
+    color: rgba(255, 255, 255, 0.96);
     border-bottom-color: var(--brand-accent);
-    transform: translateX(-2px);
   }
 }
-
-// ────── Continuation: Subtle scroll cue ──────
 
 .hero-continuation {
   position: absolute;
   bottom: 0;
   left: 50%;
   transform: translateX(-50%);
-  width: 2px;
-  height: 32px;
-  background: linear-gradient(to bottom, transparent, var(--brand-accent) 40%, var(--brand-accent) 60%, transparent);
-  opacity: 0.5;
+  width: 1px;
+  height: 28px;
+  background: linear-gradient(to bottom, transparent, var(--brand-accent), transparent);
+  opacity: 0.42;
   z-index: 3;
-  animation: continuationPulse 3s ease-in-out infinite;
+  animation: continuationPulse 3.2s ease-in-out infinite;
 }
 
 @keyframes continuationPulse {
-  0%, 100% { 
-    opacity: 0.3;
-    transform: translateX(-50%) translateY(0);
-  }
-  50% { 
-    opacity: 0.7;
-    transform: translateX(-50%) translateY(4px);
-  }
+  0%, 100% { opacity: 0.22; }
+  50% { opacity: 0.55; }
 }
 
 // ────── Desktop: Asymmetric editorial layout ──────
 
 @media (min-width: 1025px) {
   .hero {
-    min-height: clamp(700px, 88vh, 900px);
+    min-height: clamp(680px, 86vh, 860px);
   }
 
   .hero-campaign {
@@ -498,40 +459,48 @@ img {
   }
 
   .hero-portrait-full {
-    width: 56%;
+    width: 58%;
     right: 0;
     left: auto;
   }
 
+  .hero-portrait-full::after {
+    height: 28%;
+    background: linear-gradient(to top, rgba(10, 8, 6, 0.28), transparent);
+  }
+
   .hero-img {
-    object-position: 52% 30%;
-    filter: brightness(0.88) saturate(1.05) contrast(1.03);
+    object-position: 54% 22%;
+    filter: brightness(0.92) saturate(1.03) contrast(1.02);
   }
 
   .hero-identity {
-    max-width: 580px;
+    max-width: min(480px, 38%);
+    margin-inline-start: auto;
     padding: 0;
-    margin-bottom: clamp(20px, 3.6vh, 32px);
+    margin-bottom: clamp(16px, 2.8vh, 24px);
   }
 
   .hero-signature {
-    font-size: clamp(0.78rem, 1.4vw, 0.9rem);
-    margin-bottom: 11px;
+    font-size: clamp(0.76rem, 1.2vw, 0.86rem);
+    margin-bottom: 10px;
   }
 
   .hero-essence {
-    font-size: clamp(2.9rem, 5.4vw, 4.6rem);
-    line-height: 1.11;
-    max-width: 15ch;
+    font-size: clamp(2.6rem, 4.6vw, 4rem);
+    line-height: 1.14;
+    max-width: 11ch;
   }
 
   .hero-quiet-cta {
+    max-width: min(480px, 38%);
+    margin-inline-start: auto;
     padding: 0;
-    margin-bottom: clamp(44px, 6.4vh, 64px);
+    margin-bottom: clamp(40px, 5.6vh, 56px);
   }
 
   .hero-link {
-    font-size: clamp(1.02rem, 1.8vw, 1.14rem);
+    font-size: 1rem;
   }
 }
 
@@ -539,26 +508,34 @@ img {
 
 .statement-strip {
   position: relative;
-  padding: clamp(6px, 1.2vh, 10px) 0;
-  background: linear-gradient(135deg, rgba(10, 8, 6, 0.98), rgba(6, 5, 4, 0.99));
-  border-top: 1px solid rgba(196, 217, 240, 0.055);
-  border-bottom: 1px solid rgba(196, 217, 240, 0.055);
+  padding: clamp(6px, 1vh, 8px) 0;
+  background: #0a0806;
   overflow: hidden;
+  direction: ltr;
 }
 
 .statement-track {
   display: flex;
-  gap: 26px;
+  width: max-content;
+  animation: marquee 36s linear infinite;
+}
+
+.statement-set {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  padding-inline-end: 24px;
+  flex-shrink: 0;
   white-space: nowrap;
-  animation: marquee 44s linear infinite;
 }
 
 .s-word {
-  font-size: clamp(0.88rem, 2vw, 1rem);
-  font-weight: 500;
+  font-size: clamp(0.84rem, 1.8vw, 0.96rem);
+  font-weight: 400;
   font-style: italic;
-  color: rgba(255, 255, 255, 0.76);
-  letter-spacing: 0.012em;
+  color: rgba(255, 255, 255, 0.72);
+  letter-spacing: 0.02em;
+  white-space: nowrap;
 }
 
 .s-sep {
@@ -578,13 +555,13 @@ img {
 // ─────── BRAND MARQUEE ─────────────────────────────────────────────────────────
 
 .brand-marquee-section {
-  padding: clamp(18px, 3.2vh, 30px) 0 clamp(24px, 4vh, 38px);
+  padding: clamp(16px, 2.8vh, 28px) 0 clamp(20px, 3.4vh, 32px);
   background: var(--bg);
 }
 
 .brand-marquee-intro {
   text-align: center;
-  margin-bottom: clamp(16px, 2.6vh, 24px);
+  margin-bottom: clamp(14px, 2.2vh, 22px);
 }
 
 .brand-marquee-eyebrow {
@@ -592,88 +569,98 @@ img {
   font-size: clamp(0.68rem, 1.6vw, 0.76rem);
   font-weight: 500;
   color: var(--text-light);
-  letter-spacing: 0.12em;
+  letter-spacing: 0.14em;
   text-transform: uppercase;
-  margin-bottom: 8px;
+  margin-bottom: 6px;
 }
 
 .brand-marquee-title {
   font-family: "Assistant", Arial, sans-serif;
-  font-size: clamp(1.6rem, 3.8vw, 2.4rem);
-  font-weight: 500;
-  line-height: 1.08;
-  letter-spacing: -0.02em;
+  font-size: clamp(1.45rem, 3.4vw, 2.1rem);
+  font-weight: 400;
+  line-height: 1.12;
+  letter-spacing: -0.018em;
   color: var(--text);
-  max-width: 24ch;
+  max-width: 22ch;
   margin: 0 auto;
 }
 
 .brand-track-wrap {
   overflow: hidden;
   width: 100%;
+  direction: ltr;
 }
 
 .brand-track {
   display: flex;
-  gap: clamp(32px, 6.4vw, 64px);
   width: max-content;
-  animation: brandScroll 60s linear infinite;
-  
+  will-change: transform;
+  animation: brandScroll 28s linear infinite;
+
   @media (prefers-reduced-motion: reduce) {
     animation: none;
   }
 }
 
+.brand-track-set {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+  gap: var(--brand-gap);
+  padding-inline-end: var(--brand-gap);
+}
+
 .brand-track-item {
   flex-shrink: 0;
-  width: clamp(88px, 12.4vw, 142px);
+  width: clamp(92px, 12.8vw, 148px);
+  height: 56px;
   display: flex;
   align-items: center;
   justify-content: center;
-  filter: grayscale(1) opacity(0.48);
-  transition: all 340ms var(--ease-smooth);
+  filter: grayscale(1) opacity(0.52);
+  transition: filter 340ms var(--ease-smooth);
   text-decoration: none;
   cursor: pointer;
   outline-offset: 3px;
 
-  &:hover {
-    filter: grayscale(0) opacity(1);
-    transform: translateY(-1px) scale(1.02);
-  }
-  
+  &:hover,
   &:focus-visible {
     filter: grayscale(0) opacity(1);
+  }
+
+  &:focus-visible {
     outline: 2px solid var(--brand-accent);
     border-radius: var(--r-sm);
-  }
-  
-  &:active {
-    transform: translateY(0) scale(1);
   }
 
   img {
     width: 100%;
     height: auto;
+    max-height: 48px;
     object-fit: contain;
     pointer-events: none;
   }
 }
 
 .brand-track-item--large {
-  width: clamp(116px, 16.2vw, 186px);
+  width: clamp(122px, 16.8vw, 196px);
+
+  img {
+    max-height: 56px;
+  }
 }
 
 .brand-track-item--clalit {
-  width: clamp(210px, 28vw, 340px);
+  width: clamp(168px, 22vw, 260px);
+
+  img {
+    max-height: 42px;
+  }
 }
 
 @keyframes brandScroll {
-  0% {
-    transform: translateX(0);
-  }
-  100% {
-    transform: translateX(-50%);
-  }
+  from { transform: translate3d(0, 0, 0); }
+  to { transform: translate3d(-50%, 0, 0); }
 }
 
 // ─────── CONTAINER SYSTEM ──────────────────────────────────────────────────────
@@ -688,7 +675,7 @@ img {
 
 .section {
   position: relative;
-  padding: clamp(16px, 2.6vh, 32px) 0;
+  padding: clamp(16px, 2.4vh, 28px) 0;
   isolation: isolate;
 }
 
@@ -745,12 +732,12 @@ img {
 .section-title {
   font-family: "Assistant", Arial, sans-serif;
   font-size: var(--text-4xl);
-  font-weight: 500;
-  line-height: 1.06;
-  letter-spacing: -0.024em;
+  font-weight: 400;
+  line-height: 1.12;
+  letter-spacing: -0.018em;
   color: var(--text);
   margin-bottom: var(--space-xs);
-  max-width: 20ch;
+  max-width: 18ch;
 
   em {
     font-style: italic;
@@ -813,10 +800,11 @@ img {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  padding: 13px 30px;
+  min-height: 48px;
+  padding: 12px 28px;
   font-size: var(--text-base);
-  font-weight: 600;
-  border-radius: var(--r-lg);
+  font-weight: 500;
+  border-radius: var(--r-md);
   border: 1px solid transparent;
   cursor: pointer;
   transition: all 280ms var(--ease-smooth);
@@ -892,8 +880,8 @@ img {
   background: linear-gradient(145deg, var(--brand-accent), var(--brand-accent-dim));
   color: var(--text);
   border: none;
-  font-weight: 700;
-  min-height: 56px;
+  font-weight: 600;
+  min-height: 52px;
   box-shadow: var(--shadow-md), 0 0 26px rgba(187, 221, 250, 0.26);
 
   &:hover {
@@ -1433,7 +1421,7 @@ img {
 
 .process-row-title {
   font-size: var(--text-xl);
-  font-weight: 700;
+  font-weight: 500;
   color: var(--text);
   margin-bottom: 6px;
 }
@@ -2423,11 +2411,11 @@ img {
 @media (max-width: 1024px) {
   :host {
     // MOBILE: Tight editorial rhythm
-    --space-xs: clamp(3px, 0.8vh, 6px);
-    --space-sm: clamp(7px, 1.3vh, 11px);
-    --space-md: clamp(13px, 2vh, 22px);
-    --space-lg: clamp(20px, 3vh, 32px);
-    --space-xl: clamp(29px, 4.4vh, 46px);
+    --space-xs: clamp(4px, 0.7vh, 6px);
+    --space-sm: clamp(8px, 1.2vh, 12px);
+    --space-md: clamp(12px, 1.8vh, 20px);
+    --space-lg: clamp(18px, 2.8vh, 28px);
+    --space-xl: clamp(24px, 3.8vh, 40px);
 
     --container-padding: var(--page-gutter-mobile);
   }
@@ -2439,7 +2427,7 @@ img {
   }
 
   .header-inner {
-    min-height: 58px;
+    min-height: 52px;
     padding: 0 16px;
   }
 
@@ -2456,52 +2444,47 @@ img {
 
   // Hero mobile: Cinematic portrait composition for 375-430px
   .hero {
-    min-height: clamp(590px, 88vh, 740px);
+    min-height: clamp(560px, 84svh, 700px);
   }
 
   .hero-img {
-    object-position: 48% 22%;
-    filter: brightness(0.83) saturate(1.09) contrast(1.05);
+    object-position: 47% 18%;
+    filter: brightness(0.86) saturate(1.06) contrast(1.04);
   }
 
   .hero-portrait-full::after {
-    height: 44%;
+    height: 42%;
   }
 
   .hero-identity {
     padding: 0 clamp(20px, 5.2vw, 24px);
-    margin-bottom: clamp(10px, 1.8vh, 15px);
+    margin-bottom: clamp(8px, 1.5vh, 12px);
   }
 
   .hero-signature {
-    font-size: clamp(0.66rem, 1.8vw, 0.74rem);
-    margin-bottom: 8px;
-    padding-bottom: 7px;
+    font-size: clamp(0.64rem, 1.7vw, 0.72rem);
+    margin-bottom: 6px;
     letter-spacing: 0.2em;
-    
-    &::after {
-      width: 28px;
-    }
   }
 
   .hero-essence {
-    font-size: clamp(2.15rem, 7.8vw, 2.85rem);
-    line-height: 1.15;
+    font-size: clamp(2.05rem, 7.4vw, 2.7rem);
+    line-height: 1.18;
     max-width: 11ch;
   }
 
   .hero-quiet-cta {
     padding: 0 clamp(20px, 5.2vw, 24px);
-    margin-bottom: clamp(24px, 3.8vh, 36px);
+    margin-bottom: clamp(22px, 3.4vh, 32px);
   }
 
   .hero-link {
-    font-size: clamp(0.9rem, 2.3vw, 1rem);
+    font-size: 0.9rem;
   }
 
   // Statement strip
   .statement-strip {
-    padding: var(--space-sm) 0;
+    padding: 6px 0;
   }
 
   .s-word {
@@ -2510,23 +2493,30 @@ img {
 
   // Brand marquee
   .brand-marquee-section {
-    padding: clamp(20px, 3.4vh, 32px) 0 clamp(24px, 4vh, 36px);
+    padding: clamp(16px, 2.8vh, 24px) 0 clamp(20px, 3.2vh, 28px);
   }
-  
+
   .brand-marquee-title {
-    font-size: clamp(1.5rem, 4.2vw, 2rem);
+    font-size: clamp(1.35rem, 3.8vw, 1.8rem);
   }
 
   .brand-track-item {
-    width: clamp(72px, 14.4vw, 96px);
+    width: clamp(78px, 15.6vw, 102px);
+    height: 48px;
+
+    img { max-height: 40px; }
   }
 
   .brand-track-item--large {
-    width: clamp(94px, 18.8vw, 125px);
+    width: clamp(100px, 20vw, 132px);
+
+    img { max-height: 46px; }
   }
-  
+
   .brand-track-item--clalit {
-    width: clamp(168px, 37vw, 224px);
+    width: clamp(148px, 36vw, 200px);
+
+    img { max-height: 36px; }
   }
 
   // Section intro split becomes vertical
@@ -2651,19 +2641,19 @@ img {
 
 @media (max-width: 374px) {
   :host {
-    --space-xs: 8px;
-    --space-sm: 16px;
-    --space-md: 28px;
-    --space-lg: 40px;
-    --space-xl: 56px;
+    --space-xs: 4px;
+    --space-sm: 8px;
+    --space-md: 16px;
+    --space-lg: 24px;
+    --space-xl: 32px;
   }
 
-  .hero-title {
-    font-size: clamp(2.4rem, 10vw, 3.2rem);
+  .hero-essence {
+    font-size: 1.9rem;
   }
 
   .section-title {
-    font-size: clamp(2rem, 7vw, 2.8rem);
+    font-size: clamp(1.8rem, 8vw, 2.4rem);
   }
 }
 
@@ -2677,7 +2667,7 @@ img {
   }
 
   .hero {
-    min-height: max(720px, 85vh);
+    min-height: clamp(700px, 84vh, 840px);
   }
 
   .portfolio-reel-track,

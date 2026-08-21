@@ -45,18 +45,22 @@
 
     <div class="statement-strip" aria-hidden="true">
       <div class="statement-track">
-        <span class="s-word">אסטרטגיה</span><span class="s-sep">◆</span>
-        <span class="s-word">יצירת תוכן</span><span class="s-sep">◆</span>
-        <span class="s-word">ניהול סושיאל</span><span class="s-sep">◆</span>
-        <span class="s-word">צמיחה אורגנית</span><span class="s-sep">◆</span>
-        <span class="s-word">מיתוג דיגיטלי</span><span class="s-sep">◆</span>
-        <span class="s-word">רילס</span><span class="s-sep">◆</span>
-        <span class="s-word">אסטרטגיה</span><span class="s-sep">◆</span>
-        <span class="s-word">יצירת תוכן</span><span class="s-sep">◆</span>
-        <span class="s-word">ניהול סושיאל</span><span class="s-sep">◆</span>
-        <span class="s-word">צמיחה אורגנית</span><span class="s-sep">◆</span>
-        <span class="s-word">מיתוג דיגיטלי</span><span class="s-sep">◆</span>
-        <span class="s-word">רילס</span><span class="s-sep">◆</span>
+        <div class="statement-set">
+          <span class="s-word">אסטרטגיה</span><span class="s-sep">◆</span>
+          <span class="s-word">יצירת תוכן</span><span class="s-sep">◆</span>
+          <span class="s-word">ניהול סושיאל</span><span class="s-sep">◆</span>
+          <span class="s-word">צמיחה אורגנית</span><span class="s-sep">◆</span>
+          <span class="s-word">מיתוג דיגיטלי</span><span class="s-sep">◆</span>
+          <span class="s-word">רילס</span><span class="s-sep">◆</span>
+        </div>
+        <div class="statement-set">
+          <span class="s-word">אסטרטגיה</span><span class="s-sep">◆</span>
+          <span class="s-word">יצירת תוכן</span><span class="s-sep">◆</span>
+          <span class="s-word">ניהול סושיאל</span><span class="s-sep">◆</span>
+          <span class="s-word">צמיחה אורגנית</span><span class="s-sep">◆</span>
+          <span class="s-word">מיתוג דיגיטלי</span><span class="s-sep">◆</span>
+          <span class="s-word">רילס</span><span class="s-sep">◆</span>
+        </div>
       </div>
     </div>
 
@@ -69,32 +73,32 @@
       </div>
       <div class="brand-track-wrap">
         <div class="brand-track">
-          <ng-container *ngFor="let brand of brandLogos">
-            <a 
+          <div class="brand-track-set">
+            <a
+              *ngFor="let brand of brandLogos"
               class="brand-track-item"
               [class.brand-track-item--clalit]="brand.scale === 'clalit'"
               [class.brand-track-item--large]="brand.scale === 'large'"
-              [href]="brand.href" 
-              target="_blank" 
+              [href]="brand.href"
+              target="_blank"
               rel="noopener noreferrer"
               [attr.aria-label]="brand.name">
               <img [src]="brand.logo" [alt]="brand.name" />
             </a>
-          </ng-container>
-          <ng-container *ngFor="let brand of brandLogos">
-            <a 
+          </div>
+          <div class="brand-track-set" aria-hidden="true">
+            <a
+              *ngFor="let brand of brandLogos"
               class="brand-track-item"
               [class.brand-track-item--clalit]="brand.scale === 'clalit'"
               [class.brand-track-item--large]="brand.scale === 'large'"
-              [href]="brand.href" 
-              target="_blank" 
+              [href]="brand.href"
+              target="_blank"
               rel="noopener noreferrer"
-              [attr.aria-label]="brand.name"
-              aria-hidden="true"
               tabindex="-1">
               <img [src]="brand.logo" alt="" />
             </a>
-          </ng-container>
+          </div>
         </div>
       </div>
     </section>
