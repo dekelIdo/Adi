@@ -379,8 +379,8 @@ img {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  object-position: 53% 16%;
-  filter: brightness(0.9) saturate(1.05) contrast(1.02);
+  object-position: 52% 22%;
+  filter: brightness(0.88) saturate(1.06) contrast(1.03);
 }
 
 // ────── Identity: Editorial typography in negative space ──────
@@ -483,8 +483,8 @@ img {
   }
 
   .hero-img {
-    object-position: 55% 18%;
-    filter: brightness(0.91) saturate(1.04) contrast(1.02);
+    object-position: 54% 24%;
+    filter: brightness(0.89) saturate(1.05) contrast(1.03);
   }
 
   .hero-identity {
@@ -518,31 +518,31 @@ img {
 
 .statement-strip {
   position: relative;
-  padding: clamp(7px, 1.4vh, 11px) 0;
+  padding: clamp(6px, 1.2vh, 10px) 0;
   background: linear-gradient(135deg, rgba(10, 8, 6, 0.98), rgba(6, 5, 4, 0.99));
-  border-top: 1px solid rgba(196, 217, 240, 0.06);
-  border-bottom: 1px solid rgba(196, 217, 240, 0.06);
+  border-top: 1px solid rgba(196, 217, 240, 0.055);
+  border-bottom: 1px solid rgba(196, 217, 240, 0.055);
   overflow: hidden;
 }
 
 .statement-track {
   display: flex;
-  gap: 28px;
+  gap: 26px;
   white-space: nowrap;
-  animation: marquee 42s linear infinite;
+  animation: marquee 44s linear infinite;
 }
 
 .s-word {
-  font-size: var(--text-base);
+  font-size: clamp(0.88rem, 2vw, 1rem);
   font-weight: 500;
   font-style: italic;
-  color: rgba(255, 255, 255, 0.78);
-  letter-spacing: 0.015em;
+  color: rgba(255, 255, 255, 0.76);
+  letter-spacing: 0.012em;
 }
 
 .s-sep {
   color: var(--brand-accent);
-  opacity: 0.42;
+  opacity: 0.4;
 }
 
 @keyframes marquee {
@@ -557,18 +557,34 @@ img {
 // ─────── BRAND MARQUEE ─────────────────────────────────────────────────────────
 
 .brand-marquee-section {
-  padding: clamp(30px, 5vh, 48px) 0;
+  padding: clamp(26px, 4.4vh, 42px) 0 clamp(32px, 5.2vh, 50px);
   background: var(--bg);
 }
 
-.brand-marquee-label {
+.brand-marquee-intro {
   text-align: center;
-  font-size: clamp(0.7rem, 1.7vw, 0.8rem);
+  margin-bottom: clamp(22px, 3.6vh, 34px);
+}
+
+.brand-marquee-eyebrow {
+  display: block;
+  font-size: clamp(0.68rem, 1.6vw, 0.76rem);
   font-weight: 500;
   color: var(--text-light);
   letter-spacing: 0.12em;
   text-transform: uppercase;
-  margin-bottom: clamp(20px, 3.2vh, 32px);
+  margin-bottom: 8px;
+}
+
+.brand-marquee-title {
+  font-family: "Assistant", Arial, sans-serif;
+  font-size: clamp(1.6rem, 3.8vw, 2.4rem);
+  font-weight: 500;
+  line-height: 1.08;
+  letter-spacing: -0.02em;
+  color: var(--text);
+  max-width: 24ch;
+  margin: 0 auto;
 }
 
 .brand-track-wrap {
@@ -577,7 +593,7 @@ img {
 
 .brand-track {
   display: flex;
-  gap: clamp(40px, 8vw, 80px);
+  gap: clamp(42px, 8.2vw, 82px);
   animation: brandScroll 30s linear infinite;
 }
 
@@ -618,6 +634,10 @@ img {
 
 .brand-track-item--large {
   width: clamp(134px, 18.4vw, 215px);
+}
+
+.brand-track-item--clalit {
+  width: clamp(138px, 19vw, 225px);
 }
 
 @keyframes brandScroll {
@@ -2413,8 +2433,8 @@ img {
   }
 
   .hero-img {
-    object-position: 50% 12%;
-    filter: brightness(0.86) saturate(1.07) contrast(1.04);
+    object-position: 49% 18%;
+    filter: brightness(0.84) saturate(1.08) contrast(1.04);
   }
 
   .hero-portrait-full::after {
@@ -2458,15 +2478,23 @@ img {
 
   // Brand marquee
   .brand-marquee-section {
-    padding: var(--space-md) 0;
+    padding: clamp(24px, 4vh, 36px) 0 clamp(28px, 4.6vh, 42px);
+  }
+  
+  .brand-marquee-title {
+    font-size: clamp(1.5rem, 4.2vw, 2rem);
   }
 
   .brand-track-item {
-    width: clamp(92px, 18.2vw, 122px);
+    width: clamp(94px, 18.6vw, 124px);
   }
 
   .brand-track-item--large {
-    width: clamp(118px, 23.4vw, 158px);
+    width: clamp(120px, 23.8vw, 160px);
+  }
+  
+  .brand-track-item--clalit {
+    width: clamp(128px, 27vw, 172px);
   }
 
   // Section intro split becomes vertical
