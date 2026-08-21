@@ -67,18 +67,34 @@
           <h2 class="brand-marquee-title">מותגים שבחרו לעבוד איתי</h2>
         </div>
       </div>
-      <div class="brand-track-wrap brand-track-wrap--desktop">
+      <div class="brand-track-wrap">
         <div class="brand-track">
-          <a class="brand-track-item brand-track-item--clalit" href="https://www.clalit.co.il" target="_blank" rel="noopener noreferrer"><img src="assets/brand-logos/clalit-active.svg" alt="Clalit Active+" /></a>
-          <a class="brand-track-item" href="#" target="_blank" rel="noopener noreferrer"><img src="assets/lovable-uploads/client-allen-carr.png" alt="Allen Carr" /></a>
-          <a class="brand-track-item brand-track-item--large" href="#" target="_blank" rel="noopener noreferrer"><img src="assets/lovable-uploads/client-movement.png" alt="Movement" /></a>
-          <a class="brand-track-item" href="#" target="_blank" rel="noopener noreferrer"><img src="assets/lovable-uploads/client-moon-productions.png" alt="Moon Productions" /></a>
-          <a class="brand-track-item" href="https://www.ichilov.org.il" target="_blank" rel="noopener noreferrer"><img src="assets/brand-logos/ichilov-well.svg" alt="Ichilov Well" /></a>
-          <a class="brand-track-item brand-track-item--clalit" href="https://www.clalit.co.il" target="_blank" rel="noopener noreferrer" aria-hidden="true" tabindex="-1"><img src="assets/brand-logos/clalit-active.svg" alt="" /></a>
-          <a class="brand-track-item" href="#" target="_blank" rel="noopener noreferrer" aria-hidden="true" tabindex="-1"><img src="assets/lovable-uploads/client-allen-carr.png" alt="" /></a>
-          <a class="brand-track-item brand-track-item--large" href="#" target="_blank" rel="noopener noreferrer" aria-hidden="true" tabindex="-1"><img src="assets/lovable-uploads/client-movement.png" alt="" /></a>
-          <a class="brand-track-item" href="#" target="_blank" rel="noopener noreferrer" aria-hidden="true" tabindex="-1"><img src="assets/lovable-uploads/client-moon-productions.png" alt="" /></a>
-          <a class="brand-track-item" href="https://www.ichilov.org.il" target="_blank" rel="noopener noreferrer" aria-hidden="true" tabindex="-1"><img src="assets/brand-logos/ichilov-well.svg" alt="" /></a>
+          <ng-container *ngFor="let brand of brandLogos">
+            <a 
+              class="brand-track-item"
+              [class.brand-track-item--clalit]="brand.scale === 'clalit'"
+              [class.brand-track-item--large]="brand.scale === 'large'"
+              [href]="brand.href" 
+              target="_blank" 
+              rel="noopener noreferrer"
+              [attr.aria-label]="brand.name">
+              <img [src]="brand.logo" [alt]="brand.name" />
+            </a>
+          </ng-container>
+          <ng-container *ngFor="let brand of brandLogos">
+            <a 
+              class="brand-track-item"
+              [class.brand-track-item--clalit]="brand.scale === 'clalit'"
+              [class.brand-track-item--large]="brand.scale === 'large'"
+              [href]="brand.href" 
+              target="_blank" 
+              rel="noopener noreferrer"
+              [attr.aria-label]="brand.name"
+              aria-hidden="true"
+              tabindex="-1">
+              <img [src]="brand.logo" alt="" />
+            </a>
+          </ng-container>
         </div>
       </div>
     </section>

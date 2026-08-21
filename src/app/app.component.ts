@@ -1,4 +1,5 @@
 import { AfterViewInit, Component, OnDestroy, NgZone } from '@angular/core';
+import { CommonModule } from '@angular/common';
 
 interface PortfolioProject {
   id: string;
@@ -10,9 +11,17 @@ interface PortfolioProject {
   alt: string;
 }
 
+interface BrandLogo {
+  name: string;
+  logo: string;
+  href: string;
+  scale?: 'clalit' | 'large' | 'default';
+}
+
 @Component({
   selector: 'app-root',
   standalone: true,
+  imports: [CommonModule],
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.scss']
 })
@@ -24,6 +33,14 @@ export class AppComponent implements AfterViewInit, OnDestroy {
   backToTopVisible = false;
   openFaqIndex: number | null = null;
   currentHeaderTheme: 'light' | 'dark' = 'dark'; // Start with dark for hero
+
+  brandLogos: BrandLogo[] = [
+    { name: 'Clalit Active+', logo: 'assets/brand-logos/clalit-active.svg', href: 'https://www.clalit.co.il', scale: 'clalit' },
+    { name: 'Allen Carr', logo: 'assets/lovable-uploads/client-allen-carr.png', href: '#', scale: 'default' },
+    { name: 'Movement', logo: 'assets/lovable-uploads/client-movement.png', href: '#', scale: 'large' },
+    { name: 'Moon Productions', logo: 'assets/lovable-uploads/client-moon-productions.png', href: '#', scale: 'default' },
+    { name: 'Ichilov Well', logo: 'assets/brand-logos/ichilov-well.svg', href: 'https://www.ichilov.org.il', scale: 'default' }
+  ];
 
   portfolioProjects: PortfolioProject[] = [
     {
@@ -79,7 +96,6 @@ export class AppComponent implements AfterViewInit, OnDestroy {
     this.initCursorGlow();
     this.initMagneticButtons();
     this.initCarouselDrag();
-    this.initBrandCarousel(); // NEW: Seamless infinite brand carousel
     this.initPortfolioReel();
     this.initResultsReel();
     this.initSectionProgress();
@@ -326,40 +342,6 @@ export class AppComponent implements AfterViewInit, OnDestroy {
         lastX = e.pageX;
         container.scrollLeft = scrollStart - delta;
       });
-    });
-  }
-
-  // ─── Brand carousel — seamless infinite loop ─────────────────────────────
-  // Pure JS rAF marquee: continuous movement, no visible seam, no pause
-  private initBrandCarousel(): void {
-    const track = document.querySelector<HTMLElement>('.brand-track');
-    if (!track) return;
-
-    // Remove CSS animation — JS handles everything
-    track.style.animation = 'none';
-
-    this.zone.runOutsideAngular(() => {
-      const SPEED = 0.42; // px per frame (slow, editorial, premium pace)
-
-      let offset = 0;
-
-      // Seamless loop: when we've scrolled one full set (-50% of track), reset
-      const clampOffset = () => {
-        const half = track.scrollWidth / 2;
-        if (-offset >= half) offset += half;
-        if (offset > 0) offset -= half;
-      };
-
-      const tick = () => {
-        offset -= SPEED;
-        clampOffset();
-        track.style.transform = `translateX(${offset}px)`;
-        track.style.willChange = 'transform';
-        const id = requestAnimationFrame(tick);
-        this.rafIds.push(id);
-      };
-
-      tick();
     });
   }
 

@@ -369,8 +369,8 @@ img {
     bottom: 0;
     left: 0;
     right: 0;
-    height: 42%;
-    background: linear-gradient(to top, rgba(10, 8, 6, 0.94), rgba(10, 8, 6, 0.72) 50%, transparent);
+    height: 45%;
+    background: linear-gradient(to top, rgba(10, 8, 6, 0.96), rgba(10, 8, 6, 0.76) 48%, transparent);
     pointer-events: none;
   }
 }
@@ -396,10 +396,24 @@ img {
   font-family: "Assistant", Arial, sans-serif;
   font-size: clamp(0.7rem, 1.9vw, 0.82rem);
   font-weight: 500;
-  letter-spacing: 0.16em;
+  letter-spacing: 0.18em;
   text-transform: uppercase;
-  color: rgba(187, 221, 250, 0.76);
-  margin-bottom: 9px;
+  color: var(--brand-accent);
+  opacity: 0.88;
+  margin-bottom: 10px;
+  position: relative;
+  padding-bottom: 8px;
+  
+  &::after {
+    content: "";
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    width: 32px;
+    height: 1px;
+    background: linear-gradient(to left, var(--brand-accent), transparent);
+    opacity: 0.4;
+  }
 }
 
 .hero-essence {
@@ -450,16 +464,23 @@ img {
   bottom: 0;
   left: 50%;
   transform: translateX(-50%);
-  width: 1px;
-  height: 26px;
-  background: linear-gradient(to bottom, transparent, rgba(187, 221, 250, 0.32), transparent);
+  width: 2px;
+  height: 32px;
+  background: linear-gradient(to bottom, transparent, var(--brand-accent) 40%, var(--brand-accent) 60%, transparent);
+  opacity: 0.5;
   z-index: 3;
-  animation: continuationPulse 2.6s ease-in-out infinite;
+  animation: continuationPulse 3s ease-in-out infinite;
 }
 
 @keyframes continuationPulse {
-  0%, 100% { opacity: 0.38; }
-  50% { opacity: 0.82; }
+  0%, 100% { 
+    opacity: 0.3;
+    transform: translateX(-50%) translateY(0);
+  }
+  50% { 
+    opacity: 0.7;
+    transform: translateX(-50%) translateY(4px);
+  }
 }
 
 // ────── Desktop: Asymmetric editorial layout ──────
@@ -589,12 +610,18 @@ img {
 
 .brand-track-wrap {
   overflow: hidden;
+  width: 100%;
 }
 
 .brand-track {
   display: flex;
   gap: clamp(32px, 6.4vw, 64px);
-  animation: brandScroll 30s linear infinite;
+  width: max-content;
+  animation: brandScroll 60s linear infinite;
+  
+  @media (prefers-reduced-motion: reduce) {
+    animation: none;
+  }
 }
 
 .brand-track-item {
@@ -2448,8 +2475,13 @@ img {
 
   .hero-signature {
     font-size: clamp(0.66rem, 1.8vw, 0.74rem);
-    margin-bottom: 7px;
-    letter-spacing: 0.19em;
+    margin-bottom: 8px;
+    padding-bottom: 7px;
+    letter-spacing: 0.2em;
+    
+    &::after {
+      width: 28px;
+    }
   }
 
   .hero-essence {
