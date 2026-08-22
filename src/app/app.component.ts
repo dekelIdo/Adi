@@ -152,7 +152,18 @@ export class AppComponent implements AfterViewInit, OnDestroy {
   }
 
   // ─── Header context-aware theme switcher ──────────────────────────────────────
-  // Dynamically switches header between light/dark based on section underneath
+  // The header must adopt the theme of whatever sits DIRECTLY BENEATH IT, so
+  // controls stay readable: light section -> dark controls, dark/photographic
+  // section -> light controls.
+  //
+  // This previously used an IntersectionObserver that fired for every section
+  // more than 30% visible and let the last callback win. At the top of a desktop
+  // viewport the dark hero AND the light brands band are both visible, so the
+  // brands band decided the theme and the header rendered dark-on-dark over the
+  // hero photograph — the CTA was effectively invisible on first paint.
+  //
+  // Reading the section that actually spans the header's own baseline is both
+  // simpler and exact, at any viewport height.
   private initHeaderTheme(): void {
     const header = document.querySelector<HTMLElement>('.site-header');
     if (!header) return;
@@ -160,28 +171,49 @@ export class AppComponent implements AfterViewInit, OnDestroy {
     const sections = Array.from(
       document.querySelectorAll<HTMLElement>('[data-header-theme]')
     );
-
     if (sections.length === 0) return;
 
-    this.headerThemeObserver = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting && entry.intersectionRatio > 0.3) {
-            const theme = (entry.target as HTMLElement).getAttribute('data-header-theme') as 'light' | 'dark';
-            if (theme && theme !== this.currentHeaderTheme) {
-              this.currentHeaderTheme = theme;
-              header.setAttribute('data-theme', theme);
-            }
-          }
-        });
-      },
-      {
-        threshold: [0.1, 0.3, 0.5],
-        rootMargin: '-80px 0px 0px 0px' // Offset by header height
-      }
-    );
+    const apply = () => {
+      // Probe just below the header so the theme reflects what it overlaps.
+      const probeY = header.getBoundingClientRect().bottom - 1;
 
-    sections.forEach((section) => this.headerThemeObserver!.observe(section));
+      let theme: 'light' | 'dark' | null = null;
+      for (const section of sections) {
+        const rect = section.getBoundingClientRect();
+        if (rect.top <= probeY && rect.bottom > probeY) {
+          theme = section.getAttribute('data-header-theme') as 'light' | 'dark';
+        }
+      }
+      // Above the first section (rubber-band scroll) keep the hero's theme.
+      if (!theme) {
+        theme = (sections[0].getAttribute('data-header-theme') as 'light' | 'dark') ?? 'dark';
+      }
+
+      if (theme !== this.currentHeaderTheme) {
+        this.currentHeaderTheme = theme;
+      }
+      // Always write it: on first paint the attribute does not exist yet, so a
+      // change-only guard would leave the header unthemed.
+      header.setAttribute('data-theme', theme);
+    };
+
+    this.zone.runOutsideAngular(() => {
+      let ticking = false;
+      const onScroll = () => {
+        if (ticking) return;
+        ticking = true;
+        const id = requestAnimationFrame(() => {
+          apply();
+          ticking = false;
+        });
+        this.rafIds.push(id);
+      };
+
+      apply();
+      this.scrollListeners.push(onScroll);
+      window.addEventListener('scroll', onScroll, { passive: true });
+      window.addEventListener('resize', onScroll, { passive: true });
+    });
   }
 
   // ─── Back to top ───────────────────────────────────────────────────────────
@@ -644,6 +676,9 @@ export class AppComponent implements AfterViewInit, OnDestroy {
     this.observer?.disconnect();
     this.headerThemeObserver?.disconnect();
     this.rafIds.forEach((id) => cancelAnimationFrame(id));
-    this.scrollListeners.forEach((fn) => window.removeEventListener('scroll', fn));
+    this.scrollListeners.forEach((fn) => {
+      window.removeEventListener('scroll', fn);
+      window.removeEventListener('resize', fn);
+    });
   }
 }
