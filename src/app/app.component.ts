@@ -290,6 +290,30 @@ export class AppComponent implements AfterViewInit, OnDestroy {
     });
   }
 
+  // ═══════════════════════════════════════════════════════════════════════════
+  // SCROLLING SYSTEMS — THREE INDEPENDENT, NON-OVERLAPPING IMPLEMENTATIONS
+  // ═══════════════════════════════════════════════════════════════════════════
+  //
+  // 1. BRAND CAROUSEL (+ statement strip) — CSS ONLY. NOT MANAGED HERE.
+  //    Markup:  .brand-track / .brand-track-set (duplicated via *ngFor brandLogos)
+  //    Motion:  @keyframes brandScroll, translate3d(0 -> -50%), 28s linear infinite
+  //    Because both -set blocks render the identical brandLogos array, -50% lands
+  //    exactly one set along, so the loop is seamless with no visible reset.
+  //
+  //    DO NOT reintroduce a requestAnimationFrame driver for this carousel.
+  //    A previous rAF implementation produced the empty-carousel bug. The CSS
+  //    animation is continuous, works on mobile, needs no JS, and cannot render
+  //    an empty state. No querySelector in this file may target .brand-track*.
+  //
+  // 2. PORTFOLIO REEL  — rAF marquee. Owns ONLY .portfolio-reel-outer/-track.
+  // 3. RESULTS REEL    — rAF marquee. Owns ONLY .results-outer/.results-rail.
+  // 4. REVIEWS ROW     — native scrollLeft drag. Owns ONLY .reviews-outer.
+  //
+  // 2/3/4 have disjoint selector scopes and disjoint rAF loops; none observes or
+  // mutates another's DOM. Keep it that way — widen a selector and two loops will
+  // fight over the same transform.
+  // ═══════════════════════════════════════════════════════════════════════════
+
   // ─── Carousel drag-to-scroll with momentum ────────────────────────────────
   // Enables mouse-drag scrolling on desktop with smooth momentum decay.
   private initCarouselDrag(): void {

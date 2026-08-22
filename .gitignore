@@ -1,0 +1,28 @@
+# ── Dependencies ──────────────────────────────────────────────────────────────
+/node_modules/
+
+# ── Angular build output ──────────────────────────────────────────────────────
+# Production is built on the host (Render runs the build command), so compiled
+# output is not tracked. Source and intentional assets under src/ remain tracked.
+/dist/
+
+# ── Angular / TypeScript caches ───────────────────────────────────────────────
+/.angular/
+*.tsbuildinfo
+
+# ── Logs ──────────────────────────────────────────────────────────────────────
+npm-debug.log*
+yarn-error.log*
+*.log
+
+# ── Local environment ─────────────────────────────────────────────────────────
+.env
+.env.local
+.env.*.local
+
+# ── Editor / OS cruft ─────────────────────────────────────────────────────────
+.idea/
+.vscode/*
+!.vscode/extensions.json
+.DS_Store
+Thumbs.db

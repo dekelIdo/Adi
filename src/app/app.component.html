@@ -18,12 +18,23 @@
       <div class="hero-campaign">
         
         <div class="hero-portrait-full">
-          <img
-            src="assets/lovable-uploads/MyAssets/AdiArieli/avivozeri 404.jpg"
-            alt="עדי אריאלי"
-            fetchpriority="high"
-            class="hero-img"
-          />
+          <!-- Same frame, same 2806x4201 aspect ratio, same CSS crop.
+               Only the encoding changed: 5.2 MB JPEG -> 272 KB WebP (363 KB JPEG fallback). -->
+          <picture>
+            <source
+              srcset="assets/lovable-uploads/MyAssets/AdiArieli/hero-adi.webp"
+              type="image/webp"
+            />
+            <img
+              src="assets/lovable-uploads/MyAssets/AdiArieli/hero-adi.jpg"
+              alt="עדי אריאלי"
+              width="2806"
+              height="4201"
+              fetchpriority="high"
+              decoding="async"
+              class="hero-img"
+            />
+          </picture>
         </div>
 
         <div class="hero-identity">
@@ -342,7 +353,7 @@
         <!-- Asymmetric split header -->
         <div class="section-intro-split reveal">
           <div>
-            <h2 class="section-title section-title--wide">תוצאות<br>שמדברות<br>בעד עצמן</h2>
+            <h2 class="section-title section-title--wide">תוצאות שמדברות בעד עצמן</h2>
           </div>
           <div>
             <p class="section-lead">ביצועים אמיתיים מהשטח. מספרים שמגיעים מעבודה אמיתית עם לקוחות אמיתיים.</p>
@@ -526,7 +537,7 @@
       <div class="container">
         <div class="section-intro-split reveal">
           <div>
-            <h2 class="section-title section-title--short">מה אומרים<br>לקוחות</h2>
+            <h2 class="section-title section-title--short">מה אומרים לקוחות</h2>
           </div>
           <div>
             <p class="section-lead">חוות דעת אמיתיות מעסקים שעובדים איתי, ותוצאות שמדברות בעד עצמן.</p>
@@ -606,7 +617,7 @@
       <div class="container">
         <div class="section-intro-split reveal">
           <div>
-            <h2 class="section-title section-title--short">שאלות<br>נפוצות</h2>
+            <h2 class="section-title section-title--short">שאלות נפוצות</h2>
           </div>
           <div>
             <p class="section-lead">הכי שאלו, הכי ענינו. כל מה שרצית לדעת לפני שיוצאים לדרך.</p>
