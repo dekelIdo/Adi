@@ -572,15 +572,75 @@
       </div>
     </section>
 
+    <!-- ── SOCIAL CONTENT ──────────────────────────────────────────────────────
+         Renders only when real clips exist in socialVideos (currently empty, so
+         nothing is emitted). Poster-first: the <video> carries preload="none"
+         and no source is fetched until the visitor taps. -->
+    @if (socialVideos.length) {
+      <section id="social" class="section section-social" data-header-theme="light">
+        <div class="container">
+          <div class="social-grid">
+            @for (video of socialVideos; track video.id) {
+              <article class="social-item" [attr.data-ratio]="video.aspectRatio">
+                <div class="social-frame">
+                  <video
+                    class="social-video-el"
+                    [poster]="video.poster"
+                    [attr.aria-label]="video.alt"
+                    preload="none"
+                    muted
+                    playsinline
+                    loop
+                    #videoEl
+                    (click)="toggleVideo(video, videoEl)"
+                  >
+                    <source [src]="video.src" type="video/mp4" />
+                  </video>
+                  <button
+                    type="button"
+                    class="social-play"
+                    [class.is-playing]="playingVideoId === video.id"
+                    (click)="toggleVideo(video, videoEl)"
+                    [attr.aria-label]="video.title"
+                  >
+                    <span class="social-play-mark" aria-hidden="true"></span>
+                  </button>
+                </div>
+                <div class="social-meta">
+                  <h3 class="social-title">{{ video.title }}</h3>
+                  <a
+                    class="social-link"
+                    [href]="video.instagramUrl"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >Instagram</a>
+                </div>
+              </article>
+            }
+          </div>
+        </div>
+      </section>
+    }
+
     <section id="contact" class="section section-contact" data-header-theme="light">
       <div class="container">
         <div class="contact-layout">
           <figure class="contact-img reveal reveal-float">
-            <img
-              src="assets/lovable-uploads/MyAssets/ContactMe.jpg"
-              alt=""
-              loading="lazy"
-            />
+            <!-- Same frame and 4201x2806 aspect; 5.6 MB JPEG -> 373 KB WebP. -->
+            <picture>
+              <source
+                srcset="assets/lovable-uploads/MyAssets/contact-adi.webp"
+                type="image/webp"
+              />
+              <img
+                src="assets/lovable-uploads/MyAssets/contact-adi.jpg"
+                alt=""
+                width="4201"
+                height="2806"
+                loading="lazy"
+                decoding="async"
+              />
+            </picture>
           </figure>
           <div class="contact-main">
             <div class="contact-copy">

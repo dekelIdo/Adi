@@ -11,6 +11,31 @@ interface PortfolioProject {
   alt: string;
 }
 
+/**
+ * Social video — architecture for media that does not exist in the repo yet.
+ *
+ * Deliberately empty below: no placeholder clips, no fake posters. Populate
+ * `socialVideos` and the section renders itself; leave it empty and the section
+ * is not emitted at all, so the page never shows an empty shelf.
+ *
+ * Native social ratios are the default. 9:16 is the primary format (Reels /
+ * Stories), but 4:5, 1:1 and 16:9 are supported so mixed media can be dropped in
+ * without the layout assuming a single shape.
+ */
+interface SocialVideo {
+  id: string;
+  /** Video file in src/assets. Keep it muted-inline friendly (H.264 MP4). */
+  src: string;
+  /** Poster still shown before playback — this is what actually loads on scroll. */
+  poster: string;
+  /** Opens the original post. */
+  instagramUrl: string;
+  title: string;
+  alt: string;
+  aspectRatio: '9:16' | '4:5' | '1:1' | '16:9';
+  category?: 'personality' | 'on-action' | 'work' | 'social' | 'proof';
+}
+
 interface BrandLogo {
   name: string;
   logo: string;
@@ -41,6 +66,15 @@ export class AppComponent implements AfterViewInit, OnDestroy {
     { name: 'Moon Productions', logo: 'assets/lovable-uploads/client-moon-productions.png', href: '#', scale: 'default' },
     { name: 'Ichilov Well', logo: 'assets/brand-logos/ichilov-well.svg', href: 'https://www.ichilov.org.il', scale: 'default' }
   ];
+
+  /**
+   * No video assets exist yet, so this stays empty on purpose (see SocialVideo).
+   * Adding entries is the only step needed to switch the section on.
+   */
+  socialVideos: SocialVideo[] = [];
+
+  /** id of the clip currently playing, or null. Only one plays at a time. */
+  playingVideoId: string | null = null;
 
   portfolioProjects: PortfolioProject[] = [
     {
@@ -82,6 +116,30 @@ export class AppComponent implements AfterViewInit, OnDestroy {
   ];
 
   constructor(private zone: NgZone) {}
+
+  /**
+   * Tap-to-play, one clip at a time. Video stays poster-only until the visitor
+   * asks for it, so nothing downloads a media file on page load.
+   */
+  toggleVideo(video: SocialVideo, el: HTMLVideoElement): void {
+    if (this.playingVideoId === video.id) {
+      el.pause();
+      this.playingVideoId = null;
+      return;
+    }
+
+    document.querySelectorAll<HTMLVideoElement>('.social-video-el').forEach((other) => {
+      if (other !== el) {
+        other.pause();
+      }
+    });
+
+    el.muted = true; // required for inline autoplay on iOS
+    void el.play().then(
+      () => (this.playingVideoId = video.id),
+      () => (this.playingVideoId = null)
+    );
+  }
 
   toggleFaq(i: number): void {
     this.openFaqIndex = this.openFaqIndex === i ? null : i;
