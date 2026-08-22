@@ -1,129 +1,61 @@
+/* ═══════════════════════════════════════════════════════════════════════════
+   TYPOGRAPHY FOUNDATION — TWO VARIABLE FAMILIES, SELF-HOSTED, OFL LICENSED
+   ═══════════════════════════════════════════════════════════════════════════
+   Yarden AlefAlefAlef — display. Supplied with the project. Hebrew-only
+                       editorial face, two real weights (400 / 700).
+   Assistant         — body, UI, labels, metadata. Quiet, highly legible Hebrew
+                       sans that stays out of the display face's way.
+
+   Yarden ships as two OTFs (~40 KB total) and is used only for display.
+   Assistant is the variable build of the family the project already used, so a
+   single 7 KB Hebrew woff2 replaces the seven static TTFs it needed before.
+
+   Paths are root-absolute on purpose: it keeps the Angular bundler from trying
+   to resolve and re-hash them out of src/.
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/* ─── Display: Yarden AlefAlefAlef — supplied by the project, two real weights ──
+   Verified from the files themselves:
+     familyName  "Yarden AlefAlefAlef"   unitsPerEm 1000   142 glyphs   not variable
+     Regular  subfamily "Regular"  OS/2 usWeightClass 400  italicAngle 0
+     Bold     subfamily "Bold"     OS/2 usWeightClass 700  italicAngle 0
+   Only 400 and 700 are declared because only 400 and 700 exist. Coverage is
+   Hebrew (47 base + 30 presentation forms) and digits; it carries almost no
+   Latin alphabet, so it is applied to Hebrew-only display text and kept away
+   from English words and brand names. */
 @font-face {
-  font-family: "Assistant";
-  src: url("/assets/fonts/Assistant/static/Assistant-Regular.ttf") format("truetype");
+  font-family: "Yarden";
+  src: url("/assets/lovable-uploads/MyAssets/Fonts/yarden-regular-alefalefalef.otf") format("opentype");
   font-weight: 400;
   font-style: normal;
   font-display: swap;
 }
 
 @font-face {
-  font-family: "Assistant";
-  src: url("/assets/fonts/Assistant/static/Assistant-ExtraLight.ttf") format("truetype");
-  font-weight: 200;
-  font-style: normal;
-  font-display: swap;
-}
-
-@font-face {
-  font-family: "Assistant";
-  src: url("/assets/fonts/Assistant/static/Assistant-Light.ttf") format("truetype");
-  font-weight: 300;
-  font-style: normal;
-  font-display: swap;
-}
-
-@font-face {
-  font-family: "Assistant";
-  src: url("/assets/fonts/Assistant/static/Assistant-Medium.ttf") format("truetype");
-  font-weight: 500;
-  font-style: normal;
-  font-display: swap;
-}
-
-@font-face {
-  font-family: "Assistant";
-  src: url("/assets/fonts/Assistant/static/Assistant-SemiBold.ttf") format("truetype");
-  font-weight: 600;
-  font-style: normal;
-  font-display: swap;
-}
-
-@font-face {
-  font-family: "Assistant";
-  src: url("/assets/fonts/Assistant/static/Assistant-Bold.ttf") format("truetype");
+  font-family: "Yarden";
+  src: url("/assets/lovable-uploads/MyAssets/Fonts/yarden-bold-alefalefalef.otf") format("opentype");
   font-weight: 700;
   font-style: normal;
   font-display: swap;
 }
 
+/* ─── Body: Assistant Variable (200–800) ───────────────────────────────────── */
 @font-face {
   font-family: "Assistant";
-  src: url("/assets/fonts/Assistant/static/Assistant-ExtraBold.ttf") format("truetype");
-  font-weight: 800;
+  src: url("/assets/fonts/AssistantVariable/assistant-hebrew-wght-normal.woff2") format("woff2-variations");
+  font-weight: 200 800;
   font-style: normal;
   font-display: swap;
+  unicode-range: U+0307-0308, U+0590-05FF, U+200C-2010, U+20AA, U+25CC, U+FB1D-FB4F;
 }
 
 @font-face {
-  font-family: "PlaypenSansHebrew";
-  src: url("/assets/fonts/Playpen_Sans_Hebrew/static/PlaypenSansHebrew-Regular.ttf") format("truetype");
-  font-weight: 400;
+  font-family: "Assistant";
+  src: url("/assets/fonts/AssistantVariable/assistant-latin-wght-normal.woff2") format("woff2-variations");
+  font-weight: 200 800;
   font-style: normal;
   font-display: swap;
-}
-
-@font-face {
-  font-family: "PlaypenSansHebrew";
-  src: url("/assets/fonts/Playpen_Sans_Hebrew/static/PlaypenSansHebrew-Thin.ttf") format("truetype");
-  font-weight: 100;
-  font-style: normal;
-  font-display: swap;
-}
-
-@font-face {
-  font-family: "PlaypenSansHebrew";
-  src: url("/assets/fonts/Playpen_Sans_Hebrew/static/PlaypenSansHebrew-ExtraLight.ttf") format("truetype");
-  font-weight: 200;
-  font-style: normal;
-  font-display: swap;
-}
-
-@font-face {
-  font-family: "PlaypenSansHebrew";
-  src: url("/assets/fonts/Playpen_Sans_Hebrew/static/PlaypenSansHebrew-Light.ttf") format("truetype");
-  font-weight: 300;
-  font-style: normal;
-  font-display: swap;
-}
-
-@font-face {
-  font-family: "PlaypenSansHebrew";
-  src: url("/assets/fonts/Playpen_Sans_Hebrew/static/PlaypenSansHebrew-Medium.ttf") format("truetype");
-  font-weight: 500;
-  font-style: normal;
-  font-display: swap;
-}
-
-@font-face {
-  font-family: "PlaypenSansHebrew";
-  src: url("/assets/fonts/Playpen_Sans_Hebrew/static/PlaypenSansHebrew-SemiBold.ttf") format("truetype");
-  font-weight: 600;
-  font-style: normal;
-  font-display: swap;
-}
-
-@font-face {
-  font-family: "PlaypenSansHebrew";
-  src: url("/assets/fonts/Playpen_Sans_Hebrew/static/PlaypenSansHebrew-Bold.ttf") format("truetype");
-  font-weight: 700;
-  font-style: normal;
-  font-display: swap;
-}
-
-@font-face {
-  font-family: "PlaypenSansHebrew";
-  src: url("/assets/fonts/Playpen_Sans_Hebrew/static/PlaypenSansHebrew-ExtraBold.ttf") format("truetype");
-  font-weight: 800;
-  font-style: normal;
-  font-display: swap;
-}
-
-.font-assistant {
-  font-family: "Assistant", Arial, Helvetica, sans-serif;
-}
-
-.font-playpensanshebrew {
-  font-family: "PlaypenSansHebrew", "Segoe UI", Arial, sans-serif;
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2122, U+2212, U+FEFF, U+FFFD;
 }
 
 * {
