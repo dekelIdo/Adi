@@ -2517,6 +2517,18 @@ img {
     gap: var(--space-md);
   }
 
+  // Short 1–3 word section titles stay on one line within the 20–24px gutter
+  .section-title.section-title--short {
+    max-width: 100%;
+    font-size: clamp(2.4rem, 7.2vw, 4.2rem);
+    letter-spacing: -0.028em;
+    white-space: nowrap;
+
+    br {
+      display: none;
+    }
+  }
+
   // Problem
   .problem-item {
     flex-direction: column;
