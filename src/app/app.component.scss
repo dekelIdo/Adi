@@ -1023,9 +1023,7 @@ img {
 }
 
 .split-grid--insight {
-  padding: var(--space-lg) 0;
-  margin-right: 12px;
-  margin-left: 12px;
+  padding-block: var(--space-lg);
 }
 
 .split-copy {
@@ -1147,19 +1145,6 @@ img {
   opacity: 0.6;
   transform: rotate(45deg);
   pointer-events: none;
-}
-
-.duo-card-eyebrow {
-  font-size: var(--text-xs);
-  font-weight: 600;
-  color: var(--text-light);
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  margin-bottom: var(--space-xs);
-}
-
-.duo-card-eyebrow--muted {
-  color: var(--text-light);
 }
 
 .duo-card--muted {
@@ -2575,7 +2560,7 @@ img {
   // Portfolio reel mobile
   .portfolio-reel-track {
     gap: clamp(18px, 5vw, 24px);
-    padding: 0 var(--container-padding-mobile);
+    padding: 0 var(--container-padding);
   }
 
   .reel-card {
@@ -2591,7 +2576,7 @@ img {
   // Results rail mobile
   .results-rail {
     gap: clamp(18px, 5vw, 24px);
-    padding: 0 var(--container-padding-mobile);
+    padding: 0 var(--container-padding);
   }
 
   .result-card {
@@ -2602,7 +2587,7 @@ img {
   // Reviews rail mobile
   .reviews-rail {
     gap: clamp(18px, 5vw, 24px);
-    padding: 0 var(--container-padding-mobile);
+    padding: 0 var(--container-padding);
   }
 
   .review-card {
