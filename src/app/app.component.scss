@@ -2635,6 +2635,117 @@ select {
   }
 }
 
+// ─────── SHOOT DAY ─────────────────────────────────────────────────────────────
+// Evidence, not explanation. One heroic frame of her working with the lights up,
+// and two supporting details that slide out from behind it as the section is
+// scrolled. Wordless on purpose.
+//
+// The reveal is driven by the same scroll listener as everything else and only
+// touches transform and opacity. Mobile keeps the IDEA and drops the geometry:
+// the details sit beside and below the lead rather than layered behind it, so a
+// narrow screen never has to render three overlapping photographs.
+
+.section-shoot {
+  position: relative;
+  padding: clamp(30px, 5vh, 68px) 0 clamp(26px, 4.4vh, 58px);
+  background: linear-gradient(180deg, var(--bg) 0%, var(--surface) 42%, var(--surface) 100%);
+  overflow: hidden;
+}
+
+.shoot-layout {
+  display: grid;
+  gap: clamp(12px, 2.4vw, 26px);
+  align-items: end;
+}
+
+.shoot-lead {
+  position: relative;
+  z-index: 2;
+  margin: 0;
+  border-radius: var(--r-media);
+  overflow: hidden;
+
+  img {
+    width: 100%;
+    height: auto;
+    display: block;
+    filter: saturate(0.96) contrast(1.03);
+  }
+}
+
+.shoot-details {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: clamp(10px, 1.8vw, 20px);
+  align-items: start;
+}
+
+.shoot-detail {
+  position: relative;
+  margin: 0;
+  border-radius: var(--r-media);
+  overflow: hidden;
+  will-change: transform, opacity;
+  // Starting state, overridden by the scroll driver. Kept modest so that if
+  // script never runs the pictures are still perfectly visible.
+  opacity: var(--shoot-o, 1);
+  transform: translate3d(0, var(--shoot-y, 0px), 0);
+
+  img {
+    width: 100%;
+    height: auto;
+    display: block;
+    filter: saturate(0.96) contrast(1.03);
+  }
+}
+
+// Desktop: the lead dominates on the reading edge and the two details stack
+// beside it, the rig slightly overlapping the lead so the layers read as depth.
+@media (min-width: 860px) {
+  .shoot-layout {
+    grid-template-columns: 1.25fr 1fr;
+    align-items: center;
+  }
+
+  .shoot-lead {
+    margin-inline-start: calc(-1 * var(--bleed-out));
+    border-start-start-radius: 0;
+    border-end-start-radius: 0;
+  }
+
+  .shoot-details {
+    grid-template-columns: 1fr;
+    gap: clamp(14px, 2vw, 26px);
+  }
+
+  .shoot-detail--rig {
+    width: 74%;
+    margin-inline-start: -14%;
+  }
+
+  .shoot-detail--set {
+    width: 88%;
+    margin-inline-start: auto;
+  }
+}
+
+@media (max-width: 859px) {
+  // Narrow screens keep the idea and lose the layering: lead full width, the
+  // two details as a quiet pair underneath it.
+  .shoot-lead {
+    margin-inline-start: calc(-1 * var(--container-padding));
+    margin-inline-end: calc(-1 * var(--container-padding));
+    border-radius: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .shoot-detail {
+    opacity: 1;
+    transform: none;
+  }
+}
+
 // ─────── SOCIAL CONTENT ────────────────────────────────────────────────────────
 // A media-only chapter, deliberately wordless: after a page of type this is the
 // change of rhythm. Two real 9:16 clips, one dominant and one offset, so it
@@ -2782,29 +2893,50 @@ select {
 // Mobile: the lead clip runs nearly full width, the second sits inset and
 // slightly lower, so even stacked it reads as a composition and not a list.
 @media (max-width: 767px) {
+  // Lead runs large; the two supporting clips sit side by side beneath it and
+  // slightly inset, so three items still read as one composition rather than a
+  // stack of equal cards.
+  .social-stage {
+    grid-template-columns: 1fr 1fr;
+  }
+
   .social-item--lead {
-    width: 86%;
+    grid-column: 1 / -1;
+    width: 88%;
+    margin-inline-start: auto;
   }
 
   .social-item:not(.social-item--lead) {
-    width: 62%;
-    margin-inline-start: auto;
-    margin-top: clamp(-46px, -6vw, -26px);
-    margin-bottom: clamp(-30px, -4vw, -14px);
+    margin-top: clamp(-30px, -4vw, -14px);
+  }
+
+  .social-item:nth-child(2) {
+    margin-inline-start: 6%;
   }
 }
 
 // Desktop: dominant clip plus a smaller one dropped below its own baseline.
 @media (min-width: 768px) {
+  // One dominant clip with the two others stacked beside it at half height, each
+  // dropped a little below the last so the group is a composition, not a row.
   .social-stage {
-    grid-template-columns: 1.35fr 1fr;
-    gap: clamp(20px, 3vw, 44px);
+    grid-template-columns: 1.45fr 1fr;
+    grid-template-rows: auto auto;
+    gap: clamp(18px, 2.4vw, 36px);
     padding: 0 var(--container-padding);
-    align-items: center;
+    align-items: start;
+  }
+
+  .social-item--lead {
+    grid-row: 1 / span 2;
   }
 
   .social-item:not(.social-item--lead) {
-    transform: translateY(clamp(18px, 3vw, 44px));
+    transform: translateY(clamp(14px, 2.4vw, 38px));
+  }
+
+  .social-item:nth-child(3) {
+    transform: translateY(clamp(28px, 4.4vw, 68px));
   }
 }
 
@@ -3300,16 +3432,22 @@ select {
   }
 
   // Section intro split becomes vertical
-  .section-intro-split,
-  .about-layout,
-  .solution-wrap,
-  .contact-layout,
-  .split-grid,
-  .services-header,
-  .portfolio-editorial-header,
-  .why-merged-grid {
-    grid-template-columns: 1fr;
-    gap: var(--space-md);
+  // Phones collapse to one column. Tablets (700-1024) do NOT: they get their own
+  // two-column tier near the end of this file. Forcing a single column all the
+  // way to 1024 was turning tablets into a stretched phone, running 16,365px
+  // tall at 768 against 14,332px at 1280.
+  @media (max-width: 699px) {
+    .section-intro-split,
+    .about-layout,
+    .solution-wrap,
+    .contact-layout,
+    .split-grid,
+    .services-header,
+    .portfolio-editorial-header,
+    .why-merged-grid {
+      grid-template-columns: 1fr;
+      gap: var(--space-md);
+    }
   }
 
   // Short 1–3 word section titles stay on one line within the 20–24px gutter
@@ -3418,6 +3556,55 @@ select {
 
   .section-title {
     font-size: clamp(1.8rem, 8vw, 2.4rem);
+  }
+}
+
+// ────── Tablet layout (700–1024px) ──────
+// These grids stay two-column here rather than collapsing with the phone rules.
+// Ratios are gentler than desktop so neither column gets too narrow.
+
+@media (min-width: 700px) and (max-width: 1024px) {
+  .section-intro-split,
+  .split-grid,
+  .services-header,
+  .portfolio-editorial-header {
+    grid-template-columns: 1fr 1fr;
+    gap: var(--space-md);
+  }
+
+  .about-layout {
+    grid-template-columns: 1.3fr 1fr;
+    gap: var(--space-md);
+    align-items: start;
+  }
+
+  .solution-wrap {
+    grid-template-columns: 1fr 1fr;
+    gap: var(--space-md);
+    align-items: center;
+  }
+
+  .contact-layout {
+    grid-template-columns: 0.95fr 1fr;
+    gap: var(--space-md);
+    align-items: center;
+  }
+
+  .why-merged-grid {
+    grid-template-columns: 1fr 1fr;
+    gap: var(--space-lg);
+  }
+
+  // The portrait must not become a 1000px tall block once it has its own column.
+  .about-photo-wrap {
+    max-width: 340px;
+    margin-inline-start: auto;
+  }
+
+  .contact-img {
+    margin-inline-start: 0;
+    margin-inline-end: 0;
+    border-radius: var(--r-media);
   }
 }
 

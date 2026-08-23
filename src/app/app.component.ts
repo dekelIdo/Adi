@@ -81,6 +81,18 @@ export class AppComponent implements AfterViewInit, OnDestroy {
    */
   socialVideos: SocialVideo[] = [
     {
+      // Newest clip and the most natively social of the three: real client
+      // content shot in a cafe. Seven seconds, so it reads as a loop.
+      id: 'reel-6456',
+      src: 'assets/lovable-uploads/MyAssets/MyProjects/reel-6456.mp4',
+      poster: 'assets/lovable-uploads/MyAssets/MyProjects/reel-6456-poster.jpg',
+      instagramUrl: '',
+      title: '',
+      alt: 'תוכן שצולם ללקוחה',
+      aspectRatio: '9:16',
+      category: 'social'
+    },
+    {
       id: 'reel-9',
       src: 'assets/lovable-uploads/MyAssets/MyProjects/reel-9.mp4',
       poster: 'assets/lovable-uploads/MyAssets/MyProjects/reel-9-poster.jpg',
@@ -185,6 +197,7 @@ export class AppComponent implements AfterViewInit, OnDestroy {
     this.initCarouselDrag();
     this.initReelPlayback();
     this.initLivingPhotograph();
+    this.initShootDayReveal();
     this.initSectionProgress();
     this.initEditorialDrift();
     this.initReviewsNudge();
@@ -638,6 +651,59 @@ export class AppComponent implements AfterViewInit, OnDestroy {
         lastX = e.pageX;
         container.scrollLeft = scrollStart - delta;
       });
+    });
+  }
+
+  // ─── Shoot day: the supporting details slide out ──────────────────────────────
+  // The two production stills start tucked behind the heroic frame and move out
+  // as the section is scrolled through, like a behind-the-scenes layer being
+  // lifted. Deliberately small: a short travel and a fade, nothing that competes
+  // with the Living Photograph further up the page.
+  //
+  // Transform and opacity only, written to custom properties so the CSS keeps
+  // ownership of the resting state. If this never runs the pictures are simply
+  // in place and fully visible.
+  private initShootDayReveal(): void {
+    const section = document.querySelector<HTMLElement>('#shoot-day');
+    const details = Array.from(document.querySelectorAll<HTMLElement>('[data-shoot-reveal]'));
+    if (!section || details.length === 0) return;
+
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+
+    this.zone.runOutsideAngular(() => {
+      let ticking = false;
+
+      const update = () => {
+        ticking = false;
+        const rect = section.getBoundingClientRect();
+        const vh = window.innerHeight;
+        if (rect.bottom < -100 || rect.top > vh + 100) return;
+
+        // 0 as the section arrives from below, 1 once it is settled in view.
+        const raw = (vh - rect.top) / (vh + rect.height * 0.45);
+        const p = raw < 0 ? 0 : raw > 1 ? 1 : raw;
+
+        details.forEach((el) => {
+          const order = parseFloat(el.dataset['shootReveal'] || '1');
+          const start = 0.16 + order * 0.07;
+          const t = Math.min(1, Math.max(0, (p - start) / 0.42));
+          const eased = 1 - Math.pow(1 - t, 3);
+          el.style.setProperty('--shoot-y', `${((1 - eased) * 34).toFixed(2)}px`);
+          el.style.setProperty('--shoot-o', (0.15 + eased * 0.85).toFixed(3));
+        });
+      };
+
+      const onScroll = () => {
+        if (ticking) return;
+        ticking = true;
+        const id = requestAnimationFrame(update);
+        this.rafIds.push(id);
+      };
+
+      update();
+      this.scrollListeners.push(onScroll);
+      window.addEventListener('scroll', onScroll, { passive: true });
+      window.addEventListener('resize', onScroll, { passive: true });
     });
   }
 
