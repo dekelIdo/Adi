@@ -184,6 +184,7 @@ export class AppComponent implements AfterViewInit, OnDestroy {
     this.initMagneticButtons();
     this.initCarouselDrag();
     this.initReelPlayback();
+    this.initLivingPhotograph();
     this.initSectionProgress();
     this.initEditorialDrift();
     this.initReviewsNudge();
@@ -637,6 +638,130 @@ export class AppComponent implements AfterViewInit, OnDestroy {
         lastX = e.pageX;
         container.scrollLeft = scrollStart - delta;
       });
+    });
+  }
+
+  // ─── The Living Photograph ────────────────────────────────────────────────────
+  // The page's single cinematic moment, used once. As the visitor scrolls through
+  // the sticky stage, the phone in her raised hand opens into the WORK chapter.
+  //
+  // The photograph itself is never cut up. A separate element is parked exactly
+  // where the phone is and scaled up, so the illusion cannot break the way a
+  // hand-masked cut-out would. Finding "exactly where the phone is" is the only
+  // real work here: the phone sits at a known point in the SOURCE image, but the
+  // image is rendered with object-fit cover on desktop, so that point has to be
+  // projected through the cover transform to find it on screen.
+  //
+  // Driven straight from scroll position, so the visitor controls it in both
+  // directions with no easing, no snapping and no autoplay.
+  private initLivingPhotograph(): void {
+    const stage = document.querySelector<HTMLElement>('.action-stage');
+    const frame = document.querySelector<HTMLElement>('.action-frame');
+    const img = document.querySelector<HTMLImageElement>('.action-frame img');
+    const portal = document.querySelector<HTMLElement>('.action-portal');
+    const mark = document.querySelector<HTMLElement>('.margin-mark--action');
+    if (!stage || !frame || !img || !portal) return;
+
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+
+    // Where the phone sits in the source photograph, measured off the file.
+    const PHONE_U = 0.451;
+    const PHONE_V = 0.175;
+
+    // Projects a normalised source point onto the rendered element, honouring
+    // object-fit / object-position. Without this the portal drifts away from her
+    // hand at every viewport that crops the image differently.
+    const phonePoint = () => {
+      const r = img.getBoundingClientRect();
+      const nw = img.naturalWidth || 4201;
+      const nh = img.naturalHeight || 2806;
+      const cs = getComputedStyle(img);
+      let dw = r.width;
+      let dh = r.height;
+      let offX = 0;
+      let offY = 0;
+
+      if (cs.objectFit === 'cover' || cs.objectFit === 'contain') {
+        const scale =
+          cs.objectFit === 'cover'
+            ? Math.max(r.width / nw, r.height / nh)
+            : Math.min(r.width / nw, r.height / nh);
+        dw = nw * scale;
+        dh = nh * scale;
+        const pos = cs.objectPosition.split(' ');
+        const px = parseFloat(pos[0]) / 100;
+        const py = parseFloat(pos[1] ?? pos[0]) / 100;
+        offX = (r.width - dw) * (isNaN(px) ? 0.5 : px);
+        offY = (r.height - dh) * (isNaN(py) ? 0.5 : py);
+      }
+
+      const stickyRect = (portal.parentElement as HTMLElement).getBoundingClientRect();
+      return {
+        x: r.left - stickyRect.left + offX + PHONE_U * dw,
+        y: r.top - stickyRect.top + offY + PHONE_V * dh
+      };
+    };
+
+    const clamp01 = (v: number) => (v < 0 ? 0 : v > 1 ? 1 : v);
+    // Maps a value from one range to another and clamps, so each stage of the
+    // move can own its own slice of the scroll.
+    const track = (v: number, a: number, b: number) => clamp01((v - a) / (b - a));
+
+    this.zone.runOutsideAngular(() => {
+      let ticking = false;
+
+      const update = () => {
+        ticking = false;
+        const rect = stage.getBoundingClientRect();
+        const travel = rect.height - window.innerHeight;
+        if (travel <= 0) return;
+
+        const p = clamp01(-rect.top / travel);
+
+        // She stays calm: the photograph barely moves. All the motion the eye
+        // reads belongs to the object, which is the whole point of the illusion.
+        frame.style.transform = `scale(${(1 + 0.05 * track(p, 0.04, 1)).toFixed(4)})`;
+
+        const pt = phonePoint();
+        portal.style.setProperty('--portal-x', `${pt.x.toFixed(1)}px`);
+        portal.style.setProperty('--portal-y', `${pt.y.toFixed(1)}px`);
+
+        // The portal appears in her hand, grows slowly while it still reads as a
+        // phone, then accelerates once it is clearly a doorway rather than an
+        // object. Scale is expressed against the viewport so it always finishes
+        // covering, whatever the screen.
+        // Phases begin almost at once and finish at the very end. With a 152vh
+        // stage there is only about half a viewport of travel, so spending any
+        // of it idle would force the motion itself to move faster to keep up.
+        const emerge = track(p, 0.05, 0.34);
+        const open = track(p, 0.34, 0.97);
+        const need = (Math.max(window.innerWidth, window.innerHeight) * 2.4) / 26;
+        const scale = emerge * 1.6 + Math.pow(open, 2.1) * need;
+
+        portal.style.setProperty('--portal-scale', scale.toFixed(3));
+        portal.style.setProperty('--portal-opacity', emerge > 0 ? '1' : '0');
+        // The phone is held at an angle; the portal starts matching it and
+        // straightens as it stops being an object and becomes the next chapter.
+        portal.style.setProperty('--portal-rot', `${(-18 * (1 - open)).toFixed(2)}deg`);
+
+        if (mark) {
+          mark.style.setProperty('--mark-opacity', (1 - track(p, 0.04, 0.24)).toFixed(3));
+        }
+      };
+
+      const onScroll = () => {
+        if (ticking) return;
+        ticking = true;
+        const id = requestAnimationFrame(update);
+        this.rafIds.push(id);
+      };
+
+      update();
+      this.scrollListeners.push(onScroll);
+      window.addEventListener('scroll', onScroll, { passive: true });
+      window.addEventListener('resize', onScroll, { passive: true });
+      // Geometry depends on the image's real size, so recompute once it lands.
+      if (!img.complete) img.addEventListener('load', onScroll, { once: true });
     });
   }
 

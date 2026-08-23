@@ -1756,27 +1756,69 @@ select {
   margin: var(--space-md) 0 0;
 }
 
-// ─────── ADI IN ACTION ─────────────────────────────────────────────────────────
-// A single full-bleed photograph, no heading and no copy. It lands between the
-// process chapter (pure type) and the portfolio (pure work), so the page rhythm
-// becomes TYPE -> IMAGE -> WORK instead of another heading-and-cards block.
+// ─────── ADI IN ACTION / LIVING PHOTOGRAPH ─────────────────────────────────────
+// The page's one cinematic moment. A sticky stage holds the photograph still
+// while the visitor scrolls; the phone in her raised hand becomes a portal that
+// opens into the WORK chapter.
 //
-// It carries the signatures already established rather than inventing new ones:
-// the photograph runs edge to edge, a margin mark rides a blue rule that draws
-// itself in, and the image drifts a few pixels against the scroll.
+// Everything animated here is transform and opacity, driven from a single scroll
+// listener (initLivingPhotograph). Nothing is cut out of the source image: the
+// portal is a separate element anchored to the phone's measured position, so the
+// illusion never depends on fragile masking of a photograph.
 
 .section-action {
   position: relative;
   padding: 0;
-  overflow: hidden;
   background: var(--surface);
   isolation: isolate;
 }
 
+// The runway. Scroll length beyond one viewport is what the effect plays across.
+// Kept deliberately short for a mobile-first page: at 152vh the sequence gets
+// just over half a screen of travel, and the idle head and tail were trimmed out
+// of the phase mapping so almost all of it carries actual motion rather than
+// waiting.
+.action-stage {
+  position: relative;
+  height: 152vh;
+}
+
+.action-sticky {
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--surface);
+
+  // The photograph keeps its true proportions so the whole set stays readable,
+  // which leaves space above and below it inside a full-height stage. Rather
+  // than pad that with empty page, the same frame is blown up and blurred behind
+  // it, so the picture sits in a continuous field of its own studio light. It is
+  // a static layer: no animation, no cost beyond one paint.
+  &::before {
+    content: "";
+    position: absolute;
+    inset: -8%;
+    background-image: url("/assets/lovable-uploads/MyAssets/AdiArieli/action-adi.webp");
+    background-size: cover;
+    background-position: 50% 40%;
+    filter: blur(46px) saturate(1.08) brightness(1.04);
+    opacity: 0.55;
+    z-index: 0;
+    pointer-events: none;
+  }
+}
+
 .action-frame {
   position: relative;
+  z-index: 1;
   margin: 0;
+  width: 100%;
   display: block;
+  will-change: transform;
 
   picture {
     display: block;
@@ -1790,8 +1832,28 @@ select {
   }
 }
 
-// The mark sits inside the frame on this one, over the empty sweep of the
-// cyclorama rather than out in the page margin.
+// The portal. Sized like a phone and parked exactly where hers is; JS sets the
+// two custom properties. Scaling a small element is far cheaper than animating
+// a large one's geometry, and keeps the whole effect on the compositor.
+.action-portal {
+  position: absolute;
+  z-index: 2;
+  top: 0;
+  left: 0;
+  width: 26px;
+  height: 56px;
+  border-radius: 5px;
+  background: #0c0b09;
+  transform-origin: 50% 50%;
+  transform:
+    translate3d(calc(var(--portal-x, 50vw) - 13px), calc(var(--portal-y, 40vh) - 28px), 0)
+    rotate(var(--portal-rot, -18deg))
+    scale(var(--portal-scale, 0));
+  opacity: var(--portal-opacity, 0);
+  pointer-events: none;
+  will-change: transform, opacity;
+}
+
 .margin-mark--action {
   display: flex;
   position: absolute;
@@ -1803,6 +1865,7 @@ select {
   align-items: center;
   gap: 10px;
   color: var(--text-muted);
+  opacity: var(--mark-opacity, 1);
 
   &::after {
     width: 0;
@@ -1821,9 +1884,6 @@ select {
   width: clamp(34px, 7vw, 76px);
 }
 
-// On a phone the frame is shown uncropped, which puts the floor full of gear
-// right where the mark sits. Move it up onto the clean sweep of the backdrop
-// so it stays legible against the busiest part of the picture.
 @media (max-width: 767px) {
   .margin-mark--action {
     top: clamp(12px, 3vw, 20px);
@@ -1831,17 +1891,27 @@ select {
   }
 }
 
-// Desktop: cap the band so a wide frame cannot swallow the viewport, and hold
-// the crop low enough to keep the gear on the floor in shot, since that is the
-// part that does the talking.
 @media (min-width: 768px) {
   .action-frame img {
-    // Tall enough, and focused high enough, to hold BOTH ends of the story in
-    // one frame: her at the top and the rig, laptop and boxes on the floor.
-    // A lower focal point cropped her head off; a shorter band lost the gear.
     height: clamp(430px, 74vh, 760px);
     object-fit: cover;
     object-position: 50% 38%;
+  }
+}
+
+// No runway, no portal: the photograph simply sits in the page as a still band.
+@media (prefers-reduced-motion: reduce) {
+  .action-stage {
+    height: auto;
+  }
+
+  .action-sticky {
+    position: static;
+    height: auto;
+  }
+
+  .action-portal {
+    display: none;
   }
 }
 

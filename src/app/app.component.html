@@ -294,30 +294,37 @@
       </div>
     </section>
 
-    <!-- ── ADI IN ACTION ───────────────────────────────────────────────────────
-         One real photograph of a working set: cyclorama, phone rig, laptop and
-         gear on the floor. It sits between "how I work" and "the work" and says
-         she arrives ready to produce, without a line of copy to explain it.
-         The only text is the margin mark, which reuses wording already on the
-         page (the statement strip and the process step). -->
+    <!-- ── ADI IN ACTION / LIVING PHOTOGRAPH ───────────────────────────────────
+         One signature scroll moment, used once on the page. The photograph is a
+         real working set. As the visitor scrolls, the phone she is holding up
+         becomes a portal: it opens out of her hand and the WORK chapter arrives
+         through it. Nothing is faked or cut out of the photograph; the portal is
+         anchored to the phone's real position, which is measured at runtime. -->
     <section id="in-action" class="section-action" data-header-theme="light">
-      <figure class="action-frame reveal reveal-float" data-drift="0.55">
-        <picture>
-          <source
-            srcset="assets/lovable-uploads/MyAssets/AdiArieli/action-adi.webp"
-            type="image/webp"
-          />
-          <img
-            src="assets/lovable-uploads/MyAssets/AdiArieli/action-adi.jpg"
-            alt="עדי אריאלי בצילומים"
-            width="4201"
-            height="2806"
-            loading="lazy"
-            decoding="async"
-          />
-        </picture>
-        <span class="margin-mark margin-mark--action" aria-hidden="true">יצירת תוכן</span>
-      </figure>
+      <div class="action-stage">
+        <div class="action-sticky">
+          <figure class="action-frame reveal reveal-float">
+            <picture>
+              <source
+                srcset="assets/lovable-uploads/MyAssets/AdiArieli/action-adi.webp"
+                type="image/webp"
+              />
+              <img
+                src="assets/lovable-uploads/MyAssets/AdiArieli/action-adi.jpg"
+                alt="עדי אריאלי בצילומים"
+                width="4201"
+                height="2806"
+                loading="lazy"
+                decoding="async"
+              />
+            </picture>
+            <span class="margin-mark margin-mark--action" aria-hidden="true">יצירת תוכן</span>
+          </figure>
+          <!-- Grows from the phone. Its colour is the WORK chapter's, so when it
+               fills the viewport the handoff to that section is invisible. -->
+          <div class="action-portal" aria-hidden="true"></div>
+        </div>
+      </div>
     </section>
 
     <section id="portfolio" class="section section-portfolio" data-header-theme="dark">
