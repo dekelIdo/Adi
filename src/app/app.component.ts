@@ -55,31 +55,25 @@ export class AppComponent implements AfterViewInit, OnDestroy {
   // ── REAL_FRAME_B_ASSET ────────────────────────────────────────────────────
   // The laptop bridge is a two-frame interaction:
   //
-  //   FRAME A  the real photograph we have (lid toward camera)  — always shown
-  //   FRAME B  a real screen-facing photograph of the same laptop — not shot yet
+  //   FRAME A  the whole plate: her body, and it barely moves
+  //   FRAME B  the laptop, both hands and the forearm, cut from the same frame
+  //            with real alpha
   //
-  // Frame B is deliberately empty. The current shoot contains no frame showing
-  // the screen, and every attempt to synthesise one produced either a matte
-  // artifact or a laptop that was no longer the photographed laptop, so no
-  // placeholder is shipped.
+  // Frame B is the same laptop from the same photograph, not a reconstruction.
+  // Its registration against the plate was solved by matching the cut-out back
+  // against the source rather than by eye, so at the start of the move the two
+  // layers are indistinguishable and there is no doubled edge to see.
   //
-  // To enable the full transition, drop the real photograph into
-  // src/assets/lovable-uploads/MyAssets/AdiArieli/ and put its path here:
-  //
-  //   frameBAsset = 'assets/lovable-uploads/MyAssets/AdiArieli/laptop-open.webp';
-  //
-  // Nothing else needs to change. The markup renders the Frame B layer, and
-  // initLaptopBridge crossfades A into B across the same scroll progress it
-  // already drives, so the runway, the reduced-motion path, the desktop
-  // opt-out and the Process handoff all stay as verified.
-  frameBAsset: string | null = null;
+  // Set this to null to fall back to the plain photographic section; nothing
+  // else has to change.
+  frameBAsset: string | null = 'assets/lovable-uploads/MyAssets/AdiArieli/frame-b-laptop.png';
 
   // ── bridgeCinematic ───────────────────────────────────────────────────────
   // Master switch for the laptop move. While false the section is a plain
   // full-bleed photograph with no sticky runway, no veil and no scroll driver,
   // which is a stable state rather than a half-working effect. The cinematic
   // build is only turned on once its prepared visual asset passes inspection.
-  bridgeCinematic = false;
+  bridgeCinematic = true;
 
   private observer?: IntersectionObserver;
   private headerThemeObserver?: IntersectionObserver;
@@ -719,10 +713,9 @@ export class AppComponent implements AfterViewInit, OnDestroy {
   private initLaptopBridge(): void {
     const stage = document.querySelector<HTMLElement>('.bridge-stage');
     const sticky = document.querySelector<HTMLElement>('.bridge-sticky');
-    const base = document.querySelector<HTMLElement>('.bridge-base');
-    const baseImg = document.querySelector<HTMLImageElement>('.bridge-base img');
+    const base = document.querySelector<HTMLElement>('.bridge-frame--a');
+    const baseImg = document.querySelector<HTMLImageElement>('.bridge-frame--a img');
     const veil = document.querySelector<HTMLElement>('.bridge-veil');
-    // Null until a real screen-facing photograph is supplied (see frameBAsset).
     const frameB = document.querySelector<HTMLElement>('.bridge-frame--b');
     if (!stage || !sticky || !base || !baseImg || !veil) return;
 
@@ -733,8 +726,23 @@ export class AppComponent implements AfterViewInit, OnDestroy {
     const LAPTOP_U = 0.17;
     const LAPTOP_V = 0.30;
 
+    // Frame B's registration against the plate, as fractions of the plate's
+    // rendered image box: left edge, top edge, width. Derived from the cut-out's
+    // bounding box in the original frame, then confirmed against a render.
+    // Solved by matching the cut-out against the source frame rather than by
+    // eye: greyscale SSD over the opaque pixels, searched across scale and
+    // offset, converged on a residual of 13 with these values.
+    const FB_X = 0.0;
+    const FB_Y = 0.098;
+    const FB_W = 0.7667;
+
     const clamp01 = (v: number) => (v < 0 ? 0 : v > 1 ? 1 : v);
     const track = (v: number, a: number, b: number) => clamp01((v - a) / (b - a));
+    const ease = (v: number) => v * v * (3 - 2 * v);
+
+    // The plate's rendered image box, recomputed by place() and read by the
+    // driver so both layers are reasoning about the same geometry.
+    const geo = { offX: 0, offY: 0, dw: 0, dh: 0 };
 
     // Projects the laptop's position in the source frame onto the rendered
     // element through object-fit cover, so the camera closes on the laptop and
@@ -752,12 +760,21 @@ export class AppComponent implements AfterViewInit, OnDestroy {
       const py = parseFloat(pos[1] ?? pos[0]) / 100;
       const offX = (r.width - dw) * (isNaN(px) ? 0.5 : px);
       const offY = (r.height - dh) * (isNaN(py) ? 0.5 : py);
+      geo.offX = offX; geo.offY = offY; geo.dw = dw; geo.dh = dh;
       const vx = ((offX + LAPTOP_U * dw) / r.width) * 100;
       const vy = ((offY + LAPTOP_V * dh) / r.height) * 100;
       base.style.setProperty('--lap-x', `${vx.toFixed(1)}%`);
       base.style.setProperty('--lap-y', `${vy.toFixed(1)}%`);
       sticky.style.setProperty('--lap-x', `${vx.toFixed(1)}%`);
       sticky.style.setProperty('--lap-y', `${vy.toFixed(1)}%`);
+
+      // Frame B is projected through the same cover maths, so the cut-out lands
+      // on the laptop it was cut from at any viewport crop.
+      if (frameB) {
+        frameB.style.left = `${(offX + FB_X * dw).toFixed(1)}px`;
+        frameB.style.top = `${(offY + FB_Y * dh).toFixed(1)}px`;
+        frameB.style.width = `${(FB_W * dw).toFixed(1)}px`;
+      }
     };
 
     this.zone.runOutsideAngular(() => {
@@ -774,48 +791,57 @@ export class AppComponent implements AfterViewInit, OnDestroy {
 
         const p = clamp01(-rect.top / travel);
 
-        // A held beat, a small anticipation, then the approach takes over. The
-        // move has a setup rather than starting on the first pixel of scroll.
-        const anticipate = track(p, 0.13, 0.26);
-        const approach = track(p, 0.24, 0.95);
-        const rush = Math.pow(track(p, 0.60, 1), 2.1);
+        // The beats. Each is a window on the same scroll progress, so the whole
+        // sequence is reversible by construction and has no state of its own.
+        const anticipate = ease(track(p, 0.15, 0.25));
+        const advance = ease(track(p, 0.25, 0.45));
+        const depth = ease(track(p, 0.45, 0.65));
+        const dominant = ease(track(p, 0.62, 0.80));
+        const takeover = Math.pow(track(p, 0.78, 1), 1.7);
 
-        const scale = 1 + anticipate * 0.03 + Math.pow(approach, 1.6) * 1.55 + rush * 0.7;
-        // A few degrees of yaw so the frame turns fractionally as it closes,
-        // which stops the move reading as a flat zoom.
-        const ry = -anticipate * 1 - approach * 5;
-        const exit = 1 - track(p, 0.88, 0.99);
+        // FRAME A: her body. Almost stationary, and it never leaves the frame.
+        base.style.setProperty('--base-scale', (1 + anticipate * 0.012 + advance * 0.03 + depth * 0.035 + dominant * 0.04).toFixed(4));
+        base.style.setProperty('--base-ry', `${(-anticipate * 0.6 - advance * 1.4).toFixed(2)}deg`);
+        base.style.setProperty('--base-opacity', '1');
 
-        base.style.setProperty('--base-scale', scale.toFixed(4));
-        base.style.setProperty('--base-ry', `${ry.toFixed(2)}deg`);
-        base.style.setProperty('--base-opacity', exit.toFixed(3));
+        // Focus falls off her once the laptop is clearly in front of her. This
+        // is the thing that puts the two layers at different distances from the
+        // lens, and it only works now that the laptop is a separate layer.
+        const soften = ease(track(p, 0.50, 0.92));
+        base.style.setProperty('--base-blur', `${(soften * 4.2).toFixed(2)}px`);
+        base.style.setProperty('--base-bright', (1 - soften * 0.07).toFixed(3));
 
-        // The single interpolation layer between the two frames. Both frames
-        // ride the same camera move; only their mix changes, so there is one
-        // continuous shot rather than two animations. Inert while Frame B is
-        // absent, which is the shipped state.
+        // FRAME B: the laptop. This is the move.
         if (frameB) {
-          const mix = track(p, 0.44, 0.74);
-          base.style.setProperty('--base-opacity', (exit * (1 - mix)).toFixed(3));
-          frameB.style.setProperty('--base-scale', scale.toFixed(4));
-          frameB.style.setProperty('--base-ry', `${ry.toFixed(2)}deg`);
-          frameB.style.setProperty('--base-opacity', (exit * mix).toFixed(3));
+          const s = 1 + anticipate * 0.05 + advance * 0.38 + depth * 0.85 + dominant * 1.75 + takeover * 11;
+          frameB.style.setProperty('--fb-scale', s.toFixed(4));
+
+          // No translate. With the origin on the lid, any lateral move would
+          // slide the cut-out off the laptop it was cut from and let the
+          // original show through beside it. Pure growth keeps the cover exact,
+          // and growth is what reads as the object coming toward the lens.
+          //
+          // A hair of drift is allowed only in the last stretch, once the lid is
+          // several times its original size and there is nothing left underneath
+          // it to uncover.
+          const late = ease(track(p, 0.80, 1));
+          frameB.style.setProperty('--fb-x', `${(late * -0.05 * geo.dw).toFixed(1)}px`);
+          frameB.style.setProperty('--fb-y', `${(late * 0.04 * geo.dh).toFixed(1)}px`);
+
+          // A couple of degrees. The lid turns fractionally into the light as it
+          // comes forward; it is not a turntable.
+          frameB.style.setProperty('--fb-rot', `${(-anticipate * 0.4 - advance * 1.2 - depth * 1.6).toFixed(2)}deg`);
+
+          // Registered and invisible through the held beat, then it takes over.
+          frameB.style.setProperty('--fb-opacity', track(p, 0.10, 0.19).toFixed(3));
+
+          frameB.style.setProperty('--fb-shadow-y', `${(6 + advance * 14 + depth * 22).toFixed(0)}px`);
+          frameB.style.setProperty('--fb-shadow-b', `${(10 + advance * 20 + depth * 34).toFixed(0)}px`);
         }
 
-        // Softness, held back to the final rush. Without a matte the blur lands
-        // on the whole plane, so using it as a rack focus would take the laptop
-        // out of focus along with the body, which is the opposite of the intent.
-        // Kept late and light it reads as the softness of a fast camera move,
-        // and the first two thirds stay perfectly sharp.
-        const soften = track(p, 0.66, 0.97);
-        base.style.setProperty('--base-blur', `${(soften * 4.5).toFixed(2)}px`);
-        base.style.setProperty('--base-bright', (1 - soften * 0.05).toFixed(3));
-        if (frameB) {
-          frameB.style.setProperty('--base-blur', `${(soften * 4.5).toFixed(2)}px`);
-          frameB.style.setProperty('--base-bright', (1 - soften * 0.05).toFixed(3));
-        }
-
-        veil.style.setProperty('--bridge-veil', track(p, 0.86, 0.99).toFixed(3));
+        // Opacity supports the handoff, it does not perform it: by the time this
+        // arrives the laptop has already filled the frame physically.
+        veil.style.setProperty('--bridge-veil', (track(p, 0.95, 1) * 0.62).toFixed(3));
       };
 
       const onScroll = () => {

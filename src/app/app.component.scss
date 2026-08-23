@@ -1808,10 +1808,14 @@ select {
     perspective-origin: var(--lap-x, 30%) var(--lap-y, 34%);
   }
 
+  // Flat, deliberately. Under preserve-3d the two layers sort by their 3D
+  // position instead of by z-index, and the plate painted over the cut-out no
+  // matter what order it was given. Frame A carries its own perspective() inside
+  // its own transform, so nothing here needs a shared 3D space.
   .is-cinematic .bridge-scene {
     position: absolute;
     inset: 0;
-    transform-style: preserve-3d;
+    transform-style: flat;
   }
 
   // The body stays put. It drifts only enough to stop the frame feeling pinned.
@@ -1837,12 +1841,38 @@ select {
     }
   }
 
-  // Frame B rides the same camera move as Frame A and only its mix changes.
-  // It starts invisible, so if the asset is ever missing the bridge degrades to
-  // exactly the Frame A behaviour rather than to a hole.
+  // Frame B: the cut-out foreground. Its left/top/width are written by the
+  // scroll driver so it lands exactly over the laptop in the plate behind it,
+  // whatever the viewport crop. Everything after that is one transform.
+  //
+  // The origin sits on the lid. That is what makes the effect safe: every part
+  // of the cut-out moves away from the lid as it scales, so the silhouette only
+  // ever expands and always covers the laptop it was cut from. Anchoring at the
+  // wrist instead let the lid drift off its original, and the untouched laptop
+  // on the plate showed through beside it as a second laptop.
+  //
+  // Growth is the depth cue here, not lateral travel: the lid holds its place in
+  // the frame and comes at the lens, while the forearm sweeps outward behind it.
   .is-cinematic .bridge-frame--b {
+    position: absolute;
     z-index: 2;
-    opacity: var(--base-opacity, 0);
+    transform-origin: 20% 35%;
+    transform:
+      translate3d(var(--fb-x, 0px), var(--fb-y, 0px), 0)
+      rotate(var(--fb-rot, 0deg))
+      scale(var(--fb-scale, 1));
+    opacity: var(--fb-opacity, 0);
+    will-change: transform, opacity;
+    pointer-events: none;
+
+    img {
+      display: block;
+      width: 100%;
+      height: auto;
+      // A touch of contact shadow so the foreground object sits in front of the
+      // plate instead of floating on it.
+      filter: drop-shadow(0 var(--fb-shadow-y, 0px) var(--fb-shadow-b, 0px) rgba(48, 32, 26, 0.34));
+    }
   }
 
   .is-cinematic .bridge-veil {
@@ -1856,26 +1886,32 @@ select {
 }
 
 // Still photograph, no stage, process reached normally.
+//
+// These selectors carry .section-bridge deliberately. The cinematic rules are
+// scoped to .is-cinematic, so a bare .bridge-stage here loses to them on
+// specificity and the runway survived with nothing moving on it: a full extra
+// screen of dead scroll for exactly the visitor who asked for less motion.
 @media (prefers-reduced-motion: reduce) {
-  .bridge-stage {
+  .section-bridge .bridge-stage {
     height: auto;
   }
 
-  .bridge-sticky {
-    position: static;
+  .section-bridge .bridge-sticky {
+    position: relative;
     height: auto;
+    overflow: visible;
     perspective: none;
   }
 
   // The scene is absolutely positioned in the animated build, so it has to
   // return to normal flow here or nothing gives the section any height and the
   // photograph vanishes entirely.
-  .bridge-scene {
+  .section-bridge .bridge-scene {
     position: static;
     transform-style: flat;
   }
 
-  .bridge-base {
+  .section-bridge .bridge-frame--a {
     position: relative;
     inset: auto;
     transform: none;
@@ -1883,13 +1919,15 @@ select {
     opacity: 1;
 
     img {
+      width: 100%;
       height: auto;
     }
   }
 
-  // Reduced motion shows one still frame, and that is the photograph we have.
-  .bridge-frame--b,
-  .bridge-veil {
+  // Reduced motion shows one still frame: the plate on its own. The cut-out is
+  // only meaningful while it is moving.
+  .section-bridge .bridge-frame--b,
+  .section-bridge .bridge-veil {
     display: none;
   }
 }

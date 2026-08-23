@@ -298,13 +298,15 @@
               />
             </picture>
 
-            <!-- FRAME B: the real screen-facing photograph, once it exists.
-                 Set frameBAsset in app.component.ts to switch this on. No
-                 placeholder is shipped: with frameBAsset null this element is
-                 not rendered and the bridge stays exactly as verified. -->
-            <picture class="bridge-base bridge-frame bridge-frame--b" *ngIf="frameBAsset">
-              <img [src]="frameBAsset" alt="" loading="lazy" decoding="async" />
-            </picture>
+            <!-- FRAME B: the same laptop, hands and forearm from the same
+                 photograph, cut with real alpha. It is registered on top of the
+                 laptop in Frame A and then advances, so the real object moves
+                 and the real fingers stay attached to it. Its box is positioned
+                 by initLaptopBridge, which projects it through the same
+                 object-fit cover maths as the plate behind it. -->
+            <div class="bridge-frame--b" *ngIf="frameBAsset">
+              <img [src]="frameBAsset" alt="" decoding="async" />
+            </div>
 
           </div>
           <div class="bridge-veil"></div>
