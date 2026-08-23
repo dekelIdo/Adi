@@ -54,6 +54,7 @@ export class AppComponent implements AfterViewInit, OnDestroy {
   private observer?: IntersectionObserver;
   private headerThemeObserver?: IntersectionObserver;
   private reviewsNudgeObserver?: IntersectionObserver;
+  private reelObserver?: IntersectionObserver;
   private scrollListeners: Array<() => void> = [];
   private rafIds: number[] = [];
   backToTopVisible = false;
@@ -182,8 +183,7 @@ export class AppComponent implements AfterViewInit, OnDestroy {
     this.initCursorGlow();
     this.initMagneticButtons();
     this.initCarouselDrag();
-    this.initPortfolioReel();
-    this.initResultsReel();
+    this.initReelPlayback();
     this.initSectionProgress();
     this.initEditorialDrift();
     this.initReviewsNudge();
@@ -640,145 +640,43 @@ export class AppComponent implements AfterViewInit, OnDestroy {
     });
   }
 
-  // ─── Portfolio infinite reel — pure JS rAF marquee with full drag/touch ──
-  // Replaces CSS animation: gives precise control, seamless loop, drag scrubbing.
-  private initPortfolioReel(): void {
-    const outer = document.querySelector<HTMLElement>('.portfolio-reel-outer');
-    const track = document.querySelector<HTMLElement>('.portfolio-reel-track');
-    if (!outer || !track) return;
+  // ─── Image reels: playback only ───────────────────────────────────────────────
+  // The portfolio and results reels are pure CSS marquees (see reelScroll). This
+  // does NOT position them and never touches transform or visibility: the track
+  // rests at transform 0 with its first set filling the viewport, so the reel is
+  // fully composed before any script runs.
+  //
+  // It previously ran a requestAnimationFrame loop that started at page load and
+  // read track.scrollWidth every frame. Two consequences: a visitor who spent
+  // twenty seconds anywhere above the fold arrived at a track already translated
+  // roughly 900px, which rendered as an empty section, and the width it measured
+  // was wrong anyway while the images inside were still lazy loading.
+  //
+  // All this does now is start the animation when a reel is on screen and pause
+  // it when it is not, which keeps it off the CPU while off screen. Pausing
+  // holds position, and any position in a seamless loop still shows content.
+  private initReelPlayback(): void {
+    const tracks = Array.from(
+      document.querySelectorAll<HTMLElement>('.portfolio-reel-track, .results-rail')
+    );
+    if (tracks.length === 0) return;
 
-    // Remove CSS animation — JS handles everything
-    track.style.animation = 'none';
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
 
     this.zone.runOutsideAngular(() => {
-      const SPEED = 0.72;           // px per frame auto-scroll (cinematic pace)
-      const FRICTION = 0.90;        // momentum decay after drag release
-
-      let offset = 0;
-      let isDragging = false;
-      let isHovered = false;
-      let isPaused = false;
-      let dragStartX = 0;
-      let dragOffsetStart = 0;
-      let velocity = 0;
-      let prevX = 0;
-      let resumeTimer: ReturnType<typeof setTimeout>;
-
-      // Seamless loop: when we've scrolled one full set (-50% of track), reset
-      const clampOffset = () => {
-        const half = track.scrollWidth / 2;
-        if (-offset >= half) offset += half;
-        if (offset > 0) offset -= half;
-      };
-
-      const tick = () => {
-        if (!isDragging && !isPaused) {
-          if (Math.abs(velocity) > 0.15) {
-            offset += velocity;
-            velocity *= FRICTION;
-          }
-          offset -= isHovered ? SPEED * 0.35 : SPEED;
-          clampOffset();
-          track.style.transform = `translateX(${offset}px)`;
-        }
-        const id = requestAnimationFrame(tick);
-        this.rafIds.push(id);
-      };
-
-      tick();
-
-      outer.addEventListener('mouseenter', () => {
-        isHovered = true;
-        isPaused = true;
-      }, { passive: true });
-      outer.addEventListener('mouseleave', () => {
-        isHovered = false;
-        isPaused = false;
-        if (isDragging) {
-          isDragging = false;
-          outer.style.cursor = 'grab';
-        }
-        velocity = 0;
-      }, { passive: true });
-
-      outer.addEventListener('mousedown', (e: MouseEvent) => {
-        isDragging = true;
-        isPaused = true;
-        isHovered = true;
-        dragStartX = e.clientX;
-        dragOffsetStart = offset;
-        prevX = e.clientX;
-        velocity = 0;
-        outer.style.cursor = 'grabbing';
-        e.preventDefault();
-      });
-
-      window.addEventListener('mousemove', (e: MouseEvent) => {
-        if (!isDragging) return;
-        velocity = e.clientX - prevX;
-        prevX = e.clientX;
-        offset = dragOffsetStart + (e.clientX - dragStartX);
-        clampOffset();
-        track.style.transform = `translateX(${offset}px)`;
-      }, { passive: true });
-
-      window.addEventListener('mouseup', () => {
-        if (!isDragging) return;
-        isDragging = false;
-        isPaused = false;
-        outer.style.cursor = 'grab';
-      });
-
-      outer.addEventListener('touchstart', (e: TouchEvent) => {
-        isDragging = true;
-        isPaused = true;
-        isHovered = true;
-        dragStartX = e.touches[0].clientX;
-        dragOffsetStart = offset;
-        prevX = e.touches[0].clientX;
-        velocity = 0;
-        clearTimeout(resumeTimer);
-      }, { passive: true });
-
-      outer.addEventListener('touchmove', (e: TouchEvent) => {
-        if (!isDragging) return;
-        velocity = e.touches[0].clientX - prevX;
-        prevX = e.touches[0].clientX;
-        offset = dragOffsetStart + (e.touches[0].clientX - dragStartX);
-        clampOffset();
-        track.style.transform = `translateX(${offset}px)`;
-      }, { passive: true });
-
-      outer.addEventListener('touchend', () => {
-        isDragging = false;
-        isPaused = false;
-        resumeTimer = setTimeout(() => {
-          isHovered = false;
-          velocity = 0;
-        }, 400);
-      }, { passive: true });
-
-      outer.addEventListener('touchcancel', () => {
-        isDragging = false;
-        isHovered = false;
-        isPaused = false;
-        velocity = 0;
-      }, { passive: true });
-
-      const cards = track.querySelectorAll<HTMLElement>('.reel-card');
-      const centerObs = new IntersectionObserver(
+      const obs = new IntersectionObserver(
         (entries) => {
           entries.forEach((entry) => {
-            if (!entry.isIntersecting || entry.intersectionRatio < 0.52) return;
-            cards.forEach((c) => c.classList.remove('reel-card--center'));
-            entry.target.classList.add('reel-card--center');
+            entry.target.classList.toggle('is-reeling', entry.isIntersecting);
           });
         },
-        { root: outer, threshold: [0.52, 0.65, 0.8] }
+        { rootMargin: '120px 0px' }
       );
-      cards.forEach((c) => centerObs.observe(c));
+      tracks.forEach((t) => obs.observe(t));
+      this.reelObserver = obs;
     });
   }
+
 
   // ─── Section ambient indicator ────────────────────────────────────────────
   private initSectionProgress(): void {
@@ -802,110 +700,6 @@ export class AppComponent implements AfterViewInit, OnDestroy {
     document.querySelectorAll<HTMLElement>('section[id]').forEach((s) => obs.observe(s));
   }
 
-  // ─── Results infinite reel — same rAF marquee as portfolio ──────────────
-  private initResultsReel(): void {
-    const outer = document.querySelector<HTMLElement>('.results-outer');
-    const track = document.querySelector<HTMLElement>('.results-rail');
-    if (!outer || !track) return;
-
-    this.zone.runOutsideAngular(() => {
-      const SPEED = 0.55;            // slightly slower than portfolio for differentiation
-      const FRICTION = 0.90;
-
-      let offset = 0;
-      let isDragging = false;
-      let isHovered = false;
-      let isPaused = false;
-      let dragStartX = 0;
-      let dragOffsetStart = 0;
-      let velocity = 0;
-      let prevX = 0;
-      let resumeTimer: ReturnType<typeof setTimeout>;
-
-      const clampOffset = () => {
-        const half = track.scrollWidth / 2;
-        if (-offset >= half) offset += half;
-        if (offset > 0) offset -= half;
-      };
-
-      const tick = () => {
-        if (!isDragging && !isPaused) {
-          if (Math.abs(velocity) > 0.15) {
-            offset += velocity;
-            velocity *= FRICTION;
-          }
-          offset -= isHovered ? SPEED * 0.25 : SPEED;
-          clampOffset();
-          track.style.transform = `translateX(${offset}px)`;
-        }
-        const id = requestAnimationFrame(tick);
-        this.rafIds.push(id);
-      };
-
-      tick();
-
-      outer.addEventListener('mouseenter', () => {
-        isHovered = true;
-        isPaused = true;
-      }, { passive: true });
-      outer.addEventListener('mouseleave', () => {
-        isHovered = false;
-        isPaused = false;
-        if (isDragging) { isDragging = false; outer.style.cursor = 'grab'; }
-        velocity = 0;
-      }, { passive: true });
-
-      outer.addEventListener('mousedown', (e: MouseEvent) => {
-        isDragging = true; isHovered = true; isPaused = true;
-        dragStartX = e.clientX; dragOffsetStart = offset;
-        prevX = e.clientX; velocity = 0;
-        outer.style.cursor = 'grabbing';
-        e.preventDefault();
-      });
-
-      window.addEventListener('mousemove', (e: MouseEvent) => {
-        if (!isDragging) return;
-        velocity = e.clientX - prevX;
-        prevX = e.clientX;
-        offset = dragOffsetStart + (e.clientX - dragStartX);
-        clampOffset();
-        track.style.transform = `translateX(${offset}px)`;
-      }, { passive: true });
-
-      window.addEventListener('mouseup', () => {
-        if (!isDragging) return;
-        isDragging = false;
-        isPaused = false;
-        outer.style.cursor = 'grab';
-      });
-
-      outer.addEventListener('touchstart', (e: TouchEvent) => {
-        isDragging = true; isHovered = true; isPaused = true;
-        dragStartX = e.touches[0].clientX; dragOffsetStart = offset;
-        prevX = e.touches[0].clientX; velocity = 0;
-        clearTimeout(resumeTimer);
-      }, { passive: true });
-
-      outer.addEventListener('touchmove', (e: TouchEvent) => {
-        if (!isDragging) return;
-        velocity = e.touches[0].clientX - prevX;
-        prevX = e.touches[0].clientX;
-        offset = dragOffsetStart + (e.touches[0].clientX - dragStartX);
-        clampOffset();
-        track.style.transform = `translateX(${offset}px)`;
-      }, { passive: true });
-
-      outer.addEventListener('touchend', () => {
-        isDragging = false;
-        isPaused = false;
-        resumeTimer = setTimeout(() => { isHovered = false; velocity = 0; }, 800);
-      }, { passive: true });
-
-      outer.addEventListener('touchcancel', () => {
-        isDragging = false; isHovered = false; isPaused = false; velocity = 0;
-      }, { passive: true });
-    });
-  }
 
   scrollToTop(): void {
     window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -915,6 +709,7 @@ export class AppComponent implements AfterViewInit, OnDestroy {
     this.observer?.disconnect();
     this.headerThemeObserver?.disconnect();
     this.reviewsNudgeObserver?.disconnect();
+    this.reelObserver?.disconnect();
     this.rafIds.forEach((id) => cancelAnimationFrame(id));
     this.scrollListeners.forEach((fn) => {
       window.removeEventListener('scroll', fn);

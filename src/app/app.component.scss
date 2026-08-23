@@ -41,6 +41,9 @@
   --space-lg: clamp(20px, 3.2vh, 32px);
   --space-xl: clamp(28px, 4.4vh, 48px);
   --brand-gap: clamp(28px, 5.6vw, 52px);
+  // Gap for the image reels. Lives on the cards, not on the track, so that a
+  // 50% translate lands exactly one duplicated set along with no seam.
+  --reel-gap: clamp(18px, 5vw, 24px);
 
   // ─── Typography Scale
   --text-xs: clamp(0.72rem, 1.8vw, 0.82rem);
@@ -753,10 +756,30 @@ select {
 .brand-track-wrap,
 .statement-strip,
 .portfolio-reel-outer,
-.results-outer,
-.reviews-outer {
+.results-outer {
   -webkit-mask-image: linear-gradient(to right, transparent 0, #000 clamp(56px, 16vw, 120px), #000 calc(100% - clamp(56px, 16vw, 120px)), transparent 100%);
   mask-image: linear-gradient(to right, transparent 0, #000 clamp(56px, 16vw, 120px), #000 calc(100% - clamp(56px, 16vw, 120px)), transparent 100%);
+}
+
+// The reviews rail carries dense Hebrew, so the neighbouring message needs a
+// longer dissolve than a picture does. Anything less and the sliver of the next
+// card still reads as a sentence sliced through, rather than as more to come.
+.reviews-outer {
+  -webkit-mask-image: linear-gradient(to right, transparent 0, #000 clamp(96px, 30vw, 170px), #000 calc(100% - clamp(40px, 10vw, 90px)), transparent 100%);
+  mask-image: linear-gradient(to right, transparent 0, #000 clamp(96px, 30vw, 170px), #000 calc(100% - clamp(40px, 10vw, 90px)), transparent 100%);
+}
+
+// Shared by both image reels. Exactly one duplicated set = 50% of the track.
+@keyframes reelScroll {
+  from { transform: translate3d(0, 0, 0); }
+  to { transform: translate3d(-50%, 0, 0); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .portfolio-reel-track,
+  .results-rail {
+    animation: none;
+  }
 }
 
 @keyframes brandScroll {
@@ -1917,24 +1940,28 @@ select {
 // Infinite auto-scrolling reel
 .portfolio-reel-outer {
   overflow: hidden;
-  cursor: grab;
   position: relative;
   padding: var(--space-sm) 0;
-
-  &:active {
-    cursor: grabbing;
-  }
 }
 
 .portfolio-reel-track {
   display: flex;
-  gap: var(--space-md);
+  gap: 0;
+  width: max-content;
   will-change: transform;
+  animation: reelScroll 52s linear infinite;
+  animation-play-state: paused;
+
+  &.is-reeling {
+    animation-play-state: running;
+  }
 }
 
 .reel-card {
   flex-shrink: 0;
   width: clamp(280px, 38vw, 420px);
+  margin-inline-end: var(--reel-gap);
+
   
   &[data-aspect="landscape"] {
     width: clamp(360px, 48vw, 560px);
@@ -2033,23 +2060,26 @@ select {
 
 .results-outer {
   overflow: hidden;
-  cursor: grab;
   padding: var(--space-md) 0;
-
-  &:active {
-    cursor: grabbing;
-  }
 }
 
 .results-rail {
   display: flex;
-  gap: var(--space-md);
+  gap: 0;
+  width: max-content;
   will-change: transform;
+  animation: reelScroll 44s linear infinite;
+  animation-play-state: paused;
+
+  &.is-reeling {
+    animation-play-state: running;
+  }
 }
 
 .result-card {
   flex-shrink: 0;
   width: clamp(320px, 44vw, 520px);
+  margin-inline-end: var(--reel-gap);
 }
 
 .result-frame {
@@ -2435,8 +2465,7 @@ select {
 
 .review-card {
   flex-shrink: 0;
-  // Width is decided by the image's own ratio, not imposed on it.
-  width: auto;
+  width: clamp(280px, 74vw, 430px);
 }
 
 // The shared height band gives the row its rhythm; the width cap keeps a very
@@ -2444,14 +2473,18 @@ select {
 // the intrinsic size is left to resolve itself, so the image never letterboxes
 // inside a box larger than itself: the card shrinks to the picture, not the
 // other way round. Nothing is cropped, stretched or padded.
+// The card takes its size from the picture, so the picture must declare a size
+// before it loads. The width/height attributes in the markup give the browser an
+// aspect ratio to reserve space from; without them these cards rendered 0x0, the
+// rail collapsed to a 20px strip, that pushed it below the fold, and the lazy
+// images then never entered the viewport to load at all. A deadlock that showed
+// up as a permanently empty testimonials section.
 .review-frame img {
-  max-height: clamp(190px, 26vh, 300px);
-  max-width: min(78vw, 440px);
-  width: auto;
+  width: 100%;
   height: auto;
-  // Belt and braces: even if a container ever imposes a box, the picture inside
-  // can never be stretched.
-  object-fit: contain;
+  display: block;
+  max-width: none;
+  max-height: none;
 }
 
 .review-card--scatter-1 { transform: translateY(-6px); }
@@ -3238,14 +3271,8 @@ select {
   }
 
   // Portfolio reel mobile
-  .portfolio-reel-track {
-    gap: clamp(18px, 5vw, 24px);
-    padding: 0 var(--container-padding);
-  }
-
   .reel-card {
     width: clamp(260px, 72vw, 340px);
-    scroll-snap-align: center;
 
     &[data-aspect="landscape"],
     &[data-aspect="square"] {
@@ -3254,10 +3281,6 @@ select {
   }
 
   // Results rail mobile
-  .results-rail {
-    gap: clamp(18px, 5vw, 24px);
-    padding: 0 var(--container-padding);
-  }
 
   .result-card {
     width: clamp(300px, 86vw, 400px);
@@ -3397,9 +3420,8 @@ select {
     min-height: clamp(700px, 84vh, 840px);
   }
 
-  .portfolio-reel-track,
-  .results-rail {
-    gap: clamp(32px, 3vw, 48px);
+  :host {
+    --reel-gap: clamp(32px, 3vw, 48px);
   }
 }
 
