@@ -167,12 +167,13 @@
           <p class="section-body reveal delay-3"><strong>ההבדל הוא השיווק.</strong></p>
         </div>
         <div class="split-stack">
-          <figure class="editorial-img reveal reveal-float">
+          <figure class="editorial-img editorial-img--bleed-end reveal reveal-float" data-drift="0.5">
             <img
               src="assets/lovable-uploads/IMG_1707 (2).jpg"
               alt=""
               loading="lazy"
             />
+            <span class="margin-mark" aria-hidden="true">Social-Li</span>
           </figure>
           <div class="duo-cards">
             <!-- POSITIVE: glow, elevation, premium energy -->
@@ -203,7 +204,7 @@
 
     <section id="solution" class="section section-bg-blue" data-header-theme="light">
       <div class="container solution-wrap">
-        <figure class="editorial-img solution-visual-wrap reveal reveal-float">
+        <figure class="editorial-img editorial-img--bleed-start solution-visual-wrap reveal reveal-float" data-drift="0.6">
           <img
             src="assets/lovable-uploads/avivozeri 820 (1).jpg"
             alt=""
@@ -239,7 +240,7 @@
               הגישה שלי: לא רק ליצור תוכן יפה, אלא ליצור תוכן שמביא תוצאות לעסק.
             </p>
           </div>
-          <figure class="editorial-img editorial-img--portrait about-photo-wrap reveal reveal-float delay-2">
+          <figure class="editorial-img editorial-img--portrait about-photo-wrap reveal reveal-float delay-2" data-drift="0.45">
             <img
               src="assets/lovable-uploads/MyAssets/AdiArieli/Me2.jpg"
               alt="עדי אריאלי"
@@ -550,7 +551,7 @@
           <div class="review-card review-card--scatter-1 reveal reveal-float delay-1">
             <div class="review-inner review-inner--tilt-l">
               <figure class="review-frame">
-                <img src="assets/lovable-uploads/MyAssets/Reviews/IMG_6711.PNG" alt="עדות לקוחה" loading="lazy" />
+                <img src="assets/lovable-uploads/MyAssets/Reviews/14050.jpg" alt="עדות לקוחה" loading="lazy" />
               </figure>
             </div>
           </div>
@@ -573,51 +574,54 @@
     </section>
 
     <!-- ── SOCIAL CONTENT ──────────────────────────────────────────────────────
-         Renders only when real clips exist in socialVideos (currently empty, so
-         nothing is emitted). Poster-first: the <video> carries preload="none"
-         and no source is fetched until the visitor taps. -->
+         A pure media chapter: no heading, no titles, no copy. The clips are real
+         9:16 footage and they carry the section on their own. Poster-first with
+         preload="none", so nothing but the still is fetched until a visitor taps. -->
     @if (socialVideos.length) {
-      <section id="social" class="section section-social" data-header-theme="light">
-        <div class="container">
-          <div class="social-grid">
-            @for (video of socialVideos; track video.id) {
-              <article class="social-item" [attr.data-ratio]="video.aspectRatio">
-                <div class="social-frame">
-                  <video
-                    class="social-video-el"
-                    [poster]="video.poster"
-                    [attr.aria-label]="video.alt"
-                    preload="none"
-                    muted
-                    playsinline
-                    loop
-                    #videoEl
-                    (click)="toggleVideo(video, videoEl)"
-                  >
-                    <source [src]="video.src" type="video/mp4" />
-                  </video>
-                  <button
-                    type="button"
-                    class="social-play"
-                    [class.is-playing]="playingVideoId === video.id"
-                    (click)="toggleVideo(video, videoEl)"
-                    [attr.aria-label]="video.title"
-                  >
-                    <span class="social-play-mark" aria-hidden="true"></span>
-                  </button>
-                </div>
-                <div class="social-meta">
-                  <h3 class="social-title">{{ video.title }}</h3>
-                  <a
-                    class="social-link"
-                    [href]="video.instagramUrl"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >Instagram</a>
-                </div>
-              </article>
-            }
-          </div>
+      <section id="social" class="section section-social" data-header-theme="dark">
+        <div class="social-stage">
+          @for (video of socialVideos; track video.id; let i = $index) {
+            <article
+              class="social-item reveal reveal-float"
+              [class.social-item--lead]="i === 0"
+              [attr.data-ratio]="video.aspectRatio"
+              [attr.data-drift]="i === 0 ? 0.4 : 0.7"
+            >
+              <div class="social-frame">
+                <video
+                  class="social-video-el"
+                  [poster]="video.poster"
+                  [attr.aria-label]="video.alt"
+                  preload="none"
+                  muted
+                  playsinline
+                  loop
+                  #videoEl
+                  (click)="toggleVideo(video, videoEl)"
+                >
+                  <source [src]="video.src" type="video/mp4" />
+                </video>
+                <button
+                  type="button"
+                  class="social-play"
+                  [class.is-playing]="playingVideoId === video.id"
+                  (click)="toggleVideo(video, videoEl)"
+                  [attr.aria-label]="video.alt"
+                >
+                  <span class="social-play-mark" aria-hidden="true"></span>
+                </button>
+              </div>
+              <!-- Rendered only when a real post URL exists. Never fabricated. -->
+              @if (video.instagramUrl) {
+                <a
+                  class="social-link"
+                  [href]="video.instagramUrl"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >Instagram</a>
+              }
+            </article>
+          }
         </div>
       </section>
     }
@@ -625,7 +629,7 @@
     <section id="contact" class="section section-contact" data-header-theme="light">
       <div class="container">
         <div class="contact-layout">
-          <figure class="contact-img reveal reveal-float">
+          <figure class="contact-img reveal reveal-float" data-drift="0.5">
             <!-- Same frame and 4201x2806 aspect; 5.6 MB JPEG -> 373 KB WebP. -->
             <picture>
               <source

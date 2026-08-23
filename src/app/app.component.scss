@@ -496,16 +496,28 @@ select {
   left: 50%;
   transform: translateX(-50%);
   width: 1px;
-  height: 28px;
-  background: linear-gradient(to bottom, transparent, var(--brand-accent), transparent);
-  opacity: 0.42;
+  height: clamp(30px, 5vh, 46px);
+  overflow: hidden;
+  background: rgba(255, 255, 255, 0.14);
   z-index: 3;
-  animation: continuationPulse 3.2s ease-in-out infinite;
+
+  // A short bright segment travels down the hairline, once every few seconds.
+  &::after {
+    content: "";
+    position: absolute;
+    inset-inline: 0;
+    top: -60%;
+    height: 60%;
+    background: linear-gradient(to bottom, transparent, var(--brand-accent), transparent);
+    animation: heroCue 2.8s var(--ease-smooth) infinite;
+  }
 }
 
-@keyframes continuationPulse {
-  0%, 100% { opacity: 0.22; }
-  50% { opacity: 0.55; }
+@keyframes heroCue {
+  0% { transform: translateY(0); opacity: 0; }
+  22% { opacity: 1; }
+  78% { opacity: 1; }
+  100% { transform: translateY(280%); opacity: 0; }
 }
 
 // ────── Desktop: Asymmetric editorial layout ──────
@@ -754,11 +766,11 @@ select {
 .section-bg-tint {
   background: radial-gradient(ellipse 56% 36% at 82% 8%, rgba(196, 217, 240, 0.12), transparent 64%),
     radial-gradient(ellipse 46% 32% at 14% 78%, rgba(230, 216, 204, 0.16), transparent 70%),
-    linear-gradient(180deg, var(--surface) 0%, var(--bg) 100%);
+    linear-gradient(180deg, var(--bg) 0%, var(--surface) 14%, var(--surface) 86%, var(--bg) 100%);
 }
 
 .section-bg-blue {
-  background: linear-gradient(145deg, rgba(196, 217, 240, 0.14), rgba(230, 216, 204, 0.08));
+  background: linear-gradient(180deg, var(--bg) 0%, rgba(196, 217, 240, 0.13) 16%, rgba(196, 217, 240, 0.13) 84%, var(--bg) 100%);
 }
 
 .section-bg-gradient {
@@ -859,13 +871,24 @@ select {
   align-items: start;
 }
 
+// Explicit accent rule (problem chapter). Draws in like the automatic one.
 .underline-accent {
   display: block;
-  width: 56px;
-  height: 2px;
-  background: var(--brand-accent);
+  width: 0;
+  height: 1px;
+  background: var(--brand-accent-dim);
   border-radius: 0;
   margin-top: var(--space-sm);
+  transition: width 900ms var(--ease-expo) 200ms;
+
+  &.is-visible {
+    width: clamp(44px, 7vw, 78px);
+  }
+}
+
+// Only one line per heading.
+.problem-header .section-title::after {
+  display: none;
 }
 
 // ─────── BUTTONS ───────────────────────────────────────────────────────────────
@@ -1145,6 +1168,131 @@ select {
 }
 
 // Duo cards (positive/negative comparison)
+// ═══════════════════════════════════════════════════════════════════════════════
+// ADI SIGNATURES
+// ═══════════════════════════════════════════════════════════════════════════════
+// Three ideas that recur across the page and belong to this brand specifically.
+// All of them are driven by her photography and typography — none of them is
+// decoration that could be dropped onto another site.
+//
+//   1. THE ESCAPING FRAME  a photograph runs past the container to the page edge
+//                          while the text stays on the grid. The picture is the
+//                          thing that breaks the rules; the words never do.
+//   2. THE MARGIN MARK     a hairline that grows out of the brand blue as a
+//                          section arrives, with a small rotated word riding it.
+//   3. THE DRIFT           photographs move a few pixels slower than the text
+//                          around them. Felt, not seen. (JS: initEditorialDrift)
+// ═══════════════════════════════════════════════════════════════════════════════
+
+// ── 0. THE DRAWN LINE ──────────────────────────────────────────────────────────
+// Section titles resolve, then a hairline draws in beneath them. One gesture,
+// repeated, becomes punctuation rather than decoration.
+
+.section-title,
+.about-intro,
+.why-headline,
+.services-headline,
+.portfolio-headline,
+.honesty-headline {
+  &::after {
+    content: "";
+    display: block;
+    width: 0;
+    height: 1px;
+    margin-top: clamp(12px, 1.8vh, 18px);
+    background: var(--brand-accent-dim);
+    transition: width 900ms var(--ease-expo) 260ms;
+  }
+}
+
+.reveal.is-visible .section-title::after,
+.section-title.reveal.is-visible::after,
+.about-intro.reveal.is-visible::after,
+.why-headline.reveal.is-visible::after,
+.services-headline.reveal.is-visible::after,
+.portfolio-headline.reveal.is-visible::after,
+.honesty-headline.reveal.is-visible::after {
+  width: clamp(44px, 7vw, 78px);
+}
+
+// On dark chapters the line carries more of the accent so it stays visible.
+.honesty-headline::after,
+.portfolio-headline::after {
+  background: var(--brand-accent);
+  opacity: 0.75;
+}
+
+// ── 1. THE ESCAPING FRAME ──────────────────────────────────────────────────────
+// The photograph bleeds to the viewport edge on one side. Text keeps its gutter,
+// so the page still reads as disciplined — only the image is allowed out.
+
+// Escape distance: from the content edge out to the viewport edge. Accounts for
+// both the container's centring margin and its padding, so the photograph lands
+// exactly on the page edge at every width.
+:host {
+  --bleed-out: calc(max(0px, (100vw - var(--container-max)) / 2) + var(--container-padding));
+}
+
+// ── 2. THE MARGIN MARK ─────────────────────────────────────────────────────────
+// A rotated word on the reading edge of a photograph, riding a hairline that
+// draws itself in. Uses words already present on the page — never new claims.
+
+.margin-mark {
+  position: absolute;
+  top: 0;
+  inset-inline-start: calc(-1 * clamp(18px, 2.4vw, 30px));
+  display: none;
+  align-items: center;
+  gap: 10px;
+  writing-mode: vertical-rl;
+  transform: rotate(180deg);
+  transform-origin: center;
+  font-family: var(--font-body);
+  font-size: 0.66rem;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--text-light);
+  pointer-events: none;
+
+  &::after {
+    content: "";
+    width: 1px;
+    height: 0;
+    background: var(--brand-accent-dim);
+    transition: height 900ms var(--ease-expo) 120ms;
+  }
+
+  .is-visible &::after,
+  &.is-visible::after {
+    height: clamp(40px, 8vh, 92px);
+  }
+}
+
+@media (min-width: 860px) {
+  .margin-mark {
+    display: flex;
+  }
+}
+
+// ── 3. THE DRIFT ───────────────────────────────────────────────────────────────
+// Set by JS as a CSS variable so the transform stays composited and the element
+// keeps whatever other transform its reveal state needs.
+
+[data-drift] {
+  will-change: transform;
+}
+
+[data-drift] img {
+  transform: translate3d(0, var(--drift, 0px), 0) scale(var(--drift-scale, 1));
+}
+
+@media (prefers-reduced-motion: reduce) {
+  [data-drift] img {
+    transform: none;
+  }
+}
+
 // ─────── COMPARISON BLOCK (duo-cards) ─────────────────────────────────────────
 // One composition, not two boxes. Previously each half was a separate gradient
 // panel with its own shadow, a blurred glow orb and a diagonal light beam, so
@@ -1318,18 +1466,24 @@ select {
 }
 
 .visual-caption {
+  // Hugs its text instead of spanning the frame — once the photograph bleeds to
+  // the page edge a full-width bar reads as a UI element sitting on the picture.
   position: absolute;
   bottom: 12px;
-  inset-inline: 12px;
-  padding: 8px 14px;
+  inset-inline-start: 12px;
+  inset-inline-end: auto;
+  display: inline-block;
+  width: auto;
+  max-width: calc(100% - 24px);
+  padding: 6px 12px;
   border-radius: var(--r-chip);
-  background: rgba(10, 8, 6, 0.88);
+  background: rgba(10, 8, 6, 0.72);
   backdrop-filter: blur(10px);
-  color: rgba(255, 255, 255, 0.88);
-  font-size: var(--text-xs);
-  font-weight: 500;
+  -webkit-backdrop-filter: blur(10px);
+  font-family: var(--font-body);
+  font-size: 0.72rem;
   letter-spacing: 0.02em;
-  text-align: center;
+  color: rgba(255, 255, 255, 0.9);
 }
 
 // ─────── SOLUTION SECTION ──────────────────────────────────────────────────────
@@ -2139,49 +2293,81 @@ select {
 
 .reviews-rail {
   display: flex;
-  // Screenshots differ in height by design (4:1 next to 1.14:1). Centring shares
-  // the difference between top and bottom instead of leaving a visible hole
-  // under the shortest card.
   align-items: center;
-  gap: var(--space-md);
+  gap: clamp(14px, 2.4vw, 26px);
   will-change: transform;
 }
 
 .review-card {
   flex-shrink: 0;
-  width: clamp(300px, 42vw, 480px);
+  // Width is decided by the image's own ratio, not imposed on it.
+  width: auto;
+}
+
+// The shared height band gives the row its rhythm; the width cap keeps a very
+// wide screenshot from running away with the track. Both are MAX constraints and
+// the intrinsic size is left to resolve itself, so the image never letterboxes
+// inside a box larger than itself: the card shrinks to the picture, not the
+// other way round. Nothing is cropped, stretched or padded.
+.review-frame img {
+  max-height: clamp(190px, 26vh, 300px);
+  max-width: min(78vw, 440px);
+  width: auto;
+  height: auto;
+  // Belt and braces: even if a container ever imposes a box, the picture inside
+  // can never be stretched.
+  object-fit: contain;
+}
+
+.review-card--scatter-1 { transform: translateY(-6px); }
+.review-card--scatter-2 { transform: translateY(10px); }
+.review-card--scatter-3 { transform: translateY(-2px); }
+
+// Readability wins on small screens: no rotation, no offsets, full width.
+@media (max-width: 600px) {
+  .review-card--scatter-1,
+  .review-card--scatter-2,
+  .review-card--scatter-3 {
+    transform: none;
+  }
+
+  .review-inner--tilt-l,
+  .review-inner--tilt-r {
+    transform: none;
+  }
 }
 
 .review-inner {
   border-radius: var(--r-media);
   overflow: hidden;
   background: #fff;
-  box-shadow: 0 0 0 1px var(--rule);
-  transition: box-shadow var(--motion-mid) var(--ease-expo);
+  box-shadow: 0 0 0 1px var(--rule), 0 10px 30px rgba(26, 24, 22, 0.05);
+  transition: transform var(--motion-mid) var(--ease-expo),
+    box-shadow var(--motion-mid) var(--ease-expo);
 
-  &:hover {
-    box-shadow: 0 0 0 1px rgba(42, 40, 38, 0.2);
+  &:hover,
+  &:focus-within {
+    transform: rotate(0deg) translateY(-2px);
+    box-shadow: 0 0 0 1px var(--rule-strong), 0 14px 36px rgba(26, 24, 22, 0.08);
   }
 }
 
 .review-inner--tilt-l {
-  transform: none;
+  transform: rotate(-0.7deg);
 }
 
 .review-inner--tilt-r {
-  transform: none;
+  transform: rotate(0.8deg);
 }
 
 .review-frame {
   position: relative;
   overflow: hidden;
+  display: block;
 
   img {
     position: static;
-    width: 100%;
-    height: auto;
     display: block;
-    object-fit: contain;
   }
 }
 
@@ -2211,21 +2397,50 @@ select {
   }
 }
 
-// ─────── SOCIAL CONTENT (video-ready) ─────────────────────────────────────────
-// Presentation-level normalisation: every item declares its own native ratio and
-// the grid absorbs the difference. Nothing is re-cropped to a house shape, so
-// 9:16 reels, 4:5 posts, squares and 16:9 can sit together without the page
-// looking inconsistent.
+// ─────── SOCIAL CONTENT ────────────────────────────────────────────────────────
+// A media-only chapter, deliberately wordless: after a page of type this is the
+// change of rhythm. Two real 9:16 clips, one dominant and one offset, so it
+// reads as an art-directed pair rather than a two-column video grid.
 
 .section-social {
-  padding: clamp(28px, 4.6vh, 56px) 0;
+  position: relative;
+  padding: clamp(26px, 4.2vh, 54px) 0 clamp(14px, 2.2vh, 30px);
+  background: #0a0806;
+
+  // Soft entry and exit so the dark chapter is a change of light, not a cut.
+  &::before,
+  &::after {
+    content: "";
+    position: absolute;
+    inset-inline: 0;
+    height: clamp(28px, 4vh, 56px);
+    pointer-events: none;
+  }
+
+  &::before {
+    top: 0;
+    background: linear-gradient(to bottom, var(--surface), transparent);
+    opacity: 0.28;
+  }
+
+  &::after {
+    bottom: 0;
+    background: linear-gradient(to top, var(--bg), transparent);
+    opacity: 0.16;
+  }
 }
 
-.social-grid {
+.social-stage {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(min(220px, 100%), 1fr));
-  gap: clamp(14px, 2.4vw, 26px);
+  gap: clamp(14px, 2.2vw, 26px);
+  padding: 0 var(--page-gutter-mobile);
+  max-width: var(--container-max);
+  margin: 0 auto;
   align-items: start;
+}
+
+.social-item {
+  position: relative;
 }
 
 .social-frame {
@@ -2233,6 +2448,7 @@ select {
   border-radius: var(--r-media);
   overflow: hidden;
   background: rgba(20, 18, 16, 0.9);
+  transition: transform var(--motion-mid) var(--ease-expo);
 
   video {
     display: block;
@@ -2240,10 +2456,20 @@ select {
     height: 100%;
     object-fit: cover;
     cursor: pointer;
+    transition: transform 900ms var(--ease-expo);
+  }
+
+  &:hover {
+    transform: translateY(-3px);
+
+    video {
+      transform: scale(1.03);
+    }
   }
 }
 
-// Native ratios, declared by the data rather than assumed by the CSS.
+// Native ratios come from the data, so mixed formats can be added later without
+// the layout assuming a house shape.
 .social-item[data-ratio="9:16"] .social-frame { aspect-ratio: 9 / 16; }
 .social-item[data-ratio="4:5"]  .social-frame { aspect-ratio: 4 / 5; }
 .social-item[data-ratio="1:1"]  .social-frame { aspect-ratio: 1 / 1; }
@@ -2259,6 +2485,7 @@ select {
   background: linear-gradient(to top, rgba(8, 6, 5, 0.34), transparent 52%);
   cursor: pointer;
   transition: opacity var(--motion-mid) var(--ease-smooth);
+  -webkit-tap-highlight-color: transparent;
 
   &.is-playing {
     opacity: 0;
@@ -2271,11 +2498,19 @@ select {
 }
 
 .social-play-mark {
-  width: 46px;
-  height: 46px;
+  width: clamp(44px, 9vw, 56px);
+  aspect-ratio: 1;
   border-radius: 50%;
-  border: 1px solid rgba(255, 255, 255, 0.7);
+  border: 1px solid rgba(255, 255, 255, 0.72);
   position: relative;
+  transition: background-color var(--motion-mid) var(--ease-smooth),
+    transform var(--motion-mid) var(--ease-expo);
+
+  .social-play:hover &,
+  .social-play:focus-visible & {
+    background: rgba(255, 255, 255, 0.16);
+    transform: scale(1.06);
+  }
 
   &::after {
     content: "";
@@ -2284,39 +2519,54 @@ select {
     left: 50%;
     transform: translate(-50%, -50%);
     border-style: solid;
-    // RTL-safe: the play triangle is a direction-neutral media glyph and must
-    // always point the same way, so it is drawn rather than mirrored by text flow.
-    border-width: 7px 0 7px 11px;
-    border-color: transparent transparent transparent rgba(255, 255, 255, 0.92);
+    // Direction-neutral media glyph: drawn, never mirrored by RTL text flow.
+    border-width: 8px 0 8px 13px;
+    border-color: transparent transparent transparent rgba(255, 255, 255, 0.94);
   }
 }
 
-.social-meta {
-  display: flex;
-  align-items: baseline;
-  justify-content: space-between;
-  gap: var(--space-sm);
-  padding-top: 10px;
-}
-
-.social-title {
-  font-family: var(--font-display);
-  font-size: var(--text-base);
-  font-weight: 400;
-  color: var(--text);
-}
-
 .social-link {
+  display: inline-block;
+  margin-top: 10px;
   font-family: var(--font-body);
   font-size: var(--text-xs);
   font-weight: 600;
-  color: var(--text-light);
+  color: rgba(255, 255, 255, 0.62);
   border-bottom: 1px solid currentColor;
   transition: color var(--motion-mid) var(--ease-smooth);
 
   &:hover,
   &:focus-visible {
-    color: var(--text);
+    color: rgba(255, 255, 255, 0.95);
+  }
+}
+
+// Mobile: the lead clip runs nearly full width, the second sits inset and
+// slightly lower, so even stacked it reads as a composition and not a list.
+@media (max-width: 767px) {
+  .social-item--lead {
+    width: 86%;
+  }
+
+  .social-item:not(.social-item--lead) {
+    width: 62%;
+    margin-inline-start: auto;
+    margin-top: clamp(-46px, -6vw, -26px);
+    margin-bottom: clamp(-30px, -4vw, -14px);
+  }
+}
+
+// Desktop: dominant clip plus a smaller one dropped below its own baseline.
+@media (min-width: 768px) {
+  .social-stage {
+    grid-template-columns: 1.35fr 1fr;
+    gap: clamp(20px, 3vw, 44px);
+    padding: 0 var(--container-padding);
+    align-items: center;
+  }
+
+  .social-item:not(.social-item--lead) {
+    transform: translateY(clamp(18px, 3vw, 44px));
   }
 }
 
@@ -2325,7 +2575,7 @@ select {
 // a single baseline grid — not a picture next to a form in a card.
 
 .section-contact {
-  padding: clamp(34px, 5.6vh, 68px) 0 clamp(30px, 5vh, 60px);
+  padding: clamp(28px, 4.6vh, 58px) 0 clamp(26px, 4.2vh, 50px);
   background: linear-gradient(180deg, var(--bg) 0%, var(--surface) 100%);
 }
 
@@ -2356,6 +2606,24 @@ select {
   }
 }
 
+@media (max-width: 767px) {
+  // One focal point: the photograph runs to the page edge and gets real size,
+  // instead of sitting as a small rectangle above a dense block.
+  .contact-img {
+    margin-inline-start: calc(-1 * var(--container-padding));
+    margin-inline-end: calc(-1 * var(--container-padding));
+    border-radius: 0;
+
+    img {
+      border-radius: 0;
+    }
+  }
+
+  .contact-main {
+    margin-top: var(--space-sm);
+  }
+}
+
 .contact-main {
   display: flex;
   flex-direction: column;
@@ -2374,20 +2642,16 @@ select {
   list-style: none;
   display: flex;
   flex-direction: column;
-  gap: 0;
+  gap: 3px;
   margin: var(--space-xs) 0 0;
 
   li {
     display: block;
-    padding: 10px 0;
-    border-top: 1px solid var(--rule);
+    padding: 0;
+    border: none;
     font-size: var(--text-base);
-    line-height: 1.5;
+    line-height: 1.7;
     color: var(--text-muted);
-
-    &:last-child {
-      border-bottom: 1px solid var(--rule);
-    }
   }
 }
 
@@ -2406,7 +2670,7 @@ select {
 .contact-form {
   display: flex;
   flex-direction: column;
-  gap: clamp(14px, 2vh, 20px);
+  gap: clamp(12px, 1.8vh, 18px);
   padding: 0;
   border: none;
   border-radius: 0;
@@ -2416,7 +2680,7 @@ select {
   label {
     display: flex;
     flex-direction: column;
-    gap: 4px;
+    gap: 3px;
 
     span {
       font-family: var(--font-body);
@@ -2440,7 +2704,7 @@ select {
     transition: border-color var(--motion-mid) var(--ease-smooth);
 
     &:hover {
-      border-bottom-color: var(--rule-strong);
+      border-bottom-color: var(--text-muted);
     }
 
     &:focus {
@@ -2570,6 +2834,38 @@ select {
   }
 }
 
+// ── THE ESCAPING FRAME (applied last, to beat the per-section wrappers) ────────
+// Only the photograph leaves the grid; the text keeps its gutter. That contrast
+// is the point — the page reads as disciplined with one thing breaking out.
+
+.editorial-img--bleed-start,
+.editorial-img--bleed-end {
+  max-width: none;
+}
+
+.editorial-img--bleed-start {
+  margin-inline-start: calc(-1 * var(--bleed-out));
+  margin-inline-end: 0;
+  border-start-start-radius: 0;
+  border-end-start-radius: 0;
+}
+
+.editorial-img--bleed-end {
+  margin-inline-end: calc(-1 * var(--bleed-out));
+  margin-inline-start: 0;
+  border-start-end-radius: 0;
+  border-end-end-radius: 0;
+}
+
+// On small screens the photograph still escapes, but only past the page gutter —
+// there is no centring margin to reclaim and text must keep its 20–24px.
+@media (max-width: 859px) {
+  .editorial-img--bleed-start,
+  .editorial-img--bleed-end {
+    --bleed-out: var(--container-padding);
+  }
+}
+
 // ─────── FOOTER ────────────────────────────────────────────────────────────────
 
 .site-footer {
@@ -2620,13 +2916,14 @@ select {
 // page's one scroll-motion flourish and it stays off everything else.
 .editorial-img.reveal img,
 .contact-img.reveal img {
-  transform: scale(1.045);
+  --drift-scale: 1.045;
+  transform: translate3d(0, var(--drift, 0px), 0) scale(var(--drift-scale, 1));
   transition: transform 1100ms var(--ease-expo);
 }
 
 .editorial-img.reveal.is-visible img,
 .contact-img.reveal.is-visible img {
-  transform: scale(1);
+  --drift-scale: 1;
 }
 
 .reveal-soft {
@@ -2836,10 +3133,14 @@ select {
     padding: 0 var(--container-padding);
   }
 
-  // Client messages are wide; on mobile they get nearly the whole viewport.
+  // Readability over quantity: fewer, larger messages on small screens.
   .review-card {
-    width: clamp(300px, 88vw, 420px);
     scroll-snap-align: center;
+  }
+
+  .review-frame img {
+    max-height: clamp(210px, 32vh, 300px);
+    max-width: 86vw;
   }
 
   // Contact form

@@ -68,10 +68,37 @@ export class AppComponent implements AfterViewInit, OnDestroy {
   ];
 
   /**
-   * No video assets exist yet, so this stays empty on purpose (see SocialVideo).
-   * Adding entries is the only step needed to switch the section on.
+   * Real footage from src/assets/.../MyProjects. Both sources are 2160x3840
+   * (true 9:16) H.264 masters; `reel-*.mp4` are the web transcodes (1080x1920)
+   * and every poster is a real frame lifted out of its own clip, never a
+   * fabricated thumbnail.
+   *
+   * `instagramUrl` is intentionally EMPTY. No real post URLs were supplied and
+   * inventing one would ship a dead link, so the template hides the action until
+   * a genuine URL is filled in here.
    */
-  socialVideos: SocialVideo[] = [];
+  socialVideos: SocialVideo[] = [
+    {
+      id: 'reel-9',
+      src: 'assets/lovable-uploads/MyAssets/MyProjects/reel-9.mp4',
+      poster: 'assets/lovable-uploads/MyAssets/MyProjects/reel-9-poster.jpg',
+      instagramUrl: '',
+      title: '',
+      alt: 'עדי אריאלי בצילומים',
+      aspectRatio: '9:16',
+      category: 'on-action'
+    },
+    {
+      id: 'reel-1',
+      src: 'assets/lovable-uploads/MyAssets/MyProjects/reel-1.mp4',
+      poster: 'assets/lovable-uploads/MyAssets/MyProjects/reel-1-poster.jpg',
+      instagramUrl: '',
+      title: '',
+      alt: 'סרטון תוכן ללקוחה',
+      aspectRatio: '9:16',
+      category: 'work'
+    }
+  ];
 
   /** id of the clip currently playing, or null. Only one plays at a time. */
   playingVideoId: string | null = null;
@@ -157,6 +184,54 @@ export class AppComponent implements AfterViewInit, OnDestroy {
     this.initPortfolioReel();
     this.initResultsReel();
     this.initSectionProgress();
+    this.initEditorialDrift();
+  }
+
+  // ─── ADI signature: editorial drift ───────────────────────────────────────────
+  // Photographs move a few pixels slower than the text beside them as the page
+  // scrolls. The intent is that it is FELT, not seen: the maximum offset is 12px,
+  // which is enough to stop a composition feeling pinned to the page and far too
+  // small to read as a parallax effect.
+  //
+  // Written to a CSS custom property rather than to `transform` directly, so the
+  // reveal animation can keep using the same transform without the two fighting.
+  private initEditorialDrift(): void {
+    const targets = Array.from(document.querySelectorAll<HTMLElement>('[data-drift]'));
+    if (targets.length === 0) return;
+
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+
+    const MAX = 12; // px — the whole effect, start to finish
+
+    this.zone.runOutsideAngular(() => {
+      let ticking = false;
+
+      const update = () => {
+        const vh = window.innerHeight;
+        targets.forEach((el) => {
+          const rect = el.getBoundingClientRect();
+          if (rect.bottom < -200 || rect.top > vh + 200) return;
+          // -1 when the element is entering at the bottom, +1 when leaving at the top
+          const progress = (vh / 2 - (rect.top + rect.height / 2)) / (vh / 2 + rect.height / 2);
+          const strength = parseFloat(el.dataset['drift'] || '0.5');
+          const offset = Math.max(-1, Math.min(1, progress)) * MAX * strength;
+          el.style.setProperty('--drift', `${offset.toFixed(2)}px`);
+        });
+        ticking = false;
+      };
+
+      const onScroll = () => {
+        if (ticking) return;
+        ticking = true;
+        const id = requestAnimationFrame(update);
+        this.rafIds.push(id);
+      };
+
+      update();
+      this.scrollListeners.push(onScroll);
+      window.addEventListener('scroll', onScroll, { passive: true });
+      window.addEventListener('resize', onScroll, { passive: true });
+    });
   }
 
   // ─── Scroll reveal ─────────────────────────────────────────────────────────
