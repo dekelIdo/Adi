@@ -2920,11 +2920,17 @@ select {
   // dominant frame and a supporting one instead of a two-up equipment grid.
   .shoot-details {
     grid-template-columns: 1.15fr 0.85fr;
-    align-items: stretch;
+    align-items: start;
   }
 
+  // A shared height rather than a shared ratio. With aspect-ratio the stretched
+  // row height fed back into the width, so both frames computed to 194px and the
+  // narrow one overhung its own column by 51px and ran off the screen edge.
+  // Fixing the height instead lets the columns stay unequal, which is the point,
+  // and still lands both frames on one baseline.
   .shoot-detail {
-    aspect-ratio: 3 / 4;
+    width: 100%;
+    height: clamp(196px, 58vw, 268px);
 
     img {
       height: 100%;
@@ -3525,6 +3531,60 @@ select {
 // MOBILE RESPONSIVE — PRIMARY DESIGN SYSTEM
 // ═══════════════════════════════════════════════════════════════════════════════
 
+// ────── Section rhythm ──────
+// Measured at 390px, the chapters were opening on seven different distances:
+// 23.6, 27.0, 32.1, 35.4, 37.1, 38.8 and 42.2px. None of the odd ones carried a
+// reason, so the page changed density between chapters for no visible cause.
+//
+// Three steps only, set at the values the design already clustered around, so
+// the page height barely moves and every gap now says something:
+//
+//   tight  a chapter that continues the one before it, or hugs a full-bleed edge
+//   base   the default chapter opening
+//   open   a chapter that starts a new movement and needs air before it
+//
+// Rhythm, not uniformity: the sequence is deliberately uneven.
+
+@media (max-width: 1024px) {
+  :host {
+    --sec-tight: clamp(18px, 2.8vh, 24px);
+    --sec-base: clamp(26px, 3.8vh, 34px);
+    --sec-open: clamp(34px, 5vh, 46px);
+  }
+
+  // Default opening.
+  .section-problem,
+  .section-bg-tint,
+  .section-bg-blue,
+  .section-process,
+  .section-services-editorial,
+  .section-why-merged,
+  .section-faq {
+    padding-block: var(--sec-base);
+  }
+
+  // New movements: the chapter where she appears, the work, the shoot, the
+  // close. These earn the extra air.
+  .section-bg-gradient,
+  .section-portfolio,
+  .section-shoot,
+  .section-contact {
+    padding-block: var(--sec-open);
+  }
+
+  // Transitional or already framed by an edge of its own.
+  .brand-marquee-section,
+  .section-honesty {
+    padding-block: var(--sec-tight);
+  }
+
+  // The dark chapter opens wide and closes tight on purpose: it hands straight
+  // into the next section rather than resolving on its own.
+  .section-social {
+    padding-block: var(--sec-open) var(--sec-tight);
+  }
+}
+
 @media (max-width: 1024px) {
   :host {
     // MOBILE: Tight editorial rhythm
@@ -3559,9 +3619,14 @@ select {
     font-size: clamp(0.68rem, 1.8vw, 0.76rem);
   }
 
-  // Hero mobile: Cinematic portrait composition for 375-430px
+  // Hero mobile: Cinematic portrait composition for 375-430px.
+  // At 84svh the first screen was the photograph plus the statement strip plus
+  // the brand marquee title and its logos: three bands stacked under the hero,
+  // which reads as a compressed template rather than as one frame. At 93svh the
+  // photograph owns the opening screen and only the strip breaks the fold, which
+  // is enough to say there is more without giving the next chapter away.
   .hero {
-    min-height: clamp(560px, 84svh, 700px);
+    min-height: clamp(560px, 93svh, 760px);
   }
 
   .hero-img {
@@ -3611,7 +3676,8 @@ select {
 
   // Brand marquee
   .brand-marquee-section {
-    padding: clamp(16px, 2.8vh, 24px) 0 clamp(20px, 3.2vh, 28px);
+    padding-block: var(--sec-tight);
+    padding-inline: 0;
   }
 
   .brand-marquee-title {
