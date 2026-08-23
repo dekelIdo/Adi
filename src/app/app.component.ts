@@ -74,6 +74,13 @@ export class AppComponent implements AfterViewInit, OnDestroy {
   // opt-out and the Process handoff all stay as verified.
   frameBAsset: string | null = null;
 
+  // ── bridgeCinematic ───────────────────────────────────────────────────────
+  // Master switch for the laptop move. While false the section is a plain
+  // full-bleed photograph with no sticky runway, no veil and no scroll driver,
+  // which is a stable state rather than a half-working effect. The cinematic
+  // build is only turned on once its prepared visual asset passes inspection.
+  bridgeCinematic = false;
+
   private observer?: IntersectionObserver;
   private headerThemeObserver?: IntersectionObserver;
   private reviewsNudgeObserver?: IntersectionObserver;
@@ -719,6 +726,7 @@ export class AppComponent implements AfterViewInit, OnDestroy {
     const frameB = document.querySelector<HTMLElement>('.bridge-frame--b');
     if (!stage || !sticky || !base || !baseImg || !veil) return;
 
+    if (!this.bridgeCinematic) return;
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
 
     // Where the laptop sits in the source frame, measured off the lid quad.

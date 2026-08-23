@@ -1756,12 +1756,49 @@ select {
     background: var(--bg);
   }
 
-  .bridge-stage {
+  // STABLE STATE (bridgeCinematic false). No sticky runway, no veil, no scroll
+  // driver: the chapter is simply the photograph, full bleed, ending on the
+  // Process chapter. This is what ships whenever the cinematic build is not
+  // switched on, so the section is never a half-working effect.
+  .section-bridge:not(.is-cinematic) {
+    .bridge-stage,
+    .bridge-sticky,
+    .bridge-scene {
+      position: static;
+      height: auto;
+      overflow: visible;
+      perspective: none;
+      transform-style: flat;
+    }
+
+    .bridge-frame--a {
+      position: relative;
+      inset: auto;
+      display: block;
+      transform: none;
+      filter: none;
+      opacity: 1;
+
+      img {
+        width: 100%;
+        height: auto;
+        display: block;
+        object-fit: cover;
+      }
+    }
+
+    .bridge-frame--b,
+    .bridge-veil {
+      display: none;
+    }
+  }
+
+  .is-cinematic .bridge-stage {
     position: relative;
     height: 128vh;
   }
 
-  .bridge-sticky {
+  .is-cinematic .bridge-sticky {
     position: sticky;
     top: 0;
     height: 100vh;
@@ -1771,14 +1808,14 @@ select {
     perspective-origin: var(--lap-x, 30%) var(--lap-y, 34%);
   }
 
-  .bridge-scene {
+  .is-cinematic .bridge-scene {
     position: absolute;
     inset: 0;
     transform-style: preserve-3d;
   }
 
   // The body stays put. It drifts only enough to stop the frame feeling pinned.
-  .bridge-base {
+  .is-cinematic .bridge-base {
     position: absolute;
     inset: 0;
     display: block;
@@ -1803,12 +1840,12 @@ select {
   // Frame B rides the same camera move as Frame A and only its mix changes.
   // It starts invisible, so if the asset is ever missing the bridge degrades to
   // exactly the Frame A behaviour rather than to a hole.
-  .bridge-frame--b {
+  .is-cinematic .bridge-frame--b {
     z-index: 2;
     opacity: var(--base-opacity, 0);
   }
 
-  .bridge-veil {
+  .is-cinematic .bridge-veil {
     position: absolute;
     inset: 0;
     background: var(--bg);
@@ -2091,8 +2128,12 @@ select {
     height: auto;
   }
 
+  // Relative, not static: this element is the containing block for the blurred
+  // backdrop layer behind the photograph, which is inset by -8%. Dropping it to
+  // static handed that layer to the section instead, so it resolved against the
+  // full section width and spilled 31px past the right edge of the page.
   .action-sticky {
-    position: static;
+    position: relative;
     height: auto;
   }
 
@@ -3731,12 +3772,20 @@ select {
     // frame past the viewport edge and put a horizontal scrollbar on the page.
     // The section clips as well, because the reveal drift on this figure moves
     // it a further few px outward mid-animation.
+    // Both axes. With overflow-x clipped and overflow-y left visible the box
+    // becomes a scroll container on the other axis, and its own scroll extent
+    // still reported through to the page. Clipping both keeps the bleed purely
+    // visual.
     #about {
-      overflow-x: clip;
+      overflow: clip;
     }
 
     .about-photo-wrap {
-      max-width: none;
+      // Exactly the column plus the gutter it bleeds into. Without the cap the
+      // figure resolved a few px wider than that and pushed past the screen
+      // edge, which showed up as page overflow whenever the reveal drift was
+      // not holding it back.
+      max-width: calc(100% + var(--container-padding));
       margin: 0;
       margin-block-start: clamp(18px, 3vh, 26px);
       margin-inline-end: calc(-1 * var(--container-padding));
