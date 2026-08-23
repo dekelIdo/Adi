@@ -283,7 +283,10 @@ export class AppComponent implements AfterViewInit, OnDestroy {
             }, 420);
           });
         },
-        { threshold: 0.45 }
+        // Deliberately low: the rail sits at the foot of its section, so with a
+        // high threshold the hint never fires on a normal scroll (at 0.45 it was
+        // silently never reaching the callback).
+        { threshold: 0.25 }
       );
       obs.observe(rail);
       this.reviewsNudgeObserver = obs;
