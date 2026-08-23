@@ -376,6 +376,7 @@ select {
   height: 100%;
   z-index: 1;
   
+  // Bottom scrim: lets the headline sit on the photograph.
   &::after {
     content: "";
     position: absolute;
@@ -385,6 +386,23 @@ select {
     height: 40%;
     background: linear-gradient(to top, rgba(10, 8, 6, 0.92), rgba(10, 8, 6, 0.58) 55%, transparent);
     pointer-events: none;
+  }
+
+  // Top scrim: the header runs light controls over this photograph, but the top
+  // of the frame is a pale studio backdrop, so at rest the white header text was
+  // sitting on rgb(177,176,183) at a 2.15 contrast ratio. This darkens only the
+  // band the header occupies and fades out well before the subject, so it reads
+  // as photographic vignetting rather than as a UI bar behind the controls.
+  &::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 26%;
+    background: linear-gradient(to bottom, rgba(10, 8, 6, 0.62), rgba(10, 8, 6, 0.34) 46%, transparent);
+    pointer-events: none;
+    z-index: 1;
   }
 }
 
@@ -737,8 +755,8 @@ select {
 .portfolio-reel-outer,
 .results-outer,
 .reviews-outer {
-  -webkit-mask-image: linear-gradient(to right, transparent 0, #000 clamp(24px, 7vw, 88px), #000 calc(100% - clamp(24px, 7vw, 88px)), transparent 100%);
-  mask-image: linear-gradient(to right, transparent 0, #000 clamp(24px, 7vw, 88px), #000 calc(100% - clamp(24px, 7vw, 88px)), transparent 100%);
+  -webkit-mask-image: linear-gradient(to right, transparent 0, #000 clamp(56px, 16vw, 120px), #000 calc(100% - clamp(56px, 16vw, 120px)), transparent 100%);
+  mask-image: linear-gradient(to right, transparent 0, #000 clamp(56px, 16vw, 120px), #000 calc(100% - clamp(56px, 16vw, 120px)), transparent 100%);
 }
 
 @keyframes brandScroll {
@@ -866,8 +884,8 @@ select {
 .section-intro-split {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: var(--space-sm);
-  margin-bottom: var(--space-sm);
+  gap: var(--space-xs);
+  margin-bottom: var(--space-xs);
   align-items: start;
 }
 
@@ -2282,12 +2300,19 @@ select {
 .reviews-outer {
   overflow-x: auto;
   overflow-y: hidden;
-  padding: var(--space-md) 0;
-  -webkit-overflow-scrolling: touch;
+  padding: var(--space-sm) 0;
+  cursor: grab;
+  scroll-snap-type: x proximity;
+  scroll-padding-inline-start: var(--container-padding);
   scrollbar-width: none;
+  -ms-overflow-style: none;
 
   &::-webkit-scrollbar {
     display: none;
+  }
+
+  &:active {
+    cursor: grabbing;
   }
 }
 
@@ -3133,14 +3158,15 @@ select {
     padding: 0 var(--container-padding);
   }
 
-  // Readability over quantity: fewer, larger messages on small screens.
+  // Readability over quantity: fewer, larger messages on small screens, each
+  // one snapping to the gutter so it is never left half-read.
   .review-card {
-    scroll-snap-align: center;
+    scroll-snap-align: start;
   }
 
   .review-frame img {
-    max-height: clamp(210px, 32vh, 300px);
-    max-width: 86vw;
+    max-height: clamp(250px, 40vh, 360px);
+    max-width: 82vw;
   }
 
   // Contact form

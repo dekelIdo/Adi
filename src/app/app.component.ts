@@ -53,6 +53,7 @@ interface BrandLogo {
 export class AppComponent implements AfterViewInit, OnDestroy {
   private observer?: IntersectionObserver;
   private headerThemeObserver?: IntersectionObserver;
+  private reviewsNudgeObserver?: IntersectionObserver;
   private scrollListeners: Array<() => void> = [];
   private rafIds: number[] = [];
   backToTopVisible = false;
@@ -185,6 +186,108 @@ export class AppComponent implements AfterViewInit, OnDestroy {
     this.initResultsReel();
     this.initSectionProgress();
     this.initEditorialDrift();
+    this.initReviewsNudge();
+  }
+
+  // ─── Reviews: one-time idle affordance ────────────────────────────────────────
+  // The reviews rail is deliberately NOT a marquee: these are dense message
+  // screenshots and the visitor has to be able to read them without chasing.
+  // But a rail that never moves reads as static, and the next message sitting
+  // behind the edge fade can go unnoticed.
+  //
+  // So: exactly one nudge, the first time the section is seen. The rail drifts a
+  // short way toward the next message, revealing its edge, then settles back to
+  // the start so the first message is left fully readable. It never repeats, and
+  // it is abandoned the moment the visitor touches the rail themselves.
+  private initReviewsNudge(): void {
+    const rail = document.querySelector<HTMLElement>('.reviews-outer');
+    if (!rail) return;
+
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+
+    let userEngaged = false;
+    const engage = () => {
+      userEngaged = true;
+      remove();
+    };
+    const events: Array<keyof HTMLElementEventMap> = ['pointerdown', 'touchstart', 'wheel', 'keydown'];
+    const remove = () => events.forEach((e) => rail.removeEventListener(e, engage));
+    events.forEach((e) => rail.addEventListener(e, engage, { passive: true, once: true }));
+
+    const OUT = 620;
+    const HOLD = 220;
+    const BACK = 760;
+    const easeOut = (t: number) => 1 - Math.pow(1 - t, 3);
+    const easeInOut = (t: number) => (t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2);
+
+    const run = () => {
+      // Overflow is checked HERE, not at init: the review screenshots are lazy
+      // loaded, so at ngAfterViewInit they have no intrinsic size, the rail does
+      // not overflow yet, and an early guard would cancel the hint permanently.
+      // By the time the section is on screen the images have real widths.
+      if (rail.scrollWidth <= rail.clientWidth + 8) return;
+
+      // Snapping is suspended for the duration so the rail glides and settles
+      // instead of being yanked to an alignment point mid-gesture.
+      const snap = rail.style.scrollSnapType;
+      rail.style.scrollSnapType = 'none';
+
+      // RTL browsers disagree on the sign of scrollLeft, so probe rather than
+      // assume. This MUST happen after snapping is off: with snapping active a
+      // one-pixel test scroll is immediately snapped back to the start, which
+      // makes the negative-offset model look like the positive one and sends the
+      // whole animation in the direction that is clamped to zero.
+      const start = rail.scrollLeft;
+      rail.scrollLeft = start - 1;
+      const direction = rail.scrollLeft !== start ? -1 : 1;
+      rail.scrollLeft = start;
+
+      const distance = Math.min(46, rail.clientWidth * 0.12) * direction;
+
+      const t0 = performance.now();
+      const step = (now: number) => {
+        if (userEngaged) {
+          rail.style.scrollSnapType = snap;
+          return;
+        }
+        const elapsed = now - t0;
+        let offset: number;
+        if (elapsed < OUT) {
+          offset = distance * easeOut(elapsed / OUT);
+        } else if (elapsed < OUT + HOLD) {
+          offset = distance;
+        } else if (elapsed < OUT + HOLD + BACK) {
+          offset = distance * (1 - easeInOut((elapsed - OUT - HOLD) / BACK));
+        } else {
+          rail.scrollLeft = start;
+          rail.style.scrollSnapType = snap;
+          return;
+        }
+        rail.scrollLeft = start + offset;
+        const id = requestAnimationFrame(step);
+        this.rafIds.push(id);
+      };
+      const id = requestAnimationFrame(step);
+      this.rafIds.push(id);
+    };
+
+    this.zone.runOutsideAngular(() => {
+      const obs = new IntersectionObserver(
+        (entries) => {
+          entries.forEach((entry) => {
+            if (!entry.isIntersecting) return;
+            obs.disconnect(); // once, and only once
+            if (userEngaged) return;
+            window.setTimeout(() => {
+              if (!userEngaged) run();
+            }, 420);
+          });
+        },
+        { threshold: 0.45 }
+      );
+      obs.observe(rail);
+      this.reviewsNudgeObserver = obs;
+    });
   }
 
   // ─── ADI signature: editorial drift ───────────────────────────────────────────
@@ -808,6 +911,7 @@ export class AppComponent implements AfterViewInit, OnDestroy {
   ngOnDestroy(): void {
     this.observer?.disconnect();
     this.headerThemeObserver?.disconnect();
+    this.reviewsNudgeObserver?.disconnect();
     this.rafIds.forEach((id) => cancelAnimationFrame(id));
     this.scrollListeners.forEach((fn) => {
       window.removeEventListener('scroll', fn);
