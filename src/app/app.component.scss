@@ -1544,6 +1544,26 @@ select {
   color: var(--text);
 }
 
+// ── VISUAL SURPRISE: one photograph belongs to two chapters ───────────────────
+// Used exactly once on the page. The solution portrait hangs past the bottom of
+// its own section and into the one below, so the two chapters interlock instead
+// of stacking. Sections each create a stacking context (`isolation: isolate`)
+// and paint in DOM order, so the section doing the overhanging has to be raised
+// or the next section's background would cover the part that escapes.
+//
+// Desktop and tablet only: on a phone the sections are already a single column
+// and an overhang would just read as a spacing error.
+
+@media (min-width: 768px) {
+  #solution {
+    z-index: 2;
+  }
+
+  .solution-visual-wrap {
+    margin-bottom: calc(-1 * clamp(38px, 6.5vh, 88px));
+  }
+}
+
 // ─────── ABOUT SECTION ─────────────────────────────────────────────────────────
 
 .about-layout {
