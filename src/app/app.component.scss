@@ -1453,9 +1453,14 @@ select {
   display: none;
 }
 
-// Desktop: the two halves sit side by side so the comparison is literal, split
-// by one vertical rule instead of a gap between panels.
-@media (min-width: 760px) {
+// The two halves sit side by side so the comparison is literal, split by one
+// vertical rule instead of a gap between panels.
+//
+// Desktop only, and deliberately so: these cards sit inside .split-stack, which
+// is one half of .split-grid from 540px upward. Pairing them any earlier gave
+// columns of 176px at 768, which is too narrow to read. They only pair once the
+// stack itself is wide enough to carry two.
+@media (min-width: 1025px) {
   .duo-cards {
     grid-template-columns: 1fr 1fr;
   }
@@ -2699,9 +2704,11 @@ select {
   }
 }
 
-// Desktop: the lead dominates on the reading edge and the two details stack
-// beside it, the rig slightly overlapping the lead so the layers read as depth.
-@media (min-width: 860px) {
+// The lead dominates on the reading edge and the two details stack beside it,
+// the rig slightly overlapping the lead so the layers read as depth. From 640px:
+// below that the lead alone is nearly 800px tall on its own, which is the single
+// biggest block of vertical travel in the 540-699 band.
+@media (min-width: 540px) {
   .shoot-layout {
     grid-template-columns: 1.25fr 1fr;
     align-items: center;
@@ -2729,7 +2736,7 @@ select {
   }
 }
 
-@media (max-width: 859px) {
+@media (max-width: 539px) {
   // Narrow screens keep the idea and lose the layering: lead full width, the
   // two details as a quiet pair underneath it.
   .shoot-lead {
@@ -2892,7 +2899,7 @@ select {
 
 // Mobile: the lead clip runs nearly full width, the second sits inset and
 // slightly lower, so even stacked it reads as a composition and not a list.
-@media (max-width: 767px) {
+@media (max-width: 539px) {
   // Lead runs large; the two supporting clips sit side by side beneath it and
   // slightly inset, so three items still read as one composition rather than a
   // stack of equal cards.
@@ -2916,9 +2923,11 @@ select {
 }
 
 // Desktop: dominant clip plus a smaller one dropped below its own baseline.
-@media (min-width: 768px) {
+@media (min-width: 540px) {
   // One dominant clip with the two others stacked beside it at half height, each
   // dropped a little below the last so the group is a composition, not a row.
+  // From 540: below that the stacked version simply grew with the viewport,
+  // because three 9:16 clips get taller as they get wider.
   .social-stage {
     grid-template-columns: 1.45fr 1fr;
     grid-template-rows: auto auto;
@@ -3556,6 +3565,68 @@ select {
 
   .section-title {
     font-size: clamp(1.8rem, 8vw, 2.4rem);
+  }
+}
+
+// ────── Small-tablet / large-phone tier (540–699px) ──────
+// Between a phone and a tablet there is genuinely enough width for two columns
+// of text, and forcing everything to stack made 600px taller than 768px.
+// Only compositions that stay comfortable at roughly 260px per column are paired
+// here: headings beside their lead paragraph, the two statement lists, and the
+// image-and-copy splits. The contact form is held back to 640px so its fields
+// never get cramped, and phones below 540 are untouched.
+
+@media (min-width: 540px) and (max-width: 699px) {
+  .section-intro-split,
+  .services-header,
+  .portfolio-editorial-header {
+    grid-template-columns: 1fr 1fr;
+    gap: var(--space-sm);
+  }
+
+  .why-merged-grid {
+    grid-template-columns: 1fr 1fr;
+    gap: var(--space-md);
+  }
+
+  .split-grid {
+    grid-template-columns: 1fr 1fr;
+    gap: var(--space-md);
+    align-items: start;
+  }
+
+  .solution-wrap {
+    grid-template-columns: 1fr 1.05fr;
+    gap: var(--space-md);
+    align-items: center;
+  }
+
+  // Copy keeps the wider share so the paragraphs never run short-measure.
+  .about-layout {
+    grid-template-columns: 1.5fr 1fr;
+    gap: var(--space-md);
+    align-items: start;
+  }
+
+  .about-photo-wrap {
+    max-width: 240px;
+    margin-inline-start: auto;
+  }
+}
+
+// Contact waits until 640: the form is the conversion point and its fields
+// should never be the thing that gets squeezed.
+@media (min-width: 640px) and (max-width: 699px) {
+  .contact-layout {
+    grid-template-columns: 0.85fr 1fr;
+    gap: var(--space-md);
+    align-items: center;
+  }
+
+  .contact-img {
+    margin-inline-start: 0;
+    margin-inline-end: 0;
+    border-radius: var(--r-media);
   }
 }
 
