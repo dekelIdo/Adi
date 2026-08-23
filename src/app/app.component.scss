@@ -411,10 +411,34 @@ select {
 
 // <picture> is inline by default, which would collapse .hero-img's height: 100%.
 // Make it a transparent pass-through box so the portrait fills the hero as before.
+// It is also the scroll-depth target: .hero-img itself carries the entrance
+// animation, and an animation's transform would win over anything set here.
 .hero-portrait-full picture {
   display: block;
   width: 100%;
   height: 100%;
+  transform: scale(var(--hero-depth, 1)) translate3d(0, var(--hero-shift, 0px), 0);
+  transform-origin: 50% 26%;
+  will-change: transform;
+}
+
+// The hero leaves in two speeds: the words lift and go first, the photograph
+// keeps pushing in behind them. The image outlasting the type is what makes the
+// first scroll read as a camera move rather than as a page scrolling away.
+.hero-exit {
+  position: relative;
+  z-index: 2;
+  opacity: var(--hero-type-o, 1);
+  transform: translate3d(0, var(--hero-type-y, 0px), 0);
+  will-change: transform, opacity;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-portrait-full picture,
+  .hero-exit {
+    transform: none;
+    opacity: 1;
+  }
 }
 
 .hero-img {
@@ -1653,6 +1677,15 @@ select {
   margin: 0 auto;
 }
 
+// On desktop the copy column is short and the portrait is tall, which left
+// roughly 280px of dead space under the paragraphs. Centring the copy against
+// the picture closes the void without changing either element.
+@media (min-width: 1025px) {
+  .about-layout {
+    align-items: center;
+  }
+}
+
 .story-card {
   padding: 0 0 0 0;
   padding-inline-start: clamp(16px, 3vw, 26px);
@@ -1767,12 +1800,21 @@ select {
     }
   }
 
+  // Frame B rides the same camera move as Frame A and only its mix changes.
+  // It starts invisible, so if the asset is ever missing the bridge degrades to
+  // exactly the Frame A behaviour rather than to a hole.
+  .bridge-frame--b {
+    z-index: 2;
+    opacity: var(--base-opacity, 0);
+  }
+
   .bridge-veil {
     position: absolute;
     inset: 0;
     background: var(--bg);
     opacity: var(--bridge-veil, 0);
     pointer-events: none;
+    z-index: 3;
   }
 }
 
@@ -1808,6 +1850,8 @@ select {
     }
   }
 
+  // Reduced motion shows one still frame, and that is the photograph we have.
+  .bridge-frame--b,
   .bridge-veil {
     display: none;
   }
@@ -2868,6 +2912,29 @@ select {
     margin-inline-end: calc(-1 * var(--container-padding));
     border-radius: 0;
   }
+
+  // The two details are a 1152x2048 portrait and a landscape frame, so at their
+  // natural heights the pair ended on two different baselines and read as an
+  // accident rather than a composition. They share one ratio here so the bottoms
+  // align, and the columns stay deliberately unequal so there is still a
+  // dominant frame and a supporting one instead of a two-up equipment grid.
+  .shoot-details {
+    grid-template-columns: 1.15fr 0.85fr;
+    align-items: stretch;
+  }
+
+  .shoot-detail {
+    aspect-ratio: 3 / 4;
+
+    img {
+      height: 100%;
+      object-fit: cover;
+    }
+  }
+
+  .shoot-detail--set img {
+    object-position: 50% 40%;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -3580,6 +3647,36 @@ select {
     .why-merged-grid {
       grid-template-columns: 1fr;
       gap: var(--space-md);
+    }
+  }
+
+  // About, on phones: the portrait is not a card sitting under the paragraphs.
+  // It keeps the reading gutter on the start side and runs off the end edge of
+  // the screen, and it rises far enough to sit against the last paragraph. The
+  // asymmetry is what stops the chapter reading as headline / text / picture in
+  // three equal stacked blocks.
+  @media (max-width: 699px) {
+    .about-layout {
+      gap: 0;
+    }
+
+    // Bleed by the container's own padding, not --bleed-out: at phone widths
+    // --bleed-out resolves a few px wider than the gutter, which pushed the
+    // frame past the viewport edge and put a horizontal scrollbar on the page.
+    // The section clips as well, because the reveal drift on this figure moves
+    // it a further few px outward mid-animation.
+    #about {
+      overflow-x: clip;
+    }
+
+    .about-photo-wrap {
+      max-width: none;
+      margin: 0;
+      margin-block-start: clamp(18px, 3vh, 26px);
+      margin-inline-end: calc(-1 * var(--container-padding));
+      margin-inline-start: clamp(28px, 12vw, 64px);
+      border-start-end-radius: 0;
+      border-end-end-radius: 0;
     }
   }
 

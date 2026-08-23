@@ -37,16 +37,21 @@
           </picture>
         </div>
 
-        <div class="hero-identity">
-          <div class="hero-signature">עדי אריאלי</div>
-          <h1 class="hero-essence">
-            הסושיאל שלך<br/>
-            יכול להיות שונה
-          </h1>
-        </div>
+        <!-- The words and the photograph leave at different speeds on the
+             first scroll, so the type is wrapped separately. The entrance
+             animations already own transform on the elements themselves. -->
+        <div class="hero-exit">
+          <div class="hero-identity">
+            <div class="hero-signature">עדי אריאלי</div>
+            <h1 class="hero-essence">
+              הסושיאל שלך<br/>
+              יכול להיות שונה
+            </h1>
+          </div>
 
-        <div class="hero-quiet-cta">
-          <a href="#contact" class="hero-link">בואו נדבר</a>
+          <div class="hero-quiet-cta">
+            <a href="#contact" class="hero-link">בואו נדבר</a>
+          </div>
         </div>
 
       </div>
@@ -282,7 +287,9 @@
       <div class="bridge-stage">
         <div class="bridge-sticky">
           <div class="bridge-scene">
-            <picture class="bridge-base">
+
+            <!-- FRAME A: the real photograph, lid toward camera. Always present. -->
+            <picture class="bridge-base bridge-frame bridge-frame--a">
               <source srcset="assets/lovable-uploads/MyAssets/AdiArieli/laptop-adi.webp" type="image/webp" />
               <img
                 src="assets/lovable-uploads/MyAssets/AdiArieli/laptop-adi.jpg"
@@ -290,6 +297,15 @@
                 width="1400" height="2096" loading="lazy" decoding="async"
               />
             </picture>
+
+            <!-- FRAME B: the real screen-facing photograph, once it exists.
+                 Set frameBAsset in app.component.ts to switch this on. No
+                 placeholder is shipped: with frameBAsset null this element is
+                 not rendered and the bridge stays exactly as verified. -->
+            <picture class="bridge-base bridge-frame bridge-frame--b" *ngIf="frameBAsset">
+              <img [src]="frameBAsset" alt="" loading="lazy" decoding="async" />
+            </picture>
+
           </div>
           <div class="bridge-veil"></div>
         </div>

@@ -51,6 +51,29 @@ interface BrandLogo {
   styleUrls: ['./app.component.scss']
 })
 export class AppComponent implements AfterViewInit, OnDestroy {
+
+  // ── REAL_FRAME_B_ASSET ────────────────────────────────────────────────────
+  // The laptop bridge is a two-frame interaction:
+  //
+  //   FRAME A  the real photograph we have (lid toward camera)  — always shown
+  //   FRAME B  a real screen-facing photograph of the same laptop — not shot yet
+  //
+  // Frame B is deliberately empty. The current shoot contains no frame showing
+  // the screen, and every attempt to synthesise one produced either a matte
+  // artifact or a laptop that was no longer the photographed laptop, so no
+  // placeholder is shipped.
+  //
+  // To enable the full transition, drop the real photograph into
+  // src/assets/lovable-uploads/MyAssets/AdiArieli/ and put its path here:
+  //
+  //   frameBAsset = 'assets/lovable-uploads/MyAssets/AdiArieli/laptop-open.webp';
+  //
+  // Nothing else needs to change. The markup renders the Frame B layer, and
+  // initLaptopBridge crossfades A into B across the same scroll progress it
+  // already drives, so the runway, the reduced-motion path, the desktop
+  // opt-out and the Process handoff all stay as verified.
+  frameBAsset: string | null = null;
+
   private observer?: IntersectionObserver;
   private headerThemeObserver?: IntersectionObserver;
   private reviewsNudgeObserver?: IntersectionObserver;
@@ -481,41 +504,54 @@ export class AppComponent implements AfterViewInit, OnDestroy {
   }
 
   // ─── Hero parallax ─────────────────────────────────────────────────────────
+  // The hero's first scroll. This previously targeted .hero-bg img and
+  // .hero-orb, neither of which exists in the markup any more, so it returned
+  // early and the hero had no scroll response at all.
+  //
+  // Two speeds, one move: the type lifts away over the first third of the hero
+  // while the photograph keeps pushing in behind it. The picture outlasting the
+  // words is what makes the handoff into the statement strip feel authored
+  // instead of feeling like the hero simply ended.
   private initHeroParallax(): void {
-    const heroBgImg = document.querySelector<HTMLElement>('.hero-bg img');
-    const orbs = Array.from(document.querySelectorAll<HTMLElement>('.hero-orb'));
+    const hero = document.querySelector<HTMLElement>('.hero');
+    const picture = document.querySelector<HTMLElement>('.hero-portrait-full picture');
+    const exit = document.querySelector<HTMLElement>('.hero-exit');
+    if (!hero || !picture || !exit) return;
 
-    if (!heroBgImg && orbs.length === 0) return;
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+
+    const clamp01 = (v: number) => (v < 0 ? 0 : v > 1 ? 1 : v);
 
     this.zone.runOutsideAngular(() => {
       let ticking = false;
 
-      const onScroll = () => {
-        if (!ticking) {
-          const id = requestAnimationFrame(() => {
-            const scrollY = window.scrollY;
-            const heroH = document.querySelector<HTMLElement>('.hero')?.offsetHeight ?? window.innerHeight;
+      const update = () => {
+        ticking = false;
+        const h = hero.offsetHeight || window.innerHeight;
+        // Nothing to do once the hero is fully behind us.
+        if (window.scrollY > h * 1.2) return;
 
-            if (scrollY < heroH * 1.4) {
-              const p = scrollY / heroH;
+        const p = clamp01(window.scrollY / h);
 
-              if (heroBgImg) {
-                heroBgImg.style.transform = `scale(0.88) translateY(${p * 3}%)`;
-              }
+        // The photograph closes in slowly and drifts up at less than scroll
+        // speed, so it lags the page and stays present under the strip.
+        picture.style.setProperty('--hero-depth', (1 + p * 0.07).toFixed(4));
+        picture.style.setProperty('--hero-shift', `${(p * -22).toFixed(1)}px`);
 
-              orbs.forEach((orb, i) => {
-                const speed = 0.08;
-                const dir = i % 2 === 0 ? 1 : -1;
-                orb.style.marginTop = `${scrollY * speed * dir * 0.4}px`;
-              });
-            }
-            ticking = false;
-          });
-          this.rafIds.push(id);
-          ticking = true;
-        }
+        // The words go first: gone by a third of the hero.
+        const typeOut = clamp01(p / 0.34);
+        exit.style.setProperty('--hero-type-y', `${(typeOut * -46).toFixed(1)}px`);
+        exit.style.setProperty('--hero-type-o', (1 - typeOut).toFixed(3));
       };
 
+      const onScroll = () => {
+        if (ticking) return;
+        ticking = true;
+        const id = requestAnimationFrame(update);
+        this.rafIds.push(id);
+      };
+
+      update();
       window.addEventListener('scroll', onScroll, { passive: true });
       this.scrollListeners.push(onScroll);
     });
@@ -679,6 +715,8 @@ export class AppComponent implements AfterViewInit, OnDestroy {
     const base = document.querySelector<HTMLElement>('.bridge-base');
     const baseImg = document.querySelector<HTMLImageElement>('.bridge-base img');
     const veil = document.querySelector<HTMLElement>('.bridge-veil');
+    // Null until a real screen-facing photograph is supplied (see frameBAsset).
+    const frameB = document.querySelector<HTMLElement>('.bridge-frame--b');
     if (!stage || !sticky || !base || !baseImg || !veil) return;
 
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
@@ -734,11 +772,27 @@ export class AppComponent implements AfterViewInit, OnDestroy {
         const approach = track(p, 0.24, 0.95);
         const rush = Math.pow(track(p, 0.60, 1), 2.1);
 
-        base.style.setProperty('--base-scale', (1 + anticipate * 0.03 + Math.pow(approach, 1.6) * 1.55 + rush * 0.7).toFixed(4));
+        const scale = 1 + anticipate * 0.03 + Math.pow(approach, 1.6) * 1.55 + rush * 0.7;
         // A few degrees of yaw so the frame turns fractionally as it closes,
         // which stops the move reading as a flat zoom.
-        base.style.setProperty('--base-ry', `${(-anticipate * 1 - approach * 5).toFixed(2)}deg`);
-        base.style.setProperty('--base-opacity', (1 - track(p, 0.88, 0.99)).toFixed(3));
+        const ry = -anticipate * 1 - approach * 5;
+        const exit = 1 - track(p, 0.88, 0.99);
+
+        base.style.setProperty('--base-scale', scale.toFixed(4));
+        base.style.setProperty('--base-ry', `${ry.toFixed(2)}deg`);
+        base.style.setProperty('--base-opacity', exit.toFixed(3));
+
+        // The single interpolation layer between the two frames. Both frames
+        // ride the same camera move; only their mix changes, so there is one
+        // continuous shot rather than two animations. Inert while Frame B is
+        // absent, which is the shipped state.
+        if (frameB) {
+          const mix = track(p, 0.44, 0.74);
+          base.style.setProperty('--base-opacity', (exit * (1 - mix)).toFixed(3));
+          frameB.style.setProperty('--base-scale', scale.toFixed(4));
+          frameB.style.setProperty('--base-ry', `${ry.toFixed(2)}deg`);
+          frameB.style.setProperty('--base-opacity', (exit * mix).toFixed(3));
+        }
 
         // Softness, held back to the final rush. Without a matte the blur lands
         // on the whole plane, so using it as a rack focus would take the laptop
@@ -748,6 +802,10 @@ export class AppComponent implements AfterViewInit, OnDestroy {
         const soften = track(p, 0.66, 0.97);
         base.style.setProperty('--base-blur', `${(soften * 4.5).toFixed(2)}px`);
         base.style.setProperty('--base-bright', (1 - soften * 0.05).toFixed(3));
+        if (frameB) {
+          frameB.style.setProperty('--base-blur', `${(soften * 4.5).toFixed(2)}px`);
+          frameB.style.setProperty('--base-bright', (1 - soften * 0.05).toFixed(3));
+        }
 
         veil.style.setProperty('--bridge-veil', track(p, 0.86, 0.99).toFixed(3));
       };
