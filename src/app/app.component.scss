@@ -1732,6 +1732,95 @@ select {
   margin: var(--space-md) 0 0;
 }
 
+// ─────── ADI IN ACTION ─────────────────────────────────────────────────────────
+// A single full-bleed photograph, no heading and no copy. It lands between the
+// process chapter (pure type) and the portfolio (pure work), so the page rhythm
+// becomes TYPE -> IMAGE -> WORK instead of another heading-and-cards block.
+//
+// It carries the signatures already established rather than inventing new ones:
+// the photograph runs edge to edge, a margin mark rides a blue rule that draws
+// itself in, and the image drifts a few pixels against the scroll.
+
+.section-action {
+  position: relative;
+  padding: 0;
+  overflow: hidden;
+  background: var(--surface);
+  isolation: isolate;
+}
+
+.action-frame {
+  position: relative;
+  margin: 0;
+  display: block;
+
+  picture {
+    display: block;
+  }
+
+  img {
+    width: 100%;
+    height: auto;
+    display: block;
+    filter: saturate(0.95) contrast(1.03);
+  }
+}
+
+// The mark sits inside the frame on this one, over the empty sweep of the
+// cyclorama rather than out in the page margin.
+.margin-mark--action {
+  display: flex;
+  position: absolute;
+  top: auto;
+  bottom: clamp(14px, 3vw, 34px);
+  inset-inline-start: clamp(14px, 3vw, 34px);
+  writing-mode: horizontal-tb;
+  transform: none;
+  align-items: center;
+  gap: 10px;
+  color: var(--text-muted);
+
+  &::after {
+    width: 0;
+    height: 1px;
+    transition: width 900ms var(--ease-expo) 200ms;
+  }
+
+  .is-visible &::after,
+  &.is-visible::after {
+    width: clamp(34px, 7vw, 76px);
+    height: 1px;
+  }
+}
+
+.action-frame.is-visible .margin-mark--action::after {
+  width: clamp(34px, 7vw, 76px);
+}
+
+// On a phone the frame is shown uncropped, which puts the floor full of gear
+// right where the mark sits. Move it up onto the clean sweep of the backdrop
+// so it stays legible against the busiest part of the picture.
+@media (max-width: 767px) {
+  .margin-mark--action {
+    top: clamp(12px, 3vw, 20px);
+    bottom: auto;
+  }
+}
+
+// Desktop: cap the band so a wide frame cannot swallow the viewport, and hold
+// the crop low enough to keep the gear on the floor in shot, since that is the
+// part that does the talking.
+@media (min-width: 768px) {
+  .action-frame img {
+    // Tall enough, and focused high enough, to hold BOTH ends of the story in
+    // one frame: her at the top and the rig, laptop and boxes on the floor.
+    // A lower focal point cropped her head off; a shorter band lost the gear.
+    height: clamp(430px, 74vh, 760px);
+    object-fit: cover;
+    object-position: 50% 38%;
+  }
+}
+
 // ─────── PORTFOLIO SECTION ─────────────────────────────────────────────────────
 
 .section-portfolio {
