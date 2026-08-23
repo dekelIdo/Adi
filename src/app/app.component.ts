@@ -655,49 +655,101 @@ export class AppComponent implements AfterViewInit, OnDestroy {
     });
   }
 
-  // ─── Laptop bridge into the process chapter (mobile only) ────────────────────
-  // The camera pushes in on the laptop she is holding until it fills the frame,
-  // then the process chapter takes over. Every value is derived from normalized
-  // scroll position, so the move is identical forwards and backwards and there is
-  // no state to get stuck in.
+  // ─── Laptop reveal into the process chapter (mobile only) ────────────────────
+  // She is holding her laptop out; the camera closes on it, focus falls off her
+  // body, and the process chapter is uncovered as the frame gives way.
   //
-  // The scale origin sits on the laptop itself, which is what sells it: the lid
-  // holds its place while the room expands past it. A centre-origin scale would
-  // read as a plain zoom.
+  // WHY THIS IS ONE UNCUT PLANE. The intent was a layered 2.5D build with the
+  // laptop and hands separated from the body. That needs a real alpha matte, and
+  // this frame will not give one: the cyclorama carries a vignette and the lid is
+  // rose-gold, so a colour key either leaves a rectangle of half-opaque backdrop
+  // around the laptop or begins eating the lid itself. Both read as a pasted
+  // cut-out. A matte good enough for this shot has to be rotoscoped properly, or
+  // the screen-facing frame has to be shot; it cannot be thresholded out of this
+  // photograph.
+  //
+  // So the depth is optical rather than geometric. The scale origin sits ON the
+  // laptop, which is the part that matters: the lid holds its position while the
+  // room expands past it, the way a lens moving closer behaves, and a rack focus
+  // pulls the body out of sharpness as the laptop approaches. No matte, no seam,
+  // no invented anatomy, and the hand can never detach because nothing was cut.
   private initLaptopBridge(): void {
     const stage = document.querySelector<HTMLElement>('.bridge-stage');
-    const photo = document.querySelector<HTMLElement>('.bridge-photo');
+    const sticky = document.querySelector<HTMLElement>('.bridge-sticky');
+    const base = document.querySelector<HTMLElement>('.bridge-base');
+    const baseImg = document.querySelector<HTMLImageElement>('.bridge-base img');
     const veil = document.querySelector<HTMLElement>('.bridge-veil');
-    if (!stage || !photo || !veil) return;
+    if (!stage || !sticky || !base || !baseImg || !veil) return;
 
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
 
+    // Where the laptop sits in the source frame, measured off the lid quad.
+    const LAPTOP_U = 0.17;
+    const LAPTOP_V = 0.30;
+
     const clamp01 = (v: number) => (v < 0 ? 0 : v > 1 ? 1 : v);
     const track = (v: number, a: number, b: number) => clamp01((v - a) / (b - a));
+
+    // Projects the laptop's position in the source frame onto the rendered
+    // element through object-fit cover, so the camera closes on the laptop and
+    // not on the middle of the picture, at any viewport crop.
+    const place = () => {
+      const r = sticky.getBoundingClientRect();
+      const nw = baseImg.naturalWidth || 1400;
+      const nh = baseImg.naturalHeight || 2096;
+      const cs = getComputedStyle(baseImg);
+      const scale = Math.max(r.width / nw, r.height / nh);
+      const dw = nw * scale;
+      const dh = nh * scale;
+      const pos = cs.objectPosition.split(' ');
+      const px = parseFloat(pos[0]) / 100;
+      const py = parseFloat(pos[1] ?? pos[0]) / 100;
+      const offX = (r.width - dw) * (isNaN(px) ? 0.5 : px);
+      const offY = (r.height - dh) * (isNaN(py) ? 0.5 : py);
+      const vx = ((offX + LAPTOP_U * dw) / r.width) * 100;
+      const vy = ((offY + LAPTOP_V * dh) / r.height) * 100;
+      base.style.setProperty('--lap-x', `${vx.toFixed(1)}%`);
+      base.style.setProperty('--lap-y', `${vy.toFixed(1)}%`);
+      sticky.style.setProperty('--lap-x', `${vx.toFixed(1)}%`);
+      sticky.style.setProperty('--lap-y', `${vy.toFixed(1)}%`);
+    };
 
     this.zone.runOutsideAngular(() => {
       let ticking = false;
 
       const update = () => {
         ticking = false;
-        // Off below 768: the stage collapses there and there is nothing to drive.
         if (window.innerWidth >= 768) return;
 
         const rect = stage.getBoundingClientRect();
         const travel = rect.height - window.innerHeight;
         if (travel <= 0) return;
+        place();
 
         const p = clamp01(-rect.top / travel);
 
-        // Slow at first so the photograph reads as a photograph, then the push
-        // accelerates as the laptop becomes the subject.
-        const push = track(p, 0.08, 0.94);
-        photo.style.setProperty('--bridge-scale', (1 + Math.pow(push, 1.7) * 1.9).toFixed(4));
+        // A held beat, a small anticipation, then the approach takes over. The
+        // move has a setup rather than starting on the first pixel of scroll.
+        const anticipate = track(p, 0.13, 0.26);
+        const approach = track(p, 0.24, 0.95);
+        const rush = Math.pow(track(p, 0.60, 1), 2.1);
 
-        // The frame gives way only once the laptop already fills it, so the
-        // handoff reads as the surface becoming the page.
-        photo.style.setProperty('--bridge-opacity', (1 - track(p, 0.74, 0.99)).toFixed(3));
-        veil.style.setProperty('--bridge-veil', track(p, 0.70, 0.97).toFixed(3));
+        base.style.setProperty('--base-scale', (1 + anticipate * 0.03 + Math.pow(approach, 1.6) * 1.55 + rush * 0.7).toFixed(4));
+        // A few degrees of yaw so the frame turns fractionally as it closes,
+        // which stops the move reading as a flat zoom.
+        base.style.setProperty('--base-ry', `${(-anticipate * 1 - approach * 5).toFixed(2)}deg`);
+        base.style.setProperty('--base-opacity', (1 - track(p, 0.88, 0.99)).toFixed(3));
+
+        // Softness, held back to the final rush. Without a matte the blur lands
+        // on the whole plane, so using it as a rack focus would take the laptop
+        // out of focus along with the body, which is the opposite of the intent.
+        // Kept late and light it reads as the softness of a fast camera move,
+        // and the first two thirds stay perfectly sharp.
+        const soften = track(p, 0.66, 0.97);
+        base.style.setProperty('--base-blur', `${(soften * 4.5).toFixed(2)}px`);
+        base.style.setProperty('--base-bright', (1 - soften * 0.05).toFixed(3));
+
+        veil.style.setProperty('--bridge-veil', track(p, 0.86, 0.99).toFixed(3));
       };
 
       const onScroll = () => {
@@ -707,10 +759,12 @@ export class AppComponent implements AfterViewInit, OnDestroy {
         this.rafIds.push(id);
       };
 
+      place();
       update();
       this.scrollListeners.push(onScroll);
       window.addEventListener('scroll', onScroll, { passive: true });
       window.addEventListener('resize', onScroll, { passive: true });
+      if (!baseImg.complete) baseImg.addEventListener('load', onScroll, { once: true });
     });
   }
 

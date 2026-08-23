@@ -1692,24 +1692,25 @@ select {
   margin-bottom: var(--space-xs);
 }
 
-// ─────── LAPTOP BRIDGE (mobile only) ───────────────────────────────────────────
-// The last beat before the process chapter: the camera pushes in on the laptop
-// she is holding out until it fills the frame, and the process takes over from
-// there. One continuous move, driven entirely by scroll position.
+// ─────── LAPTOP REVEAL (mobile only) ───────────────────────────────────────────
+// She turns her laptop toward the camera and brings it forward; the process
+// chapter is behind it and is uncovered as it passes.
 //
-// WHY THERE IS NO SCREEN VIEWPORT HERE: the brief's mechanic was to show the
-// process content inside the laptop's screen. Every laptop frame in the shoot
-// has the lid facing AWAY from camera (this one shows its back), so there is no
-// screen to align content to. Painting one on would be precisely the fake device
-// the brief rules out, so this is the simplified transition it asks for instead:
-// the laptop approaches, becomes dominant, and the process reveals exactly as it
-// takes over. The photograph is never cut up, so there are no seams, no
-// duplicated hands and nothing floating.
+// WHAT IS AND IS NOT POSSIBLE WITH THIS PHOTOGRAPH: the brief asked for the
+// screen to end up facing the viewer. Every laptop frame in this shoot shows the
+// OUTSIDE of the lid, and a full turn would also swing the lid off her forearm,
+// which would mean reconstructing an arm that was never photographed. Rather
+// than paint a screen onto the back of a lid or invent anatomy, the laptop turns
+// far enough to read as a solid object being presented, then becomes the
+// foreground that wipes into the process.
 //
-// The push-in is a single scale with its origin ON the laptop, which is what
-// keeps the move believable: the lid stays put while the room expands past it,
-// the way a lens moving closer behaves. Scaling the whole frame from its centre
-// would just look like a zoom.
+// WHY THE PHOTOGRAPH IS NOT SPLIT INTO LAYERS: separating the laptop and hands
+// needs a real alpha matte. This backdrop carries a strong vignette and the
+// laptop is rose-gold, so a colour key either leaves a halo of half-opaque
+// backdrop or starts eating the lid; both read as a pasted cut-out, which is
+// worse than no cut-out at all. Depth is produced optically instead: the camera
+// closes on the laptop while focus falls off her body, which is what a real lens
+// does at this distance and needs no matte to be believable.
 
 .section-bridge {
   display: none;
@@ -1724,7 +1725,7 @@ select {
 
   .bridge-stage {
     position: relative;
-    height: 132vh;
+    height: 128vh;
   }
 
   .bridge-sticky {
@@ -1733,30 +1734,39 @@ select {
     height: 100vh;
     overflow: hidden;
     background: var(--bg);
+    perspective: 900px;
+    perspective-origin: var(--lap-x, 30%) var(--lap-y, 34%);
   }
 
-  .bridge-photo {
-    display: block;
+  .bridge-scene {
     position: absolute;
     inset: 0;
-    will-change: transform, opacity;
-    // Origin sits on the laptop lid, measured off the source frame.
-    transform-origin: 17% 27%;
-    transform: scale(var(--bridge-scale, 1));
-    opacity: var(--bridge-opacity, 1);
+    transform-style: preserve-3d;
+  }
+
+  // The body stays put. It drifts only enough to stop the frame feeling pinned.
+  .bridge-base {
+    position: absolute;
+    inset: 0;
+    display: block;
+    transform-origin: var(--lap-x, 30%) var(--lap-y, 34%);
+    transform: perspective(1000px) rotateY(var(--base-ry, 0deg)) scale(var(--base-scale, 1));
+    opacity: var(--base-opacity, 1);
+    // Rack focus. As the laptop comes toward the lens the body falls out of
+    // focus, which is what a real camera does at this distance and is also what
+    // makes the cut-out's edge unreadable: there is no sharp seam to notice once
+    // the plane behind it is defocused.
+    filter: blur(var(--base-blur, 0px)) brightness(var(--base-bright, 1));
 
     img {
       width: 100%;
       height: 100%;
       object-fit: cover;
-      // Holds her and the laptop in frame on a tall phone viewport.
       object-position: 42% 30%;
       display: block;
     }
   }
 
-  // Carries the frame into the process chapter's own surface, so the handoff is
-  // a change of light rather than a cut.
   .bridge-veil {
     position: absolute;
     inset: 0;
@@ -1766,8 +1776,7 @@ select {
   }
 }
 
-// No runway and no push-in: the photograph is simply a still frame in the page,
-// and the process chapter is reached normally.
+// Still photograph, no stage, process reached normally.
 @media (prefers-reduced-motion: reduce) {
   .bridge-stage {
     height: auto;
@@ -1776,11 +1785,22 @@ select {
   .bridge-sticky {
     position: static;
     height: auto;
+    perspective: none;
   }
 
-  .bridge-photo {
+  // The scene is absolutely positioned in the animated build, so it has to
+  // return to normal flow here or nothing gives the section any height and the
+  // photograph vanishes entirely.
+  .bridge-scene {
+    position: static;
+    transform-style: flat;
+  }
+
+  .bridge-base {
     position: relative;
+    inset: auto;
     transform: none;
+    filter: none;
     opacity: 1;
 
     img {
