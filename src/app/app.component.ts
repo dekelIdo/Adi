@@ -198,6 +198,7 @@ export class AppComponent implements AfterViewInit, OnDestroy {
     this.initReelPlayback();
     this.initLivingPhotograph();
     this.initShootDayReveal();
+    this.initLaptopBridge();
     this.initSectionProgress();
     this.initEditorialDrift();
     this.initReviewsNudge();
@@ -651,6 +652,65 @@ export class AppComponent implements AfterViewInit, OnDestroy {
         lastX = e.pageX;
         container.scrollLeft = scrollStart - delta;
       });
+    });
+  }
+
+  // ─── Laptop bridge into the process chapter (mobile only) ────────────────────
+  // The camera pushes in on the laptop she is holding until it fills the frame,
+  // then the process chapter takes over. Every value is derived from normalized
+  // scroll position, so the move is identical forwards and backwards and there is
+  // no state to get stuck in.
+  //
+  // The scale origin sits on the laptop itself, which is what sells it: the lid
+  // holds its place while the room expands past it. A centre-origin scale would
+  // read as a plain zoom.
+  private initLaptopBridge(): void {
+    const stage = document.querySelector<HTMLElement>('.bridge-stage');
+    const photo = document.querySelector<HTMLElement>('.bridge-photo');
+    const veil = document.querySelector<HTMLElement>('.bridge-veil');
+    if (!stage || !photo || !veil) return;
+
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+
+    const clamp01 = (v: number) => (v < 0 ? 0 : v > 1 ? 1 : v);
+    const track = (v: number, a: number, b: number) => clamp01((v - a) / (b - a));
+
+    this.zone.runOutsideAngular(() => {
+      let ticking = false;
+
+      const update = () => {
+        ticking = false;
+        // Off below 768: the stage collapses there and there is nothing to drive.
+        if (window.innerWidth >= 768) return;
+
+        const rect = stage.getBoundingClientRect();
+        const travel = rect.height - window.innerHeight;
+        if (travel <= 0) return;
+
+        const p = clamp01(-rect.top / travel);
+
+        // Slow at first so the photograph reads as a photograph, then the push
+        // accelerates as the laptop becomes the subject.
+        const push = track(p, 0.08, 0.94);
+        photo.style.setProperty('--bridge-scale', (1 + Math.pow(push, 1.7) * 1.9).toFixed(4));
+
+        // The frame gives way only once the laptop already fills it, so the
+        // handoff reads as the surface becoming the page.
+        photo.style.setProperty('--bridge-opacity', (1 - track(p, 0.74, 0.99)).toFixed(3));
+        veil.style.setProperty('--bridge-veil', track(p, 0.70, 0.97).toFixed(3));
+      };
+
+      const onScroll = () => {
+        if (ticking) return;
+        ticking = true;
+        const id = requestAnimationFrame(update);
+        this.rafIds.push(id);
+      };
+
+      update();
+      this.scrollListeners.push(onScroll);
+      window.addEventListener('scroll', onScroll, { passive: true });
+      window.addEventListener('resize', onScroll, { passive: true });
     });
   }
 

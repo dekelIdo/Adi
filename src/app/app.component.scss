@@ -1692,6 +1692,107 @@ select {
   margin-bottom: var(--space-xs);
 }
 
+// ─────── LAPTOP BRIDGE (mobile only) ───────────────────────────────────────────
+// The last beat before the process chapter: the camera pushes in on the laptop
+// she is holding out until it fills the frame, and the process takes over from
+// there. One continuous move, driven entirely by scroll position.
+//
+// WHY THERE IS NO SCREEN VIEWPORT HERE: the brief's mechanic was to show the
+// process content inside the laptop's screen. Every laptop frame in the shoot
+// has the lid facing AWAY from camera (this one shows its back), so there is no
+// screen to align content to. Painting one on would be precisely the fake device
+// the brief rules out, so this is the simplified transition it asks for instead:
+// the laptop approaches, becomes dominant, and the process reveals exactly as it
+// takes over. The photograph is never cut up, so there are no seams, no
+// duplicated hands and nothing floating.
+//
+// The push-in is a single scale with its origin ON the laptop, which is what
+// keeps the move believable: the lid stays put while the room expands past it,
+// the way a lens moving closer behaves. Scaling the whole frame from its centre
+// would just look like a zoom.
+
+.section-bridge {
+  display: none;
+}
+
+@media (max-width: 767px) {
+  .section-bridge {
+    display: block;
+    position: relative;
+    background: var(--bg);
+  }
+
+  .bridge-stage {
+    position: relative;
+    height: 132vh;
+  }
+
+  .bridge-sticky {
+    position: sticky;
+    top: 0;
+    height: 100vh;
+    overflow: hidden;
+    background: var(--bg);
+  }
+
+  .bridge-photo {
+    display: block;
+    position: absolute;
+    inset: 0;
+    will-change: transform, opacity;
+    // Origin sits on the laptop lid, measured off the source frame.
+    transform-origin: 17% 27%;
+    transform: scale(var(--bridge-scale, 1));
+    opacity: var(--bridge-opacity, 1);
+
+    img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      // Holds her and the laptop in frame on a tall phone viewport.
+      object-position: 42% 30%;
+      display: block;
+    }
+  }
+
+  // Carries the frame into the process chapter's own surface, so the handoff is
+  // a change of light rather than a cut.
+  .bridge-veil {
+    position: absolute;
+    inset: 0;
+    background: var(--bg);
+    opacity: var(--bridge-veil, 0);
+    pointer-events: none;
+  }
+}
+
+// No runway and no push-in: the photograph is simply a still frame in the page,
+// and the process chapter is reached normally.
+@media (prefers-reduced-motion: reduce) {
+  .bridge-stage {
+    height: auto;
+  }
+
+  .bridge-sticky {
+    position: static;
+    height: auto;
+  }
+
+  .bridge-photo {
+    position: relative;
+    transform: none;
+    opacity: 1;
+
+    img {
+      height: auto;
+    }
+  }
+
+  .bridge-veil {
+    display: none;
+  }
+}
+
 // ─────── PROCESS SECTION ───────────────────────────────────────────────────────
 
 .section-process {
