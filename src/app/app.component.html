@@ -241,11 +241,23 @@
             </p>
           </div>
           <figure class="editorial-img editorial-img--portrait about-photo-wrap reveal reveal-float delay-2" data-drift="0.45">
-            <img
-              src="assets/lovable-uploads/MyAssets/AdiArieli/Me2.jpg"
-              alt="עדי אריאלי"
-              loading="lazy"
-            />
+            <!-- Filename had been lost from this src, so the About portrait was
+                 requesting "/AdiArieli/.jpg" and 404ing. Restored, and served as
+                 WebP like the page's other photographs. -->
+            <picture>
+              <source
+                srcset="assets/lovable-uploads/MyAssets/AdiArieli/about-adi.webp"
+                type="image/webp"
+              />
+              <img
+                src="assets/lovable-uploads/MyAssets/AdiArieli/about-adi.jpg"
+                alt="עדי אריאלי"
+                width="900"
+                height="1200"
+                loading="lazy"
+                decoding="async"
+              />
+            </picture>
           </figure>
         </div>
         <div class="story-card reveal delay-1">
@@ -542,11 +554,10 @@
     </section>
 
     <section id="honesty" class="section section-honesty" data-header-theme="dark">
-      <div class="honesty-blob" aria-hidden="true"></div>
-      <div class="honesty-glow-1" aria-hidden="true"></div>
-      <div class="honesty-glow-2" aria-hidden="true"></div>
+      <!-- A real photograph carries this chapter instead of the three blurred
+           blobs and the decorative glyph that used to sit here. -->
+      <div class="honesty-photo" aria-hidden="true"></div>
       <!-- Giant decorative background number -->
-      <div class="honesty-bg-num" aria-hidden="true">✦</div>
       <div class="container">
         <div class="honesty-inner">
           <h2 class="honesty-headline reveal delay-1">

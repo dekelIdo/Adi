@@ -1502,9 +1502,21 @@ select {
   }
 }
 
+.editorial-img--portrait picture {
+  position: absolute;
+  inset: 0;
+  display: block;
+}
+
 .editorial-img--portrait {
+  // This variant holds its shape with a padding-bottom ratio and takes its only
+  // child out of flow, so the figure has nothing in-flow to size against and was
+  // collapsing to zero width as a grid item. The result was the About portrait
+  // rendering at 0x643 and being invisible on the live site. An explicit width
+  // gives the ratio something to resolve against.
+  width: 100%;
   padding-bottom: 130%;
-  
+
   img {
     position: absolute;
     inset: 0;
@@ -1697,7 +1709,7 @@ select {
 .process-row {
   display: grid;
   grid-template-columns: auto 1fr;
-  align-items: baseline;
+  align-items: start;
   gap: clamp(14px, 3.2vw, 26px);
   border-top: 1px solid var(--rule);
   background: none;
@@ -1718,6 +1730,11 @@ select {
 .process-row-num {
   font-family: var(--font-display);
   font-weight: 400;
+  // Deliberately larger than the numerals in the other list chapters. Four
+  // sections were using an identical row, and scale is the cheapest way to make
+  // this one read as a sequence of steps rather than another list.
+  font-size: clamp(2.4rem, 8.2vw, 4.1rem);
+  opacity: 0.85;
   font-variant-numeric: lining-nums tabular-nums;
   letter-spacing: -0.02em;
   line-height: 1;
@@ -1729,7 +1746,6 @@ select {
   min-width: 2.1ch;
   display: block;
   transition: color 420ms var(--ease-smooth);
-  font-size: clamp(1.6rem, 4.6vw, 2.5rem);
 }
 
 .process-row-content {
@@ -2405,51 +2421,38 @@ select {
   overflow: hidden;
 }
 
-.honesty-blob,
-.honesty-glow-1,
-.honesty-glow-2 {
+// ── The chapter is carried by a photograph, not by decoration ────────────────
+// This section used to hold three blurred colour blobs and a giant glyph, which
+// is the kind of ornament that could belong to any site. A real frame of her
+// working late replaces all four: it is already dark, so at low opacity it reads
+// as atmosphere behind the words rather than as a picture competing with them.
+//
+// Used once. The image sits on the reading edge with a gradient carrying it into
+// the section colour, so the centred type always lands on the darkest area.
+
+.honesty-photo {
   position: absolute;
-  border-radius: 50%;
-  pointer-events: none;
-  opacity: 0.5;
-  filter: blur(100px);
-}
-
-.honesty-blob {
-  top: 20%;
-  left: 15%;
-  width: clamp(280px, 42vw, 540px);
-  height: clamp(280px, 42vw, 540px);
-  background: radial-gradient(circle, rgba(196, 217, 240, 0.14), transparent 70%);
-}
-
-.honesty-glow-1 {
-  top: 50%;
-  right: 10%;
-  width: clamp(220px, 34vw, 420px);
-  height: clamp(220px, 34vw, 420px);
-  background: radial-gradient(circle, rgba(230, 216, 204, 0.1), transparent 70%);
-}
-
-.honesty-glow-2 {
-  bottom: 15%;
-  left: 50%;
-  width: clamp(240px, 36vw, 480px);
-  height: clamp(240px, 36vw, 480px);
-  background: radial-gradient(circle, rgba(196, 217, 240, 0.12), transparent 70%);
-}
-
-.honesty-bg-num {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  font-size: clamp(14rem, 30vw, 28rem);
-  font-weight: 700;
-  color: rgba(255, 255, 255, 0.02);
+  inset: 0;
   pointer-events: none;
   z-index: 0;
-  line-height: 1;
+  background-image:
+    linear-gradient(to left, rgba(6, 5, 4, 0.55) 0%, rgba(6, 5, 4, 0.88) 42%, rgba(6, 5, 4, 0.97) 72%),
+    url("/assets/lovable-uploads/MyAssets/AdiArieli/honesty-adi.webp");
+  background-size: auto, cover;
+  background-position: center, 72% 32%;
+  background-repeat: no-repeat;
+  opacity: 0.9;
+}
+
+@media (max-width: 767px) {
+  // Narrow screens have no room for the type to sit beside her, so the scrim
+  // runs top to bottom and the frame drops back further.
+  .honesty-photo {
+    background-image:
+      linear-gradient(to bottom, rgba(6, 5, 4, 0.46) 0%, rgba(6, 5, 4, 0.78) 44%, rgba(6, 5, 4, 0.93) 100%),
+      url("/assets/lovable-uploads/MyAssets/AdiArieli/honesty-adi.webp");
+    background-position: center, 62% 26%;
+  }
 }
 
 .honesty-inner {
