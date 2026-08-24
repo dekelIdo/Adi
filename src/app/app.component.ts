@@ -80,7 +80,7 @@ export class AppComponent implements AfterViewInit, OnDestroy {
   // of the lid toward the lens, which tells the wrong story however smooth it
   // is. A wrong story is worse than no animation, so this stays false until a
   // real screen-facing frame exists. Nothing else needs changing when it does.
-  bridgeCinematic = false;
+  bridgeCinematic = true;
 
   private observer?: IntersectionObserver;
   private headerThemeObserver?: IntersectionObserver;
@@ -736,7 +736,11 @@ export class AppComponent implements AfterViewInit, OnDestroy {
 
     // Where the laptop sits in the source frame, measured off the lid quad.
     const LAPTOP_U = 0.17;
-    const LAPTOP_V = 0.30;
+    // Frame A is now the crop that ends just below the hands, which is 0.5802 of
+    // the original frame's height, so every vertical fraction measured against
+    // the full frame has to be divided through by that.
+    const CROP = 0.5802;
+    const LAPTOP_V = 0.30 / CROP;
 
     // Frame B's registration against the plate, as fractions of the plate's
     // rendered image box: left edge, top edge, width. Derived from the cut-out's
@@ -744,8 +748,11 @@ export class AppComponent implements AfterViewInit, OnDestroy {
     // Solved by matching the cut-out against the source frame rather than by
     // eye: greyscale SSD over the opaque pixels, searched across scale and
     // offset, converged on a residual of 13 with these values.
+    // Solved by matching the cut-out against the source, then rescaled for the
+    // cropped plate. Width is untouched by the crop; only the vertical offset
+    // moves.
     const FB_X = 0.0;
-    const FB_Y = 0.098;
+    const FB_Y = 0.098 / CROP;
     const FB_W = 0.7667;
 
     const clamp01 = (v: number) => (v < 0 ? 0 : v > 1 ? 1 : v);
@@ -812,16 +819,18 @@ export class AppComponent implements AfterViewInit, OnDestroy {
         const takeover = Math.pow(track(p, 0.78, 1), 1.7);
 
         // FRAME A: her body. Almost stationary, and it never leaves the frame.
-        base.style.setProperty('--base-scale', (1 + anticipate * 0.012 + advance * 0.03 + depth * 0.035 + dominant * 0.04).toFixed(4));
-        base.style.setProperty('--base-ry', `${(-anticipate * 0.6 - advance * 1.4).toFixed(2)}deg`);
+        base.style.setProperty('--base-scale', (1 + anticipate * 0.004 + advance * 0.008 + depth * 0.009 + dominant * 0.009).toFixed(4));
+        base.style.setProperty('--base-ry', `${(-anticipate * 0.2 - advance * 0.5).toFixed(2)}deg`);
         base.style.setProperty('--base-opacity', '1');
 
         // Focus falls off her once the laptop is clearly in front of her. This
         // is the thing that puts the two layers at different distances from the
         // lens, and it only works now that the laptop is a separate layer.
-        const soften = ease(track(p, 0.50, 0.92));
-        base.style.setProperty('--base-blur', `${(soften * 4.2).toFixed(2)}px`);
-        base.style.setProperty('--base-bright', (1 - soften * 0.07).toFixed(3));
+        // Just enough to separate the planes. Anything more and the plate stops
+        // being a photograph you would be happy to pause on.
+        const soften = ease(track(p, 0.46, 0.95));
+        base.style.setProperty('--base-blur', `${(soften * 1.4).toFixed(2)}px`);
+        base.style.setProperty('--base-bright', (1 - soften * 0.025).toFixed(3));
 
         // FRAME B: the laptop. This is the move.
         if (frameB) {
@@ -829,7 +838,27 @@ export class AppComponent implements AfterViewInit, OnDestroy {
           // by 6.15x: a flat, detail-free surface with Adi gone from the frame. It
           // reads as a PNG inflating, not as an object approaching. This tops out
           // near 3.4x, which is where the shot actually looked its best.
-          const s = 1 + anticipate * 0.05 + advance * 0.35 + depth * 0.7 + dominant * 0.75 + takeover * 0.55;
+          // Restrained on purpose. The laptop is the transition device, not the
+          // screen: the viewer has to feel it come forward, and that is a matter
+          // of parallax against a near-static plate, not of magnification. It
+          // also never has to fill the frame, because the process chapter takes
+          // over while it is still a recognisable object.
+          //
+          // COVER starts above 1 and is in place before anything visible moves.
+          // That is what stops the plate's own laptop showing beside this one:
+          // the cut-out is already slightly proud of the shape it was cut from
+          // by the time the crossfade finishes, and it only ever grows after.
+          // COVER and the travel are one budget, not two numbers. A cut-out
+          // moving over its own source uncovers it as soon as the displacement
+          // exceeds how proud the cut-out already sits, and for a limb as thin
+          // as the deck that margin is small. Measured against the deck's
+          // distance from the hinge, the usable range is about
+          //   max scale <= 2 * COVER - 1
+          // which is why the travel here is deliberately short rather than
+          // arbitrarily chosen. Beyond it the plate's own deck reappears above
+          // this one and there are two laptops again.
+          const COVER = 1.11;
+          const s = COVER + anticipate * 0.012 + advance * 0.045 + depth * 0.03 + dominant * 0.02 + takeover * 0.01;
           frameB.style.setProperty('--fb-scale', s.toFixed(4));
 
           // No translate. With the origin on the lid, any lateral move would
@@ -840,30 +869,31 @@ export class AppComponent implements AfterViewInit, OnDestroy {
           // A hair of drift is allowed only in the last stretch, once the lid is
           // several times its original size and there is nothing left underneath
           // it to uncover.
-          const late = ease(track(p, 0.80, 1));
-          frameB.style.setProperty('--fb-x', `${(late * -0.05 * geo.dw).toFixed(1)}px`);
-          frameB.style.setProperty('--fb-y', `${(late * 0.04 * geo.dh).toFixed(1)}px`);
+          // No translate: it spends the same coverage budget as scale does, and
+          // scale is what reads as depth.
+          frameB.style.setProperty('--fb-x', '0px');
+          frameB.style.setProperty('--fb-y', '0px');
 
           // A couple of degrees. The lid turns fractionally into the light as it
           // comes forward; it is not a turntable.
-          frameB.style.setProperty('--fb-rot', `${(-anticipate * 0.4 - advance * 1.2 - depth * 1.6).toFixed(2)}deg`);
+          frameB.style.setProperty('--fb-rot', '0deg');
 
           // Registered and invisible through the held beat, then it takes over.
-          frameB.style.setProperty('--fb-opacity', track(p, 0.10, 0.19).toFixed(3));
+          frameB.style.setProperty('--fb-opacity', track(p, 0.04, 0.14).toFixed(3));
 
-          frameB.style.setProperty('--fb-shadow-y', `${(6 + advance * 14 + depth * 22).toFixed(0)}px`);
-          frameB.style.setProperty('--fb-shadow-b', `${(10 + advance * 20 + depth * 34).toFixed(0)}px`);
+          frameB.style.setProperty('--fb-shadow-y', `${(3 + advance * 7 + depth * 10).toFixed(0)}px`);
+          frameB.style.setProperty('--fb-shadow-b', `${(6 + advance * 12 + depth * 18).toFixed(0)}px`);
         }
 
         // Opacity supports the handoff, it does not perform it: by the time this
         // arrives the laptop has already filled the frame physically.
         // The veil is now only a light bloom: the process chapter arriving is what
         // ends the shot, not a wash to background.
-        veil.style.setProperty('--bridge-veil', (track(p, 0.90, 1) * 0.22).toFixed(3));
+        veil.style.setProperty('--bridge-veil', '0');
 
         // THE HANDOFF.
         if (next) {
-          const reveal = track(p, 0.52, 0.90);
+          const reveal = track(p, 0.52, 0.92);
           const eased = reveal * reveal * (3 - 2 * reveal);
           next.style.setProperty('--handoff-y', `${((1 - eased) * HANDOFF_VH * window.innerHeight / 100).toFixed(1)}px`);
         }
