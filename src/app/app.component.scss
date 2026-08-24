@@ -1793,9 +1793,17 @@ select {
     }
   }
 
+  // Same handoff as the phone chapter: 165vh of stage against a -65vh margin is
+  // 100vh of document for 65vh of travel, where the old build spent 128vh of
+  // document to get 28vh of travel and then made the visitor scroll a further
+  // screen of nothing before the process chapter arrived.
+  .section-bridge.is-cinematic {
+    margin-bottom: -65vh;
+  }
+
   .is-cinematic .bridge-stage {
     position: relative;
-    height: 128vh;
+    height: 165vh;
   }
 
   .is-cinematic .bridge-sticky {
@@ -1892,6 +1900,14 @@ select {
 // specificity and the runway survived with nothing moving on it: a full extra
 // screen of dead scroll for exactly the visitor who asked for less motion.
 @media (prefers-reduced-motion: reduce) {
+  // The handoff overlap has to go with the runway. The .is-cinematic class is
+  // bound to the master switch, not to the motion preference, so without this
+  // the -65vh margin survived and the process chapter sat 549px on top of the
+  // photograph.
+  .section-bridge.is-cinematic {
+    margin-bottom: 0;
+  }
+
   .section-bridge .bridge-stage {
     height: auto;
   }
@@ -1936,6 +1952,21 @@ select {
 
 .section-process {
   padding: var(--space-lg) 0;
+  position: relative;
+  z-index: 1;
+  // Opaque, because it now travels over the bridge instead of starting below
+  // it. Without this the laptop showed straight through the process copy.
+  background: var(--bg);
+  // Held below the fold by the bridge driver until the laptop has taken the
+  // frame, then it rises through the last stretch of the same scroll. Zero on
+  // desktop and under reduced motion, where nothing drives it.
+  transform: translate3d(0, var(--handoff-y, 0px), 0);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .section-process {
+    transform: none;
+  }
 }
 
 .process-editorial {
@@ -2032,6 +2063,17 @@ select {
   padding: 0;
   background: var(--surface);
   isolation: isolate;
+
+  // THE HANDOFF. The chapter that follows is pulled back up over this one, so
+  // the scroll that finishes the portal is the same scroll that brings the next
+  // chapter in. Before this, the portal filled the screen with flat black and
+  // then the visitor had to scroll a further 871px, a whole viewport of nothing,
+  // while the sticky evacuated and the next section climbed into view.
+  //
+  // The stage grows and the margin takes the growth back, so the section's
+  // footprint in the document actually shrinks: more runway for the move, less
+  // scrolling in total. Nothing was added.
+  margin-bottom: -65vh;
 }
 
 // The runway. Scroll length beyond one viewport is what the effect plays across.
@@ -2041,7 +2083,9 @@ select {
 // waiting.
 .action-stage {
   position: relative;
-  height: 152vh;
+  // 165vh against a -65vh margin: 100vh of document for 65vh of travel. The
+  // old build was 152vh of document for 52vh of travel.
+  height: 165vh;
 }
 
 .action-sticky {
@@ -2187,6 +2231,26 @@ select {
   padding: var(--space-xl) 0;
   background: linear-gradient(135deg, rgba(6, 5, 4, 0.98), rgba(10, 8, 6, 0.96));
   overflow: hidden;
+
+  // Held below the fold by the driver until the portal has opened, then it
+  // rises through the last stretch of the same scroll. A plain negative margin
+  // alone would have crept it up the screen from the first pixel and sat over
+  // the animation; this keeps it out of the way and then hands it the frame.
+  z-index: 1;
+  transform: translate3d(0, var(--handoff-y, 0px), 0);
+  will-change: transform;
+}
+
+// No cinematic runway, so no handoff to stage: the chapters simply follow one
+// another and neither the margin nor the transform may apply.
+@media (prefers-reduced-motion: reduce) {
+  .section-action {
+    margin-bottom: 0;
+  }
+
+  .section-portfolio {
+    transform: none;
+  }
 }
 
 .portfolio-orb {

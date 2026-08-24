@@ -717,6 +717,11 @@ export class AppComponent implements AfterViewInit, OnDestroy {
     const baseImg = document.querySelector<HTMLImageElement>('.bridge-frame--a img');
     const veil = document.querySelector<HTMLElement>('.bridge-veil');
     const frameB = document.querySelector<HTMLElement>('.bridge-frame--b');
+    // The chapter this move opens onto, driven from here so the cinematic and
+    // the arrival of the content are one scroll rather than two stages.
+    const next = document.querySelector<HTMLElement>('#process');
+    // Must match the negative margin on .section-bridge.is-cinematic.
+    const HANDOFF_VH = 65;
     if (!stage || !sticky || !base || !baseImg || !veil) return;
 
     if (!this.bridgeCinematic) return;
@@ -813,7 +818,11 @@ export class AppComponent implements AfterViewInit, OnDestroy {
 
         // FRAME B: the laptop. This is the move.
         if (frameB) {
-          const s = 1 + anticipate * 0.05 + advance * 0.38 + depth * 0.85 + dominant * 1.75 + takeover * 11;
+          // Capped. The previous curve reached 14.96x, which upsampled a 1050px asset
+          // by 6.15x: a flat, detail-free surface with Adi gone from the frame. It
+          // reads as a PNG inflating, not as an object approaching. This tops out
+          // near 3.4x, which is where the shot actually looked its best.
+          const s = 1 + anticipate * 0.05 + advance * 0.35 + depth * 0.7 + dominant * 0.75 + takeover * 0.55;
           frameB.style.setProperty('--fb-scale', s.toFixed(4));
 
           // No translate. With the origin on the lid, any lateral move would
@@ -841,7 +850,16 @@ export class AppComponent implements AfterViewInit, OnDestroy {
 
         // Opacity supports the handoff, it does not perform it: by the time this
         // arrives the laptop has already filled the frame physically.
-        veil.style.setProperty('--bridge-veil', (track(p, 0.95, 1) * 0.62).toFixed(3));
+        // The veil is now only a light bloom: the process chapter arriving is what
+        // ends the shot, not a wash to background.
+        veil.style.setProperty('--bridge-veil', (track(p, 0.90, 1) * 0.22).toFixed(3));
+
+        // THE HANDOFF.
+        if (next) {
+          const reveal = track(p, 0.62, 1);
+          const eased = reveal * reveal * (3 - 2 * reveal);
+          next.style.setProperty('--handoff-y', `${((1 - eased) * HANDOFF_VH * window.innerHeight / 100).toFixed(1)}px`);
+        }
       };
 
       const onScroll = () => {
@@ -932,6 +950,11 @@ export class AppComponent implements AfterViewInit, OnDestroy {
     const img = document.querySelector<HTMLImageElement>('.action-frame img');
     const portal = document.querySelector<HTMLElement>('.action-portal');
     const mark = document.querySelector<HTMLElement>('.margin-mark--action');
+    // The chapter this transition opens onto. It is driven from here so the
+    // cinematic and the arrival of the content are one scroll, not two stages.
+    const next = document.querySelector<HTMLElement>('#portfolio');
+    // Must match the negative margin on .section-action.
+    const HANDOFF_VH = 65;
     if (!stage || !frame || !img || !portal) return;
 
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
@@ -1018,6 +1041,17 @@ export class AppComponent implements AfterViewInit, OnDestroy {
 
         if (mark) {
           mark.style.setProperty('--mark-opacity', (1 - track(p, 0.04, 0.24)).toFixed(3));
+        }
+
+        // THE HANDOFF. The next chapter is parked 65vh below where its margin
+        // would otherwise put it, and comes up through the last third of the
+        // same scroll. So by the time the portal has filled the screen the
+        // chapter it opens onto is already there to read, and the visitor never
+        // scrolls through a black frame waiting for something to arrive.
+        if (next) {
+          const reveal = track(p, 0.62, 1);
+          const eased = reveal * reveal * (3 - 2 * reveal);
+          next.style.setProperty('--handoff-y', `${((1 - eased) * HANDOFF_VH * window.innerHeight / 100).toFixed(1)}px`);
         }
       };
 
