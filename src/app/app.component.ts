@@ -1067,13 +1067,13 @@ export class AppComponent implements AfterViewInit, OnDestroy {
         // of it idle would force the motion itself to move faster to keep up.
         const emerge = track(p, 0.05, 0.34);
         const open = track(p, 0.30, 0.86);
-        // The device element is a real phone at 132x286, not a 26px chip, so it
-        // can carry a metal band, an island and readable content. The numbers
-        // below are the same physical sizes as before, expressed against that
-        // base: it starts at exactly the width her own phone occupies in the
+        // The device element carries the cut-out handset at its own aspect
+        // ratio, 119x287. The curve is unchanged; the constants are only
+        // renormalised against that base, so the phone is the same number of
+        // pixels wide at every point in the move as it was before: it starts at exactly the width her own phone occupies in the
         // photograph and finishes covering the viewport 2.4 times over.
-        const need = (Math.max(window.innerWidth, window.innerHeight) * 2.4) / 132;
-        const scale = 0.197 + emerge * 0.118 + Math.pow(open, 2.1) * need;
+        const need = (Math.max(window.innerWidth, window.innerHeight) * 2.4) / 119;
+        const scale = 0.2185 + emerge * 0.131 + Math.pow(open, 2.1) * need;
 
         portal.style.setProperty('--portal-scale', scale.toFixed(3));
         // It lights up in her hand rather than popping into existence.
@@ -1094,7 +1094,7 @@ export class AppComponent implements AfterViewInit, OnDestroy {
         // so the two never stand side by side as a doubled headline, and the
         // screen is never a dark rectangle waiting for a section to climb in.
         portal.style.setProperty('--dev-cs', Math.min(1, 3 / scale).toFixed(4));
-        portal.style.setProperty('--dev-screen', (1 - track(p, 0.58, 0.70)).toFixed(3));
+        portal.style.setProperty('--dev-screen', (1 - track(p, 0.62, 0.74)).toFixed(3));
         // The phone is held at an angle; the portal starts matching it and
         // straightens as it stops being an object and becomes the next chapter.
         portal.style.setProperty('--portal-rot', `${(-18 * (1 - open)).toFixed(2)}deg`);
