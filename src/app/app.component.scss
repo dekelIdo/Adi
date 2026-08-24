@@ -2073,7 +2073,7 @@ select {
   // The stage grows and the margin takes the growth back, so the section's
   // footprint in the document actually shrinks: more runway for the move, less
   // scrolling in total. Nothing was added.
-  margin-bottom: -65vh;
+  margin-bottom: -80vh;
 }
 
 // The runway. Scroll length beyond one viewport is what the effect plays across.
@@ -2083,9 +2083,10 @@ select {
 // waiting.
 .action-stage {
   position: relative;
-  // 165vh against a -65vh margin: 100vh of document for 65vh of travel. The
-  // old build was 152vh of document for 52vh of travel.
-  height: 165vh;
+  // 180vh against a -80vh margin: 100vh of document for 80vh of travel. The
+  // old build was 152vh of document for 52vh of travel, and then made the
+  // visitor scroll a further screen of black before the chapter arrived.
+  height: 180vh;
 }
 
 .action-sticky {

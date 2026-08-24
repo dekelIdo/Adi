@@ -70,10 +70,17 @@ export class AppComponent implements AfterViewInit, OnDestroy {
 
   // ── bridgeCinematic ───────────────────────────────────────────────────────
   // Master switch for the laptop move. While false the section is a plain
-  // full-bleed photograph with no sticky runway, no veil and no scroll driver,
-  // which is a stable state rather than a half-working effect. The cinematic
-  // build is only turned on once its prepared visual asset passes inspection.
-  bridgeCinematic = true;
+  // full-bleed photograph with no sticky runway, no veil and no scroll driver.
+  //
+  // OFF, deliberately. The move is meant to present the laptop's SCREEN to the
+  // viewer, and every laptop frame in the shoot was checked: 327, 335 and
+  // Me3 (2) show the back of the lid, 389/403/404 show it closed under her arm,
+  // and Me1/Me33/honesty-adi have her typing with the display turned away. The
+  // screen was never photographed, so the cut-out can only ever bring the back
+  // of the lid toward the lens, which tells the wrong story however smooth it
+  // is. A wrong story is worse than no animation, so this stays false until a
+  // real screen-facing frame exists. Nothing else needs changing when it does.
+  bridgeCinematic = false;
 
   private observer?: IntersectionObserver;
   private headerThemeObserver?: IntersectionObserver;
@@ -856,7 +863,7 @@ export class AppComponent implements AfterViewInit, OnDestroy {
 
         // THE HANDOFF.
         if (next) {
-          const reveal = track(p, 0.62, 1);
+          const reveal = track(p, 0.52, 0.90);
           const eased = reveal * reveal * (3 - 2 * reveal);
           next.style.setProperty('--handoff-y', `${((1 - eased) * HANDOFF_VH * window.innerHeight / 100).toFixed(1)}px`);
         }
@@ -954,7 +961,7 @@ export class AppComponent implements AfterViewInit, OnDestroy {
     // cinematic and the arrival of the content are one scroll, not two stages.
     const next = document.querySelector<HTMLElement>('#portfolio');
     // Must match the negative margin on .section-action.
-    const HANDOFF_VH = 65;
+    const HANDOFF_VH = 80;
     if (!stage || !frame || !img || !portal) return;
 
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
@@ -1029,7 +1036,7 @@ export class AppComponent implements AfterViewInit, OnDestroy {
         // stage there is only about half a viewport of travel, so spending any
         // of it idle would force the motion itself to move faster to keep up.
         const emerge = track(p, 0.05, 0.34);
-        const open = track(p, 0.34, 0.97);
+        const open = track(p, 0.30, 0.86);
         const need = (Math.max(window.innerWidth, window.innerHeight) * 2.4) / 26;
         const scale = emerge * 1.6 + Math.pow(open, 2.1) * need;
 
@@ -1049,7 +1056,7 @@ export class AppComponent implements AfterViewInit, OnDestroy {
         // chapter it opens onto is already there to read, and the visitor never
         // scrolls through a black frame waiting for something to arrive.
         if (next) {
-          const reveal = track(p, 0.62, 1);
+          const reveal = track(p, 0.40, 0.88);
           const eased = reveal * reveal * (3 - 2 * reveal);
           next.style.setProperty('--handoff-y', `${((1 - eased) * HANDOFF_VH * window.innerHeight / 100).toFixed(1)}px`);
         }
