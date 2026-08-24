@@ -1067,11 +1067,34 @@ export class AppComponent implements AfterViewInit, OnDestroy {
         // of it idle would force the motion itself to move faster to keep up.
         const emerge = track(p, 0.05, 0.34);
         const open = track(p, 0.30, 0.86);
-        const need = (Math.max(window.innerWidth, window.innerHeight) * 2.4) / 26;
-        const scale = emerge * 1.6 + Math.pow(open, 2.1) * need;
+        // The device element is a real phone at 132x286, not a 26px chip, so it
+        // can carry a metal band, an island and readable content. The numbers
+        // below are the same physical sizes as before, expressed against that
+        // base: it starts at exactly the width her own phone occupies in the
+        // photograph and finishes covering the viewport 2.4 times over.
+        const need = (Math.max(window.innerWidth, window.innerHeight) * 2.4) / 132;
+        const scale = 0.197 + emerge * 0.118 + Math.pow(open, 2.1) * need;
 
         portal.style.setProperty('--portal-scale', scale.toFixed(3));
-        portal.style.setProperty('--portal-opacity', emerge > 0 ? '1' : '0');
+        // It lights up in her hand rather than popping into existence.
+        portal.style.setProperty('--portal-opacity', track(p, 0.05, 0.20).toFixed(3));
+
+        // The body dissolves as the screen becomes the page. Scaling by fifteen
+        // would otherwise turn a 21px corner into a 320px one and the phone
+        // would read as a picture frame around the chapter instead of a device.
+        const dissolve = track(p, 0.52, 0.80);
+        const dEased = dissolve * dissolve * (3 - 2 * dissolve);
+        portal.style.setProperty('--dev-r', (1 - dEased).toFixed(3));
+        // The screen keeps showing the WORK chapter's own opening the whole way
+        // in. Left alone the type would be magnified with the body and end up
+        // twenty times its size, so the content is counter-scaled: past the
+        // point where the device fills the frame the headline holds at roughly
+        // the size the real chapter sets it in, and the two match when it lands.
+        // It then dissolves exactly as the real header crosses the bottom edge,
+        // so the two never stand side by side as a doubled headline, and the
+        // screen is never a dark rectangle waiting for a section to climb in.
+        portal.style.setProperty('--dev-cs', Math.min(1, 3 / scale).toFixed(4));
+        portal.style.setProperty('--dev-screen', (1 - track(p, 0.58, 0.70)).toFixed(3));
         // The phone is held at an angle; the portal starts matching it and
         // straightens as it stops being an object and becomes the next chapter.
         portal.style.setProperty('--portal-rot', `${(-18 * (1 - open)).toFixed(2)}deg`);
