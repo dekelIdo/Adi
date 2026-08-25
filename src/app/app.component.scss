@@ -1882,6 +1882,17 @@ select {
     position: absolute;
     inset: 0;
     transform-style: flat;
+    // Both layers ride together, so the cut-out stays registered on the plate
+    // through the whole camera move: the dolly and the travel are applied to
+    // the pair, never to one of them.
+    //
+    // The origin is the laptop's projected position, so pushing in frames the
+    // subject rather than the middle of the picture. The translate is written
+    // after the scale on purpose: it is a screen-space ride with the incoming
+    // chapter's edge and must not be magnified by the push-in.
+    transform-origin: var(--dol-x, 30%) var(--dol-y, 62%);
+    transform: translate3d(0, var(--scene-y, 0px), 0) scale(var(--scene-scale, 1));
+    will-change: transform;
   }
 
   // The body stays put. It drifts only enough to stop the frame feeling pinned.
@@ -1902,7 +1913,10 @@ select {
       width: 100%;
       height: 100%;
       object-fit: cover;
-      object-position: 45% 50%;
+      // 36, not 45: at a phone's aspect the plate is cropped to about 40% of
+      // its width, and at 45 the lid was cut off at the left edge, so the
+      // chapter opened on a sliver of its own subject.
+      object-position: 36% 50%;
       display: block;
     }
   }

@@ -720,6 +720,7 @@ export class AppComponent implements AfterViewInit, OnDestroy {
   private initLaptopBridge(): void {
     const stage = document.querySelector<HTMLElement>('.bridge-stage');
     const sticky = document.querySelector<HTMLElement>('.bridge-sticky');
+    const scene = document.querySelector<HTMLElement>('.bridge-scene');
     const base = document.querySelector<HTMLElement>('.bridge-frame--a');
     const baseImg = document.querySelector<HTMLImageElement>('.bridge-frame--a img');
     const veil = document.querySelector<HTMLElement>('.bridge-veil');
@@ -736,6 +737,14 @@ export class AppComponent implements AfterViewInit, OnDestroy {
 
     // Where the laptop sits in the source frame, measured off the lid quad.
     const LAPTOP_U = 0.17;
+    // Where the camera pushes in. Deliberately NOT the lid: at a phone's crop
+    // the lid's own position projects off the left edge of the viewport, and
+    // pushing in about an origin that is off screen throws the whole frame
+    // sideways, which is what shoved Adi out of the shot. This is the deck and
+    // the hands, the part of the assembly that has to stay readable to the last
+    // frame, and it is inside the visible window at every phone size.
+    const DOLLY_U = 0.33;
+    const DOLLY_V = 0.62;
     // Frame A is now the crop that ends just below the hands, which is 0.5802 of
     // the original frame's height, so every vertical fraction measured against
     // the full frame has to be divided through by that.
@@ -787,6 +796,11 @@ export class AppComponent implements AfterViewInit, OnDestroy {
       sticky.style.setProperty('--lap-x', `${vx.toFixed(1)}%`);
       sticky.style.setProperty('--lap-y', `${vy.toFixed(1)}%`);
 
+      const dx = ((offX + DOLLY_U * dw) / r.width) * 100;
+      const dy = ((offY + DOLLY_V * dh) / r.height) * 100;
+      sticky.style.setProperty('--dol-x', `${dx.toFixed(1)}%`);
+      sticky.style.setProperty('--dol-y', `${dy.toFixed(1)}%`);
+
       // Frame B is projected through the same cover maths, so the cut-out lands
       // on the laptop it was cut from at any viewport crop.
       if (frameB) {
@@ -806,9 +820,10 @@ export class AppComponent implements AfterViewInit, OnDestroy {
         const rect = stage.getBoundingClientRect();
         const travel = rect.height - window.innerHeight;
         if (travel <= 0) return;
-        place();
 
         const p = clamp01(-rect.top / travel);
+
+        place();
 
         // The beats. Each is a window on the same scroll progress, so the whole
         // sequence is reversible by construction and has no state of its own.
@@ -819,9 +834,35 @@ export class AppComponent implements AfterViewInit, OnDestroy {
         const takeover = Math.pow(track(p, 0.78, 1), 1.7);
 
         // FRAME A: her body. Almost stationary, and it never leaves the frame.
+        //
+        // Do not flatten this to identity. The 3% looks like a decoration and is
+        // not: it grows the plate's own laptop about the same point the cut-out
+        // grows about, which is what buys the cut-out the last of its coverage
+        // budget. Removing it put the pair 1.11 -> 1.227 apart instead of
+        // 1.11 -> 1.191, and layer isolation showed the plate's deck edge
+        // crossing her wrist beside the cut-out's. The dolly below is a separate
+        // move applied to the pair, so it does not disturb this relationship.
         base.style.setProperty('--base-scale', (1 + anticipate * 0.004 + advance * 0.008 + depth * 0.009 + dominant * 0.009).toFixed(4));
         base.style.setProperty('--base-ry', `${(-anticipate * 0.2 - advance * 0.5).toFixed(2)}deg`);
         base.style.setProperty('--base-opacity', '1');
+
+        // THE DOLLY. The camera pushes in on the laptop, about the laptop: the
+        // scene's transform origin is the point the subject occupies, so the
+        // environment expands away around it while the subject stays anchored.
+        //
+        // This is what the shot was missing. The subject's own advance has to
+        // stay inside the coverage budget, which caps it near 1.22, and 22%
+        // spread over a 549px runway is not something an eye registers. Moving
+        // the camera is not capped that way: the whole scene grows 24%, the
+        // subject grows 36% because its own advance rides on top, and the
+        // difference between the two is the parallax that reads as depth.
+        //
+        // No upsampling: the plate renders at 971px wide on a 390 screen and the
+        // file is 1400, so the push-in stays inside the photograph's own detail.
+        const dolly = ease(track(p, 0.08, 0.92));
+        if (scene) {
+          scene.style.setProperty('--scene-scale', (1 + dolly * 0.24).toFixed(4));
+        }
 
         // Focus falls off her once the laptop is clearly in front of her. This
         // is the thing that puts the two layers at different distances from the
@@ -858,7 +899,19 @@ export class AppComponent implements AfterViewInit, OnDestroy {
           // arbitrarily chosen. Beyond it the plate's own deck reappears above
           // this one and there are two laptops again.
           const COVER = 1.11;
-          const s = COVER + anticipate * 0.012 + advance * 0.045 + depth * 0.03 + dominant * 0.02 + takeover * 0.01;
+          // Halved. The bound 2 * COVER - 1 is the point at which the cut-out
+          // can no longer cover its own source anywhere; near it the deck, which
+          // is the thinnest limb and the furthest from the origin, is already
+          // uncovering. Layer isolation at 65% showed the plate's rear deck edge
+          // standing beside the cut-out's, crossing her forearm, and the dolly
+          // then magnified that seam along with everything else.
+          //
+          // It can afford to be halved now, which it could not before: the
+          // camera carries the movement, and this layer is only here for the
+          // parallax between the subject and the environment. 24% for the scene
+          // against about 30% for the laptop still separates the planes, and the
+          // cut-out stays comfortably inside its own footprint.
+          const s = COVER + anticipate * 0.006 + advance * 0.022 + depth * 0.015 + dominant * 0.01 + takeover * 0.005;
           frameB.style.setProperty('--fb-scale', s.toFixed(4));
 
           // No translate. With the origin on the lid, any lateral move would
@@ -896,6 +949,30 @@ export class AppComponent implements AfterViewInit, OnDestroy {
           const reveal = track(p, 0.52, 0.92);
           const eased = reveal * reveal * (3 - 2 * reveal);
           next.style.setProperty('--handoff-y', `${((1 - eased) * HANDOFF_VH * window.innerHeight / 100).toFixed(1)}px`);
+
+          // THE CAMERA FOLLOWS THE OBJECT OUT.
+          //
+          // The plate is exactly viewport height at a phone's aspect, so there
+          // is no vertical crop to pan within: whatever the process chapter
+          // covers is simply gone. It rises from the bottom, and the laptop and
+          // her hands are the lowest thing in the frame, so the shot used to end
+          // on a band of her forehead and empty wall with the subject already
+          // pushed off the bottom.
+          //
+          // So the scene rides up with the incoming edge, at a fraction of its
+          // speed. The laptop and the hands stay in the surviving band to the
+          // last frame, the two planes separate as they move, and because it is
+          // slower than the edge the plate can never pull away from it and open
+          // a gap.
+          if (scene) {
+            const covered = Math.max(0, window.innerHeight - next.getBoundingClientRect().top);
+            // A small lift rides with the dolly as well, not only with the
+            // incoming edge. Pushing in about the deck expands the backdrop
+            // upward, and through the middle of the shot the top half of the
+            // frame was becoming empty wall; this keeps the laptop sitting
+            // where a camera operator would keep it.
+            scene.style.setProperty('--scene-y', `${(-dolly * 56 - covered * 0.63).toFixed(1)}px`);
+          }
         }
       };
 
