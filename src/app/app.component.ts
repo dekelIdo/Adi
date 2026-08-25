@@ -799,63 +799,65 @@ export class AppComponent implements AfterViewInit, OnDestroy {
     if (!this.bridgeCinematic) return;
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
 
-    // ── The scene, in one coordinate space ───────────────────────────────────
+    // ── One camera, moving through one photograph ────────────────────────────
     //
-    // Everything below is a fraction of the SOURCE PHOTOGRAPH, and the plate and
-    // the cut-out are laid out together in a single untransformed box BASE wide.
-    // One transform then moves that box. Nothing here uses object-fit: the
-    // previous build let `cover` decide the framing, so the picture was cropped
-    // differently at every viewport height and the laptop's size in frame was a
-    // side effect of the phone rather than a decision. Here the viewport is only
-    // the camera's window.
+    // Built on the same shape as the phone chapter further down the page: a
+    // single subject measured off the picture, a single uniform scale, and a
+    // next chapter that rises over the shot while the subject is still in it.
+    // Nothing here is a compensation for something else.
+    //
+    // The plate and the camera live in one coordinate space: the picture is laid
+    // out BASE wide at its natural aspect and one transform moves it. There is
+    // no object-fit anywhere in this path, so the framing is a decision rather
+    // than a side effect of the viewport's shape.
     const IMG_R = 4201 / 2806;   // the frame's height per unit width
     const BASE = 1000;
 
-    // Measured, not estimated. The cut-out's alpha channel IS the laptop, both
-    // hands and her forearm, so its opaque bounding box, projected back through
-    // its own registration, gives the assembly's true extent in the frame:
-    //   x 0.031 .. 0.767, y 0.159 .. 0.509
-    // Her face and hair sit at x 0.56 .. 0.85, y 0.05 .. 0.22.
+    // Measured, not estimated: the cut-out's alpha channel is the laptop, the
+    // hands and her forearm, so its opaque bounding box projected back through
+    // its registration gives the assembly's true extent. Her face and hair sit
+    // at x 0.56..0.85, y 0.05..0.22.
     //
-    // THE TWO FRAMINGS. The camera moves between these and nothing else about it
-    // is tuned: every number the driver writes is derived from them and from the
-    // shape of the window it has to fill.
-    // Both start a little left of the lid rather than on it: framing the lid
-    // hard against x = 0.031 put it flush with the edge of the screen, which
-    // reads as a photograph that has been cropped rather than as a camera that
-    // has been placed.
-    // focusY is what the frame holds on to when the window is too short to
-    // contain the whole box, which is what happens in the last stretch as the
-    // process chapter climbs over the shot. Centring the leftovers on the
-    // geometric middle left the strip showing the top of the lid and her chin
-    // with the hands already gone; the gesture is the deck and the hands, so
-    // that is what the closing frame keeps.
-    const ESTABLISH = { x0: 0.010, x1: 0.723, y0: 0.030, y1: 0.560, focusY: 0.300 };
-    const CLOSE = { x0: 0.010, x1: 0.565, y0: 0.150, y1: 0.510, focusY: 0.420 };
+    // SUBJECT is the part the shot is about: lid, deck and both hands. The
+    // forearm running out to 0.767 is allowed to leave the frame in a close
+    // shot, the way an arm does when a camera comes in.
+    const SUBJECT = { x0: 0.031, x1: 0.500, y0: 0.159, y1: 0.509 };
+    // ESTABLISH is the first frame: the whole gesture plus enough of her to read
+    // as a photograph of a person working, not a product shot.
+    const ESTABLISH = { x0: 0.010, x1: 0.800, y0: 0.030, y1: 0.560 };
+    // Where the camera holds the subject, and where on screen it holds it. The
+    // subject stays put and the room expands around it, which is what a push-in
+    // looks like; it is also why the laptop is still in frame at the handoff,
+    // when the process chapter has taken the bottom two thirds of the screen.
+    const ANCHOR = { x: 0.2935, y: 0.334 };
+    // The vertical hold rises a little as the camera comes in. It is the one
+    // secondary adjustment in the shot and it exists for a measured reason: the
+    // process chapter covers the frame from the bottom, and with the hold fixed
+    // the hands ended up under that edge at the last checkpoint while the lid
+    // was still on screen. Lifting it keeps the whole gesture in the strip that
+    // survives. It does nothing at all in the opening, where the window is the
+    // full height of the picture and the hold is clamped anyway.
+    const HOLD = { x: 0.60, y0: 0.40, y1: 0.20 };
+    // How much of the frame's width the laptop and hands end up occupying. This
+    // is the physical statement the whole move is derived from, the counterpart
+    // of the phone's "starts at her phone's real size, ends covering 2.4x".
+    const END_COVER = 1.02;
 
     const clamp = (v: number, a: number, b: number) => (v < a ? a : v > b ? b : v);
     const clamp01 = (v: number) => clamp(v, 0, 1);
     const track = (v: number, a: number, b: number) => clamp01((v - a) / (b - a));
     const ease = (v: number) => v * v * (3 - 2 * v);
 
-    // The smallest window of a given screen shape that still holds a piece of
-    // the photograph, centred on it and kept inside the frame. This is what lets
-    // one composition survive every viewport: the content is fixed and the
-    // window grows in whichever direction the screen is long.
-    const fit = (c: { x0: number; x1: number; y0: number; y1: number; focusY: number }, aspect: number) => {
-      const k = aspect * IMG_R;                 // window width per unit height, in fractions
+    // The smallest window of the screen's shape that still holds a piece of the
+    // picture. One composition, adapted to the viewport rather than redesigned
+    // for it: the content is fixed and the window grows in whichever direction
+    // the screen is long.
+    const fit = (c: { x0: number; x1: number; y0: number; y1: number }, aspect: number) => {
+      const k = aspect * IMG_R;
       let ch = Math.max(c.y1 - c.y0, (c.x1 - c.x0) / k);
       let cw = k * ch;
       const shrink = Math.min(1, 1 / cw, 1 / ch);
-      cw *= shrink;
-      ch *= shrink;
-      const anchor = ch < c.y1 - c.y0 ? c.focusY : (c.y0 + c.y1) / 2;
-      return {
-        cx: clamp((c.x0 + c.x1) / 2 - cw / 2, 0, 1 - cw),
-        cy: clamp(anchor - ch / 2, 0, 1 - ch),
-        cw,
-        ch
-      };
+      return { cw: cw * shrink, ch: ch * shrink };
     };
 
     this.zone.runOutsideAngular(() => {
@@ -870,70 +872,42 @@ export class AppComponent implements AfterViewInit, OnDestroy {
         if (travel <= 0) return;
 
         const p = clamp01(-rect.top / travel);
+        const w = window.innerWidth;
+        const h = window.innerHeight;
 
-        // THE HANDOFF, first: the camera has to know how much of its window the
-        // process chapter has taken before it can frame anything.
-        if (next) {
-          const reveal = track(p, 0.52, 0.92);
-          const eased = reveal * reveal * (3 - 2 * reveal);
-          next.style.setProperty('--handoff-y', `${((1 - eased) * HANDOFF_VH * window.innerHeight / 100).toFixed(1)}px`);
-        }
+        // THE CAMERA. One eased push-in, and nothing else moves: no pan, no
+        // rotation, no reframing. The photograph already carries the laptop at
+        // its own angle along her forearm, and the camera comes in along that
+        // composition rather than introducing a direction of its own.
+        const start = fit(ESTABLISH, w / h);
+        const end = clamp((END_COVER * start.cw) / (SUBJECT.x1 - SUBJECT.x0), 1.08, 2.6);
+        const z = 1 + (end - 1) * ease(track(p, 0.06, 0.98));
 
-        // The window the shot is actually seen through: the whole viewport until
-        // the next chapter starts climbing over it, then whatever is left above
-        // that edge. Framing against this rather than against the viewport is
-        // what makes the last third read as one camera finishing its move. The
-        // shot recomposes into the strip it still has, so the laptop and the
-        // hands stay centred in it instead of being pushed out of the bottom.
-        // THE FRAME'S SHAPE. Not the viewport's. The establishing composition,
-        // lid to her face, is 0.713 x 0.53 of the picture, which is a window of
-        // about 0.9 : 1. Filling a phone's 0.46 : 1 viewport with it therefore
-        // forced 40% of the screen to be whatever happened to sit below the
-        // subject, which on this frame is her trousers and the studio floor.
-        // The shot is given its own shape instead and the page's surface holds
-        // it, exactly as the desktop band does.
-        const winW = window.innerWidth;
-        const frameH = Math.min(window.innerHeight, winW / 0.8);
-        const frameTop = (window.innerHeight - frameH) / 2;
-        sticky.style.setProperty('--frame-top', frameTop.toFixed(1) + 'px');
-        sticky.style.setProperty('--frame-bot', (window.innerHeight - frameTop - frameH).toFixed(1) + 'px');
-        // What is left of that frame once the next chapter starts climbing over
-        // it. The camera reframes into the strip it still has, which is what
-        // makes the handoff read as the same move finishing.
-        const edge = next ? next.getBoundingClientRect().top : window.innerHeight;
-        const winH = clamp(edge - frameTop, 200, frameH);
+        const cw = start.cw / z;
+        const ch = start.ch / z;
+        const hold = HOLD.y0 + (HOLD.y1 - HOLD.y0) * ease(track(p, 0.06, 0.98));
+        const cx = clamp(ANCHOR.x - HOLD.x * cw, 0, 1 - cw);
+        const cy = clamp(ANCHOR.y - hold * ch, 0, 1 - ch);
 
-        // THE CAMERA. Two framings, eased between: it opens holding Adi, the
-        // laptop, both hands and the bracelet, and closes on the laptop and the
-        // hands. Both are fitted to the window's shape, so this is one
-        // composition adapted to the screen, not three compositions.
-        // Front-loaded on purpose. The last fifth of the shot is where the window
-        // itself is changing shape as the chapter climbs over it, and that is a
-        // large recomposition on its own; the push-in finishes before it so the
-        // two do not fight for the eye.
-        const move = ease(track(p, 0.06, 0.80));
-        const a = fit(ESTABLISH, winW / winH);
-        const b = fit(CLOSE, winW / winH);
-        const cw = a.cw + (b.cw - a.cw) * move;
-        const cx = a.cx + (b.cx - a.cx) * move;
-        const cy = a.cy + (b.cy - a.cy) * move;
-
-        // Map that window onto the strip. A single uniform scale, so the laptop
-        // keeps its photographic proportions at every point in the move by
-        // construction: there is nothing here that could stretch it.
-        const s = winW / (cw * BASE);
+        // One uniform scale maps that rectangle onto the viewport. There is no
+        // second axis to disagree with the first, so the picture cannot stretch
+        // and the laptop cannot lose its proportions at any point in the move.
+        const s = w / (cw * BASE);
         scene.style.setProperty('--cam-s', s.toFixed(5));
         scene.style.setProperty('--cam-x', `${(-cx * BASE * s).toFixed(1)}px`);
-        scene.style.setProperty('--cam-y', `${(frameTop - cy * BASE * IMG_R * s).toFixed(1)}px`);
+        scene.style.setProperty('--cam-y', `${(-cy * BASE * IMG_R * s).toFixed(1)}px`);
 
-        // No rack focus and no cut-out layer any more. Both existed to sell a
-        // foreground object moving over a background plate, and that is exactly
-        // what this chapter must NOT look like. The cut-out also could not hide
-        // its own boundary: it ends mid-forearm at the edge of its file, so once
-        // it advanced even a few per cent her arm stepped sideways along a hard
-        // vertical seam. A camera moving through one photograph has no seam to
-        // give away, and nothing in it can defocus or duplicate.
         veil.style.setProperty('--bridge-veil', '0');
+
+        // THE HANDOFF. The next chapter is parked below where its margin would
+        // put it and rises through the last third of the same scroll, so it is
+        // already there to read while the laptop is still filling the frame.
+        // The shot is not cut away from; it is covered, the way the phone
+        // chapter is covered by the work chapter.
+        if (next) {
+          const reveal = track(p, 0.52, 0.94);
+          next.style.setProperty('--handoff-y', `${((1 - ease(reveal)) * HANDOFF_VH * h / 100).toFixed(1)}px`);
+        }
       };
 
       const onScroll = () => {
