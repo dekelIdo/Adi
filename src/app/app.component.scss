@@ -1749,58 +1749,17 @@ select {
   display: none;
 }
 
-// DESKTOP. The chapter used to vanish entirely above 767px, so the story ran
-// About straight into Process with no visual beat between them. It returns here
-// as a still editorial band: no runway, no sticky, no scroll driver, just the
-// photograph at a height that suits a landscape viewport.
+// DESKTOP. One camera, not a second implementation. The chapter used to be a
+// still band above 767px with its own crop and its own object-position, which
+// meant the page carried two unrelated versions of the same shot. The cinematic
+// rules below now apply at every width and the driver runs everywhere: the same
+// establishing composition, fitted to a landscape window instead of a portrait
+// one, and the same push-in on the same anchor.
 @media (min-width: 768px) {
   .section-bridge {
     display: block;
     position: relative;
     background: var(--bg);
-  }
-
-  .section-bridge .bridge-stage,
-  .section-bridge .bridge-sticky,
-  .section-bridge .bridge-scene {
-    position: static;
-    height: auto;
-    overflow: visible;
-    perspective: none;
-    transform-style: flat;
-  }
-
-  .section-bridge .bridge-frame--a {
-    position: relative;
-    inset: auto;
-    display: block;
-    // Derived, not chosen. The band is the shape of the subject itself: the
-    // laptop, both hands and the bracelet span 0.351 of the frame's height at
-    // its full width, so a band of 2806 x 1475 holds the whole assembly edge to
-    // edge at any screen width. Capped so it cannot swallow a short window.
-    aspect-ratio: 2806 / 1475;
-    // Explicit, so the cap below clips the band instead of shrinking it: with
-    // width left to the aspect ratio, max-height narrowed the box and an RTL
-    // page then parked it against the right edge with a white margin down the
-    // left of the section.
-    width: 100%;
-    height: auto;
-    max-height: 78vh;
-    overflow: hidden;
-    transform: none;
-    filter: none;
-    opacity: 1;
-
-    img {
-      width: 100%;
-      height: 100%;
-      display: block;
-      object-fit: cover;
-      // Solved from the same numbers: with the band at the assembly's aspect
-      // the window is the full width of the picture and 0.351 of its height,
-      // and the assembly starts at 0.159, so it sits at 0.159 / (1 - 0.351).
-      object-position: 50% 24.5%;
-    }
   }
 
   .section-bridge .bridge-frame--b,
@@ -1809,7 +1768,7 @@ select {
   }
 }
 
-@media (max-width: 767px) {
+@media all {
   .section-bridge {
     display: block;
     position: relative;

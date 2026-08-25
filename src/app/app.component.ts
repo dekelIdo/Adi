@@ -812,6 +812,11 @@ export class AppComponent implements AfterViewInit, OnDestroy {
     // than a side effect of the viewport's shape.
     const IMG_R = 4201 / 2806;   // the frame's height per unit width
     const BASE = 1000;
+    // The plate's real pixel width. The camera is not allowed to render the
+    // picture larger than this: past it the push-in is asking the photograph for
+    // detail it does not have, and at 1440 the close shot was arriving as a soft
+    // upscaled blur rather than as a close shot.
+    const NATIVE_W = 2600;
 
     // Measured, not estimated: the cut-out's alpha channel is the laptop, the
     // hands and her forearm, so its opaque bounding box projected back through
@@ -825,23 +830,37 @@ export class AppComponent implements AfterViewInit, OnDestroy {
     // ESTABLISH is the first frame: the whole gesture plus enough of her to read
     // as a photograph of a person working, not a product shot.
     const ESTABLISH = { x0: 0.010, x1: 0.800, y0: 0.030, y1: 0.560 };
-    // Where the camera holds the subject, and where on screen it holds it. The
-    // subject stays put and the room expands around it, which is what a push-in
-    // looks like; it is also why the laptop is still in frame at the handoff,
-    // when the process chapter has taken the bottom two thirds of the screen.
-    const ANCHOR = { x: 0.2935, y: 0.334 };
-    // The vertical hold rises a little as the camera comes in. It is the one
-    // secondary adjustment in the shot and it exists for a measured reason: the
-    // process chapter covers the frame from the bottom, and with the hold fixed
-    // the hands ended up under that edge at the last checkpoint while the lid
-    // was still on screen. Lifting it keeps the whole gesture in the strip that
-    // survives. It does nothing at all in the opening, where the window is the
-    // full height of the picture and the hold is clamped anyway.
-    const HOLD = { x: 0.60, y0: 0.40, y1: 0.20 };
-    // How much of the frame's width the laptop and hands end up occupying. This
-    // is the physical statement the whole move is derived from, the counterpart
-    // of the phone's "starts at her phone's real size, ends covering 2.4x".
-    const END_COVER = 1.02;
+    // Where the camera holds the subject, and where on screen it holds it.
+    //
+    // FIXED. Measured against the phone chapter, whose subject sits at 0.451 of
+    // the width and 0.400 of the height at the first frame and 0.449 / 0.395 at
+    // the last: the object does not move, the room comes to it. This shot was
+    // drifting 60px sideways and 113px upward over the same interval, because
+    // the horizontal hold was clamped at the opening and released as the zoom
+    // grew, and because the vertical hold was being ramped. Both are gone.
+    //
+    // 0.38 is the largest horizontal hold that never clamps at the widest
+    // window, which is what makes it fixed rather than nearly fixed. The
+    // vertical hold equals the anchor's own height in the picture, which is
+    // forced: at the opening the window is the full height of the frame, so the
+    // anchor can only land at its own fraction.
+    const ANCHOR = { x: 0.2655, y: 0.334 };
+    const HOLD = { x: 0.38, y: 0.334 };
+
+    // The phone chapter's progression, measured off its rendered checkpoints as
+    // the log of its subject's on-screen width, normalised. This is the shot's
+    // rhythm: unhurried but immediately readable, strongest through the middle,
+    // settled by 85% while the next chapter takes the frame. Applying it as an
+    // exponent gives this camera the same rhythm at its own magnitude.
+    const RHYTHM: Array<[number, number]> = [
+      [0, 0], [0.15, 0.129], [0.25, 0.212], [0.40, 0.435], [0.55, 0.728],
+      [0.65, 0.851], [0.75, 0.936], [0.85, 0.995], [1, 1]
+    ];
+
+    // How much of the frame's width the laptop and hands end up occupying. Past
+    // 1 on purpose: the reference lets its subject grow beyond the viewport, and
+    // a close shot that stops exactly at the edges reads as a fitted picture.
+    const END_COVER = 1.29;
 
     const clamp = (v: number, a: number, b: number) => (v < a ? a : v > b ? b : v);
     const clamp01 = (v: number) => clamp(v, 0, 1);
@@ -865,7 +884,6 @@ export class AppComponent implements AfterViewInit, OnDestroy {
 
       const update = () => {
         ticking = false;
-        if (window.innerWidth >= 768) return;
 
         const rect = stage.getBoundingClientRect();
         const travel = rect.height - window.innerHeight;
@@ -880,14 +898,23 @@ export class AppComponent implements AfterViewInit, OnDestroy {
         // its own angle along her forearm, and the camera comes in along that
         // composition rather than introducing a direction of its own.
         const start = fit(ESTABLISH, w / h);
-        const end = clamp((END_COVER * start.cw) / (SUBJECT.x1 - SUBJECT.x0), 1.08, 2.6);
-        const z = 1 + (end - 1) * ease(track(p, 0.06, 0.98));
+        const wanted = (END_COVER * start.cw) / (SUBJECT.x1 - SUBJECT.x0);
+        const sharp = (start.cw * NATIVE_W) / w;
+        const end = clamp(Math.min(wanted, sharp), 1.15, 2.6);
+
+        let n = 0;
+        for (let i = 1; i < RHYTHM.length; i++) {
+          const [pa, na] = RHYTHM[i - 1];
+          const [pb, nb] = RHYTHM[i];
+          if (p <= pb) { n = na + ((nb - na) * (p - pa)) / (pb - pa); break; }
+          n = nb;
+        }
+        const z = Math.pow(end, n);
 
         const cw = start.cw / z;
         const ch = start.ch / z;
-        const hold = HOLD.y0 + (HOLD.y1 - HOLD.y0) * ease(track(p, 0.06, 0.98));
         const cx = clamp(ANCHOR.x - HOLD.x * cw, 0, 1 - cw);
-        const cy = clamp(ANCHOR.y - hold * ch, 0, 1 - ch);
+        const cy = clamp(ANCHOR.y - HOLD.y * ch, 0, 1 - ch);
 
         // One uniform scale maps that rectangle onto the viewport. There is no
         // second axis to disagree with the first, so the picture cannot stretch
