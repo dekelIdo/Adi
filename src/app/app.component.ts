@@ -789,6 +789,7 @@ export class AppComponent implements AfterViewInit, OnDestroy {
     const stage = document.querySelector<HTMLElement>('.bridge-stage');
     const sticky = document.querySelector<HTMLElement>('.bridge-sticky');
     const scene = document.querySelector<HTMLElement>('.bridge-scene');
+    const turn = document.querySelector<HTMLElement>('.bridge-turn');
     const base = document.querySelector<HTMLElement>('.bridge-frame--a');
     const baseImg = document.querySelector<HTMLImageElement>('.bridge-frame--a img');
     const veil = document.querySelector<HTMLElement>('.bridge-veil');
@@ -871,6 +872,21 @@ export class AppComponent implements AfterViewInit, OnDestroy {
     // this changes nothing there.
     const END_COVER = 1.45;
 
+    // How far the plane arcs. The laptop sits at a three quarter angle in the
+    // photograph with its lid turned away to the left; swinging the plane this
+    // way brings that face round toward the lens. Bounded by what the approach
+    // has uncovered: rotate further than the plane is wider than the frame and
+    // its own edge swings into view.
+    const TURN_Y = 28;
+    const TURN_X = 4;
+    // Turning a plane about a vertical axis pulls its far edge in, and on a wide
+    // screen the approach has not opened enough margin to hide that: at 1440 and
+    // 1920 the page background was swinging into the left of the frame. The turn
+    // therefore opens its own margin as it goes. It is a uniform scale, so it
+    // cannot distort, and the resolution clamp below is divided through by it so
+    // the pair together still never render the plate beyond its native width.
+    const TURN_S = 0.22;
+
     const clamp = (v: number, a: number, b: number) => (v < a ? a : v > b ? b : v);
     const clamp01 = (v: number) => clamp(v, 0, 1);
     const track = (v: number, a: number, b: number) => clamp01((v - a) / (b - a));
@@ -908,7 +924,7 @@ export class AppComponent implements AfterViewInit, OnDestroy {
         // composition rather than introducing a direction of its own.
         const start = fit(ESTABLISH, w / h);
         const wanted = (END_COVER * start.cw) / (SUBJECT.x1 - SUBJECT.x0);
-        const sharp = (start.cw * NATIVE_W) / w;
+        const sharp = (start.cw * NATIVE_W) / (w * (1 + TURN_S));
         const end = clamp(Math.min(wanted, sharp), 1.15, 2.6);
 
         let n = 0;
@@ -932,6 +948,18 @@ export class AppComponent implements AfterViewInit, OnDestroy {
         scene.style.setProperty('--cam-s', s.toFixed(5));
         scene.style.setProperty('--cam-x', `${(-cx * BASE * s).toFixed(1)}px`);
         scene.style.setProperty('--cam-y', `${(-cy * BASE * IMG_R * s).toFixed(1)}px`);
+
+        // THE TURN. The plane arcs about the laptop while the camera closes on
+        // it, so the lid comes round to face the viewer instead of staying at
+        // the three quarter angle it sits at in the photograph. It starts only
+        // once the approach has made the plane larger than the frame, because
+        // before that there is nothing behind its edges to swing into view.
+        if (turn) {
+          const t = ease(track(p, 0.34, 1));
+          turn.style.setProperty('--turn-ry', `${(-TURN_Y * t).toFixed(2)}deg`);
+          turn.style.setProperty('--turn-rx', `${(TURN_X * t).toFixed(2)}deg`);
+          turn.style.setProperty('--turn-s', (1 + TURN_S * t).toFixed(4));
+        }
 
         veil.style.setProperty('--bridge-veil', '0');
 

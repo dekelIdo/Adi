@@ -286,6 +286,12 @@
     <section id="laptop-bridge" class="section-bridge" [class.is-cinematic]="bridgeCinematic" data-header-theme="light" aria-hidden="true">
       <div class="bridge-stage">
         <div class="bridge-sticky">
+          <!-- The turn. The camera inside handles the approach; this handles the
+               arc around it. Separate elements on purpose: the approach is a
+               flat map of a rectangle of the photograph onto the screen, and the
+               arc is a rotation of that whole plane about the laptop. Composed,
+               they are one movement; kept apart, neither can distort the other. -->
+          <div class="bridge-turn">
           <div class="bridge-scene">
 
             <!-- FRAME A: the real photograph, the whole frame. It is a portrait
@@ -313,6 +319,7 @@
               <img [src]="frameBAsset" alt="" decoding="async" />
             </div>
 
+          </div>
           </div>
           <div class="bridge-veil"></div>
         </div>

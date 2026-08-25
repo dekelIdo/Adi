@@ -1852,6 +1852,24 @@ select {
   // why the same picture held Adi's face at 393x668 and lost it at 390x844. The
   // band is sized off the WIDTH instead, so every phone gets the composition the
   // short viewport was getting for free, and the page's own surface frames it.
+  // The lens. Everything inside is one photographic plane, so a single
+  // perspective and a single rotation turn the whole scene together: the
+  // laptop, the hands holding it and Adi behind them all arc as one object.
+  // Nothing is cut out, so nothing can come apart.
+  .is-cinematic .bridge-turn {
+    position: absolute;
+    inset: 0;
+    // The axis sits near the left of the frame, which is where the laptop's
+    // hinge side is in this composition. Two reasons, and they agree: a lid
+    // turns about its hinge, and with the axis there almost the whole plane
+    // swings TOWARD the lens rather than away, so the turn opens the frame
+    // instead of pulling its far edge out of it. At 38% the left third receded
+    // and the page background swung into view on wide screens.
+    transform-origin: var(--turn-x, 14%) var(--turn-y, 33.4%);
+    transform: perspective(var(--turn-d, 1600px)) rotateY(var(--turn-ry, 0deg)) rotateX(var(--turn-rx, 0deg)) scale(var(--turn-s, 1));
+    will-change: transform;
+  }
+
   .is-cinematic .bridge-scene {
     position: absolute;
     left: 0;
@@ -1972,6 +1990,10 @@ select {
   // The scene is absolutely positioned in the animated build, so it has to
   // return to normal flow here or nothing gives the section any height and the
   // photograph vanishes entirely.
+  // The turn wrapper is absolutely positioned in the animated build, so it has
+  // to return to normal flow here as well; leaving it out took the scene out of
+  // flow with it and the whole chapter collapsed to nothing.
+  .section-bridge .bridge-turn,
   .section-bridge .bridge-scene {
     position: static;
     width: auto;
