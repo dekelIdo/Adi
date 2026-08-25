@@ -793,7 +793,7 @@ export class AppComponent implements AfterViewInit, OnDestroy {
     const baseImg = document.querySelector<HTMLImageElement>('.bridge-frame--a img');
     const veil = document.querySelector<HTMLElement>('.bridge-veil');
     const next = document.querySelector<HTMLElement>('#process');
-    const HANDOFF_VH = 65;
+    const HANDOFF_VH = 48;
     if (!stage || !sticky || !scene || !base || !baseImg || !veil) return;
 
     if (!this.bridgeCinematic) return;
@@ -860,7 +860,16 @@ export class AppComponent implements AfterViewInit, OnDestroy {
     // How much of the frame's width the laptop and hands end up occupying. Past
     // 1 on purpose: the reference lets its subject grow beyond the viewport, and
     // a close shot that stops exactly at the edges reads as a fitted picture.
-    const END_COVER = 1.29;
+    //
+    // 1.45 rather than 1.29 because of how the eye reads a large subject. The
+    // progression below is the reference's, so the two shots complete the same
+    // fraction of their travel at the same moment; but the reference's subject
+    // starts at 22px and the first beat doubles it, while this one starts at
+    // 264px and the same fraction moved it 8%, which fell under the threshold
+    // and made the opening read as a still. Widening the whole range puts every
+    // interval back above it. On a desktop the resolution clamp binds first, so
+    // this changes nothing there.
+    const END_COVER = 1.45;
 
     const clamp = (v: number, a: number, b: number) => (v < a ? a : v > b ? b : v);
     const clamp01 = (v: number) => clamp(v, 0, 1);
