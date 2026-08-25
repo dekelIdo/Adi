@@ -66,7 +66,11 @@ export class AppComponent implements AfterViewInit, OnDestroy {
   //
   // Set this to null to fall back to the plain photographic section; nothing
   // else has to change.
-  frameBAsset: string | null = 'assets/lovable-uploads/MyAssets/AdiArieli/frame-b-laptop.png';
+  // Deliberately off. The bridge is one photograph and a camera now; a cut-out
+  // laid over the plate is the one thing this chapter must not look like, and
+  // this one ended mid-forearm at the edge of its own file, so any advance at
+  // all stepped her arm sideways along a hard vertical seam.
+  frameBAsset: string | null = null;
 
   // ── bridgeCinematic ───────────────────────────────────────────────────────
   // Master switch for the laptop move. While false the section is a plain
@@ -724,7 +728,6 @@ export class AppComponent implements AfterViewInit, OnDestroy {
     const base = document.querySelector<HTMLElement>('.bridge-frame--a');
     const baseImg = document.querySelector<HTMLImageElement>('.bridge-frame--a img');
     const veil = document.querySelector<HTMLElement>('.bridge-veil');
-    const frameB = document.querySelector<HTMLElement>('.bridge-frame--b');
     const next = document.querySelector<HTMLElement>('#process');
     const HANDOFF_VH = 65;
     if (!stage || !sticky || !scene || !base || !baseImg || !veil) return;
@@ -753,13 +756,18 @@ export class AppComponent implements AfterViewInit, OnDestroy {
     // THE TWO FRAMINGS. The camera moves between these and nothing else about it
     // is tuned: every number the driver writes is derived from them and from the
     // shape of the window it has to fill.
-    const ESTABLISH = { x0: 0.031, x1: 0.723, y0: 0.030, y1: 0.560 };
-    const CLOSE = { x0: 0.031, x1: 0.580, y0: 0.159, y1: 0.510 };
-
-    // The cut-out's registration against the plate, in the same fractions.
-    const FB_X = 0.0;
-    const FB_Y = 0.098;
-    const FB_W = 0.7667;
+    // Both start a little left of the lid rather than on it: framing the lid
+    // hard against x = 0.031 put it flush with the edge of the screen, which
+    // reads as a photograph that has been cropped rather than as a camera that
+    // has been placed.
+    // focusY is what the frame holds on to when the window is too short to
+    // contain the whole box, which is what happens in the last stretch as the
+    // process chapter climbs over the shot. Centring the leftovers on the
+    // geometric middle left the strip showing the top of the lid and her chin
+    // with the hands already gone; the gesture is the deck and the hands, so
+    // that is what the closing frame keeps.
+    const ESTABLISH = { x0: 0.010, x1: 0.723, y0: 0.030, y1: 0.560, focusY: 0.300 };
+    const CLOSE = { x0: 0.010, x1: 0.565, y0: 0.150, y1: 0.510, focusY: 0.420 };
 
     const clamp = (v: number, a: number, b: number) => (v < a ? a : v > b ? b : v);
     const clamp01 = (v: number) => clamp(v, 0, 1);
@@ -770,16 +778,17 @@ export class AppComponent implements AfterViewInit, OnDestroy {
     // the photograph, centred on it and kept inside the frame. This is what lets
     // one composition survive every viewport: the content is fixed and the
     // window grows in whichever direction the screen is long.
-    const fit = (c: { x0: number; x1: number; y0: number; y1: number }, aspect: number) => {
+    const fit = (c: { x0: number; x1: number; y0: number; y1: number; focusY: number }, aspect: number) => {
       const k = aspect * IMG_R;                 // window width per unit height, in fractions
       let ch = Math.max(c.y1 - c.y0, (c.x1 - c.x0) / k);
       let cw = k * ch;
       const shrink = Math.min(1, 1 / cw, 1 / ch);
       cw *= shrink;
       ch *= shrink;
+      const anchor = ch < c.y1 - c.y0 ? c.focusY : (c.y0 + c.y1) / 2;
       return {
         cx: clamp((c.x0 + c.x1) / 2 - cw / 2, 0, 1 - cw),
-        cy: clamp((c.y0 + c.y1) / 2 - ch / 2, 0, 1 - ch),
+        cy: clamp(anchor - ch / 2, 0, 1 - ch),
         cw,
         ch
       };
@@ -812,8 +821,23 @@ export class AppComponent implements AfterViewInit, OnDestroy {
         // what makes the last third read as one camera finishing its move. The
         // shot recomposes into the strip it still has, so the laptop and the
         // hands stay centred in it instead of being pushed out of the bottom.
+        // THE FRAME'S SHAPE. Not the viewport's. The establishing composition,
+        // lid to her face, is 0.713 x 0.53 of the picture, which is a window of
+        // about 0.9 : 1. Filling a phone's 0.46 : 1 viewport with it therefore
+        // forced 40% of the screen to be whatever happened to sit below the
+        // subject, which on this frame is her trousers and the studio floor.
+        // The shot is given its own shape instead and the page's surface holds
+        // it, exactly as the desktop band does.
         const winW = window.innerWidth;
-        const winH = clamp(next ? next.getBoundingClientRect().top : window.innerHeight, 220, window.innerHeight);
+        const frameH = Math.min(window.innerHeight, winW / 0.8);
+        const frameTop = (window.innerHeight - frameH) / 2;
+        sticky.style.setProperty('--frame-top', frameTop.toFixed(1) + 'px');
+        sticky.style.setProperty('--frame-bot', (window.innerHeight - frameTop - frameH).toFixed(1) + 'px');
+        // What is left of that frame once the next chapter starts climbing over
+        // it. The camera reframes into the strip it still has, which is what
+        // makes the handoff read as the same move finishing.
+        const edge = next ? next.getBoundingClientRect().top : window.innerHeight;
+        const winH = clamp(edge - frameTop, 200, frameH);
 
         // THE CAMERA. Two framings, eased between: it opens holding Adi, the
         // laptop, both hands and the bracelet, and closes on the laptop and the
@@ -836,34 +860,15 @@ export class AppComponent implements AfterViewInit, OnDestroy {
         const s = winW / (cw * BASE);
         scene.style.setProperty('--cam-s', s.toFixed(5));
         scene.style.setProperty('--cam-x', `${(-cx * BASE * s).toFixed(1)}px`);
-        scene.style.setProperty('--cam-y', `${(-cy * BASE * IMG_R * s).toFixed(1)}px`);
+        scene.style.setProperty('--cam-y', `${(frameTop - cy * BASE * IMG_R * s).toFixed(1)}px`);
 
-        // Rack focus. The plate falls fractionally out of focus as the object in
-        // front of it comes forward, which is what puts the two at different
-        // distances from the lens.
-        const soften = ease(track(p, 0.46, 0.95));
-        base.style.setProperty('--base-blur', `${(soften * 1.2).toFixed(2)}px`);
-        base.style.setProperty('--base-bright', (1 - soften * 0.025).toFixed(3));
-
-        // FRAME B: the real laptop, hands and forearm, cut from this same
-        // photograph. It sits exactly on its own source in the plate and then
-        // advances a little, which is the parallax that separates the object
-        // from the room. Small on purpose: a cut-out covers its own source only
-        // while it stays inside 2 * COVER - 1, and the camera carries the
-        // movement now, so this layer does not have to.
-        if (frameB) {
-          frameB.style.left = `${(FB_X * BASE).toFixed(1)}px`;
-          frameB.style.top = `${(FB_Y * BASE * IMG_R).toFixed(1)}px`;
-          frameB.style.width = `${(FB_W * BASE).toFixed(1)}px`;
-
-          const COVER = 1.05;
-          const advance = ease(track(p, 0.18, 0.92));
-          frameB.style.setProperty('--fb-scale', (COVER + advance * 0.045).toFixed(4));
-          frameB.style.setProperty('--fb-opacity', track(p, 0.04, 0.14).toFixed(3));
-          frameB.style.setProperty('--fb-shadow-y', `${(2 + advance * 9).toFixed(0)}px`);
-          frameB.style.setProperty('--fb-shadow-b', `${(5 + advance * 16).toFixed(0)}px`);
-        }
-
+        // No rack focus and no cut-out layer any more. Both existed to sell a
+        // foreground object moving over a background plate, and that is exactly
+        // what this chapter must NOT look like. The cut-out also could not hide
+        // its own boundary: it ends mid-forearm at the edge of its file, so once
+        // it advanced even a few per cent her arm stepped sideways along a hard
+        // vertical seam. A camera moving through one photograph has no seam to
+        // give away, and nothing in it can defocus or duplicate.
         veil.style.setProperty('--bridge-veil', '0');
       };
 

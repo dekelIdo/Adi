@@ -1882,6 +1882,11 @@ select {
     height: 100vh;
     overflow: hidden;
     background: var(--bg);
+    // The shot has its own shape, and this is what holds it: the frame is cut
+    // out of the sticky in viewport space, so the page surface shows above and
+    // below it rather than the photograph running to the edges of a screen it
+    // was never composed for.
+    clip-path: inset(var(--frame-top, 0px) 0 var(--frame-bot, 0px) 0);
   }
 
   // Flat, deliberately. Under preserve-3d the two layers sort by their 3D
