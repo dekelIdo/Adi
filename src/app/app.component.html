@@ -286,12 +286,6 @@
     <section id="laptop-bridge" class="section-bridge" [class.is-cinematic]="bridgeCinematic" data-header-theme="light" aria-hidden="true">
       <div class="bridge-stage">
         <div class="bridge-sticky">
-          <!-- The turn. The camera inside handles the approach; this handles the
-               arc around it. Separate elements on purpose: the approach is a
-               flat map of a rectangle of the photograph onto the screen, and the
-               arc is a rotation of that whole plane about the laptop. Composed,
-               they are one movement; kept apart, neither can distort the other. -->
-          <div class="bridge-turn">
           <div class="bridge-scene">
 
             <!-- FRAME A: the real photograph, the whole frame. It is a portrait
@@ -316,7 +310,14 @@
                  other face comes round: the screen, carrying this chapter's own
                  content. The browser swaps the faces at the halfway point, so
                  the reveal is the turn itself, not a fade and not a swap. -->
-            <div class="laptop-place" aria-hidden="true">
+            <!-- The laptop's own space. It is a sibling of the photograph, not
+                 part of it: the scene around it is flat, so this layer composites
+                 over the plate in document order and can never be depth sorted
+                 behind it, and the lens for the hinge lives here rather than on
+                 anything the photograph shares. The picture and Adi stay still;
+                 only what is inside this element moves. -->
+            <div class="laptop-layer" aria-hidden="true">
+            <div class="laptop-place">
             <div class="laptop-card">
               <div class="laptop-face laptop-face--lid">
                 <img src="assets/lovable-uploads/MyAssets/AdiArieli/laptop-lid.webp" alt="" width="1200" height="784" decoding="async" />
@@ -335,6 +336,7 @@
               </div>
             </div>
             </div>
+            </div>
 
             <!-- FRAME B: the same laptop, hands and forearm from the same
                  photograph, cut with real alpha. It is registered on top of the
@@ -346,7 +348,6 @@
               <img [src]="frameBAsset" alt="" decoding="async" />
             </div>
 
-          </div>
           </div>
           <div class="bridge-veil"></div>
         </div>

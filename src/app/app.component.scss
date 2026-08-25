@@ -1856,25 +1856,6 @@ select {
   // perspective and a single rotation turn the whole scene together: the
   // laptop, the hands holding it and Adi behind them all arc as one object.
   // Nothing is cut out, so nothing can come apart.
-  .is-cinematic .bridge-turn {
-    position: absolute;
-    inset: 0;
-    // The lens the laptop turns under. It lives here because this element has a
-    // real size: the scene inside it is zero sized, so a perspective origin
-    // there collapses to a corner.
-    perspective: 1500px;
-    perspective-origin: 32% 30%;
-    // The axis sits near the left of the frame, which is where the laptop's
-    // hinge side is in this composition. Two reasons, and they agree: a lid
-    // turns about its hinge, and with the axis there almost the whole plane
-    // swings TOWARD the lens rather than away, so the turn opens the frame
-    // instead of pulling its far edge out of it. At 38% the left third receded
-    // and the page background swung into view on wide screens.
-    transform-origin: var(--turn-x, 14%) var(--turn-y, 33.4%);
-    transform: perspective(var(--turn-d, 1600px)) rotateY(var(--turn-ry, 0deg)) rotateX(var(--turn-rx, 0deg)) scale(var(--turn-s, 1));
-    will-change: transform;
-  }
-
   // The laptop, as an object rather than a region of a picture. Its placement is
   // a projective map written by the driver from the four corners the lid takes
   // up in the photograph, so it sits exactly on itself until it moves.
@@ -1891,6 +1872,22 @@ select {
   // second perspective inside the placement was what made the lid vanish the
   // moment it moved: composing two projective transforms sent the far corners
   // behind the camera.
+  // The laptop's own space, and the only 3D context in the chapter. It is the
+  // size of the plate so the lens has somewhere to sit: the vanishing point is
+  // put on the lid itself, which is what makes the hinge read as an object
+  // turning under a camera rather than a rectangle being skewed.
+  .is-cinematic .laptop-layer {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 1000px;
+    height: 1497px;
+    perspective: 1500px;
+    perspective-origin: 17.8% 30.1%;
+    transform-style: preserve-3d;
+    pointer-events: none;
+  }
+
   .is-cinematic .laptop-place {
     position: absolute;
     left: 0;
@@ -1994,21 +1991,18 @@ select {
     top: 0;
     width: 0;
     height: 0;
+    // FLAT, and declared once. This element used to say both, and that pair of
+    // declarations was the whole reason the laptop went missing: preserve-3d
+    // made the scene a 3D context, so the photograph and the laptop were depth
+    // sorted against each other and half the lid sorted behind the picture the
+    // moment it turned. Flat means the children composite in document order,
+    // which is what a photograph with something in front of it should do.
     transform-style: flat;
-    // Both layers ride together, so the cut-out stays registered on the plate
-    // through the whole camera move: the dolly and the travel are applied to
-    // the pair, never to one of them.
-    //
-    // The origin is the laptop's projected position, so pushing in frames the
-    // subject rather than the middle of the picture. The translate is written
-    // after the scale on purpose: it is a screen-space ride with the incoming
-    // chapter's edge and must not be magnified by the push-in.
     // The camera. Origin at the scene's own top left, so the driver can write a
     // plain map from a rectangle of the photograph onto the strip of screen the
     // shot is being seen through. Uniform scale: nothing here can distort.
     transform-origin: 0 0;
     transform: translate3d(var(--cam-x, 0px), var(--cam-y, 0px), 0) scale(var(--cam-s, 1));
-    transform-style: preserve-3d;
     will-change: transform;
   }
 
@@ -2109,10 +2103,13 @@ select {
   // The scene is absolutely positioned in the animated build, so it has to
   // return to normal flow here or nothing gives the section any height and the
   // photograph vanishes entirely.
-  // The turn wrapper is absolutely positioned in the animated build, so it has
-  // to return to normal flow here as well; leaving it out took the scene out of
-  // flow with it and the whole chapter collapsed to nothing.
-  .section-bridge .bridge-turn,
+  // The laptop layer is driven entirely by the scroll driver, which does not run
+  // here, so without this it would sit over the still photograph as an unplaced
+  // 1200x784 box: the placement matrix is never written in reduced motion.
+  .section-bridge .laptop-layer {
+    display: none;
+  }
+
   .section-bridge .bridge-scene {
     position: static;
     width: auto;

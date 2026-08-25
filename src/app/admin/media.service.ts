@@ -155,7 +155,7 @@ export class MediaService {
 
   /** Uploads the file, then writes the record. Returns the stored row. */
   async publish(
-    file: File,
+    file: Blob,
     title: string,
     width: number,
     height: number,
@@ -165,7 +165,9 @@ export class MediaService {
     if (!cfg) throw new Error('CONFIG');
     if (!this.token) throw new Error('AUTH');
 
-    const ext = (file.name.split('.').pop() || 'jpg').toLowerCase();
+    // The blob arriving here is the cropped export, not the screenshot the
+    // admin picked, so the extension comes from its type rather than a filename.
+    const ext = (file.type.split('/').pop() || 'webp').toLowerCase();
     const path = `${Date.now()}-${Math.round(performance.now())}.${ext}`;
 
     await this.upload(cfg, path, file, onProgress);
@@ -208,7 +210,7 @@ export class MediaService {
   private upload(
     cfg: AdminConfig,
     path: string,
-    file: File,
+    file: Blob,
     onProgress?: (fraction: number) => void
   ): Promise<void> {
     return new Promise((resolve, reject) => {

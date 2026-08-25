@@ -293,15 +293,29 @@ export class AppComponent implements AfterViewInit, OnDestroy {
           width: r.width,
           height: r.height
         }));
-        // Flush now so the new cards exist in the DOM. markForCheck only
-        // schedules a later pass, and the reveal observer would miss them.
-        this.cdr.detectChanges();
-        const cards = document.querySelectorAll<HTMLElement>('#testimonials .reveal');
-        if (this.observer) {
-          cards.forEach((el) => this.observer!.observe(el));
-        } else {
-          cards.forEach((el) => el.classList.add('is-visible'));
-        }
+        this.cdr.markForCheck();
+        // Hand the new cards to the reveal observer on the next frame, once the
+        // view has actually been rebuilt.
+        //
+        // NOT with a synchronous detectChanges: this runs inside a promise
+        // during ngAfterViewInit, where a nested pass can throw, and the catch
+        // below would swallow it. The array had already been replaced by then,
+        // so the cards rendered and were never observed, which is exactly the
+        // opacity-zero bug this is here to prevent.
+        //
+        // Anything already on screen is revealed outright rather than observed:
+        // an element that is intersecting when it is first watched will not
+        // always produce a callback, and a testimonial that never fades in is a
+        // far worse failure than one that does not animate.
+        requestAnimationFrame(() => {
+          const cards = document.querySelectorAll<HTMLElement>('#testimonials .reveal');
+          cards.forEach((el) => {
+            const box = el.getBoundingClientRect();
+            const onScreen = box.top < window.innerHeight && box.bottom > 0;
+            if (onScreen || !this.observer) el.classList.add('is-visible');
+            else this.observer.observe(el);
+          });
+        });
       });
     } catch {
       /* the static set stays */
@@ -794,7 +808,6 @@ export class AppComponent implements AfterViewInit, OnDestroy {
     const stage = document.querySelector<HTMLElement>('.bridge-stage');
     const sticky = document.querySelector<HTMLElement>('.bridge-sticky');
     const scene = document.querySelector<HTMLElement>('.bridge-scene');
-    const turn = document.querySelector<HTMLElement>('.bridge-turn');
     const card = document.querySelector<HTMLElement>('.laptop-card');
     // The placement lives on the outer element: a custom property set on a child
     // does not reach its parent, and the parent is what reads this one.
@@ -881,11 +894,6 @@ export class AppComponent implements AfterViewInit, OnDestroy {
     // this changes nothing there.
     const END_COVER = 1.45;
 
-    // How far the plane arcs. The laptop sits at a three quarter angle in the
-    // photograph with its lid turned away to the left; swinging the plane this
-    // way brings that face round toward the lens. Bounded by what the approach
-    // has uncovered: rotate further than the plane is wider than the frame and
-    // its own edge swings into view.
     // The four corners the lid occupies in the photograph, measured off it. The
     // card is placed by the projective map that takes its own box to these, so
     // at rest it is indistinguishable from the lid it was rectified out of.
@@ -897,19 +905,19 @@ export class AppComponent implements AfterViewInit, OnDestroy {
     ];
     const CARD_W = 1200;
     const CARD_H = 784;
-    // How far the lid swings. Past ninety the browser shows its other face, so
-    // this carries it well beyond: the screen ends up turned toward the lens.
-    const LID_OPEN = 158;
+    // How far the lid swings, and the sign matters as much as the size.
+    //
+    // NEGATIVE: the top edge sweeps toward the lens rather than away. Away, the
+    // card foreshortens off its own footprint and the photograph's lid appears
+    // behind it as a second laptop; toward, perspective enlarges it and it keeps
+    // covering the lid it was rectified out of.
+    //
+    // 42 because that is where the photograph stops supporting it. Rendered at
+    // the real checkpoints: clean through 40, edge on and exposing the original
+    // lid by 73, and past 90 the far face arrives as a flat panel with nothing
+    // photographic behind it. This stops well inside the honest range.
+    const LID_OPEN = -42;
 
-    const TURN_Y = 28;
-    const TURN_X = 4;
-    // Turning a plane about a vertical axis pulls its far edge in, and on a wide
-    // screen the approach has not opened enough margin to hide that: at 1440 and
-    // 1920 the page background was swinging into the left of the frame. The turn
-    // therefore opens its own margin as it goes. It is a uniform scale, so it
-    // cannot distort, and the resolution clamp below is divided through by it so
-    // the pair together still never render the plate beyond its native width.
-    const TURN_S = 0.22;
 
     const clamp = (v: number, a: number, b: number) => (v < a ? a : v > b ? b : v);
     const clamp01 = (v: number) => clamp(v, 0, 1);
@@ -982,7 +990,7 @@ export class AppComponent implements AfterViewInit, OnDestroy {
         // composition rather than introducing a direction of its own.
         const start = fit(ESTABLISH, w / h);
         const wanted = (END_COVER * start.cw) / (SUBJECT.x1 - SUBJECT.x0);
-        const sharp = (start.cw * NATIVE_W) / (w * (1 + TURN_S));
+        const sharp = (start.cw * NATIVE_W) / w;
         const end = clamp(Math.min(wanted, sharp), 1.15, 2.6);
 
         let n = 0;
@@ -1007,26 +1015,16 @@ export class AppComponent implements AfterViewInit, OnDestroy {
         scene.style.setProperty('--cam-x', `${(-cx * BASE * s).toFixed(1)}px`);
         scene.style.setProperty('--cam-y', `${(-cy * BASE * IMG_R * s).toFixed(1)}px`);
 
-        // THE TURN. The plane arcs about the laptop while the camera closes on
-        // it, so the lid comes round to face the viewer instead of staying at
-        // the three quarter angle it sits at in the photograph. It starts only
-        // once the approach has made the plane larger than the frame, because
-        // before that there is nothing behind its edges to swing into view.
-        if (turn) {
-          const t = ease(track(p, 0.34, 1));
-          turn.style.setProperty('--turn-ry', `${(-TURN_Y * t).toFixed(2)}deg`);
-          turn.style.setProperty('--turn-rx', `${(TURN_X * t).toFixed(2)}deg`);
-          turn.style.setProperty('--turn-s', (1 + TURN_S * t).toFixed(4));
-        }
-
         // THE OPENING. It starts once the approach has made the laptop the
         // subject, and runs to the very end, so the last stretch of the chapter
         // is the screen still coming round rather than a frozen frame.
         if (cardPlace) {
-          const deg = LID_OPEN * ease(track(p, 0.42, 1));
+          // Runs from the moment the approach has made the laptop the subject
+          // all the way to the end, so the last stretch is still turning.
+          const deg = LID_OPEN * ease(track(p, 0.34, 1));
           cardPlace.style.setProperty('--lid-open', `${deg.toFixed(2)}deg`);
-          cardPlace.style.setProperty('--face-lid', deg < 90 ? '1' : '0');
-          cardPlace.style.setProperty('--face-screen', deg < 90 ? '0' : '1');
+          cardPlace.style.setProperty('--face-lid', Math.abs(deg) < 90 ? '1' : '0');
+          cardPlace.style.setProperty('--face-screen', Math.abs(deg) < 90 ? '0' : '1');
         }
 
         veil.style.setProperty('--bridge-veil', '0');
