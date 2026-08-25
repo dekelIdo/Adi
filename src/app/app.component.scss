@@ -3147,6 +3147,27 @@ select {
     width: 100%;
   }
 
+  // A ceiling, so one uploaded picture cannot set the height of the whole row.
+  // The desktop layout is a three column grid, so the tallest card decides the
+  // row: an 800x4000 screenshot rendered 2304px tall at 1440 and turned the
+  // section into a 2947px band with the other two cards stranded in it.
+  //
+  // Chosen to be inert for the pictures already here. The tallest of them is
+  // 1170x1280, which resolves to 504px at 1440 and 677px at 1920, both well
+  // under this, so nothing that ships today changes. Only max-height is set:
+  // with the width definite and the height auto, the browser rescales the width
+  // to match, so the picture is fitted rather than squashed or cropped.
+  .review-frame img {
+    // The box still comes from width: 100% and the width/height attributes, so
+    // the card reserves its space before a byte arrives. Letting the WIDTH go
+    // auto instead fixed the squashing and reintroduced the 0x0 deadlock this
+    // file already warns about. So the box is allowed to be clamped and the
+    // picture is fitted inside it: no distortion, no crop, and on everything
+    // that is not extreme the ceiling never binds and nothing changes at all.
+    max-height: clamp(520px, 74vh, 820px);
+    object-fit: contain;
+  }
+
   .review-card--scatter-1 {
     transform: translateY(-20px);
   }
@@ -4163,9 +4184,13 @@ select {
     scroll-snap-align: start;
   }
 
+  // Same ceiling as before, and the same fix: anything taller than about 1.2:1
+  // was being squashed to the card's width rather than scaled down to fit, so
+  // an uploaded 800x4000 screenshot rendered as a 289x338 smear. Every picture
+  // that ships today is width bound and lands on the identical pixels.
   .review-frame img {
     max-height: clamp(250px, 40vh, 360px);
-    max-width: 82vw;
+    object-fit: contain;
   }
 
   // Contact form

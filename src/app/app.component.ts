@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, OnDestroy, NgZone } from '@angular/core';
+import { AfterViewInit, ChangeDetectorRef, Component, OnDestroy, NgZone } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
 interface PortfolioProject {
@@ -34,6 +34,20 @@ interface SocialVideo {
   alt: string;
   aspectRatio: '9:16' | '4:5' | '1:1' | '16:9';
   category?: 'personality' | 'on-action' | 'work' | 'social' | 'proof';
+}
+
+/**
+ * A picture in the testimonials rail. `width` and `height` are required, not
+ * decorative: the cards take their size from the picture, so the markup has to
+ * declare an aspect ratio before the image loads. Without it the cards render
+ * 0x0, the rail collapses below the fold, and the lazy images never enter the
+ * viewport to load at all.
+ */
+interface Review {
+  src: string;
+  alt: string;
+  width: number;
+  height: number;
 }
 
 interface BrandLogo {
@@ -88,6 +102,19 @@ export class AppComponent implements AfterViewInit, OnDestroy {
 
   private observer?: IntersectionObserver;
   private headerThemeObserver?: IntersectionObserver;
+  /**
+   * THE FALLBACK IS THE DEFAULT. These three are the set that has always
+   * shipped, and they are what renders unless published records are fetched
+   * successfully. If the media service is unconfigured, unreachable, slow or
+   * returns nothing usable, this array is never touched and the section looks
+   * exactly as it does today. The public site does not depend on the admin.
+   */
+  reviews: Review[] = [
+    { src: 'assets/lovable-uploads/MyAssets/Reviews/14050.jpg', alt: 'עדות לקוחה', width: 1170, height: 1280 },
+    { src: 'assets/lovable-uploads/MyAssets/Reviews/IMG_6712.PNG', alt: 'עדות לקוחה', width: 1064, height: 932 },
+    { src: 'assets/lovable-uploads/MyAssets/Reviews/IMG_6715.PNG', alt: 'עדות לקוחה', width: 1320, height: 547 }
+  ];
+
   private reviewsNudgeObserver?: IntersectionObserver;
   private reelObserver?: IntersectionObserver;
   private scrollListeners: Array<() => void> = [];
@@ -191,7 +218,7 @@ export class AppComponent implements AfterViewInit, OnDestroy {
     }
   ];
 
-  constructor(private zone: NgZone) {}
+  constructor(private zone: NgZone, private cdr: ChangeDetectorRef) {}
 
   /**
    * Tap-to-play, one clip at a time. Video stays poster-only until the visitor
@@ -237,6 +264,43 @@ export class AppComponent implements AfterViewInit, OnDestroy {
     this.initSectionProgress();
     this.initEditorialDrift();
     this.initReviewsNudge();
+    void this.loadPublishedReviews();
+  }
+
+  /**
+   * Swaps in the published pictures if, and only if, they arrive intact.
+   *
+   * Every failure path keeps the static set: no config, a network error, a bad
+   * status, an empty list, or rows missing the dimensions the rail needs. The
+   * service itself never throws for the public read, so this cannot break the
+   * page even if the provider disappears entirely.
+   *
+   * Loaded after the first paint, so the section is never blank waiting for it.
+   */
+  private async loadPublishedReviews(): Promise<void> {
+    try {
+      const { MediaService } = await import('./admin/media.service');
+      const rows = await new MediaService().listPublished();
+      if (!rows?.length) return;
+      // Explicitly back inside the zone before touching the model. The work is
+      // started after the view is initialised and finishes in a callback the
+      // framework is not necessarily watching, so without this the array was
+      // replaced correctly and the section carried on rendering the old one.
+      this.zone.run(() => {
+        this.reviews = rows.map((r) => ({
+          src: r.url,
+          alt: r.title || 'עדות לקוחה',
+          width: r.width,
+          height: r.height
+        }));
+        // Explicit, and not redundant: a plain property write is not a signal
+        // and does not schedule anything on its own, so without this the array
+        // was replaced correctly and the rail carried on rendering the old one.
+        this.cdr.markForCheck();
+      });
+    } catch {
+      /* the static set stays */
+    }
   }
 
   // ─── Reviews: one-time idle affordance ────────────────────────────────────────

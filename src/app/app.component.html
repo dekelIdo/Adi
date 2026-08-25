@@ -666,48 +666,34 @@
       <!-- Mobile: horizontal scroll rail. Desktop: floating scattered layout -->
       <div class="reviews-outer">
         <div class="reviews-rail">
-          <div class="review-card review-card--scatter-1 reveal reveal-float delay-1">
-            <div class="review-inner review-inner--tilt-l">
-              <figure class="review-frame">
-                <img
-                  src="assets/lovable-uploads/MyAssets/Reviews/14050.jpg"
-                  alt="עדות לקוחה"
-                  width="1170"
-                  height="1280"
-                  loading="lazy"
-                  decoding="async"
-                />
-              </figure>
+          <!-- Same card, same classes, same scatter rhythm as before. The only
+               change is where the list comes from: `reviews` starts as the
+               static set that has always shipped here and is replaced at
+               runtime only if published records load successfully. -->
+          @for (review of reviews; track review.src; let i = $index) {
+            <div class="review-card reveal reveal-float"
+                 [class.review-card--scatter-1]="i % 3 === 0"
+                 [class.review-card--scatter-2]="i % 3 === 1"
+                 [class.review-card--scatter-3]="i % 3 === 2"
+                 [class.delay-1]="i % 3 === 0"
+                 [class.delay-2]="i % 3 === 1"
+                 [class.delay-3]="i % 3 === 2">
+              <div class="review-inner"
+                   [class.review-inner--tilt-l]="i % 3 === 0"
+                   [class.review-inner--tilt-r]="i % 3 === 2">
+                <figure class="review-frame">
+                  <img
+                    [src]="review.src"
+                    [alt]="review.alt"
+                    [width]="review.width"
+                    [height]="review.height"
+                    loading="lazy"
+                    decoding="async"
+                  />
+                </figure>
+              </div>
             </div>
-          </div>
-          <div class="review-card review-card--scatter-2 reveal reveal-float delay-2">
-            <div class="review-inner">
-              <figure class="review-frame">
-                <img
-                  src="assets/lovable-uploads/MyAssets/Reviews/IMG_6712.PNG"
-                  alt="עדות לקוחה"
-                  width="1064"
-                  height="932"
-                  loading="lazy"
-                  decoding="async"
-                />
-              </figure>
-            </div>
-          </div>
-          <div class="review-card review-card--scatter-3 reveal reveal-float delay-3">
-            <div class="review-inner review-inner--tilt-r">
-              <figure class="review-frame">
-                <img
-                  src="assets/lovable-uploads/MyAssets/Reviews/IMG_6715.PNG"
-                  alt="עדות לקוחה"
-                  width="1320"
-                  height="547"
-                  loading="lazy"
-                  decoding="async"
-                />
-              </figure>
-            </div>
-          </div>
+          }
         </div>
       </div>
     </section>
