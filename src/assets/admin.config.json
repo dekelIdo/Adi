@@ -1,7 +1,7 @@
 {
   "_comment": "Fill url and anonKey to switch the testimonials rail from the static images to the managed ones. Both values are public client values, not secrets: every write is authorised by row level security plus a signed-in session. While url or anonKey is empty the site serves the three static images exactly as before.",
-  "url": "",
-  "anonKey": "",
+  "url": "https://wrfagntltbiuyzsrywdb.supabase.co",
+  "anonKey": "sb_publishable_AC6CRbXH1dQPOplTOkyL6A_LhDYKwSg",
   "bucket": "testimonials",
   "table": "testimonials"
 }
