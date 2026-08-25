@@ -293,10 +293,15 @@ export class AppComponent implements AfterViewInit, OnDestroy {
           width: r.width,
           height: r.height
         }));
-        // Explicit, and not redundant: a plain property write is not a signal
-        // and does not schedule anything on its own, so without this the array
-        // was replaced correctly and the rail carried on rendering the old one.
-        this.cdr.markForCheck();
+        // Flush now so the new cards exist in the DOM. markForCheck only
+        // schedules a later pass, and the reveal observer would miss them.
+        this.cdr.detectChanges();
+        const cards = document.querySelectorAll<HTMLElement>('#testimonials .reveal');
+        if (this.observer) {
+          cards.forEach((el) => this.observer!.observe(el));
+        } else {
+          cards.forEach((el) => el.classList.add('is-visible'));
+        }
       });
     } catch {
       /* the static set stays */
