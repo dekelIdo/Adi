@@ -1774,7 +1774,18 @@ select {
     position: relative;
     inset: auto;
     display: block;
-    height: clamp(380px, 62vh, 620px);
+    // Derived, not chosen. The band is the shape of the subject itself: the
+    // laptop, both hands and the bracelet span 0.351 of the frame's height at
+    // its full width, so a band of 2806 x 1475 holds the whole assembly edge to
+    // edge at any screen width. Capped so it cannot swallow a short window.
+    aspect-ratio: 2806 / 1475;
+    // Explicit, so the cap below clips the band instead of shrinking it: with
+    // width left to the aspect ratio, max-height narrowed the box and an RTL
+    // page then parked it against the right edge with a white margin down the
+    // left of the section.
+    width: 100%;
+    height: auto;
+    max-height: 78vh;
     overflow: hidden;
     transform: none;
     filter: none;
@@ -1785,12 +1796,10 @@ select {
       height: 100%;
       display: block;
       object-fit: cover;
-      // A landscape band cut from a portrait plate. The window cannot hold the
-      // whole gesture on a wide screen: at 1440 the band shows 0.36 of the
-      // plate's height and her head to her bracelet spans 0.55 of it. It is set
-      // on the laptop and the hands, which is the subject of the chapter, and
-      // her face is allowed to run past the top edge.
-      object-position: 46% 38%;
+      // Solved from the same numbers: with the band at the assembly's aspect
+      // the window is the full width of the picture and 0.351 of its height,
+      // and the assembly starts at 0.159, so it sits at 0.159 / (1 - 0.351).
+      object-position: 50% 24.5%;
     }
   }
 
@@ -1872,9 +1881,7 @@ select {
     top: 0;
     height: 100vh;
     overflow: hidden;
-    background: var(--surface);
-    perspective: 900px;
-    perspective-origin: var(--lap-x, 30%) var(--lap-y, 34%);
+    background: var(--bg);
   }
 
   // Flat, deliberately. Under preserve-3d the two layers sort by their 3D
@@ -1889,9 +1896,9 @@ select {
   .is-cinematic .bridge-scene {
     position: absolute;
     left: 0;
-    right: 0;
-    top: var(--band-top, 0px);
-    height: var(--band-h, 100%);
+    top: 0;
+    width: 0;
+    height: 0;
     transform-style: flat;
     // Both layers ride together, so the cut-out stays registered on the plate
     // through the whole camera move: the dolly and the travel are applied to
@@ -1901,33 +1908,34 @@ select {
     // subject rather than the middle of the picture. The translate is written
     // after the scale on purpose: it is a screen-space ride with the incoming
     // chapter's edge and must not be magnified by the push-in.
-    transform-origin: var(--dol-x, 30%) var(--dol-y, 62%);
-    transform: translate3d(0, var(--scene-y, 0px), 0) scale(var(--scene-scale, 1));
+    // The camera. Origin at the scene's own top left, so the driver can write a
+    // plain map from a rectangle of the photograph onto the strip of screen the
+    // shot is being seen through. Uniform scale: nothing here can distort.
+    transform-origin: 0 0;
+    transform: translate3d(var(--cam-x, 0px), var(--cam-y, 0px), 0) scale(var(--cam-s, 1));
     will-change: transform;
   }
 
-  // The body stays put. It drifts only enough to stop the frame feeling pinned.
+  // The plate, laid out in the scene's own space: BASE wide, natural height.
+  // No object-fit and no transform of its own. Both are deliberate. Letting
+  // `cover` size it was what made the framing a function of the phone, and any
+  // transform here that the cut-out did not share pulled the two apart.
   .is-cinematic .bridge-base {
     position: absolute;
-    inset: 0;
+    left: 0;
+    top: 0;
+    width: 1000px;
+    height: auto;
     display: block;
-    transform-origin: var(--lap-x, 30%) var(--lap-y, 34%);
-    transform: perspective(1000px) rotateY(var(--base-ry, 0deg)) scale(var(--base-scale, 1));
-    opacity: var(--base-opacity, 1);
-    // Rack focus. As the laptop comes toward the lens the body falls out of
-    // focus, which is what a real camera does at this distance and is also what
-    // makes the cut-out's edge unreadable: there is no sharp seam to notice once
-    // the plane behind it is defocused.
+    transform: none;
+    // Rack focus, and nothing else.
     filter: blur(var(--base-blur, 0px)) brightness(var(--base-bright, 1));
 
     img {
       width: 100%;
-      height: 100%;
-      object-fit: cover;
-      // With the band sized off the width the window is 0.63 of the picture,
-      // wide enough to open on the laptop AND her, so this only centres it.
-      object-position: 14% 50%;
+      height: auto;
       display: block;
+      object-fit: fill;
     }
   }
 
@@ -2007,6 +2015,9 @@ select {
   // photograph vanishes entirely.
   .section-bridge .bridge-scene {
     position: static;
+    width: auto;
+    height: auto;
+    transform: none;
     transform-style: flat;
   }
 
@@ -2016,7 +2027,10 @@ select {
   // inline strip the crop was meant to fix.
   .section-bridge .bridge-frame--a {
     position: relative;
+    left: auto;
+    top: auto;
     inset: auto;
+    width: 100%;
     height: 100svh;
     overflow: hidden;
     transform: none;
