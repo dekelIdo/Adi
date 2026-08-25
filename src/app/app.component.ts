@@ -737,18 +737,22 @@ export class AppComponent implements AfterViewInit, OnDestroy {
 
     // Where the laptop sits in the source frame, measured off the lid quad.
     const LAPTOP_U = 0.17;
+    // The plate is the frame cropped to its top 72%: everything below is her
+    // legs, which a phone showed at the cost of the laptop's size in frame.
+    const CROP = 0.72;
     // Where the camera pushes in. Deliberately NOT the lid: at a phone's crop
     // the lid's own position projects off the left edge of the viewport, and
     // pushing in about an origin that is off screen throws the whole frame
     // sideways, which is what shoved Adi out of the shot. This is the deck and
     // the hands, the part of the assembly that has to stay readable to the last
     // frame, and it is inside the visible window at every phone size.
-    const DOLLY_U = 0.33;
-    const DOLLY_V = 0.62;
-    // Frame A is now the crop that ends just below the hands, which is 0.5802 of
-    // the original frame's height, so every vertical fraction measured against
-    // the full frame has to be divided through by that.
-    const CROP = 0.5802;
+    const DOLLY_U = 0.27;
+    const DOLLY_V = 0.305 / CROP;
+    // The deck and the hands: the part of the assembly that has to be the last
+    // thing on screen when the process chapter takes the frame.
+    const HANDS_V = 0.36 / CROP;
+    // Every vertical fraction below was measured against the whole frame, so it
+    // is divided through by the crop.
     const LAPTOP_V = 0.30 / CROP;
 
     // Frame B's registration against the plate, as fractions of the plate's
@@ -770,36 +774,51 @@ export class AppComponent implements AfterViewInit, OnDestroy {
 
     // The plate's rendered image box, recomputed by place() and read by the
     // driver so both layers are reasoning about the same geometry.
-    const geo = { offX: 0, offY: 0, dw: 0, dh: 0 };
+    const geo = { offX: 0, offY: 0, dw: 0, dh: 0, top: 0 };
 
     // Projects the laptop's position in the source frame onto the rendered
     // element through object-fit cover, so the camera closes on the laptop and
     // not on the middle of the picture, at any viewport crop.
+    // The band's shape, in one place. 1.70 is the ratio that reproduces the
+    // 393x668 framing: at that viewport it resolves to the full height, and on
+    // taller phones it holds the same window on the picture instead of cropping
+    // in on it. Never taller than the viewport.
+    const band = () => {
+      const w = window.innerWidth;
+      const h = Math.min(window.innerHeight, w * 1.7);
+      return { w, h, top: (window.innerHeight - h) / 2 };
+    };
+
     const place = () => {
-      const r = sticky.getBoundingClientRect();
+      const r = band();
+      if (scene) {
+        scene.style.setProperty('--band-h', `${r.h.toFixed(1)}px`);
+        scene.style.setProperty('--band-top', `${r.top.toFixed(1)}px`);
+      }
       const nw = baseImg.naturalWidth || 1400;
-      const nh = baseImg.naturalHeight || 2096;
+      const nh = baseImg.naturalHeight || 1509;
       const cs = getComputedStyle(baseImg);
-      const scale = Math.max(r.width / nw, r.height / nh);
+      const scale = Math.max(r.w / nw, r.h / nh);
       const dw = nw * scale;
       const dh = nh * scale;
       const pos = cs.objectPosition.split(' ');
       const px = parseFloat(pos[0]) / 100;
       const py = parseFloat(pos[1] ?? pos[0]) / 100;
-      const offX = (r.width - dw) * (isNaN(px) ? 0.5 : px);
-      const offY = (r.height - dh) * (isNaN(py) ? 0.5 : py);
+      const offX = (r.w - dw) * (isNaN(px) ? 0.5 : px);
+      const offY = (r.h - dh) * (isNaN(py) ? 0.5 : py);
       geo.offX = offX; geo.offY = offY; geo.dw = dw; geo.dh = dh;
-      const vx = ((offX + LAPTOP_U * dw) / r.width) * 100;
-      const vy = ((offY + LAPTOP_V * dh) / r.height) * 100;
+      const vx = ((offX + LAPTOP_U * dw) / r.w) * 100;
+      const vy = ((offY + LAPTOP_V * dh) / r.h) * 100;
       base.style.setProperty('--lap-x', `${vx.toFixed(1)}%`);
       base.style.setProperty('--lap-y', `${vy.toFixed(1)}%`);
       sticky.style.setProperty('--lap-x', `${vx.toFixed(1)}%`);
       sticky.style.setProperty('--lap-y', `${vy.toFixed(1)}%`);
 
-      const dx = ((offX + DOLLY_U * dw) / r.width) * 100;
-      const dy = ((offY + DOLLY_V * dh) / r.height) * 100;
+      const dx = ((offX + DOLLY_U * dw) / r.w) * 100;
+      const dy = ((offY + DOLLY_V * dh) / r.h) * 100;
       sticky.style.setProperty('--dol-x', `${dx.toFixed(1)}%`);
       sticky.style.setProperty('--dol-y', `${dy.toFixed(1)}%`);
+      geo.top = r.top;
 
       // Frame B is projected through the same cover maths, so the cut-out lands
       // on the laptop it was cut from at any viewport crop.
@@ -859,9 +878,16 @@ export class AppComponent implements AfterViewInit, OnDestroy {
         //
         // No upsampling: the plate renders at 971px wide on a 390 screen and the
         // file is 1400, so the push-in stays inside the photograph's own detail.
-        const dolly = ease(track(p, 0.08, 0.92));
+        const dolly = ease(track(p, 0.06, 0.94));
         if (scene) {
-          scene.style.setProperty('--scene-scale', (1 + dolly * 0.24).toFixed(4));
+          // 12%, and it is bounded by geometry rather than by taste. The laptop
+          // and the hands span 0.455 of the picture's width; at a phone's aspect
+          // the plate's visible window is 0.498 of it. The ratio between those
+          // two numbers, 1.09, is the point at which the lid starts leaving the
+          // frame, so the push-in stops just past it and the assembly stays
+          // whole from the first frame to the last. A bigger move would have to
+          // be paid for by cutting the subject, which is the wrong trade.
+          scene.style.setProperty('--scene-scale', (1 + dolly * 0.28).toFixed(4));
         }
 
         // Focus falls off her once the laptop is clearly in front of her. This
@@ -965,13 +991,25 @@ export class AppComponent implements AfterViewInit, OnDestroy {
           // slower than the edge the plate can never pull away from it and open
           // a gap.
           if (scene) {
-            const covered = Math.max(0, window.innerHeight - next.getBoundingClientRect().top);
+            const top = next.getBoundingClientRect().top;
+            const covered = Math.max(0, window.innerHeight - top);
             // A small lift rides with the dolly as well, not only with the
             // incoming edge. Pushing in about the deck expands the backdrop
             // upward, and through the middle of the shot the top half of the
             // frame was becoming empty wall; this keeps the laptop sitting
             // where a camera operator would keep it.
-            scene.style.setProperty('--scene-y', `${(-dolly * 56 - covered * 0.63).toFixed(1)}px`);
+            // Solved, not tuned. A fixed fraction of the covered height put the
+            // hands in the surviving band on one phone and cut them off on the
+            // next, because the band's height and the plate's projection differ
+            // per viewport. Instead the ride is whatever it takes to sit the
+            // deck and the hands in the middle of whatever strip of the shot is
+            // still showing above the incoming chapter.
+            const HEADER = 84;
+            const mid = (top + HEADER) / 2;
+            const originY = geo.offY + DOLLY_V * geo.dh;
+            const handsY = geo.top + originY + (geo.offY + HANDS_V * geo.dh - originY) * (1 + dolly * 0.28);
+            const ride = covered > 0 ? Math.min(0, mid - handsY) : 0;
+            scene.style.setProperty('--scene-y', `${ride.toFixed(1)}px`);
           }
         }
       };

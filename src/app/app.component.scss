@@ -1785,8 +1785,11 @@ select {
       height: 100%;
       display: block;
       object-fit: cover;
-      // A landscape crop of a portrait frame: the vertical window is set on the
-      // laptop and hands rather than on the middle of the picture.
+      // A landscape band cut from a portrait plate. The window cannot hold the
+      // whole gesture on a wide screen: at 1440 the band shows 0.36 of the
+      // plate's height and her head to her bracelet spans 0.55 of it. It is set
+      // on the laptop and the hands, which is the subject of the chapter, and
+      // her face is allowed to run past the top edge.
       object-position: 46% 38%;
     }
   }
@@ -1869,7 +1872,7 @@ select {
     top: 0;
     height: 100vh;
     overflow: hidden;
-    background: var(--bg);
+    background: var(--surface);
     perspective: 900px;
     perspective-origin: var(--lap-x, 30%) var(--lap-y, 34%);
   }
@@ -1878,9 +1881,17 @@ select {
   // position instead of by z-index, and the plate painted over the cut-out no
   // matter what order it was given. Frame A carries its own perspective() inside
   // its own transform, so nothing here needs a shared 3D space.
+  // The photographic band. Not the full viewport: a phone's window on the plate
+  // is set by the cover scale, and a taller viewport zooms in harder, which is
+  // why the same picture held Adi's face at 393x668 and lost it at 390x844. The
+  // band is sized off the WIDTH instead, so every phone gets the composition the
+  // short viewport was getting for free, and the page's own surface frames it.
   .is-cinematic .bridge-scene {
     position: absolute;
-    inset: 0;
+    left: 0;
+    right: 0;
+    top: var(--band-top, 0px);
+    height: var(--band-h, 100%);
     transform-style: flat;
     // Both layers ride together, so the cut-out stays registered on the plate
     // through the whole camera move: the dolly and the travel are applied to
@@ -1913,10 +1924,9 @@ select {
       width: 100%;
       height: 100%;
       object-fit: cover;
-      // 36, not 45: at a phone's aspect the plate is cropped to about 40% of
-      // its width, and at 45 the lid was cut off at the left edge, so the
-      // chapter opened on a sliver of its own subject.
-      object-position: 36% 50%;
+      // With the band sized off the width the window is 0.63 of the picture,
+      // wide enough to open on the laptop AND her, so this only centres it.
+      object-position: 14% 50%;
       display: block;
     }
   }
