@@ -1073,11 +1073,19 @@ export class AppComponent implements AfterViewInit, OnDestroy {
         // pixels wide at every point in the move as it was before: it starts at exactly the width her own phone occupies in the
         // photograph and finishes covering the viewport 2.4 times over.
         const need = (Math.max(window.innerWidth, window.innerHeight) * 2.4) / 119;
-        const scale = 0.2185 + emerge * 0.131 + Math.pow(open, 2.1) * need;
+        // It has to arrive at HER phone's size, not at a size of its own. Hers
+        // is about 60px across in a 4201px source, which is roughly 12px on a
+        // 390 screen; starting at 26 put a slab in front of her hand instead of
+        // taking its place. The emerge term absorbs the difference, so the
+        // device is the same size from the end of the emerge beat onward.
+        const scale = 0.105 + emerge * 0.2445 + Math.pow(open, 2.1) * need;
 
         portal.style.setProperty('--portal-scale', scale.toFixed(3));
-        // It lights up in her hand rather than popping into existence.
-        portal.style.setProperty('--portal-opacity', track(p, 0.05, 0.20).toFixed(3));
+        // Solid almost at once. Fading a physical object in over a sixth of the
+        // stage meant her real phone and her fingers showed straight through the
+        // body of this one, which is the one thing that cannot happen: a
+        // see-through handset reads as a decal, not as an object.
+        portal.style.setProperty('--portal-opacity', track(p, 0.02, 0.09).toFixed(3));
 
         // The body dissolves as the screen becomes the page. Scaling by fifteen
         // would otherwise turn a 21px corner into a 320px one and the phone
@@ -1097,7 +1105,11 @@ export class AppComponent implements AfterViewInit, OnDestroy {
         portal.style.setProperty('--dev-screen', (1 - track(p, 0.62, 0.74)).toFixed(3));
         // The phone is held at an angle; the portal starts matching it and
         // straightens as it stops being an object and becomes the next chapter.
-        portal.style.setProperty('--portal-rot', `${(-18 * (1 - open)).toFixed(2)}deg`);
+        // Measured off the source frame, her phone leans about 21 degrees with
+        // the top to the right, along her raised forearm. The old -18 leaned it
+        // the other way, against the arm, which was most of why the device read
+        // as pasted onto the photograph rather than held in it.
+        portal.style.setProperty('--portal-rot', `${(21 * (1 - open)).toFixed(2)}deg`);
 
         if (mark) {
           mark.style.setProperty('--mark-opacity', (1 - track(p, 0.04, 0.24)).toFixed(3));
