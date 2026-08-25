@@ -790,6 +790,10 @@ export class AppComponent implements AfterViewInit, OnDestroy {
     const sticky = document.querySelector<HTMLElement>('.bridge-sticky');
     const scene = document.querySelector<HTMLElement>('.bridge-scene');
     const turn = document.querySelector<HTMLElement>('.bridge-turn');
+    const card = document.querySelector<HTMLElement>('.laptop-card');
+    // The placement lives on the outer element: a custom property set on a child
+    // does not reach its parent, and the parent is what reads this one.
+    const cardPlace = document.querySelector<HTMLElement>('.laptop-place');
     const base = document.querySelector<HTMLElement>('.bridge-frame--a');
     const baseImg = document.querySelector<HTMLImageElement>('.bridge-frame--a img');
     const veil = document.querySelector<HTMLElement>('.bridge-veil');
@@ -877,6 +881,21 @@ export class AppComponent implements AfterViewInit, OnDestroy {
     // way brings that face round toward the lens. Bounded by what the approach
     // has uncovered: rotate further than the plane is wider than the frame and
     // its own edge swings into view.
+    // The four corners the lid occupies in the photograph, measured off it. The
+    // card is placed by the projective map that takes its own box to these, so
+    // at rest it is indistinguishable from the lid it was rectified out of.
+    const LID = [
+      [0.0345, 0.2140],
+      [0.2455, 0.1585],
+      [0.3205, 0.3520],
+      [0.1085, 0.3875]
+    ];
+    const CARD_W = 1200;
+    const CARD_H = 784;
+    // How far the lid swings. Past ninety the browser shows its other face, so
+    // this carries it well beyond: the screen ends up turned toward the lens.
+    const LID_OPEN = 158;
+
     const TURN_Y = 28;
     const TURN_X = 4;
     // Turning a plane about a vertical axis pulls its far edge in, and on a wide
@@ -903,6 +922,40 @@ export class AppComponent implements AfterViewInit, OnDestroy {
       const shrink = Math.min(1, 1 / cw, 1 / ch);
       return { cw: cw * shrink, ch: ch * shrink };
     };
+
+    // Solves the projective map from the card's own box onto the lid's corners.
+    // Eight unknowns, eight equations, solved once: this is placement, not
+    // motion, so it never runs during a scroll.
+    const placeCard = () => {
+      const dst = LID.map(([x, y]) => [x * BASE, y * BASE * IMG_R]);
+      const src = [[0, 0], [CARD_W, 0], [CARD_W, CARD_H], [0, CARD_H]];
+      const A: number[][] = [];
+      const rhs: number[] = [];
+      for (let i = 0; i < 4; i++) {
+        const [x, y] = src[i];
+        const [u, v] = dst[i];
+        A.push([x, y, 1, 0, 0, 0, -u * x, -u * y]);
+        rhs.push(u);
+        A.push([0, 0, 0, x, y, 1, -v * x, -v * y]);
+        rhs.push(v);
+      }
+      for (let i = 0; i < 8; i++) {
+        let piv = i;
+        for (let r = i + 1; r < 8; r++) if (Math.abs(A[r][i]) > Math.abs(A[piv][i])) piv = r;
+        [A[i], A[piv]] = [A[piv], A[i]];
+        [rhs[i], rhs[piv]] = [rhs[piv], rhs[i]];
+        for (let r = 0; r < 8; r++) {
+          if (r === i) continue;
+          const f = A[r][i] / A[i][i];
+          for (let k = i; k < 8; k++) A[r][k] -= f * A[i][k];
+          rhs[r] -= f * rhs[i];
+        }
+      }
+      const g = rhs.map((v, i) => v / A[i][i]);
+      return `matrix3d(${g[0]},${g[3]},0,${g[6]},${g[1]},${g[4]},0,${g[7]},0,0,1,0,${g[2]},${g[5]},0,1)`;
+    };
+
+    if (cardPlace) cardPlace.style.setProperty('--lid-place', placeCard());
 
     this.zone.runOutsideAngular(() => {
       let ticking = false;
@@ -959,6 +1012,16 @@ export class AppComponent implements AfterViewInit, OnDestroy {
           turn.style.setProperty('--turn-ry', `${(-TURN_Y * t).toFixed(2)}deg`);
           turn.style.setProperty('--turn-rx', `${(TURN_X * t).toFixed(2)}deg`);
           turn.style.setProperty('--turn-s', (1 + TURN_S * t).toFixed(4));
+        }
+
+        // THE OPENING. It starts once the approach has made the laptop the
+        // subject, and runs to the very end, so the last stretch of the chapter
+        // is the screen still coming round rather than a frozen frame.
+        if (cardPlace) {
+          const deg = LID_OPEN * ease(track(p, 0.42, 1));
+          cardPlace.style.setProperty('--lid-open', `${deg.toFixed(2)}deg`);
+          cardPlace.style.setProperty('--face-lid', deg < 90 ? '1' : '0');
+          cardPlace.style.setProperty('--face-screen', deg < 90 ? '0' : '1');
         }
 
         veil.style.setProperty('--bridge-veil', '0');

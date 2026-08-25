@@ -1859,6 +1859,11 @@ select {
   .is-cinematic .bridge-turn {
     position: absolute;
     inset: 0;
+    // The lens the laptop turns under. It lives here because this element has a
+    // real size: the scene inside it is zero sized, so a perspective origin
+    // there collapses to a corner.
+    perspective: 1500px;
+    perspective-origin: 32% 30%;
     // The axis sits near the left of the frame, which is where the laptop's
     // hinge side is in this composition. Two reasons, and they agree: a lid
     // turns about its hinge, and with the axis there almost the whole plane
@@ -1868,6 +1873,119 @@ select {
     transform-origin: var(--turn-x, 14%) var(--turn-y, 33.4%);
     transform: perspective(var(--turn-d, 1600px)) rotateY(var(--turn-ry, 0deg)) rotateX(var(--turn-rx, 0deg)) scale(var(--turn-s, 1));
     will-change: transform;
+  }
+
+  // The laptop, as an object rather than a region of a picture. Its placement is
+  // a projective map written by the driver from the four corners the lid takes
+  // up in the photograph, so it sits exactly on itself until it moves.
+  // Two elements, two jobs. The outer one is placement: an absolute projective
+  // map of a 1200x784 box onto the four corners the lid occupies in the
+  // photograph, which needs its origin at its own corner or the map shifts by
+  // the origin. The inner one is the hinge, turning in that plane's local space
+  // with its own perspective, so the opening projects about the lid itself
+  // rather than about some point in a zero sized ancestor.
+  // One element, one chain. The placement is a projective map of this box onto
+  // the four corners the lid takes up in the photograph, so its origin must be
+  // its own corner; the hinge is written into the chain after it, by walking
+  // down to the lid's bottom edge, turning about it and walking back. Nesting a
+  // second perspective inside the placement was what made the lid vanish the
+  // moment it moved: composing two projective transforms sent the far corners
+  // behind the camera.
+  .is-cinematic .laptop-place {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 1200px;
+    height: 784px;
+    transform-origin: 0 0;
+    transform: var(--lid-place, none) translate3d(0, 784px, 0) rotateX(var(--lid-open, 0deg)) translate3d(0, -784px, 0);
+    transform-style: preserve-3d;
+    will-change: transform;
+  }
+
+  .is-cinematic .laptop-card {
+    position: absolute;
+    inset: 0;
+    transform-style: preserve-3d;
+  }
+
+  .is-cinematic .laptop-face {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+
+    img {
+      display: block;
+      width: 100%;
+      height: 100%;
+    }
+  }
+
+  .is-cinematic .laptop-face--lid {
+    opacity: var(--face-lid, 1);
+  }
+
+  // Swapped at the crossing, not faded: at ninety degrees the lid is edge on and
+  // has no width on screen, so the exchange happens where there is nothing to
+  // see. This is what backface-visibility would do if the placement matrix were
+  // not mirrored.
+  .is-cinematic .laptop-face--screen {
+    opacity: var(--face-screen, 0);
+    transform: rotateX(180deg);
+    background: #100e0d;
+    padding: 4.5%;
+    box-shadow: inset 0 0 0 10px #1c1614;
+  }
+
+  .is-cinematic .laptop-screen {
+    background: var(--surface);
+    height: 100%;
+    padding: 5% 7%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 2%;
+    text-align: end;
+    direction: rtl;
+  }
+
+  .is-cinematic .laptop-screen-kicker {
+    font-family: var(--font-body);
+    font-size: 24px;
+    letter-spacing: 0.16em;
+    color: #b98b6a;
+  }
+
+  .is-cinematic .laptop-screen-title {
+    font-family: var(--font-display);
+    font-size: 58px;
+    font-weight: 400;
+    line-height: 1.05;
+    color: #1a1816;
+    margin-bottom: 2%;
+  }
+
+  .is-cinematic .laptop-screen-steps {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+
+    li {
+      display: flex;
+      align-items: baseline;
+      justify-content: flex-end;
+      gap: 16px;
+      font-family: var(--font-body);
+      font-size: 28px;
+      color: #1a1816;
+      border-top: 1px solid rgba(26, 24, 22, 0.12);
+      padding: 2.4% 0;
+    }
+
+    span {
+      font-size: 38px;
+      color: rgba(26, 24, 22, 0.26);
+    }
   }
 
   .is-cinematic .bridge-scene {
@@ -1890,6 +2008,7 @@ select {
     // shot is being seen through. Uniform scale: nothing here can distort.
     transform-origin: 0 0;
     transform: translate3d(var(--cam-x, 0px), var(--cam-y, 0px), 0) scale(var(--cam-s, 1));
+    transform-style: preserve-3d;
     will-change: transform;
   }
 
