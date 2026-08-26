@@ -915,21 +915,27 @@ export class AppComponent implements AfterViewInit, OnDestroy {
     // translation toward the lens: together with the rotation already anchored
     // there, the near edge ends up about 1.4x forward of the far one, which is
     // the parallax that says "in front of" rather than "larger than".
-    // 2.0, not 3.4.
+    // Depth is the animation. Scale is what depth looks like.
     //
-    // The larger figure was chosen to make a ratio look impressive and it was
-    // the wrong instinct: the lid holds 636px of real detail, so by the end it
-    // was being enlarged several times past anything the photograph recorded,
-    // and what the viewer actually saw was a wall of soft texture rather than an
-    // object that had come close. At 2.0, with the depth below doing the rest,
-    // the lid finishes a little wider than the frame — near enough to have
-    // passed the lens, still made of pixels that exist.
-    const OBJECT_SCALE = 2.0;
-    const OBJECT_Z = 260;
+    // Every previous attempt drove this with raster scale, and every one of them
+    // read the same way: a cut-out getting bigger. Enlarging a flat image is not
+    // what approaching looks like — approaching means the distance to the lens
+    // shrinks, and the growth follows from the perspective divide rather than
+    // being applied to the pixels.
+    //
+    // So the scale is now barely more than a nudge, and the travel is large: the
+    // lid crosses most of the way to the camera. That also fixes the softness on
+    // its own, because a perspective divide magnifies the near edge far more
+    // than the far one, so the picture is never uniformly blown up.
+    const OBJECT_SCALE = 1.25;
+    const OBJECT_Z = 950;
     // The last of the approach, spent after the object is already at full size.
     // Card units, so it is scaled into the scene like everything else, and small
     // enough that the near edge stays well clear of the perspective plane.
-    const PASS_Z = 220;
+    // The last of the travel. Kept so the near edge peaks around 490 scene units
+    // against a 760 viewpoint: close enough that the object is plainly passing,
+    // far enough from the vanishing plane that nothing inverts.
+    const PASS_Z = 330;
 
     // The four corners the lid occupies in the photograph, measured off it. The
     // card is placed by the projective map that takes its own box to these, so
@@ -1108,7 +1114,13 @@ export class AppComponent implements AfterViewInit, OnDestroy {
           // to separate from the photograph by a third of the way through
           // rather than halfway. The exponent keeps the middle accelerating into
           // the strongest stretch instead of arriving all at once.
-          const near = Math.pow(track(p, 0.12, 0.88), 1.25);
+          // Close to linear in DISTANCE, which is what makes the apparent motion
+          // accelerate on its own: 1/(1 - z/d) climbs faster the nearer the
+          // object gets, so an object closing at a steady rate appears to speed
+          // up as it arrives. That is the acceleration into the strongest
+          // stretch, and it comes from the physics rather than from an easing
+          // curve laid on top.
+          const near = Math.pow(track(p, 0.12, 0.90), 1.15);
           cardPlace.style.setProperty('--lid-s', (1 + (OBJECT_SCALE - 1) * near).toFixed(4));
 
           // And then it passes, by continuing to come at the lens rather than by
