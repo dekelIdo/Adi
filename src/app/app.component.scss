@@ -4280,8 +4280,14 @@ select {
   // was being squashed to the card's width rather than scaled down to fit, so
   // an uploaded 800x4000 screenshot rendered as a 289x338 smear. Every picture
   // that ships today is width bound and lands on the identical pixels.
+  // The ceiling has to clear the tallest shape the admin can publish, which is
+  // now a fixed 4:5. At a card width of 289 that needs 361px and the old cap
+  // resolved to 338, so every uploaded testimonial was boxed inside a card too
+  // short for it and `contain` letterboxed it with white down both sides. The
+  // pictures that already ship are all wider than 4:5 and never reach this, so
+  // they render exactly as before and nothing in the row shifts.
   .review-frame img {
-    max-height: clamp(250px, 40vh, 360px);
+    max-height: clamp(340px, 56vh, 460px);
     object-fit: contain;
   }
 

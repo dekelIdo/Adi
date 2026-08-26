@@ -877,8 +877,14 @@ export class AppComponent implements AfterViewInit, OnDestroy {
     // exponent gives this camera the same rhythm at its own magnitude.
     const RHYTHM: Array<[number, number]> = [
       [0, 0], [0.15, 0.129], [0.25, 0.212], [0.40, 0.435], [0.55, 0.728],
-      [0.65, 0.851], [0.75, 0.936], [0.85, 0.995], [1, 1]
+      [0.65, 0.851], [0.75, 0.918], [0.85, 0.958], [1, 1]
     ];
+    // The tail is the one place this departs from the reference. The phone
+    // chapter is done moving by 85% because its object has already filled the
+    // screen and the work chapter is taking over; here the last stretch is the
+    // laptop passing the lens, which has to keep travelling or the shot settles
+    // and then simply stops. 0.995 became 0.958, so the final 15% carries real
+    // distance instead of four thousandths of it.
 
     // How much of the frame's width the laptop and hands end up occupying. Past
     // 1 on purpose: the reference lets its subject grow beyond the viewport, and
@@ -892,7 +898,11 @@ export class AppComponent implements AfterViewInit, OnDestroy {
     // and made the opening read as a still. Widening the whole range puts every
     // interval back above it. On a desktop the resolution clamp binds first, so
     // this changes nothing there.
-    const END_COVER = 1.45;
+    // 1.90: the lid finishes about 1.35x the frame's width, so it overruns the
+    // edges rather than stopping neatly inside them. The object passes the lens
+    // instead of halting in front of it. Where the source cannot honestly carry
+    // that, the resolution clamp below binds first and the push stops there.
+    const END_COVER = 1.90;
 
     // The four corners the lid occupies in the photograph, measured off it. The
     // card is placed by the projective map that takes its own box to these, so
