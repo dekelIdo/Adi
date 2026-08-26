@@ -1054,10 +1054,19 @@ select {
   margin: 0 auto var(--space-md);
 }
 
+// The header floats over the page, so any jump to an anchor put the first line
+// of that section's heading underneath it. Every landing point now reserves the
+// header's height plus a little air, which is what makes an anchored arrival
+// read as a composed frame rather than a heading cut in half.
+section[id],
+div[id] {
+  scroll-margin-top: clamp(84px, 12vh, 118px);
+}
+
 .problem-list {
   display: grid;
   gap: 0;
-  max-width: 880px;
+  max-width: 760px;
   margin: 0 auto;
 }
 
@@ -1067,11 +1076,16 @@ select {
 // pattern. They are now editorial rows: a hairline rule, generous vertical
 // padding, and a large light-weight serif numeral hanging in the margin like a
 // chapter marker. No card, no badge, no shadow. The rhythm does the work.
+// These are statements, not an inventory. The page already spends a numbered
+// index on the service list further down, and running the same device twice
+// made two long stretches of the site read as the same block repeated. Here the
+// number drops to metadata and the sentence carries the section: larger type,
+// a short measure, and enough air between lines that each one lands on its own.
 .problem-item {
   display: grid;
   grid-template-columns: auto 1fr;
   align-items: baseline;
-  gap: clamp(14px, 3.2vw, 26px);
+  gap: clamp(16px, 4vw, 34px);
   border-top: 1px solid var(--rule);
   background: none;
   border-radius: 0;
@@ -1085,13 +1099,24 @@ select {
   &:hover {
     border-color: color-mix(in srgb, var(--brand-accent) 62%, transparent);
   }
-  padding: clamp(15px, 2.4vh, 22px) 0;
+  padding: clamp(22px, 4vh, 40px) 0;
 
   p {
-    font-size: var(--text-base);
-    line-height: 1.62;
+    font-family: var(--font-display);
+    font-size: clamp(1.35rem, 4.6vw, 2.05rem);
+    font-weight: 400;
+    line-height: 1.28;
+    letter-spacing: -0.018em;
     color: var(--text);
+    text-wrap: balance;
+    max-width: 22ch;
   }
+}
+
+// The last line is the turn of the section, so it is allowed to be the loudest.
+.problem-item--final p {
+  font-size: clamp(1.55rem, 5.6vw, 2.5rem);
+  color: var(--text);
 }
 
 .problem-num {
@@ -1108,7 +1133,13 @@ select {
   min-width: 2.1ch;
   display: block;
   transition: color 420ms var(--ease-smooth);
-  font-size: clamp(1.15rem, 3.2vw, 1.5rem);
+  // Metadata scale. It marks position in the list; it is not the subject of it.
+  font-family: var(--font-body);
+  font-size: 0.72rem;
+  letter-spacing: 0.16em;
+  font-weight: 600;
+  color: color-mix(in srgb, var(--brand-accent) 70%, var(--text-light));
+  transform: translateY(-0.35em);
 }
 
 .problem-item--final {
@@ -1631,12 +1662,32 @@ select {
 
 // ─────── ABOUT SECTION ─────────────────────────────────────────────────────────
 
+// The portrait is the subject of this chapter, so it stops being an illustration
+// sitting next to the paragraph and becomes the larger half of the composition.
+// It runs past the container to the outer edge and drops below the copy's first
+// line, which is what gives the section an axis instead of two even columns.
 .about-layout {
   display: grid;
-  grid-template-columns: 1.4fr 1fr;
-  gap: var(--space-lg);
+  grid-template-columns: 1fr 1.12fr;
+  gap: clamp(24px, 5vw, 72px);
   margin-bottom: var(--space-lg);
   align-items: start;
+}
+
+.about-layout .about-copy {
+  padding-top: clamp(10px, 4vh, 54px);
+}
+
+.about-layout .about-photo-wrap {
+  margin-inline-end: calc(-1 * var(--container-padding));
+  border-radius: var(--r-media) 0 0 var(--r-media);
+  overflow: hidden;
+
+  img {
+    width: 100%;
+    height: auto;
+    display: block;
+  }
 }
 
 .about-copy {
@@ -3152,7 +3203,10 @@ select {
 
 .review-card {
   flex-shrink: 0;
-  width: clamp(280px, 74vw, 430px);
+  // Wider. These are the only unmediated voices on the page and they were being
+  // shown smaller than the portfolio stills; the rail scrolls, so the width can
+  // afford to make each one a thing you actually read rather than glance past.
+  width: clamp(300px, 82vw, 470px);
 }
 
 // The shared height band gives the row its rhythm; the width cap keeps a very
@@ -3192,27 +3246,31 @@ select {
   }
 }
 
+// Quieter frame, louder picture. The heavy card treatment — shadow, tilt and a
+// visible container — was competing with the screenshots inside it and made a
+// wall of real messages read as a UI component. A hairline and a soft lift are
+// enough to seat the image on the page.
 .review-inner {
   border-radius: var(--r-media);
   overflow: hidden;
   background: #fff;
-  box-shadow: 0 0 0 1px var(--rule), 0 10px 30px rgba(26, 24, 22, 0.05);
+  box-shadow: 0 0 0 1px var(--rule), 0 18px 44px rgba(26, 24, 22, 0.06);
   transition: transform var(--motion-mid) var(--ease-expo),
     box-shadow var(--motion-mid) var(--ease-expo);
 
   &:hover,
   &:focus-within {
-    transform: rotate(0deg) translateY(-2px);
-    box-shadow: 0 0 0 1px var(--rule-strong), 0 14px 36px rgba(26, 24, 22, 0.08);
+    transform: translateY(-3px);
+    box-shadow: 0 0 0 1px var(--rule-strong), 0 22px 56px rgba(26, 24, 22, 0.09);
   }
 }
 
-.review-inner--tilt-l {
-  transform: rotate(-0.7deg);
-}
-
+// Deliberately no rotation. A one-degree tilt on a screenshot of a real message
+// reads as decoration applied to someone's words; the vertical scatter below
+// already gives the row its rhythm without touching the content's own axis.
+.review-inner--tilt-l,
 .review-inner--tilt-r {
-  transform: rotate(0.8deg);
+  transform: none;
 }
 
 .review-frame {
@@ -3924,6 +3982,156 @@ select {
     font-size: var(--text-sm);
     color: rgba(255, 255, 255, 0.62);
     line-height: 1.7;
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// CHAPTER PLATES + CHAPTER LABELS
+// ═══════════════════════════════════════════════════════════════════════════════
+//
+// The page was a run of self contained sections. These two plates are the
+// joints: full bleed photographs that end one chapter and open the next, with
+// the type living inside the picture rather than above it. They are the only
+// places on the page where a photograph is the whole frame, which is what makes
+// them read as turns in a story rather than as more images.
+
+.chapter-label {
+  display: block;
+  font-family: var(--font-body);
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.2em;
+  color: var(--text-light);
+  margin-bottom: clamp(10px, 1.6vh, 18px);
+}
+
+.chapter-plate {
+  position: relative;
+  display: block;
+  width: 100%;
+  height: clamp(520px, 84vh, 900px);
+  overflow: hidden;
+  isolation: isolate;
+}
+
+.chapter-plate-media {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+
+  picture {
+    display: block;
+    height: 100%;
+  }
+
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    // The one motion here: the frame settles out of a slight push as it
+    // arrives, so the photograph feels like it is coming to rest rather than
+    // fading in. Paired with the page's existing drift, nothing else moves.
+    transform: translate3d(0, var(--drift, 0px), 0) scale(var(--plate-scale, 1.06));
+    transition: transform 1600ms var(--ease-expo);
+  }
+
+  &.is-visible img {
+    --plate-scale: 1;
+  }
+}
+
+// The plate's own reveal must not slide: it is the size of the viewport, and a
+// 14px translate on a full bleed photograph reads as a mistake.
+.chapter-plate-media.reveal {
+  transform: none;
+}
+
+.chapter-plate-type {
+  position: absolute;
+  z-index: 1;
+  inset-block-end: clamp(28px, 6vh, 76px);
+  inset-inline-start: var(--container-padding);
+  max-width: min(72vw, 620px);
+}
+
+.chapter-plate-type--end {
+  inset-inline-start: auto;
+  inset-inline-end: var(--container-padding);
+  text-align: end;
+}
+
+.chapter-plate-name {
+  font-family: var(--font-display);
+  font-size: clamp(3.4rem, 13vw, 8.5rem);
+  font-weight: 400;
+  line-height: 0.92;
+  letter-spacing: -0.045em;
+  margin: 0;
+  color: var(--text);
+}
+
+.chapter-plate-line {
+  font-family: var(--font-display);
+  font-size: clamp(1.9rem, 6.4vw, 3.6rem);
+  font-weight: 400;
+  line-height: 1.1;
+  letter-spacing: -0.03em;
+  margin: 0;
+  color: #fff;
+}
+
+// Studio white behind her: the type is ink and the label sits quiet beside it.
+.chapter-plate--identity {
+  background: var(--bg);
+
+  img {
+    // Pinned near the top of the frame. These are portrait photographs in a
+    // landscape band, so cover crops hard: centred, the band showed her legs and
+    // cut her head off entirely on a wide screen. Anchoring high keeps the face
+    // and shoulders, which is the only part of a portrait worth a full bleed.
+    object-position: 58% 15%;
+  }
+}
+
+// A dark interior, so the type is white and the picture carries a soft floor to
+// keep the words legible without a slab of overlay across the photograph.
+.chapter-plate--warmth {
+  background: #16120f;
+
+  img {
+    object-position: 52% 17%;
+  }
+
+  .chapter-label {
+    color: rgba(255, 255, 255, 0.72);
+  }
+
+  &::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    background: linear-gradient(to top, rgba(12, 10, 8, 0.62) 0%, rgba(12, 10, 8, 0.18) 34%, transparent 62%);
+    pointer-events: none;
+  }
+}
+
+@media (max-width: 600px) {
+  .chapter-plate {
+    height: clamp(460px, 74vh, 640px);
+  }
+
+  .chapter-plate-type {
+    max-width: 84vw;
+  }
+}
+
+// Reduced motion: the plates are still photographs, which is all they need to be.
+@media (prefers-reduced-motion: reduce) {
+  .chapter-plate-media img {
+    --plate-scale: 1;
+    transition: none;
   }
 }
 
