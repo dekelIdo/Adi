@@ -867,8 +867,22 @@ export class AppComponent implements AfterViewInit, OnDestroy {
     // vertical hold equals the anchor's own height in the picture, which is
     // forced: at the opening the window is the full height of the frame, so the
     // anchor can only land at its own fraction.
-    const ANCHOR = { x: 0.2655, y: 0.334 };
-    const HOLD = { x: 0.38, y: 0.334 };
+    const ANCHOR = { x: 0.2655, y: 0.118 };
+    const HOLD = { x: 0.38, y: 0.14 };
+
+    // THE VERTICAL HOLD KEEPS HER FACE IN THE FRAME.
+    //
+    // A landscape window is short against this portrait plate: at 1440 it can
+    // only hold about 42% of the picture's height, so where that window sits is
+    // a composition decision, not a detail. Holding the lid's own centre at 33%
+    // of the screen put the window at y 0.19..0.61 - her head starts at 0.03, so
+    // the establishing frame on every desktop was her torso with the face cut
+    // off above the top edge, which is not a photograph of a person working.
+    //
+    // The window now opens just under the top of her head and the hold is small,
+    // so it barely moves as the shot closes: under one per cent of the picture
+    // across the whole chapter, where it used to be a pan. On a phone the window
+    // is the full height and both values clamp away, so nothing there changes.
 
     // The phone chapter's progression, measured off its rendered checkpoints as
     // the log of its subject's on-screen width, normalised. This is the shot's
@@ -927,15 +941,26 @@ export class AppComponent implements AfterViewInit, OnDestroy {
     // lid crosses most of the way to the camera. That also fixes the softness on
     // its own, because a perspective divide magnifies the near edge far more
     // than the far one, so the picture is never uniformly blown up.
-    const OBJECT_SCALE = 1.25;
-    const OBJECT_Z = 1050;
+    // DEPTH IS THE ANIMATION; SCALE IS BARELY PRESENT.
+    //
+    // Both are now expressed in the card's own 1200x784 units against a 1600
+    // lens, so they mean something physical: at 1000 the card is five eighths of
+    // the way to the lens and the perspective divide alone is 1600/600 = 2.7x.
+    // That growth is the object arriving, not a bitmap being enlarged, and it
+    // arrives unevenly across the card the way a real approach does.
+    const OBJECT_SCALE = 1.06;
+    const OBJECT_Z = 1000;
     // The last of the approach, spent after the object is already at full size.
     // Card units, so it is scaled into the scene like everything else, and small
     // enough that the near edge stays well clear of the perspective plane.
     // The last of the travel. Kept so the near edge peaks around 490 scene units
     // against a 760 viewpoint: close enough that the object is plainly passing,
     // far enough from the vanishing plane that nothing inverts.
-    const PASS_Z = 230;
+    // The last of the travel, spent after the card is already at full size. It
+    // takes the near edge to 1240 against the 1600 lens, so the object is
+    // plainly passing through the near field while staying clear of the
+    // vanishing plane, where the projection would invert.
+    const PASS_Z = 240;
 
     // The four corners the lid occupies in the photograph, measured off it. The
     // card is placed by the projective map that takes its own box to these, so
@@ -1010,19 +1035,13 @@ export class AppComponent implements AfterViewInit, OnDestroy {
       }
       const g = rhs.map((v, i) => v / A[i][i]);
 
-      // The depth axis has to be scaled like the other two.
-      //
-      // This map takes a 1200x784 box down to roughly a quarter of its size, and
-      // the z column was left at 1, so every millimetre the lid travelled toward
-      // the lens counted about four times more than the same millimetre across
-      // the picture. The perspective response was that far out, which is why the
-      // turn read as a bulge rather than as an object rotating. sz is the
-      // geometric mean of what the map does to x and to y, which is the honest
-      // uniform depth for a plane being placed by a projective transform.
-      const sx = Math.hypot(g[0], g[3]);
-      const sy = Math.hypot(g[1], g[4]);
-      const sz = Math.sqrt(sx * sy);
-      return `matrix3d(${g[0]},${g[3]},0,${g[6]},${g[1]},${g[4]},0,${g[7]},0,0,${sz},0,${g[2]},${g[5]},0,1)`;
+      // A plain 2D projective map. The z column is 1 because nothing travels in
+      // depth inside this transform any more: the lens now sits downstream of
+      // it, so the card's approach happens in its own space at its own scale and
+      // this matrix only carries the finished image onto the quad. The old sz
+      // patch existed to rescale a depth axis that no longer passes through
+      // here, and keeping it would silently shrink the travel by a quarter.
+      return `matrix3d(${g[0]},${g[3]},0,${g[6]},${g[1]},${g[4]},0,${g[7]},0,0,1,0,${g[2]},${g[5]},0,1)`;
     };
 
     if (cardPlace) cardPlace.style.setProperty('--lid-place', placeCard());

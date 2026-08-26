@@ -242,10 +242,22 @@ select {
 }
 
 // Logo
+// TOUCH TARGETS, NOT SIZES. The three controls below render at 38-42px, which
+// is under the 44px a thumb needs. The visual design is approved and frozen, so
+// none of them changes size: each gets an invisible hit area extending past its
+// own edge, which is what the finger is actually aiming at. Nothing on screen
+// moves by a pixel.
 .header-logo {
   display: flex;
   align-items: center;
+  position: relative;
   transition: transform 320ms var(--ease-smooth);
+
+  &::after {
+    content: "";
+    position: absolute;
+    inset: -4px;
+  }
 
   &:hover {
     transform: scale(1.04);
@@ -274,7 +286,16 @@ select {
 
 .site-header .header-cta,
 .header-cta {
+  position: relative;
   min-height: clamp(36px, 4.6vh, 42px);
+
+  &::after {
+    content: "";
+    position: absolute;
+    inset: -4px -2px;
+    border-radius: inherit;
+  }
+
   padding: clamp(8px, 1.4vh, 10px) clamp(16px, 2.6vw, 24px);
   font-family: var(--font-body);
   font-size: var(--text-xs);
@@ -300,11 +321,16 @@ select {
 
 .back-to-top {
   position: fixed;
+
   bottom: clamp(20px, 3.2vh, 26px);
   left: clamp(20px, 3.2vw, 26px);
   z-index: 900;
-  width: 42px;
-  height: 42px;
+  // 46, not 42. This is the one control here whose hit area could not be grown
+  // with a pseudo-element - it floats over the page and something above it wins
+  // the hit test at the edges - so the button itself carries the size. A thumb
+  // needs 44; four pixels on a floating circle is the honest way to give it.
+  width: 46px;
+  height: 46px;
   border-radius: 50%;
   border: 1px solid rgba(196, 217, 240, 0.2);
   background: linear-gradient(145deg, rgba(255, 255, 255, 0.95), rgba(248, 246, 243, 0.88));
@@ -1939,9 +1965,18 @@ div[id] {
     // that nothing shears. The vanishing point sits on the hinge itself, at the
     // midpoint of the lid's bottom edge, which is what makes the turn read as a
     // hinge rather than as a plane being skewed.
-    perspective: 760px;
-    perspective-origin: 21.5% 37%;
-    transform-style: preserve-3d;
+    // NO PERSPECTIVE HERE ANY MORE, and this is the whole correction.
+    //
+    // The lens used to live on this element, which is upstream of the projective
+    // map that places the card into the photograph. That meant the card was
+    // rotated and moved toward the lens FIRST and then squashed onto the lid's
+    // quad, and the projective map is exactly the operation that flattens a
+    // plane: it took the turn back out again. What survived was a quadrilateral
+    // getting bigger, which is what a flat cut-out looks like. The lens now sits
+    // downstream of the placement, on .laptop-place, so the object turns and
+    // approaches in its own space and the placement only carries the finished
+    // image onto the photograph.
+    transform-style: flat;
     pointer-events: none;
   }
 
@@ -1952,25 +1987,40 @@ div[id] {
     width: 1200px;
     height: 784px;
     transform-origin: 0 0;
-    // Read right to left, which is the order these apply in: the card is taken
-    // to its hinge, turned about it, grown from it, then moved toward the lens,
-    // and only then placed into the photograph. Every part of the object's
-    // motion is anchored at the hinge, which is why it appears to come out of
-    // her hands rather than to swell in place.
-    transform: var(--lid-place, none)
-      translate3d(0, 784px, 0)
-      translateZ(var(--lid-z, 0px))
-      scale(var(--lid-s, 1))
-      rotateX(var(--lid-open, 0deg))
-      translate3d(0, -784px, 0);
-    transform-style: preserve-3d;
+    // REGISTRATION, AND NOTHING ELSE. One projective map takes the card's own
+    // 1200x784 box onto the four corners the lid occupies in the photograph, so
+    // at rest the object is indistinguishable from the lid it was rectified out
+    // of. No motion is composed into this transform any more.
+    transform: var(--lid-place, none);
+    // And the lens lives here, downstream of the placement. Everything the card
+    // does happens inside this perspective, in the card's own square coordinate
+    // space, and only the finished image is carried onto the quad.
+    //
+    // 1600 against a 1200-wide card is a real lens: long enough that the lid
+    // never shears, short enough that the near edge grows hard as it turns.
+    perspective: 1600px;
+    // The vanishing point sits on the hinge itself: the middle of the bottom
+    // edge, which is the line her fingers are closed around.
+    perspective-origin: 50% 100%;
+    transform-style: flat;
     will-change: transform;
   }
 
+  // THE OBJECT. The hinge is the origin, so every part of the motion pivots on
+  // the line she is actually holding: the lid turns about it, grows out of it,
+  // and travels toward the lens from it. The old chain pivoted at the card's
+  // bottom LEFT corner, which is why the laptop slid up and to the left across
+  // the photograph as it grew instead of opening out of her hands.
   .is-cinematic .laptop-card {
     position: absolute;
     inset: 0;
+    transform-origin: 50% 100%;
+    transform:
+      translateZ(var(--lid-z, 0px))
+      scale(var(--lid-s, 1))
+      rotateX(var(--lid-open, 0deg));
     transform-style: preserve-3d;
+    will-change: transform;
   }
 
   .is-cinematic .laptop-face {
