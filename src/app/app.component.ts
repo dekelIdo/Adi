@@ -877,7 +877,7 @@ export class AppComponent implements AfterViewInit, OnDestroy {
     // exponent gives this camera the same rhythm at its own magnitude.
     const RHYTHM: Array<[number, number]> = [
       [0, 0], [0.15, 0.129], [0.25, 0.212], [0.40, 0.435], [0.55, 0.728],
-      [0.65, 0.851], [0.75, 0.918], [0.85, 0.958], [1, 1]
+      [0.65, 0.851], [0.75, 0.906], [0.85, 0.938], [1, 1]
     ];
     // The tail is the one place this departs from the reference. The phone
     // chapter is done moving by 85% because its object has already filled the
@@ -1043,16 +1043,21 @@ export class AppComponent implements AfterViewInit, OnDestroy {
         // subject, and runs to the very end, so the last stretch of the chapter
         // is the screen still coming round rather than a frozen frame.
         if (cardPlace) {
-          // Linear, and starting earlier.
+          // Half linear, half smoothstep, from 0.20.
           //
-          // A hinge under a steady hand turns at a steady rate, and that is what
-          // sells it as a hinge: any easing here reads as the object hesitating.
-          // Beginning at 0.22 rather than 0.30 puts a visible angle on the lid
-          // by a third of the way through instead of halfway, so the turn is
-          // established well before the close, and the sense of acceleration in
-          // the last stretch comes from the camera's own curve rather than from
-          // the rotation speeding up, which is what a real approach looks like.
-          const turn = track(p, 0.22, 1);
+          // Pure linear was the previous attempt and it read as machinery: a
+          // constant angular rate has no arc to it, and the eye reads constant
+          // as mechanical however smooth the frames are. Pure smoothstep is the
+          // opposite failure, spending its first third almost stationary and
+          // then dumping the whole turn into the end.
+          //
+          // Blending them keeps soft ends without a dead middle. The angular
+          // rate rises from about 64 degrees per unit of scroll through the
+          // early build, peaks near 80 across the strongest stretch, and settles
+          // back to about 49 as the lid goes past — an object gathering pace and
+          // then carrying its own momentum, rather than a value being animated.
+          const t = track(p, 0.20, 1);
+          const turn = 0.45 * t + 0.55 * (t * t * (3 - 2 * t));
           const deg = LID_OPEN * turn;
 
           // The same value drives how the lid is lit. As it comes round it
