@@ -2862,18 +2862,30 @@ div[id] {
   gap: 2px;
 }
 
+// The evidence was doing all the work and the number was a caption under it.
+// Reversed: the figure is the statement and the screenshot is what backs it up.
+.result-overlay {
+  border-top: 1px solid var(--rule);
+  margin-top: 14px;
+  padding-top: 14px;
+}
+
 .result-value {
   font-family: var(--font-display);
-  font-size: clamp(1.5rem, 4.6vw, 2rem);
+  font-size: clamp(2.4rem, 7vw, 3.6rem);
   font-weight: 400;
-  line-height: 1.05;
-  letter-spacing: -0.02em;
+  line-height: 0.98;
+  letter-spacing: -0.04em;
   color: var(--text);
 }
 
 .result-desc {
-  font-size: var(--text-sm);
-  color: var(--text-muted);
+  font-family: var(--font-body);
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  color: var(--text-light);
+  margin-top: 6px;
 }
 
 // ─────── SERVICES SECTION ──────────────────────────────────────────────────────
@@ -3228,6 +3240,10 @@ div[id] {
   max-height: none;
 }
 
+// The offsets stay on the scrolling rail, where they give the row its rhythm.
+// On the desktop grid they are removed below: three columns of different
+// heights already read as ragged, and nudging them apart vertically as well
+// made the row look unresolved rather than composed.
 .review-card--scatter-1 { transform: translateY(-6px); }
 .review-card--scatter-2 { transform: translateY(10px); }
 .review-card--scatter-3 { transform: translateY(-2px); }
@@ -3291,10 +3307,21 @@ div[id] {
     grid-template-columns: repeat(3, 1fr);
     gap: var(--space-lg);
     padding: 0;
+    // One shared top line. The screenshots are genuinely different shapes and
+    // forcing them to equal heights would mean cropping someone's message, so
+    // the row is aligned where it can be — at the top — and allowed to be
+    // ragged at the foot, which is how a magazine sets a row of clippings.
+    align-items: start;
   }
 
   .review-card {
     width: 100%;
+  }
+
+  .review-card--scatter-1,
+  .review-card--scatter-2,
+  .review-card--scatter-3 {
+    transform: none;
   }
 
   // A ceiling, so one uploaded picture cannot set the height of the whole row.
@@ -4049,7 +4076,7 @@ div[id] {
 
 .chapter-plate-type {
   position: absolute;
-  z-index: 1;
+  z-index: 2;
   inset-block-end: clamp(28px, 6vh, 76px);
   inset-inline-start: var(--container-padding);
   max-width: min(72vw, 620px);
@@ -4124,6 +4151,46 @@ div[id] {
 
   .chapter-plate-type {
     max-width: 84vw;
+    inset-block-end: clamp(20px, 3.6vh, 34px);
+  }
+
+  // A phone is too narrow for the name to find empty space beside her, so it
+  // stops competing for it: the type takes the full width at the foot of the
+  // frame and the picture is given a floor to sit the words on. The subject
+  // stays the hero and nothing lands on top of her legs by accident.
+  .chapter-plate--identity {
+    .chapter-plate-type {
+      inset-inline-start: 0;
+      inset-inline-end: 0;
+      max-width: none;
+      padding: 0 var(--container-padding);
+      text-align: start;
+    }
+
+    .chapter-plate-name {
+      font-size: clamp(2.6rem, 11.5vw, 3.6rem);
+      line-height: 0.95;
+    }
+
+    // She is framed a little higher and tighter so the lower third of the plate
+    // is backdrop rather than body.
+    img {
+      object-position: 56% 10%;
+    }
+
+    &::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      z-index: 0;
+      background: linear-gradient(
+        to top,
+        rgba(244, 241, 237, 0.94) 0%,
+        rgba(244, 241, 237, 0.72) 18%,
+        rgba(244, 241, 237, 0) 44%
+      );
+      pointer-events: none;
+    }
   }
 }
 
