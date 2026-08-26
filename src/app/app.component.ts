@@ -966,8 +966,8 @@ export class AppComponent implements AfterViewInit, OnDestroy {
     // dimension: the near edge sweeps out over the frame while the far edge
     // stays put, which is what a plane tipping toward a lens actually does and
     // what no amount of scaling can imitate.
-    const OBJECT_SCALE = 1.30;
-    const OBJECT_Z = 560;
+    const OBJECT_SCALE = 1.55;
+    const OBJECT_Z = 780;
     // The last of the approach, spent after the object is already at full size.
     // Card units, so it is scaled into the scene like everything else, and small
     // enough that the near edge stays well clear of the perspective plane.
@@ -980,7 +980,7 @@ export class AppComponent implements AfterViewInit, OnDestroy {
     // the whole chapter is its final movement. There is still 258 units of
     // clearance to the viewpoint at the very last frame, so nothing clips and
     // nothing inverts - it overruns the frame while still being a solid object.
-    const PASS_Z = 165;
+    const PASS_Z = 0;
 
     // The four corners the lid occupies in the photograph, measured off it. The
     // card is placed by the projective map that takes its own box to these, so
@@ -1107,13 +1107,33 @@ export class AppComponent implements AfterViewInit, OnDestroy {
         const cx = clamp(ANCHOR.x - HOLD.x * cw, 0, 1 - cw);
         const cy = clamp(ANCHOR.y - HOLD.y * ch, 0, 1 - ch);
 
-        // One uniform scale maps that rectangle onto the viewport. There is no
-        // second axis to disagree with the first, so the picture cannot stretch
-        // and the laptop cannot lose its proportions at any point in the move.
-        const s = w / (cw * BASE);
+        // THE PHOTOGRAPH IS A PHOTOGRAPH, NOT THE SCREEN.
+        //
+        // This is the thing the phone chapter has and this one did not. Its
+        // plate is laid out at natural height inside a taller sticky, so the
+        // picture sits as a band with the page showing above and below it, and
+        // the handset grows OUT of that band into the empty space. Watching it,
+        // the moment it reads as an object is the moment its edge crosses the
+        // edge of the photograph. Nothing else in that sequence is doing the
+        // work - it is a flat 2D scale and a rotate - and it still reads as a
+        // thing coming at you, because it leaves the picture behind.
+        //
+        // This plate was full bleed. It ran to all four edges of the viewport,
+        // so there was no boundary anywhere for the laptop to cross and no
+        // outside for it to arrive in. Whatever the lid did, it did inside the
+        // photograph, which is precisely the definition of a picture zooming.
+        //
+        // So the plate is now a band too: uniform scale, whichever of width or
+        // BAND of the height binds first, centred in the frame. The picture is
+        // as static as it ever was - this is where it sits, not something it
+        // does - and now there is somewhere for the object to go.
+        const BAND = 0.72;
+        const s = Math.min(w / (cw * BASE), (h * BAND) / (ch * BASE * IMG_R));
+        const padX = (w - cw * BASE * s) / 2;
+        const padY = (h - ch * BASE * IMG_R * s) / 2;
         scene.style.setProperty('--cam-s', s.toFixed(5));
-        scene.style.setProperty('--cam-x', `${(-cx * BASE * s).toFixed(1)}px`);
-        scene.style.setProperty('--cam-y', `${(-cy * BASE * IMG_R * s).toFixed(1)}px`);
+        scene.style.setProperty('--cam-x', `${(padX - cx * BASE * s).toFixed(1)}px`);
+        scene.style.setProperty('--cam-y', `${(padY - cy * BASE * IMG_R * s).toFixed(1)}px`);
 
         // THE OPENING. It starts once the approach has made the laptop the
         // subject, and runs to the very end, so the last stretch of the chapter
@@ -1172,7 +1192,22 @@ export class AppComponent implements AfterViewInit, OnDestroy {
           // the easing. Shaping this as well would double the effect and push
           // all the travel into a lunge at the end, which is what an earlier
           // version did. Starting at 0.18 keeps the first fifth a photograph.
-          const near = track(p, 0.18, 0.92);
+          // IT MUST STILL BE MOVING AT THE END.
+          //
+          // Rendered beside the phone chapter, the failure was obvious: the last
+          // three checkpoints of the laptop were the same picture. The travel
+          // finished at 0.92 and the pass added so little at that distance that
+          // the final fifth was the next section sliding up over a parked
+          // object. The phone's last frames are a different frame each time.
+          //
+          // So the travel now runs to the very end, and the slight exponent puts
+          // more of it late, where the divide is also climbing hardest. The two
+          // compound: the top edge of the lid roughly doubles again across the
+          // final fifth alone, which is the momentum the ending was missing.
+          // Starting at 0.15 also brings the moment it crosses the edge of the
+          // photograph forward, out of the last third and into the middle where
+          // it belongs.
+          const near = Math.pow(track(p, 0.15, 1), 1.25);
           cardPlace.style.setProperty('--lid-s', (1 + (OBJECT_SCALE - 1) * near).toFixed(4));
 
           // And then it passes, by continuing to come at the lens rather than by
@@ -1188,11 +1223,9 @@ export class AppComponent implements AfterViewInit, OnDestroy {
           // Overlapped with the tail of the approach rather than starting after
           // it, so the two blend into one continuous closing instead of handing
           // over with a step.
-          const pass = ease(track(p, 0.78, 1));
-          cardPlace.style.setProperty(
-            '--lid-z',
-            `${(OBJECT_Z * near + PASS_Z * pass).toFixed(1)}px`
-          );
+          // One continuous approach. The pass is no longer a separate term added
+          // at the end: it is the same travel, still going.
+          cardPlace.style.setProperty('--lid-z', `${(OBJECT_Z * near).toFixed(1)}px`);
 
           // The same value drives how the lid is lit. As it comes round it
           // catches more of the key light that is already in the photograph and
