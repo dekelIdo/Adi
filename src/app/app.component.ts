@@ -941,26 +941,46 @@ export class AppComponent implements AfterViewInit, OnDestroy {
     // lid crosses most of the way to the camera. That also fixes the softness on
     // its own, because a perspective divide magnifies the near edge far more
     // than the far one, so the picture is never uniformly blown up.
-    // DEPTH IS THE ANIMATION; SCALE IS BARELY PRESENT.
+    // THE HINGE STAYS IN HER HANDS; THE LID COMES AT THE LENS.
     //
-    // Both are now expressed in the card's own 1200x784 units against a 1600
-    // lens, so they mean something physical: at 1000 the card is five eighths of
-    // the way to the lens and the perspective divide alone is 1600/600 = 2.7x.
-    // That growth is the object arriving, not a bitmap being enlarged, and it
-    // arrives unevenly across the card the way a real approach does.
-    const OBJECT_SCALE = 1.06;
-    const OBJECT_Z = 1000;
+    // The previous travel drove the whole card to z 1240 against a 1450 lens.
+    // Two things went wrong with that, and they are the two the eye was
+    // complaining about.
+    //
+    // First, the hinge itself ended up with a perspective divide of 4.4, so the
+    // line her fingers are closed around grew four and a half times while her
+    // hand grew 1.18 with the plate. The laptop did not stay in her hands; it
+    // left them and her fingers passed through it.
+    //
+    // Second, and worse, the lid's top edge sits 642 units nearer the lens than
+    // the hinge once it has swung 55 degrees. 1240 + 642 is past the viewpoint:
+    // at 85% the divide there was 321, and by the end the geometry was BEHIND
+    // the camera, which the browser resolves by clipping it. The whole final
+    // stretch, the one stretch that is supposed to be the strongest, was being
+    // drawn as a clipped wedge. That is the flat, cut-off look.
+    //
+    // So the travel is now small and the turn does the work. The hinge only
+    // reaches a divide of about 1.6 - near enough to the plate's own 1.18 that
+    // it stays registered to her hand for the whole chapter - while the top edge
+    // reaches 5.6. That difference across a single flat panel IS the third
+    // dimension: the near edge sweeps out over the frame while the far edge
+    // stays put, which is what a plane tipping toward a lens actually does and
+    // what no amount of scaling can imitate.
+    const OBJECT_SCALE = 1.30;
+    const OBJECT_Z = 560;
     // The last of the approach, spent after the object is already at full size.
     // Card units, so it is scaled into the scene like everything else, and small
     // enough that the near edge stays well clear of the perspective plane.
     // The last of the travel. Kept so the near edge peaks around 490 scene units
     // against a 760 viewpoint: close enough that the object is plainly passing,
     // far enough from the vanishing plane that nothing inverts.
-    // The last of the travel, spent after the card is already at full size. It
-    // takes the near edge to 1240 against the 1600 lens, so the object is
-    // plainly passing through the near field while staying clear of the
-    // vanishing plane, where the projection would invert.
-    const PASS_Z = 240;
+    // The pass. It takes the hinge to 550 and the near edge to 1192 against the
+    // 1450 lens, where the divide is climbing steeply: the last fifth of the
+    // scroll carries the near edge from 2.8 to 5.6, so the strongest movement of
+    // the whole chapter is its final movement. There is still 258 units of
+    // clearance to the viewpoint at the very last frame, so nothing clips and
+    // nothing inverts - it overruns the frame while still being a solid object.
+    const PASS_Z = 165;
 
     // The four corners the lid occupies in the photograph, measured off it. The
     // card is placed by the projective map that takes its own box to these, so
@@ -1145,7 +1165,14 @@ export class AppComponent implements AfterViewInit, OnDestroy {
           // stretch on top of that: the object crept through the middle and then
           // lunged over the final fifteen per cent. Even distance spreads the
           // crest across 55 to 80, where it belongs.
-          const near = track(p, 0.12, 0.90);
+          // Linear in DISTANCE, from 18%. The acceleration the eye reads is not
+          // in this curve and must not be: 1/(1 - z/d) climbs on its own, and
+          // steeply, as the object nears the lens. An object closing at a steady
+          // rate appears to speed up as it arrives, which is the physics doing
+          // the easing. Shaping this as well would double the effect and push
+          // all the travel into a lunge at the end, which is what an earlier
+          // version did. Starting at 0.18 keeps the first fifth a photograph.
+          const near = track(p, 0.18, 0.92);
           cardPlace.style.setProperty('--lid-s', (1 + (OBJECT_SCALE - 1) * near).toFixed(4));
 
           // And then it passes, by continuing to come at the lens rather than by
@@ -1161,7 +1188,7 @@ export class AppComponent implements AfterViewInit, OnDestroy {
           // Overlapped with the tail of the approach rather than starting after
           // it, so the two blend into one continuous closing instead of handing
           // over with a step.
-          const pass = ease(track(p, 0.80, 1));
+          const pass = ease(track(p, 0.78, 1));
           cardPlace.style.setProperty(
             '--lid-z',
             `${(OBJECT_Z * near + PASS_Z * pass).toFixed(1)}px`
@@ -1173,6 +1200,23 @@ export class AppComponent implements AfterViewInit, OnDestroy {
           // the surface was holding one flat tone through the whole turn, and a
           // panel that never changes value as it rotates reads as a picture of
           // a panel.
+          // A SECOND AXIS, because one is not enough to read as a solid.
+          //
+          // A panel turning about a single horizontal hinge keystones, but every
+          // vertical line in it stays vertical, and the eye reads that as a
+          // picture being skewed rather than as an object in a room. The lid in
+          // the photograph is already yawed - the quad it was rectified out of
+          // is a trapezoid, not a rectangle - so continuing that turn is the
+          // motion the photograph itself set up, not a new invention.
+          //
+          // 15 degrees, about the vertical axis through the hinge, arriving
+          // late. It stays small on purpose: enough that the far side falls away
+          // and the near side comes round, which is the cue that says solid, and
+          // not so much that the card leaves the footprint it has to keep
+          // covering. The original lid stays hidden underneath throughout.
+          const yaw = -15 * ease(track(p, 0.34, 1));
+          cardPlace.style.setProperty('--lid-yaw', `${yaw.toFixed(2)}deg`);
+
           cardPlace.style.setProperty('--lid-t', turn.toFixed(4));
           cardPlace.style.setProperty('--lid-open', `${deg.toFixed(2)}deg`);
           cardPlace.style.setProperty('--face-lid', Math.abs(deg) < 90 ? '1' : '0');

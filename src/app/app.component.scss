@@ -1996,9 +1996,16 @@ div[id] {
     // does happens inside this perspective, in the card's own square coordinate
     // space, and only the finished image is carried onto the quad.
     //
-    // 1600 against a 1200-wide card is a real lens: long enough that the lid
-    // never shears, short enough that the near edge grows hard as it turns.
-    perspective: 1600px;
+    // 1700, and it is solved rather than chosen. The lid is 784 tall and 1200
+    // wide, hinged along its bottom edge. Once it has swung 55 degrees its top
+    // edge is 642 units nearer the lens than the hinge, and the 15 degrees of
+    // yaw brings the leading corner a further 155 forward. Whatever depth the
+    // object travels, those two offsets stack on top of it, and the total has to
+    // stay clear of the lens: geometry that reaches the viewpoint is clipped by
+    // the browser into a hard wedge, which is exactly what the old 1600 lens was
+    // doing across the whole final stretch. At 1700 the nearest corner of the
+    // nearest frame still has about 170 units of clearance.
+    perspective: 1700px;
     // The vanishing point sits on the hinge itself: the middle of the bottom
     // edge, which is the line her fingers are closed around.
     perspective-origin: 50% 100%;
@@ -2015,10 +2022,16 @@ div[id] {
     position: absolute;
     inset: 0;
     transform-origin: 50% 100%;
+    // Read right to left. The card is sized in its own space, then turned about
+    // the hinge, then carried toward the lens. Scaling last used to happen after
+    // the turn, which stretched an already-foreshortened shape along the screen
+    // axes instead of along the object's own; it is a small distortion but it is
+    // exactly the kind that makes a rotated plane read as a skewed picture.
     transform:
       translateZ(var(--lid-z, 0px))
-      scale(var(--lid-s, 1))
-      rotateX(var(--lid-open, 0deg));
+      rotateY(var(--lid-yaw, 0deg))
+      rotateX(var(--lid-open, 0deg))
+      scale(var(--lid-s, 1));
     transform-style: preserve-3d;
     will-change: transform;
   }
