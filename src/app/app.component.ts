@@ -928,14 +928,14 @@ export class AppComponent implements AfterViewInit, OnDestroy {
     // its own, because a perspective divide magnifies the near edge far more
     // than the far one, so the picture is never uniformly blown up.
     const OBJECT_SCALE = 1.25;
-    const OBJECT_Z = 950;
+    const OBJECT_Z = 1050;
     // The last of the approach, spent after the object is already at full size.
     // Card units, so it is scaled into the scene like everything else, and small
     // enough that the near edge stays well clear of the perspective plane.
     // The last of the travel. Kept so the near edge peaks around 490 scene units
     // against a 760 viewpoint: close enough that the object is plainly passing,
     // far enough from the vanishing plane that nothing inverts.
-    const PASS_Z = 330;
+    const PASS_Z = 230;
 
     // The four corners the lid occupies in the photograph, measured off it. The
     // card is placed by the projective map that takes its own box to these, so
@@ -1120,7 +1120,13 @@ export class AppComponent implements AfterViewInit, OnDestroy {
           // up as it arrives. That is the acceleration into the strongest
           // stretch, and it comes from the physics rather than from an easing
           // curve laid on top.
-          const near = Math.pow(track(p, 0.12, 0.90), 1.15);
+          // Linear in distance now, not shaped. The apparent motion accelerates
+          // on its own because 1/(1 - z/d) climbs faster the nearer the object
+          // gets, and the previous exponent was pushing travel into the last
+          // stretch on top of that: the object crept through the middle and then
+          // lunged over the final fifteen per cent. Even distance spreads the
+          // crest across 55 to 80, where it belongs.
+          const near = track(p, 0.12, 0.90);
           cardPlace.style.setProperty('--lid-s', (1 + (OBJECT_SCALE - 1) * near).toFixed(4));
 
           // And then it passes, by continuing to come at the lens rather than by
@@ -1133,7 +1139,10 @@ export class AppComponent implements AfterViewInit, OnDestroy {
           // Depth cannot do that. The near edge swings closer, the perspective
           // divide widens, and the object overruns the frame while never
           // stopping being the thing in front of the picture.
-          const pass = ease(track(p, 0.86, 1));
+          // Overlapped with the tail of the approach rather than starting after
+          // it, so the two blend into one continuous closing instead of handing
+          // over with a step.
+          const pass = ease(track(p, 0.80, 1));
           cardPlace.style.setProperty(
             '--lid-z',
             `${(OBJECT_Z * near + PASS_Z * pass).toFixed(1)}px`

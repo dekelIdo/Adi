@@ -96,7 +96,7 @@ const OUT_H = 1350;
 
             <label class="zoom">
               <span class="note">קירוב</span>
-              <input type="range" min="1" max="3" step="0.01" [value]="zoom" (input)="setZoom($event)" />
+              <input type="range" [min]="minZoom" max="3" step="0.01" [value]="zoom" (input)="setZoom($event)" />
             </label>
 
             <div class="row">
@@ -347,6 +347,8 @@ export class AdminComponent implements OnInit {
   private cropped: Blob | null = null;
 
   zoom = 1;
+  /** Smallest zoom that still shows the whole picture; set per image. */
+  minZoom = 1;
   private tx = 0;
   private ty = 0;
   private baseW = 0;
@@ -417,7 +419,7 @@ export class AdminComponent implements OnInit {
   backToCrop(): void {
     this.step = 'crop';
     this.cdr.markForCheck();
-    queueMicrotask(() => this.sizeImage());
+    requestAnimationFrame(() => this.sizeImage());
   }
 
   pick(event: Event): void {
@@ -449,7 +451,12 @@ export class AdminComponent implements OnInit {
         this.srcUrl = url;
         this.step = 'crop';
         this.cdr.markForCheck();
-        queueMicrotask(() => this.fitToFrame());
+        // A FRAME, not a microtask. markForCheck only schedules the pass, and
+        // microtasks drain before it runs, so this used to measure the crop
+        // frame before it existed: it fell back to a guessed 360px width, never
+        // sized the picture at all, and the export was computed against a frame
+        // that was not the one on screen.
+        requestAnimationFrame(() => this.fitToFrame());
       });
     probe.onerror = () =>
       this.zone.run(() => {
@@ -474,10 +481,26 @@ export class AdminComponent implements OnInit {
   private fitToFrame(): void {
     if (!this.source) return;
     const { w: fw, h: fh } = this.frame();
-    const cover = Math.max(fw / this.source.naturalWidth, fh / this.source.naturalHeight);
-    this.baseW = this.source.naturalWidth * cover;
-    this.baseH = this.source.naturalHeight * cover;
-    this.zoom = 1;
+    const nw = this.source.naturalWidth;
+    const nh = this.source.naturalHeight;
+
+    // Zoom 1 still means "fills the frame", because the export maths is written
+    // against that baseline. What changes is how far below 1 the admin may go.
+    const cover = Math.max(fw / nw, fh / nh);
+    const contain = Math.min(fw / nw, fh / nh);
+    this.baseW = nw * cover;
+    this.baseH = nh * cover;
+
+    // THE FLOOR IS THE PICTURE, NOT A CONSTANT. It used to be a hardcoded 1,
+    // which is cover: on a phone screenshot at roughly 0.46 against a 0.8 frame
+    // that meant barely half its height was reachable and there was no way to
+    // zoom out, so a whole message could not be fitted no matter what was done.
+    // The floor is now whatever it takes to see the entire image.
+    this.minZoom = contain / cover;
+
+    // And it opens there, showing the whole composition. The admin zooms in to
+    // tighten rather than fighting their way out of a forced close-up.
+    this.zoom = this.minZoom;
     this.tx = 0;
     this.ty = 0;
     this.sizeImage();
@@ -546,7 +569,7 @@ export class AdminComponent implements OnInit {
   }
 
   private clampZoom(z: number): number {
-    return z < 1 ? 1 : z > 3 ? 3 : z;
+    return z < this.minZoom ? this.minZoom : z > 3 ? 3 : z;
   }
 
   /** Keeps the picture covering the frame, so a crop can never include a gap. */
@@ -580,6 +603,11 @@ export class AdminComponent implements OnInit {
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
     ctx.imageSmoothingQuality = 'high';
+    // Zooming out far enough can leave the picture smaller than the frame in one
+    // axis. Those margins are painted white rather than left transparent, so a
+    // published testimonial is always a clean opaque card.
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(0, 0, OUT_W, OUT_H);
     ctx.drawImage(this.source, cx - sw / 2, cy - sh / 2, sw, sh, 0, 0, OUT_W, OUT_H);
 
     const blob = await new Promise<Blob | null>((r) => canvas.toBlob(r, 'image/webp', 0.9));
