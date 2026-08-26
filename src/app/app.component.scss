@@ -1952,7 +1952,17 @@ div[id] {
     width: 1200px;
     height: 784px;
     transform-origin: 0 0;
-    transform: var(--lid-place, none) translate3d(0, 784px, 0) rotateX(var(--lid-open, 0deg)) translate3d(0, -784px, 0);
+    // Read right to left, which is the order these apply in: the card is taken
+    // to its hinge, turned about it, grown from it, then moved toward the lens,
+    // and only then placed into the photograph. Every part of the object's
+    // motion is anchored at the hinge, which is why it appears to come out of
+    // her hands rather than to swell in place.
+    transform: var(--lid-place, none)
+      translate3d(0, 784px, 0)
+      translateZ(var(--lid-z, 0px))
+      scale(var(--lid-s, 1))
+      rotateX(var(--lid-open, 0deg))
+      translate3d(0, -784px, 0);
     transform-style: preserve-3d;
     will-change: transform;
   }
@@ -1973,6 +1983,18 @@ div[id] {
       width: 100%;
       height: 100%;
     }
+  }
+
+  // The lid texture was rectified through a quad drawn a hair outside the real
+  // lid, so it carries a sliver of backdrop along its top and right. At rest
+  // that is invisible; magnified three times it became a pale wedge travelling
+  // over her hair. Trimming it costs nothing at the start, because the identical
+  // lid in the photograph is still sitting directly underneath and fills the
+  // gap, and by the time the object has moved off that footprint the trimmed
+  // edge is the only honest one. The bottom is left alone: that edge is the
+  // hinge, and it has to stay exactly where it was measured.
+  .is-cinematic .laptop-face--lid img {
+    clip-path: inset(3% 3% 0 2%);
   }
 
   // The lid's lighting, not its geometry. Everything here is a response to the

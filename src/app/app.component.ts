@@ -902,7 +902,34 @@ export class AppComponent implements AfterViewInit, OnDestroy {
     // edges rather than stopping neatly inside them. The object passes the lens
     // instead of halting in front of it. Where the source cannot honestly carry
     // that, the resolution clamp below binds first and the push stops there.
-    const END_COVER = 1.90;
+    // What the plate itself does across the whole chapter. Deliberately small:
+    // it is a photograph being held still while something comes out of it.
+    const PLATE_PUSH = 1.18;
+
+    // What the laptop does, on its own, independently of the plate. This is the
+    // motion the viewer is meant to read, and it is roughly three times the
+    // plate's, which is what makes the object separate from the picture rather
+    // than ride along inside it.
+    //
+    // The scale grows the object from its hinge, and the depth is a genuine
+    // translation toward the lens: together with the rotation already anchored
+    // there, the near edge ends up about 1.4x forward of the far one, which is
+    // the parallax that says "in front of" rather than "larger than".
+    // 2.0, not 3.4.
+    //
+    // The larger figure was chosen to make a ratio look impressive and it was
+    // the wrong instinct: the lid holds 636px of real detail, so by the end it
+    // was being enlarged several times past anything the photograph recorded,
+    // and what the viewer actually saw was a wall of soft texture rather than an
+    // object that had come close. At 2.0, with the depth below doing the rest,
+    // the lid finishes a little wider than the frame — near enough to have
+    // passed the lens, still made of pixels that exist.
+    const OBJECT_SCALE = 2.0;
+    const OBJECT_Z = 260;
+    // The last of the approach, spent after the object is already at full size.
+    // Card units, so it is scaled into the scene like everything else, and small
+    // enough that the near edge stays well clear of the perspective plane.
+    const PASS_Z = 220;
 
     // The four corners the lid occupies in the photograph, measured off it. The
     // card is placed by the projective map that takes its own box to these, so
@@ -1013,9 +1040,13 @@ export class AppComponent implements AfterViewInit, OnDestroy {
         // its own angle along her forearm, and the camera comes in along that
         // composition rather than introducing a direction of its own.
         const start = fit(ESTABLISH, w / h);
-        const wanted = (END_COVER * start.cw) / (SUBJECT.x1 - SUBJECT.x0);
+        // THE PLATE BARELY MOVES. It used to close from 0.56 to 1.47 on a phone,
+        // which is the whole photograph zooming: Adi grew, the backdrop rushed
+        // forward, and the laptop only looked bigger because everything did. The
+        // object's approach now lives on the object, so this is reduced to the
+        // gentle drift that keeps the shot alive under it.
         const sharp = (start.cw * NATIVE_W) / w;
-        const end = clamp(Math.min(wanted, sharp), 1.15, 2.6);
+        const end = Math.min(PLATE_PUSH, sharp);
 
         let n = 0;
         for (let i = 1; i < RHYTHM.length; i++) {
@@ -1059,6 +1090,42 @@ export class AppComponent implements AfterViewInit, OnDestroy {
           const t = track(p, 0.20, 1);
           const turn = 0.45 * t + 0.55 * (t * t * (3 - 2 * t));
           const deg = LID_OPEN * turn;
+
+          // The approach. Weighted late on purpose: an object coming toward a
+          // lens covers ground slowly while it is far off and then arrives, so
+          // the first third is a separation you feel rather than see, and the
+          // last third is the object filling the frame. Anchored at the hinge by
+          // the transform chain, so it grows out of where it actually sits in
+          // the photograph instead of swelling about its own middle.
+          // The approach finishes at 0.88, not at 1.
+          //
+          // Running the growth all the way to the end meant the largest and
+          // therefore softest frame of the whole chapter was also the last one,
+          // and it simply stopped there. The object now reaches its full size
+          // while there is still scroll left, which is what gives the ending
+          // somewhere to go.
+          // Starting at 0.12 and rising sooner, so the object has visibly begun
+          // to separate from the photograph by a third of the way through
+          // rather than halfway. The exponent keeps the middle accelerating into
+          // the strongest stretch instead of arriving all at once.
+          const near = Math.pow(track(p, 0.12, 0.88), 1.25);
+          cardPlace.style.setProperty('--lid-s', (1 + (OBJECT_SCALE - 1) * near).toFixed(4));
+
+          // And then it passes, by continuing to come at the lens rather than by
+          // travelling across it.
+          //
+          // The first attempt slid the object up and out of frame, and that was
+          // plainly wrong the moment it rendered: sliding it away uncovers the
+          // laptop still sitting in the photograph underneath, so the chapter
+          // ended by revealing the very thing the object was standing in for.
+          // Depth cannot do that. The near edge swings closer, the perspective
+          // divide widens, and the object overruns the frame while never
+          // stopping being the thing in front of the picture.
+          const pass = ease(track(p, 0.86, 1));
+          cardPlace.style.setProperty(
+            '--lid-z',
+            `${(OBJECT_Z * near + PASS_Z * pass).toFixed(1)}px`
+          );
 
           // The same value drives how the lid is lit. As it comes round it
           // catches more of the key light that is already in the photograph and
