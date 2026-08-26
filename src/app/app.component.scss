@@ -1099,24 +1099,24 @@ div[id] {
   &:hover {
     border-color: color-mix(in srgb, var(--brand-accent) 62%, transparent);
   }
-  padding: clamp(22px, 4vh, 40px) 0;
+  padding: clamp(17px, 2.8vh, 28px) 0;
 
   p {
     font-family: var(--font-display);
-    font-size: clamp(1.35rem, 4.6vw, 2.05rem);
+    font-size: clamp(1.05rem, 3.2vw, 1.4rem);
     font-weight: 400;
-    line-height: 1.28;
-    letter-spacing: -0.018em;
+    line-height: 1.4;
+    letter-spacing: -0.012em;
     color: var(--text);
     text-wrap: balance;
-    max-width: 22ch;
+    max-width: 30ch;
   }
 }
 
-// The last line is the turn of the section, so it is allowed to be the loudest.
+// The last line is the turn of the section, so it carries a little more weight.
+// A little: it is one sentence, not a headline.
 .problem-item--final p {
-  font-size: clamp(1.55rem, 5.6vw, 2.5rem);
-  color: var(--text);
+  font-size: clamp(1.15rem, 3.6vw, 1.6rem);
 }
 
 .problem-num {
@@ -1933,8 +1933,14 @@ div[id] {
     top: 0;
     width: 1000px;
     height: 1497px;
-    perspective: 1500px;
-    perspective-origin: 17.8% 30.1%;
+    // A camera, not a number picked by eye. The lid measures about 270 units
+    // tall in this space, so a viewpoint at roughly 2.8x that reads like a real
+    // lens: present enough that the near edge grows as it turns, long enough
+    // that nothing shears. The vanishing point sits on the hinge itself, at the
+    // midpoint of the lid's bottom edge, which is what makes the turn read as a
+    // hinge rather than as a plane being skewed.
+    perspective: 760px;
+    perspective-origin: 21.5% 37%;
     transform-style: preserve-3d;
     pointer-events: none;
   }
@@ -1969,8 +1975,35 @@ div[id] {
     }
   }
 
+  // The lid's lighting, not its geometry. Everything here is a response to the
+  // turn the driver is already applying: no shape is invented, no surface is
+  // drawn that the photograph does not have.
   .is-cinematic .laptop-face--lid {
     opacity: var(--face-lid, 1);
+    position: relative;
+
+    // NOTHING may touch the whole card evenly. This lid is lying on an identical
+    // copy of itself in the photograph beneath, so any uniform tint — a filter
+    // on the image included — draws its own rectangle the moment the two stop
+    // coinciding. The first attempt at lighting did exactly that: a translucent
+    // card-shaped panel appeared over the picture.
+    //
+    // So the light is feathered to nothing before it reaches any edge. It lives
+    // in the middle of the panel, where there is no boundary to betray.
+    &::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      background:
+        // The crease at the join, which is what seats the lid on the deck.
+        linear-gradient(to bottom, transparent 60%, rgba(58, 38, 28, 0.30) 100%),
+        // The key light, falling from the upper right in this frame.
+        linear-gradient(225deg, rgba(255, 249, 243, 0.30) 0%, rgba(255, 249, 243, 0) 55%);
+      -webkit-mask-image: radial-gradient(ellipse 74% 78% at 52% 56%, #000 38%, transparent 88%);
+      mask-image: radial-gradient(ellipse 74% 78% at 52% 56%, #000 38%, transparent 88%);
+      opacity: var(--lid-t, 0);
+    }
   }
 
   // Swapped at the crossing, not faded: at ninety degrees the lid is edge on and
@@ -2872,20 +2905,17 @@ div[id] {
 
 .result-value {
   font-family: var(--font-display);
-  font-size: clamp(2.4rem, 7vw, 3.6rem);
+  font-size: clamp(1.6rem, 4.4vw, 2.1rem);
   font-weight: 400;
-  line-height: 0.98;
-  letter-spacing: -0.04em;
+  line-height: 1.05;
+  letter-spacing: -0.025em;
   color: var(--text);
 }
 
 .result-desc {
-  font-family: var(--font-body);
-  font-size: 0.72rem;
-  font-weight: 600;
-  letter-spacing: 0.16em;
-  color: var(--text-light);
-  margin-top: 6px;
+  font-size: var(--text-sm);
+  color: var(--text-muted);
+  margin-top: 4px;
 }
 
 // ─────── SERVICES SECTION ──────────────────────────────────────────────────────
@@ -4022,16 +4052,6 @@ div[id] {
 // places on the page where a photograph is the whole frame, which is what makes
 // them read as turns in a story rather than as more images.
 
-.chapter-label {
-  display: block;
-  font-family: var(--font-body);
-  font-size: 0.72rem;
-  font-weight: 600;
-  letter-spacing: 0.2em;
-  color: var(--text-light);
-  margin-bottom: clamp(10px, 1.6vh, 18px);
-}
-
 .chapter-plate {
   position: relative;
   display: block;
@@ -4074,41 +4094,6 @@ div[id] {
   transform: none;
 }
 
-.chapter-plate-type {
-  position: absolute;
-  z-index: 2;
-  inset-block-end: clamp(28px, 6vh, 76px);
-  inset-inline-start: var(--container-padding);
-  max-width: min(72vw, 620px);
-}
-
-.chapter-plate-type--end {
-  inset-inline-start: auto;
-  inset-inline-end: var(--container-padding);
-  text-align: end;
-}
-
-.chapter-plate-name {
-  font-family: var(--font-display);
-  font-size: clamp(3.4rem, 13vw, 8.5rem);
-  font-weight: 400;
-  line-height: 0.92;
-  letter-spacing: -0.045em;
-  margin: 0;
-  color: var(--text);
-}
-
-.chapter-plate-line {
-  font-family: var(--font-display);
-  font-size: clamp(1.9rem, 6.4vw, 3.6rem);
-  font-weight: 400;
-  line-height: 1.1;
-  letter-spacing: -0.03em;
-  margin: 0;
-  color: #fff;
-}
-
-// Studio white behind her: the type is ink and the label sits quiet beside it.
 .chapter-plate--identity {
   background: var(--bg);
 
@@ -4121,76 +4106,19 @@ div[id] {
   }
 }
 
-// A dark interior, so the type is white and the picture carries a soft floor to
-// keep the words legible without a slab of overlay across the photograph.
+// A dark interior. It carries no type at all: the testimonials heading sits
+// directly beneath it and was saying the same thing twice.
 .chapter-plate--warmth {
   background: #16120f;
 
   img {
     object-position: 52% 17%;
   }
-
-  .chapter-label {
-    color: rgba(255, 255, 255, 0.72);
-  }
-
-  &::after {
-    content: "";
-    position: absolute;
-    inset: 0;
-    z-index: 0;
-    background: linear-gradient(to top, rgba(12, 10, 8, 0.62) 0%, rgba(12, 10, 8, 0.18) 34%, transparent 62%);
-    pointer-events: none;
-  }
 }
 
 @media (max-width: 600px) {
   .chapter-plate {
     height: clamp(460px, 74vh, 640px);
-  }
-
-  .chapter-plate-type {
-    max-width: 84vw;
-    inset-block-end: clamp(20px, 3.6vh, 34px);
-  }
-
-  // A phone is too narrow for the name to find empty space beside her, so it
-  // stops competing for it: the type takes the full width at the foot of the
-  // frame and the picture is given a floor to sit the words on. The subject
-  // stays the hero and nothing lands on top of her legs by accident.
-  .chapter-plate--identity {
-    .chapter-plate-type {
-      inset-inline-start: 0;
-      inset-inline-end: 0;
-      max-width: none;
-      padding: 0 var(--container-padding);
-      text-align: start;
-    }
-
-    .chapter-plate-name {
-      font-size: clamp(2.6rem, 11.5vw, 3.6rem);
-      line-height: 0.95;
-    }
-
-    // She is framed a little higher and tighter so the lower third of the plate
-    // is backdrop rather than body.
-    img {
-      object-position: 56% 10%;
-    }
-
-    &::after {
-      content: "";
-      position: absolute;
-      inset: 0;
-      z-index: 0;
-      background: linear-gradient(
-        to top,
-        rgba(244, 241, 237, 0.94) 0%,
-        rgba(244, 241, 237, 0.72) 18%,
-        rgba(244, 241, 237, 0) 44%
-      );
-      pointer-events: none;
-    }
   }
 }
 

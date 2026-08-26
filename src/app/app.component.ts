@@ -922,11 +922,12 @@ export class AppComponent implements AfterViewInit, OnDestroy {
     // behind it as a second laptop; toward, perspective enlarges it and it keeps
     // covering the lid it was rectified out of.
     //
-    // 42 because that is where the photograph stops supporting it. Rendered at
-    // the real checkpoints: clean through 40, edge on and exposing the original
-    // lid by 73, and past 90 the far face arrives as a flat panel with nothing
-    // photographic behind it. This stops well inside the honest range.
-    const LID_OPEN = -42;
+    // 55, found by sweeping the real render rather than by argument. Clean at
+    // every width through the high fifties; at 62 a sliver of the plate's own
+    // lid starts to show at 1920, at 66 it is plain on a phone, and by 72 there
+    // are visibly two laptops. This sits inside that limit at every viewport
+    // with room to spare, and it is a third more turn than the previous 42.
+    const LID_OPEN = -55;
 
 
     const clamp = (v: number, a: number, b: number) => (v < a ? a : v > b ? b : v);
@@ -975,7 +976,20 @@ export class AppComponent implements AfterViewInit, OnDestroy {
         }
       }
       const g = rhs.map((v, i) => v / A[i][i]);
-      return `matrix3d(${g[0]},${g[3]},0,${g[6]},${g[1]},${g[4]},0,${g[7]},0,0,1,0,${g[2]},${g[5]},0,1)`;
+
+      // The depth axis has to be scaled like the other two.
+      //
+      // This map takes a 1200x784 box down to roughly a quarter of its size, and
+      // the z column was left at 1, so every millimetre the lid travelled toward
+      // the lens counted about four times more than the same millimetre across
+      // the picture. The perspective response was that far out, which is why the
+      // turn read as a bulge rather than as an object rotating. sz is the
+      // geometric mean of what the map does to x and to y, which is the honest
+      // uniform depth for a plane being placed by a projective transform.
+      const sx = Math.hypot(g[0], g[3]);
+      const sy = Math.hypot(g[1], g[4]);
+      const sz = Math.sqrt(sx * sy);
+      return `matrix3d(${g[0]},${g[3]},0,${g[6]},${g[1]},${g[4]},0,${g[7]},0,0,${sz},0,${g[2]},${g[5]},0,1)`;
     };
 
     if (cardPlace) cardPlace.style.setProperty('--lid-place', placeCard());
@@ -1029,9 +1043,25 @@ export class AppComponent implements AfterViewInit, OnDestroy {
         // subject, and runs to the very end, so the last stretch of the chapter
         // is the screen still coming round rather than a frozen frame.
         if (cardPlace) {
-          // Runs from the moment the approach has made the laptop the subject
-          // all the way to the end, so the last stretch is still turning.
-          const deg = LID_OPEN * ease(track(p, 0.34, 1));
+          // Linear, and starting earlier.
+          //
+          // A hinge under a steady hand turns at a steady rate, and that is what
+          // sells it as a hinge: any easing here reads as the object hesitating.
+          // Beginning at 0.22 rather than 0.30 puts a visible angle on the lid
+          // by a third of the way through instead of halfway, so the turn is
+          // established well before the close, and the sense of acceleration in
+          // the last stretch comes from the camera's own curve rather than from
+          // the rotation speeding up, which is what a real approach looks like.
+          const turn = track(p, 0.22, 1);
+          const deg = LID_OPEN * turn;
+
+          // The same value drives how the lid is lit. As it comes round it
+          // catches more of the key light that is already in the photograph and
+          // the crease at the hinge deepens, which is the cue that was missing:
+          // the surface was holding one flat tone through the whole turn, and a
+          // panel that never changes value as it rotates reads as a picture of
+          // a panel.
+          cardPlace.style.setProperty('--lid-t', turn.toFixed(4));
           cardPlace.style.setProperty('--lid-open', `${deg.toFixed(2)}deg`);
           cardPlace.style.setProperty('--face-lid', Math.abs(deg) < 90 ? '1' : '0');
           cardPlace.style.setProperty('--face-screen', Math.abs(deg) < 90 ? '0' : '1');
