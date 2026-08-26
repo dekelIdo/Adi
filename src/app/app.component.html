@@ -816,11 +816,13 @@
       <section id="social" class="section section-social" data-header-theme="dark">
         <div class="social-stage">
           @for (video of socialVideos; track video.id; let i = $index) {
+            <!-- No per-item classes. The rhythm lives in the grid, so a fourth
+                 and a twelfth reel land in it the same way the first three do.
+                 The only thing index decides is which of four entrance delays
+                 the card takes, which repeats for any number of items. -->
             <article
-              class="social-item reveal reveal-float"
-              [class.social-item--lead]="i === 0"
+              [class]="'social-item reveal reveal-float delay-' + (i % 3 + 1)"
               [attr.data-ratio]="video.aspectRatio"
-              [attr.data-drift]="i === 0 ? 0.4 : 0.7"
             >
               <div class="social-frame">
                 <video

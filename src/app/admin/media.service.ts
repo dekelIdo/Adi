@@ -40,6 +40,19 @@ export interface AdminConfig {
 const CONFIG_URL = 'assets/admin.config.json';
 const TOKEN_KEY = 'aa-admin-token';
 
+/**
+ * The only content types this project's media pipeline can carry end to end:
+ * the browser decodes them into an <img>, the cropper draws them to a canvas,
+ * and the canvas exports WebP. Video is deliberately absent - the gallery is an
+ * image gallery, and a reel dropped into it would have no path through any of
+ * those steps. Widening this list means widening the whole pipeline first.
+ */
+export const PUBLISHABLE_TYPES = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
+
+/** The established ceiling for a gallery picture, unchanged. */
+export const MAX_UPLOAD_BYTES = 12 * 1024 * 1024;
+export const MAX_UPLOAD_LABEL = '12MB';
+
 @Injectable({ providedIn: 'root' })
 export class MediaService {
   private config: AdminConfig | null = null;
@@ -161,6 +174,14 @@ export class MediaService {
     height: number,
     onProgress?: (fraction: number) => void
   ): Promise<Testimonial> {
+    // THE LAST GATE. The admin screen already refuses anything that is not a
+    // picture, but that check guards one path through one UI, and this method is
+    // the single place where bytes actually leave the browser. A file that
+    // reached here by any other route - a future screen, a bug, a rebuilt flow -
+    // still cannot become a gallery image. The bucket only ever holds pictures.
+    if (!PUBLISHABLE_TYPES.includes((file.type || '').toLowerCase())) throw new Error('TYPE');
+    if (!file.size || file.size > MAX_UPLOAD_BYTES) throw new Error('SIZE');
+
     const cfg = await this.loadConfig();
     if (!cfg) throw new Error('CONFIG');
     if (!this.token) throw new Error('AUTH');

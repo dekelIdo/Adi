@@ -3603,6 +3603,7 @@ div[id] {
   border-radius: var(--r-media);
   overflow: hidden;
   background: rgba(20, 18, 16, 0.9);
+  transform: translate3d(0, var(--lift, 0px), 0) scale(var(--settle, 1));
   transition: transform var(--motion-mid) var(--ease-expo);
 
   video {
@@ -3615,7 +3616,7 @@ div[id] {
   }
 
   &:hover {
-    transform: translateY(-3px);
+    --lift: -3px;
 
     video {
       transform: scale(1.03);
@@ -3697,55 +3698,122 @@ div[id] {
 }
 
 // Mobile: the lead clip runs nearly full width, the second sits inset and
-// slightly lower, so even stacked it reads as a composition and not a list.
-@media (max-width: 539px) {
-  // Lead runs large; the two supporting clips sit side by side beneath it and
-  // slightly inset, so three items still read as one composition rather than a
-  // stack of equal cards.
+// THE RHYTHM IS IN THE GRID, NOT IN THE ITEMS.
+//
+// An editorial wall, not a gallery of equal cards. The section runs on one
+// repeating musical figure - FEATURE, then a PAIR, then a BREATH before the next
+// feature - and that figure is written as a modular cycle rather than as
+// instructions for particular clips. Every rule below is an nth-child cycle, so
+// the third reel and the thirtieth are composed by the same six bars. Nothing
+// knows which video it is holding.
+//
+// The cycle also mirrors: the second pass through it is the first one reversed.
+// That is the difference between a language repeating and a pattern tiling. At
+// twelve items the eye reads a wave down the page, not four identical rows.
+
+// -- MOBILE --------------------------------------------------------------------
+// Two columns carry the pair; the feature spans both but is deliberately inset,
+// so it is roughly 1.5x its neighbours rather than the full-bleed monster the
+// old lead card was. The empty strip left beside it is the point: that column of
+// air is what separates one visual moment from the next, and it alternates edges
+// so the page snakes as you scroll instead of stepping.
+//
+// Scoped to the narrow viewport rather than left to be undone below, so the two
+// compositions are independent and neither has to reset the other's work.
+@media (max-width: 699.98px) {
   .social-stage {
     grid-template-columns: 1fr 1fr;
   }
 
-  .social-item--lead {
+  .social-item:nth-child(3n + 1) {
     grid-column: 1 / -1;
-    width: 88%;
+    max-width: 72%;
+    // BREATH. A feature always opens on air, except the one that opens the wall.
+    margin-block-start: clamp(30px, 9vw, 62px);
+  }
+
+  // The feature alternates which edge it holds, and its partner air with it.
+  .social-item:nth-child(6n + 4) {
     margin-inline-start: auto;
   }
 
-  .social-item:not(.social-item--lead) {
-    margin-top: clamp(-30px, -4vw, -14px);
+  // Inside a pair the second card sits a little lower, so even the tight beat
+  // has a baseline of its own and never reads as two thumbnails side by side.
+  .social-item:nth-child(3n) {
+    margin-block-start: clamp(18px, 5vw, 34px);
   }
 
-  .social-item:nth-child(2) {
-    margin-inline-start: 6%;
+  // A trailing card with no partner takes the feature slot instead of leaving a
+  // hole. This is why no item count produces an orphan or an unexplained gap.
+  .social-item:last-child:nth-child(3n + 2) {
+    grid-column: 1 / -1;
+    max-width: 72%;
   }
 }
 
-// Desktop: dominant clip plus a smaller one dropped below its own baseline.
-@media (min-width: 540px) {
-  // One dominant clip with the two others stacked beside it at half height, each
-  // dropped a little below the last so the group is a composition, not a row.
-  // From 540: below that the stacked version simply grew with the viewport,
-  // because three 9:16 clips get taller as they get wider.
+.social-item:first-child {
+  margin-block-start: 0;
+}
+
+// -- DESKTOP -------------------------------------------------------------------
+@media (min-width: 700px) {
+  // Twelve columns, and the cycle spends them 5 + 4 + 3. Each row is therefore
+  // complete by construction - there is no reflow to guess at - and the widest
+  // card is 1.7x the narrowest, which is hierarchy rather than a giant beside
+  // thumbnails. The next row spends them 3 + 4 + 5: the same bar, mirrored.
   .social-stage {
-    grid-template-columns: 1.45fr 1fr;
-    grid-template-rows: auto auto;
-    gap: clamp(18px, 2.4vw, 36px);
+    grid-template-columns: repeat(12, 1fr);
+    gap: clamp(18px, 2.4vw, 36px) clamp(16px, 2vw, 30px);
     padding: 0 var(--container-padding);
-    align-items: start;
+    // The composition lives inside the site's measure and is allowed to stop
+    // short of the full width. A curated wall, not a stretched dashboard.
+    max-width: min(var(--container-max), 1120px);
   }
 
-  .social-item--lead {
-    grid-row: 1 / span 2;
-  }
+  .social-item:nth-child(6n + 1) { grid-column: span 5; }
+  .social-item:nth-child(6n + 2) { grid-column: span 4; }
+  .social-item:nth-child(6n + 3) { grid-column: span 3; }
+  .social-item:nth-child(6n + 4) { grid-column: span 3; }
+  .social-item:nth-child(6n + 5) { grid-column: span 4; }
+  .social-item:nth-child(6n + 6) { grid-column: span 5; }
 
-  .social-item:not(.social-item--lead) {
-    transform: translateY(clamp(14px, 2.4vw, 38px));
-  }
+  // Baselines follow the same mirrored figure, so each row falls and the next
+  // one rises. The wall interlocks without any card being randomly nudged.
+  .social-item:nth-child(6n + 1) { margin-block-start: 0; }
+  .social-item:nth-child(6n + 2) { margin-block-start: clamp(30px, 3.6vw, 58px); }
+  .social-item:nth-child(6n + 3) { margin-block-start: clamp(58px, 7vw, 112px); }
+  .social-item:nth-child(6n + 4) { margin-block-start: clamp(58px, 7vw, 112px); }
+  .social-item:nth-child(6n + 5) { margin-block-start: clamp(30px, 3.6vw, 58px); }
+  .social-item:nth-child(6n + 6) { margin-block-start: 0; }
 
-  .social-item:nth-child(3) {
-    transform: translateY(clamp(28px, 4.4vw, 68px));
+}
+
+// A reel settles into place rather than arriving: the frame comes to rest out of
+// a two percent push over a long, quiet curve. It is the same settle the page's
+// photographs already use, and it is the only motion added here.
+.social-item .social-frame {
+  transition: transform 1200ms var(--ease-expo);
+}
+
+.social-item.reveal .social-frame {
+  --settle: 1.02;
+}
+
+.social-item.reveal.is-visible .social-frame {
+  --settle: 1;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .social-item.reveal .social-frame {
+    --settle: 1;
+    transition: none;
   }
+}
+
+// The wall ends on a settled line rather than wherever the deepest column happens
+// to stop, so the section carries the cycle's largest offset as padding.
+.section-social {
+  padding-bottom: clamp(70px, 10vw, 132px);
 }
 
 // ─────── CONTACT SECTION ───────────────────────────────────────────────────────
