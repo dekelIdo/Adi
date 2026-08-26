@@ -257,7 +257,7 @@ const OUT_H = 1350;
         /* An airy wash at the head of the page falling into warm neutral: the
          * public site two atmospheres, in the order it uses them. */
         background: radial-gradient(128% 62% at 50% 0%, #eef4fa 0%, #f8f5f1 56%, #f6f2ee 100%);
-        background-attachment: fixed;
+        background-repeat: no-repeat;
         color: var(--ink);
         font-family: "Assistant", Arial, Helvetica, sans-serif;
         -webkit-font-smoothing: antialiased;
