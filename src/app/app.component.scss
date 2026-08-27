@@ -4418,6 +4418,54 @@ div[id] {
 //
 // Rhythm, not uniformity: the sequence is deliberately uneven.
 
+// THE SAME RHYTHM, ON DESKTOP.
+//
+// The three tiers below existed only under 1024px. Above it there was no system
+// at all: `.section` set one small default and every other value came from
+// whatever rule a given section happened to carry, so structurally equivalent
+// chapters landed at 22, 29, 40 and 45 with nothing connecting them. Measured
+// at 1440 the page fell into two unrelated clusters - problem, insight,
+// solution, about and why against portfolio, results, services, honesty,
+// testimonials and faq - at roughly double the padding for no design reason.
+// That is the accidental asymmetry; the tiers are the deliberate one.
+//
+// The same groups get the same tiers they already have on a phone, at desktop
+// scale. Nothing is equalised: the sequence stays uneven on purpose, and the
+// dark chapter still opens wide and closes tight.
+@media (min-width: 1025px) {
+  :host {
+    --sec-tight: clamp(26px, 3vh, 34px);
+    --sec-base: clamp(38px, 4.4vh, 50px);
+    --sec-open: clamp(52px, 6vh, 68px);
+  }
+
+  .section-problem,
+  .section-bg-tint,
+  .section-bg-blue,
+  .section-process,
+  .section-services-editorial,
+  .section-why-merged,
+  .section-faq {
+    padding-block: var(--sec-base);
+  }
+
+  .section-bg-gradient,
+  .section-portfolio,
+  .section-shoot,
+  .section-contact {
+    padding-block: var(--sec-open);
+  }
+
+  .brand-marquee-section,
+  .section-honesty {
+    padding-block: var(--sec-tight);
+  }
+
+  .section-social {
+    padding-block: var(--sec-open) var(--sec-tight);
+  }
+}
+
 @media (max-width: 1024px) {
   :host {
     --sec-tight: clamp(18px, 2.8vh, 24px);

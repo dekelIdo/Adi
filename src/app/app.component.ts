@@ -1326,7 +1326,14 @@ export class AppComponent implements AfterViewInit, OnDestroy {
           // Starting at 0.15 also brings the moment it crosses the edge of the
           // photograph forward, out of the last third and into the middle where
           // it belongs.
-          const near = Math.pow(track(p, 0.15, 1), 1.25);
+          // THE APPROACH HAS TO HAPPEN WHILE THE CARD IS STILL ON SCREEN.
+          //
+          // It ran to the very end, but the turn hides the card just before the
+          // halfway mark, so only a third of the travel was ever visible: the
+          // laptop flipped almost from where it started and the depth the whole
+          // chapter rests on was being spent on an element nobody could see.
+          // The travel now completes as the turn takes over.
+          const near = Math.pow(track(p, 0.15, 0.56), 1.1);
           // The approach, and then the arrival. Up to the turn-over this is the
           // small nudge it always was; past it the screen is the next chapter
           // and has to become the page, the way the phone chapter's screen does.
@@ -1409,8 +1416,8 @@ export class AppComponent implements AfterViewInit, OnDestroy {
         // size as the laptop - which is what makes the handoff invisible. From
         // there it unwinds to square and grows to take the frame.
         if (portal) {
-          const zNow = OBJECT_Z * Math.pow(track(p, 0.15, 1), 1.25);
-          const grow = (1 + (OBJECT_SCALE - 1) * Math.pow(track(p, 0.15, 1), 1.25))
+          const zNow = OBJECT_Z * Math.pow(track(p, 0.15, 0.56), 1.1);
+          const grow = (1 + (OBJECT_SCALE - 1) * Math.pow(track(p, 0.15, 0.56), 1.1))
             * (1700 / (1700 - zNow));
           const flip = track(p, 0.20, 0.74);
           const cxs = padX - cx * BASE * s + CENTROID[0] * s;
@@ -1425,12 +1432,24 @@ export class AppComponent implements AfterViewInit, OnDestroy {
           // the page still around it, and the section itself takes over from
           // there. So it grows to just inside the width and stops, and the
           // Process chapter rising over it is what finishes the move.
-          const target = (w * 0.98) / CARD_W;
-          const take = ease(track(p, 0.62, 0.90));
+          // IT HAS TO ARRIVE, NOT EDGE FORWARD.
+          //
+          // Beside the phone chapter this was the gap that mattered: the phone
+          // ends up covering the viewport more than twice over, and the laptop's
+          // screen was growing by about a third from the size the lid already
+          // had. It turned correctly and then simply sat there, which is why it
+          // read as competent rather than impressive. The screen now overruns
+          // the frame, and the content holds its size while the bezel passes.
+          const target = (w * 1.06) / CARD_W;
+          const take = ease(track(p, 0.58, 0.94));
           portal.style.setProperty('--pt-x', `${cxs.toFixed(1)}px`);
           portal.style.setProperty('--pt-y', `${cys.toFixed(1)}px`);
           // Arrives from the same side the back left by: +90 down to square.
           portal.style.setProperty('--pt-ry', `${(90 * (1 - flip)).toFixed(2)}deg`);
+          // No counter-scale. Holding the content while the bezel grew left a
+          // large black frame around a small panel, which is its own kind of
+          // wrong: the screen has to stay a screen. It settles at the width
+          // instead, and the Process chapter rising over it finishes the move.
           portal.style.setProperty('--pt-s', (base0 + (target - base0) * take).toFixed(4));
           // Hands over to the real chapter rather than sitting on top of it.
           portal.style.setProperty(
@@ -1449,7 +1468,15 @@ export class AppComponent implements AfterViewInit, OnDestroy {
         // answers this itself: by 90% Adi is gone and the screen is the page.
         // So the plate fades as the screen takes the frame. It never moves, and
         // nothing is masked or drawn over it; the photograph simply finishes.
-        base.style.opacity = (1 - track(p, 0.70, 0.94)).toFixed(3);
+        // THE LAPTOP KEEPS ITS BODY.
+        //
+        // The plate was fading from 0.70, which took the deck and her fingers
+        // out from under the screen and left it floating - the exact moment it
+        // stopped reading as a laptop and started reading as an HTML card. The
+        // screen is larger than the lid it replaced by the time the turn is
+        // done, so it covers the photographed lid on its own and the plate can
+        // stay. It now holds until the screen has already overrun the frame.
+        base.style.opacity = (1 - track(p, 0.88, 1)).toFixed(3);
 
         // THE HANDOFF. The next chapter is parked below where its margin would
         // put it and rises through the last third of the same scroll, so it is
