@@ -1422,7 +1422,19 @@ export class AppComponent implements AfterViewInit, OnDestroy {
           // of its back and turning away from her gaze. Negative advances the
           // right edge. Negative is the screen coming round.
           const flip = track(p, 0.60, 0.84);
-          cardPlace.style.setProperty('--lid-yaw', `${(-90 * flip).toFixed(2)}deg`);
+          // THE SWAP HAS TO HAPPEN EDGE ON, AND IT WAS NOT.
+          //
+          // The card turned to -90 across the WHOLE window while the handover
+          // fired at the halfway mark - so at the moment it gave up the frame it
+          // was only at -45 degrees and still 474px wide, and the screen took
+          // over at 347. That mismatch is the jump. Each element now owns half
+          // the window: the back reaches -90 exactly as the swap fires, and the
+          // screen starts from +90 at the same instant. Both are edge on there,
+          // both have no width, and there is nothing to see change.
+          cardPlace.style.setProperty(
+            '--lid-yaw',
+            `${(-90 * Math.min(1, flip * 2)).toFixed(2)}deg`
+          );
           cardPlace.style.setProperty('--lid-po', '100%');
           if (card) card.style.opacity = flip < 0.5 ? '1' : '0';
           // The unwind leads the turn slightly, so the plate's perspective is
@@ -1441,10 +1453,10 @@ export class AppComponent implements AfterViewInit, OnDestroy {
         // size as the laptop - which is what makes the handoff invisible. From
         // there it unwinds to square and grows to take the frame.
         if (portal) {
+          const flip = track(p, 0.60, 0.84);
           const nearNow = Math.pow(track(p, 0.18, 0.66), 1.05);
           const zNow = OBJECT_Z * nearNow * (1 - 0.5 * flip);
           const grow = (1 + (OBJECT_SCALE - 1) * nearNow) * (2000 / (2000 - zNow));
-          const flip = track(p, 0.60, 0.84);
           const cxs = padX - cx * BASE * s + CENTROID[0] * s;
           const cys = padY - cy * BASE * IMG_R * s + CENTROID[1] * s;
           const base0 = (RECT_W * s * grow) / CARD_W;
@@ -1470,7 +1482,10 @@ export class AppComponent implements AfterViewInit, OnDestroy {
           portal.style.setProperty('--pt-x', `${cxs.toFixed(1)}px`);
           portal.style.setProperty('--pt-y', `${cys.toFixed(1)}px`);
           // Arrives from the same side the back left by: +90 down to square.
-          portal.style.setProperty('--pt-ry', `${(90 * (1 - flip)).toFixed(2)}deg`);
+          portal.style.setProperty(
+            '--pt-ry',
+            `${(90 * (1 - clamp01((flip - 0.5) * 2))).toFixed(2)}deg`
+          );
           // No counter-scale. Holding the content while the bezel grew left a
           // large black frame around a small panel, which is its own kind of
           // wrong: the screen has to stay a screen. It settles at the width
