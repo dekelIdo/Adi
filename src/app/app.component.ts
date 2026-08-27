@@ -1017,7 +1017,7 @@ export class AppComponent implements AfterViewInit, OnDestroy {
     // one. Turning past 90 hands the frame from the photographed lid to that
     // screen, which is the design's own storyboard: the laptop comes round, the
     // screen faces the viewer, and the chapter it opens onto is on it.
-    const LID_OPEN = 188;
+    const LID_OPEN = 180;
     // The lid's own tip, kept small: the photograph is already an open laptop.
     const LID_TIP = -14;
 
@@ -1042,8 +1042,51 @@ export class AppComponent implements AfterViewInit, OnDestroy {
     // Solves the projective map from the card's own box onto the lid's corners.
     // Eight unknowns, eight equations, solved once: this is placement, not
     // motion, so it never runs during a scroll.
-    const placeCard = () => {
-      const dst = LID.map(([x, y]) => [x * BASE, y * BASE * IMG_R]);
+    // THE SCREEN MUST STOP INHERITING THE PHOTOGRAPH'S PERSPECTIVE.
+    //
+    // The card is placed by a projective map onto the four corners the lid
+    // occupies in the photograph, and that quad is a steep trapezoid because the
+    // picture is taken from behind and to one side. At rest that is exactly
+    // right: it is what makes the object indistinguishable from the lid. But the
+    // map is applied to whatever the card is showing, so when the card turned
+    // round the SCREEN was drawn through the same trapezoid - a display raked
+    // hard away from the viewer with its text running on a diagonal. No amount
+    // of rotation fixes that, because the deformation is downstream of it.
+    //
+    // So the destination quad is no longer fixed. It starts as the lid's corners
+    // and is carried, corner by corner, onto a screen-aligned rectangle as the
+    // object turns. The photograph's perspective unwinds at exactly the rate the
+    // object stops being part of the photograph, so there is no moment where it
+    // pops: at 0 it is the lid in the picture, at 1 it is a rectangular display
+    // facing the camera, and in between it is continuously both.
+    //
+    // The rectangle carries the card's own 1200x784 proportion and sits on the
+    // lid's centroid, so the object turns about where it actually is rather than
+    // sliding to a new place on the way.
+    const LID_SCENE = LID.map(([x, y]) => [x * BASE, y * BASE * IMG_R]);
+    const CENTROID = LID_SCENE.reduce((a, c) => [a[0] + c[0] / 4, a[1] + c[1] / 4], [0, 0]);
+    const QUAD_AREA = Math.abs(
+      (LID_SCENE[0][0] * LID_SCENE[1][1] - LID_SCENE[1][0] * LID_SCENE[0][1]) +
+      (LID_SCENE[1][0] * LID_SCENE[2][1] - LID_SCENE[2][0] * LID_SCENE[1][1]) +
+      (LID_SCENE[2][0] * LID_SCENE[3][1] - LID_SCENE[3][0] * LID_SCENE[2][1]) +
+      (LID_SCENE[3][0] * LID_SCENE[0][1] - LID_SCENE[0][0] * LID_SCENE[3][1])
+    ) / 2;
+    // Same area as the quad it grows out of, so the unwind changes the shape
+    // without changing how much of the frame the object occupies.
+    const RECT_W = Math.sqrt(QUAD_AREA * (CARD_W / CARD_H));
+    const RECT_H = RECT_W * (CARD_H / CARD_W);
+    const RECT = [
+      [CENTROID[0] - RECT_W / 2, CENTROID[1] - RECT_H / 2],
+      [CENTROID[0] + RECT_W / 2, CENTROID[1] - RECT_H / 2],
+      [CENTROID[0] + RECT_W / 2, CENTROID[1] + RECT_H / 2],
+      [CENTROID[0] - RECT_W / 2, CENTROID[1] + RECT_H / 2]
+    ];
+
+    const placeCard = (unwind: number) => {
+      const dst = LID_SCENE.map(([x, y], i) => [
+        x + (RECT[i][0] - x) * unwind,
+        y + (RECT[i][1] - y) * unwind
+      ]);
       const src = [[0, 0], [CARD_W, 0], [CARD_W, CARD_H], [0, CARD_H]];
       const A: number[][] = [];
       const rhs: number[] = [];
@@ -1078,7 +1121,10 @@ export class AppComponent implements AfterViewInit, OnDestroy {
       return `matrix3d(${g[0]},${g[3]},0,${g[6]},${g[1]},${g[4]},0,${g[7]},0,0,1,0,${g[2]},${g[5]},0,1)`;
     };
 
-    if (cardPlace) cardPlace.style.setProperty('--lid-place', placeCard());
+    // Solved every frame now rather than once. It is an eight by eight
+    // elimination - a few hundred operations - and it is the only thing that can
+    // keep the placement honest while the object is turning out of the picture.
+
 
     this.zone.runOutsideAngular(() => {
       let ticking = false;
@@ -1321,6 +1367,10 @@ export class AppComponent implements AfterViewInit, OnDestroy {
           // turn now carries the card through its own edge onto the other face,
           // which does that on its own and does it honestly.
           cardPlace.style.setProperty('--lid-yaw', `${spin.toFixed(2)}deg`);
+          cardPlace.style.setProperty('--lid-po', `${(100 - 50 * ease(track(p, 0.30, 0.80))).toFixed(1)}%`);
+          // The unwind leads the turn slightly, so the plate's perspective is
+          // already coming out of the card by the time the screen arrives.
+          cardPlace.style.setProperty('--lid-place', placeCard(ease(track(p, 0.18, 0.72))));
 
           cardPlace.style.setProperty('--lid-t', turn.toFixed(4));
           cardPlace.style.setProperty('--lid-open', `${deg.toFixed(2)}deg`);

@@ -2008,7 +2008,11 @@ div[id] {
     perspective: 1700px;
     // The vanishing point sits on the hinge itself: the middle of the bottom
     // edge, which is the line her fingers are closed around.
-    perspective-origin: 50% 100%;
+    // The viewpoint starts on the hinge, which is right while the object is a
+    // lid turning on it, and rises to the middle of the card as the screen comes
+    // round - a display is looked at head on, not from below its own bottom
+    // edge. Watching from the hinge was raking the finished screen hard back.
+    perspective-origin: 50% var(--lid-po, 100%);
     transform-style: flat;
     will-change: transform;
   }
