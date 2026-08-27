@@ -967,7 +967,7 @@ export class AppComponent implements AfterViewInit, OnDestroy {
     // dimension: the near edge sweeps out over the frame while the far edge
     // stays put, which is what a plane tipping toward a lens actually does and
     // what no amount of scaling can imitate.
-    const OBJECT_SCALE = 1.55;
+    const OBJECT_SCALE = 1.62;
     const OBJECT_Z = 780;
     // The last of the approach, spent after the object is already at full size.
     // Card units, so it is scaled into the scene like everything else, and small
@@ -1333,7 +1333,17 @@ export class AppComponent implements AfterViewInit, OnDestroy {
           // laptop flipped almost from where it started and the depth the whole
           // chapter rests on was being spent on an element nobody could see.
           // The travel now completes as the turn takes over.
-          const near = Math.pow(track(p, 0.15, 0.56), 1.1);
+          // THE STORYBOARD SPENDS MORE THAN HALF THE CHAPTER APPROACHING.
+          //
+          // Its own captions: 20% "beginning of depth and forward movement",
+          // 40% "the laptop advances toward the viewer", and only at 60% "the
+          // screen begins to flip". The back of the machine stays toward us and
+          // GROWS for the whole first stretch, and that stretch is where the
+          // object stops being a photograph and becomes a thing in the room.
+          // The turn used to start at 0.20 and the screen was round by 0.47, so
+          // that approach never happened - the laptop flipped almost from where
+          // it started. It now runs to 0.66 and hands straight into the turn.
+          const near = Math.pow(track(p, 0.18, 0.66), 1.05);
           // The approach, and then the arrival. Up to the turn-over this is the
           // small nudge it always was; past it the screen is the next chapter
           // and has to become the page, the way the phone chapter's screen does.
@@ -1363,7 +1373,22 @@ export class AppComponent implements AfterViewInit, OnDestroy {
           // over with a step.
           // One continuous approach. The pass is no longer a separate term added
           // at the end: it is the same travel, still going.
-          cardPlace.style.setProperty('--lid-z', `${(OBJECT_Z * near).toFixed(1)}px`);
+          // THE APPROACH EASES OFF AS THE TURN BEGINS.
+          //
+          // Measured through the handoff, the card was running away: 877px wide
+          // at 0.66, 2441 at 0.72, 7907 at 0.74, with its centre thrown right
+          // off the frame. The yaw carries the card's leading edge toward the
+          // lens on top of the depth it has already travelled, and the two
+          // together were taking it to the viewpoint, where the projection goes
+          // singular. That runaway either side of the swap is the scale jump.
+          //
+          // Physically the object comes forward and THEN turns; it does not keep
+          // closing on the lens while it rotates. So the depth is drawn back as
+          // the turn runs, which keeps the geometry clear of the viewpoint and
+          // lets the card and the screen meet at the same size.
+          const flipNow = track(p, 0.60, 0.84);
+          const zNear = OBJECT_Z * near * (1 - 0.5 * flipNow);
+          cardPlace.style.setProperty('--lid-z', `${zNear.toFixed(1)}px`);
 
           // The same value drives how the lid is lit. As it comes round it
           // catches more of the key light that is already in the photograph and
@@ -1396,7 +1421,7 @@ export class AppComponent implements AfterViewInit, OnDestroy {
           // turn this had, and it is why it read as the laptop showing us more
           // of its back and turning away from her gaze. Negative advances the
           // right edge. Negative is the screen coming round.
-          const flip = track(p, 0.20, 0.74);
+          const flip = track(p, 0.60, 0.84);
           cardPlace.style.setProperty('--lid-yaw', `${(-90 * flip).toFixed(2)}deg`);
           cardPlace.style.setProperty('--lid-po', '100%');
           if (card) card.style.opacity = flip < 0.5 ? '1' : '0';
@@ -1416,10 +1441,10 @@ export class AppComponent implements AfterViewInit, OnDestroy {
         // size as the laptop - which is what makes the handoff invisible. From
         // there it unwinds to square and grows to take the frame.
         if (portal) {
-          const zNow = OBJECT_Z * Math.pow(track(p, 0.15, 0.56), 1.1);
-          const grow = (1 + (OBJECT_SCALE - 1) * Math.pow(track(p, 0.15, 0.56), 1.1))
-            * (1700 / (1700 - zNow));
-          const flip = track(p, 0.20, 0.74);
+          const nearNow = Math.pow(track(p, 0.18, 0.66), 1.05);
+          const zNow = OBJECT_Z * nearNow * (1 - 0.5 * flip);
+          const grow = (1 + (OBJECT_SCALE - 1) * nearNow) * (2000 / (2000 - zNow));
+          const flip = track(p, 0.60, 0.84);
           const cxs = padX - cx * BASE * s + CENTROID[0] * s;
           const cys = padY - cy * BASE * IMG_R * s + CENTROID[1] * s;
           const base0 = (RECT_W * s * grow) / CARD_W;
@@ -1441,7 +1466,7 @@ export class AppComponent implements AfterViewInit, OnDestroy {
           // read as competent rather than impressive. The screen now overruns
           // the frame, and the content holds its size while the bezel passes.
           const target = (w * 1.06) / CARD_W;
-          const take = ease(track(p, 0.58, 0.94));
+          const take = ease(track(p, 0.74, 0.97));
           portal.style.setProperty('--pt-x', `${cxs.toFixed(1)}px`);
           portal.style.setProperty('--pt-y', `${cys.toFixed(1)}px`);
           // Arrives from the same side the back left by: +90 down to square.
@@ -1454,7 +1479,7 @@ export class AppComponent implements AfterViewInit, OnDestroy {
           // Hands over to the real chapter rather than sitting on top of it.
           portal.style.setProperty(
             '--pt-o',
-            flip < 0.5 ? '0' : (1 - track(p, 0.93, 1)).toFixed(3)
+            flip < 0.5 ? '0' : (1 - track(p, 0.96, 1)).toFixed(3)
           );
         }
 
