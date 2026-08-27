@@ -2036,7 +2036,12 @@ div[id] {
     will-change: transform;
   }
 
+  // The card is now genuinely two-sided, so each face has to stop painting once
+  // it has turned away. Without this the photographed lid stays visible through
+  // the screen for the whole second half.
   .is-cinematic .laptop-face {
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
     position: absolute;
     inset: 0;
     overflow: hidden;
@@ -2097,7 +2102,9 @@ div[id] {
   // not mirrored.
   .is-cinematic .laptop-face--screen {
     opacity: var(--face-screen, 0);
-    transform: rotateX(180deg);
+    // Pre-turned about the same axis the card turns on, so it reads upright once
+    // the laptop has come round.
+    transform: rotateY(180deg);
     background: #100e0d;
     padding: 4.5%;
     box-shadow: inset 0 0 0 10px #1c1614;
@@ -2173,6 +2180,13 @@ div[id] {
     transform-origin: 0 0;
     transform: translate3d(var(--cam-x, 0px), var(--cam-y, 0px), 0) scale(var(--cam-s, 1));
     will-change: transform;
+  }
+
+  // The photograph's own edge. Driven from the camera window, so the frame is
+  // whatever the shot is actually looking at and never a second composition
+  // laid on top of the first.
+  .is-cinematic .bridge-frame--a {
+    clip-path: var(--plate-clip, none);
   }
 
   // The plate, laid out in the scene's own space: BASE wide, natural height.

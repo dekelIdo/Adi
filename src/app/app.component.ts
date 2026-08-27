@@ -1005,7 +1005,21 @@ export class AppComponent implements AfterViewInit, OnDestroy {
     // lid starts to show at 1920, at 66 it is plain on a phone, and by 72 there
     // are visibly two laptops. This sits inside that limit at every viewport
     // with room to spare, and it is a third more turn than the previous 42.
-    const LID_OPEN = -55;
+    // THE LID TURNS UNTIL THE SCREEN IS FACING US.
+    //
+    // The photograph is taken from behind the laptop: what it shows is the back
+    // of the lid, and no amount of tipping that panel toward the lens will ever
+    // show its other side. Stopping the turn at 55 degrees meant the chapter
+    // spent itself revealing more and more of the BACK of a laptop, which is why
+    // the rotation kept reading as the wrong direction - it was.
+    //
+    // The card has always had two faces and a screen already built on the far
+    // one. Turning past 90 hands the frame from the photographed lid to that
+    // screen, which is the design's own storyboard: the laptop comes round, the
+    // screen faces the viewer, and the chapter it opens onto is on it.
+    const LID_OPEN = 188;
+    // The lid's own tip, kept small: the photograph is already an open laptop.
+    const LID_TIP = -14;
 
 
     const clamp = (v: number, a: number, b: number) => (v < a ? a : v > b ? b : v);
@@ -1103,9 +1117,9 @@ export class AppComponent implements AfterViewInit, OnDestroy {
         const z = Math.pow(end, n);
 
         const cw = start.cw / z;
-        const ch = start.ch / z;
+        let ch = start.ch / z;
         const cx = clamp(ANCHOR.x - HOLD.x * cw, 0, 1 - cw);
-        const cy = clamp(ANCHOR.y - HOLD.y * ch, 0, 1 - ch);
+        let cy = clamp(ANCHOR.y - HOLD.y * ch, 0, 1 - ch);
 
         // THE PHOTOGRAPH IS A PHOTOGRAPH, NOT THE SCREEN.
         //
@@ -1127,13 +1141,58 @@ export class AppComponent implements AfterViewInit, OnDestroy {
         // BAND of the height binds first, centred in the frame. The picture is
         // as static as it ever was - this is where it sits, not something it
         // does - and now there is somewhere for the object to go.
+        // Full width, letterboxed. This is the reference's composition exactly:
+        // the picture runs edge to edge and the empty space is a bar above and
+        // below it, which reads as a frame in the page rather than as a picture
+        // floating in the middle of one. Fitting it inside the height instead
+        // left a narrow portrait with air on all four sides - correct in
+        // principle, timid on screen, and it made Adi small.
+        //
+        // So the scale is taken from the width as it always was, and the band is
+        // made by showing less of the picture's HEIGHT, which crops from her
+        // legs upward and keeps her face, the laptop and both hands.
         const BAND = 0.72;
-        const s = Math.min(w / (cw * BASE), (h * BAND) / (ch * BASE * IMG_R));
+        // The band may crop her legs. It may not crop her hands. The lid sits
+        // between 0.158 and 0.388 of the picture's height and her fingers are
+        // just under it, so this is the least of the frame the shot can show and
+        // still be a photograph of someone holding a laptop. On a wide screen
+        // the full picture width scaled the plate so large that the band came
+        // out at a third of the height and cut the hands off entirely, which
+        // took the hinge - the one relationship the whole chapter rests on - out
+        // of the frame before the animation had started.
+        const CH_MIN = 0.44;
+        // Full width where that fits inside the band, and pulled back to fit
+        // where it does not. Phones get an edge to edge letterbox; wide screens
+        // get the same band with air at the sides, which is a frame either way.
+        const s = Math.min(w / (cw * BASE), (h * BAND) / (CH_MIN * BASE * IMG_R));
+        ch = Math.max(CH_MIN, Math.min(ch, (h * BAND) / (BASE * IMG_R * s)));
+        cy = clamp(ANCHOR.y - HOLD.y * ch, 0, 1 - ch);
         const padX = (w - cw * BASE * s) / 2;
         const padY = (h - ch * BASE * IMG_R * s) / 2;
         scene.style.setProperty('--cam-s', s.toFixed(5));
         scene.style.setProperty('--cam-x', `${(padX - cx * BASE * s).toFixed(1)}px`);
         scene.style.setProperty('--cam-y', `${(padY - cy * BASE * IMG_R * s).toFixed(1)}px`);
+
+        // THE FRAME IS THE WINDOW, AND ONLY THE PLATE OBEYS IT.
+        //
+        // The camera window is a rectangle of the picture, but the plate is the
+        // whole picture: while it ran to the viewport edges the difference was
+        // invisible, and the moment it became a band the overflow started
+        // showing. The photograph was painting past its own frame and running
+        // off the right of the screen, which is what made it read as an image
+        // dropped in a box rather than as a photograph placed in a composition.
+        //
+        // Clipping it to the window gives the frame a clean edge on all four
+        // sides with nothing drawn around it: no border, no shadow, no card.
+        // The clip is on the plate alone. The laptop is its sibling, so it is
+        // free to cross that edge - which is the entire point of the chapter.
+        const PW = BASE;
+        const PH = BASE * IMG_R;
+        base.style.setProperty(
+          '--plate-clip',
+          `inset(${(cy * PH).toFixed(1)}px ${((1 - cx - cw) * PW).toFixed(1)}px ` +
+            `${((1 - cy - ch) * PH).toFixed(1)}px ${(cx * PW).toFixed(1)}px)`
+        );
 
         // THE OPENING. It starts once the approach has made the laptop the
         // subject, and runs to the very end, so the last stretch of the chapter
@@ -1152,9 +1211,22 @@ export class AppComponent implements AfterViewInit, OnDestroy {
           // early build, peaks near 80 across the strongest stretch, and settles
           // back to about 49 as the lid goes past — an object gathering pace and
           // then carrying its own momentum, rather than a value being animated.
-          const t = track(p, 0.20, 1);
+          // Crosses 90 degrees - the moment the screen takes the frame - at
+          // about 0.66, which is where the storyboard puts it, and keeps
+          // turning to the last frame so the ending is still moving.
+          const t = track(p, 0.15, 1);
           const turn = 0.45 * t + 0.55 * (t * t * (3 - 2 * t));
-          const deg = LID_OPEN * turn;
+          // THE LAPTOP TURNS AROUND; THE LID ONLY TIPS.
+          //
+          // Swinging the lid 186 degrees about its own hinge puts it below the
+          // deck, pointing at the floor - which is where the screen kept showing
+          // up, a small card under her hands. That is what a bottom hinge does.
+          // The storyboard's turn is not the lid opening at all: it is the whole
+          // laptop coming round to face the viewer, which is a rotation about
+          // the VERTICAL axis through the hinge. So the yaw carries the reveal
+          // and the pitch stays a small tip, the one the photograph already has.
+          const spin = LID_OPEN * turn;
+          const deg = LID_TIP * turn;
 
           // The approach. Weighted late on purpose: an object coming toward a
           // lens covers ground slowly while it is far off and then arrives, so
@@ -1208,7 +1280,19 @@ export class AppComponent implements AfterViewInit, OnDestroy {
           // photograph forward, out of the last third and into the middle where
           // it belongs.
           const near = Math.pow(track(p, 0.15, 1), 1.25);
-          cardPlace.style.setProperty('--lid-s', (1 + (OBJECT_SCALE - 1) * near).toFixed(4));
+          // The approach, and then the arrival. Up to the turn-over this is the
+          // small nudge it always was; past it the screen is the next chapter
+          // and has to become the page, the way the phone chapter's screen does.
+          // Expressed against the viewport so it finishes covering on any
+          // screen rather than at a size of its own.
+          const grow = ease(track(p, 0.66, 1));
+          // The card already arrives with the placement scale and the
+          // perspective divide baked into its rendered size, so deriving a
+          // cover factor from the raw card width asked for about ten times too
+          // much and tore the screen into a wedge across the last fifth.
+          const cover = 2.6;
+          const lidS = (1 + (OBJECT_SCALE - 1) * near) * (1 + (cover - 1) * grow * grow);
+          cardPlace.style.setProperty('--lid-s', lidS.toFixed(4));
 
           // And then it passes, by continuing to come at the lens rather than by
           // travelling across it.
@@ -1233,30 +1317,30 @@ export class AppComponent implements AfterViewInit, OnDestroy {
           // the surface was holding one flat tone through the whole turn, and a
           // panel that never changes value as it rotates reads as a picture of
           // a panel.
-          // A SECOND AXIS, because one is not enough to read as a solid.
-          //
-          // A panel turning about a single horizontal hinge keystones, but every
-          // vertical line in it stays vertical, and the eye reads that as a
-          // picture being skewed rather than as an object in a room. The lid in
-          // the photograph is already yawed - the quad it was rectified out of
-          // is a trapezoid, not a rectangle - so continuing that turn is the
-          // motion the photograph itself set up, not a new invention.
-          //
-          // 15 degrees, about the vertical axis through the hinge, arriving
-          // late. It stays small on purpose: enough that the far side falls away
-          // and the near side comes round, which is the cue that says solid, and
-          // not so much that the card leaves the footprint it has to keep
-          // covering. The original lid stays hidden underneath throughout.
-          const yaw = -15 * ease(track(p, 0.34, 1));
-          cardPlace.style.setProperty('--lid-yaw', `${yaw.toFixed(2)}deg`);
+          // No yaw. It was there to make a one-sided panel read as solid; the
+          // turn now carries the card through its own edge onto the other face,
+          // which does that on its own and does it honestly.
+          cardPlace.style.setProperty('--lid-yaw', `${spin.toFixed(2)}deg`);
 
           cardPlace.style.setProperty('--lid-t', turn.toFixed(4));
           cardPlace.style.setProperty('--lid-open', `${deg.toFixed(2)}deg`);
-          cardPlace.style.setProperty('--face-lid', Math.abs(deg) < 90 ? '1' : '0');
-          cardPlace.style.setProperty('--face-screen', Math.abs(deg) < 90 ? '0' : '1');
+          // The faces swap when the card has turned through its own edge.
+          const front = Math.abs(((spin % 360) + 360) % 360 - 180) > 90;
+          cardPlace.style.setProperty('--face-lid', front ? '1' : '0');
+          cardPlace.style.setProperty('--face-screen', front ? '0' : '1');
         }
 
         veil.style.setProperty('--bridge-veil', '0');
+
+        // THE PHOTOGRAPH HANDS OVER TO THE SCREEN.
+        //
+        // Once the lid has turned past its own edge it no longer covers the
+        // laptop still sitting in the photograph, and that laptop reappears
+        // underneath - the one thing the chapter cannot show. The storyboard
+        // answers this itself: by 90% Adi is gone and the screen is the page.
+        // So the plate fades as the screen takes the frame. It never moves, and
+        // nothing is masked or drawn over it; the photograph simply finishes.
+        base.style.opacity = (1 - track(p, 0.70, 0.94)).toFixed(3);
 
         // THE HANDOFF. The next chapter is parked below where its margin would
         // put it and rises through the last third of the same scroll, so it is
