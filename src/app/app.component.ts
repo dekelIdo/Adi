@@ -815,6 +815,7 @@ export class AppComponent implements AfterViewInit, OnDestroy {
     const base = document.querySelector<HTMLElement>('.bridge-frame--a');
     const baseImg = document.querySelector<HTMLImageElement>('.bridge-frame--a img');
     const veil = document.querySelector<HTMLElement>('.bridge-veil');
+    const portal = document.querySelector<HTMLElement>('.laptop-portal');
     const next = document.querySelector<HTMLElement>('#process');
     const HANDOFF_VH = 48;
     if (!stage || !sticky || !scene || !base || !baseImg || !veil) return;
@@ -1366,18 +1367,76 @@ export class AppComponent implements AfterViewInit, OnDestroy {
           // No yaw. It was there to make a one-sided panel read as solid; the
           // turn now carries the card through its own edge onto the other face,
           // which does that on its own and does it honestly.
-          cardPlace.style.setProperty('--lid-yaw', `${spin.toFixed(2)}deg`);
-          cardPlace.style.setProperty('--lid-po', `${(100 - 50 * ease(track(p, 0.30, 0.80))).toFixed(1)}%`);
+          // THE TURN IS A FLIP ACROSS TWO ELEMENTS, AND THE SWAP IS INVISIBLE
+          // BECAUSE IT HAPPENS EDGE ON.
+          //
+          // The photographed back turns away to 90 degrees and the screen comes
+          // from -90 to square. At the halfway point both are exactly edge on to
+          // the camera and neither has any width, so ownership passes from the
+          // photograph's coordinate system to the screen's own at the one moment
+          // there is nothing on screen to see. No crossfade, no jump: one object
+          // rotating, drawn by whichever representation is honest at that angle.
+          // THE DIRECTION, SETTLED FROM THE PHOTOGRAPH RATHER THAN THE SIGN.
+          //
+          // Adi stands on the right of the frame looking left and down at the
+          // machine. What the camera sees is the BACK of the lid; the screen is
+          // on the far side, facing right, toward her. So the only turn that can
+          // bring the screen round to us is the one where the lid's RIGHT edge
+          // advances toward the camera and its left edge recedes.
+          //
+          // In CSS a positive rotateY carries the face that points at the viewer
+          // round toward +X, which advances the element's LEFT edge. That is the
+          // turn this had, and it is why it read as the laptop showing us more
+          // of its back and turning away from her gaze. Negative advances the
+          // right edge. Negative is the screen coming round.
+          const flip = track(p, 0.20, 0.74);
+          cardPlace.style.setProperty('--lid-yaw', `${(-90 * flip).toFixed(2)}deg`);
+          cardPlace.style.setProperty('--lid-po', '100%');
+          if (card) card.style.opacity = flip < 0.5 ? '1' : '0';
           // The unwind leads the turn slightly, so the plate's perspective is
           // already coming out of the card by the time the screen arrives.
           cardPlace.style.setProperty('--lid-place', placeCard(ease(track(p, 0.18, 0.72))));
 
           cardPlace.style.setProperty('--lid-t', turn.toFixed(4));
           cardPlace.style.setProperty('--lid-open', `${deg.toFixed(2)}deg`);
-          // The faces swap when the card has turned through its own edge.
-          const front = Math.abs(((spin % 360) + 360) % 360 - 180) > 90;
-          cardPlace.style.setProperty('--face-lid', front ? '1' : '0');
-          cardPlace.style.setProperty('--face-screen', front ? '0' : '1');
+          cardPlace.style.setProperty('--face-lid', '1');
+        }
+
+        // THE SCREEN'S PLACEMENT. Plain 2D, like the phone chapter's portal.
+        //
+        // Its centre is the lid's own centroid carried through the camera, so at
+        // the moment of the flip it is exactly where the laptop is and the same
+        // size as the laptop - which is what makes the handoff invisible. From
+        // there it unwinds to square and grows to take the frame.
+        if (portal) {
+          const zNow = OBJECT_Z * Math.pow(track(p, 0.15, 1), 1.25);
+          const grow = (1 + (OBJECT_SCALE - 1) * Math.pow(track(p, 0.15, 1), 1.25))
+            * (1700 / (1700 - zNow));
+          const flip = track(p, 0.20, 0.74);
+          const cxs = padX - cx * BASE * s + CENTROID[0] * s;
+          const cys = padY - cy * BASE * IMG_R * s + CENTROID[1] * s;
+          const base0 = (RECT_W * s * grow) / CARD_W;
+          // IT SETTLES; IT DOES NOT SWALLOW THE FRAME.
+          //
+          // The screen is a 1200x784 landscape panel and a phone is portrait, so
+          // asking it to COVER the viewport meant a width nearly three times the
+          // screen and a final frame showing two words of a headline. The
+          // storyboard does not do that either: at 90% the screen is large with
+          // the page still around it, and the section itself takes over from
+          // there. So it grows to just inside the width and stops, and the
+          // Process chapter rising over it is what finishes the move.
+          const target = (w * 0.98) / CARD_W;
+          const take = ease(track(p, 0.62, 0.90));
+          portal.style.setProperty('--pt-x', `${cxs.toFixed(1)}px`);
+          portal.style.setProperty('--pt-y', `${cys.toFixed(1)}px`);
+          // Arrives from the same side the back left by: +90 down to square.
+          portal.style.setProperty('--pt-ry', `${(90 * (1 - flip)).toFixed(2)}deg`);
+          portal.style.setProperty('--pt-s', (base0 + (target - base0) * take).toFixed(4));
+          // Hands over to the real chapter rather than sitting on top of it.
+          portal.style.setProperty(
+            '--pt-o',
+            flip < 0.5 ? '0' : (1 - track(p, 0.93, 1)).toFixed(3)
+          );
         }
 
         veil.style.setProperty('--bridge-veil', '0');

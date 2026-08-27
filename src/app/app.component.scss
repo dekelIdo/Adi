@@ -2104,6 +2104,37 @@ div[id] {
   // has no width on screen, so the exchange happens where there is nothing to
   // see. This is what backface-visibility would do if the placement matrix were
   // not mirrored.
+  // The independent screen. Its box never changes; a 2D placement puts it where
+  // the laptop is and a single rotateY carries it through the turn, so once it
+  // is round it is a rectangle facing the camera and nothing can rake it.
+  .is-cinematic .laptop-portal {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 1200px;
+    height: 784px;
+    transform-origin: 50% 50%;
+    transform:
+      translate(calc(var(--pt-x, 0px) - 600px), calc(var(--pt-y, 0px) - 392px))
+      rotateY(var(--pt-ry, 90deg))
+      scale(var(--pt-s, 0.2));
+    opacity: var(--pt-o, 0);
+    background: #100e0d;
+    padding: 4.5%;
+    box-shadow: inset 0 0 0 10px #1c1614;
+    backface-visibility: hidden;
+    pointer-events: none;
+    z-index: 3;
+    will-change: transform;
+  }
+
+  // The lens the portal turns under. Short enough that the turn has body,
+  // centred on the screen itself so it arrives square rather than from below.
+  .is-cinematic .bridge-sticky {
+    perspective: 2200px;
+    perspective-origin: 50% 50%;
+  }
+
   .is-cinematic .laptop-face--screen {
     opacity: var(--face-screen, 0);
     // Pre-turned about the same axis the card turns on, so it reads upright once
@@ -2122,7 +2153,10 @@ div[id] {
     flex-direction: column;
     justify-content: center;
     gap: 2%;
-    text-align: end;
+    // START, not end. The screen is an RTL surface, so "end" is its LEFT edge:
+    // the headline was being pushed against the left margin and running off it,
+    // which is why it read as clipped. Hebrew sets from the right.
+    text-align: start;
     direction: rtl;
   }
 
@@ -2150,7 +2184,7 @@ div[id] {
     li {
       display: flex;
       align-items: baseline;
-      justify-content: flex-end;
+      justify-content: flex-start;
       gap: 16px;
       font-family: var(--font-body);
       font-size: 28px;
