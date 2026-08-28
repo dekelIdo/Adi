@@ -950,7 +950,16 @@ export class AppComponent implements AfterViewInit, OnDestroy {
     // that, the resolution clamp below binds first and the push stops there.
     // What the plate itself does across the whole chapter. Deliberately small:
     // it is a photograph being held still while something comes out of it.
-    const PLATE_PUSH = 1.18;
+    // THE PLATE DOES NOT MOVE AT ALL.
+    //
+    // 1.18 was described as a gentle drift that keeps the shot alive, and
+    // measured across the chapter it was not gentle: sampling her shoulder and
+    // chest, pixels that the laptop never touches, the region drifted by 19 grey
+    // levels by 15% and 80 by the end. That is her body scaling. The photograph
+    // is the world here and the world holds still; every bit of movement the eye
+    // reads has to belong to the object, or the effect is a photograph zooming
+    // with something happening inside it.
+    const PLATE_PUSH = 1.0;
 
     // How far the cut-out advances, and it is bounded by anatomy rather than by
     // taste. The layer carries her forearm, and that forearm has to stay joined
@@ -1476,10 +1485,11 @@ export class AppComponent implements AfterViewInit, OnDestroy {
             `${(-90 * Math.min(1, flip * 2)).toFixed(2)}deg`
           );
           cardPlace.style.setProperty('--lid-po', '100%');
-          // The lid-only card is retired: frame B is the object now, and two
-          // representations of the same laptop on screen at once is exactly the
-          // duplication that made the old handoff visible.
-          if (card) card.style.opacity = '0';
+          // The lid is the animated object: it turns on the hinge her fingers
+          // are closed around while the deck, the hands and the arm stay exactly
+          // where the photograph put them. A lid opening in fixed hands is what
+          // actually happens when someone turns a laptop toward you.
+          if (card) card.style.opacity = flip < 0.5 ? '1' : '0';
           // The unwind leads the turn slightly, so the plate's perspective is
           // already coming out of the card by the time the screen arrives.
           cardPlace.style.setProperty('--lid-place', placeCard(ease(track(p, 0.18, 0.72))));
@@ -1495,26 +1505,15 @@ export class AppComponent implements AfterViewInit, OnDestroy {
         // the moment of the flip it is exactly where the laptop is and the same
         // size as the laptop - which is what makes the handoff invisible. From
         // there it unwinds to square and grows to take the frame.
-        // ── THE APPROACH IS NOW ONE LAYER AND ONE SCALE ────────────────────
-        //
-        // The whole assembly - machine, both hands, forearm - advances as a
-        // single piece, which is what the previous versions could never do. It
-        // grows about the point where her forearm leaves the frame, so the arm
-        // stays attached to her shoulder while the laptop end swings forward
-        // and enlarges: she is offering it to you. Nothing detaches, nothing
-        // slides off her fingers, and no projective geometry is involved.
-        //
-        // This is the phone chapter's method exactly - anchor, scale, curve -
-        // and it is here for the same reason: it reads as an object arriving
-        // and it cannot come apart.
+        // FRAME B IS NOT ANIMATED. It carries her hands and her forearm, so any
+        // scale applied to it scales HER: at 1.5x the arm visibly grew against a
+        // shoulder that could not, and at 2.45x the sleeve came apart. The layer
+        // is registered and left at identity, which is invisible, and the lid
+        // below is the object that moves. The hands belong to the photograph.
         if (frameB) {
-          const adv = Math.pow(track(p, 0.14, 0.62), 1.15);
-          const fbS = 1 + FB_PUSH * adv;
-          frameB.style.setProperty('--fb-s', fbS.toFixed(4));
-          // Edge on as the screen takes over, so the swap has nothing to show.
-          const fbFlip = track(p, 0.60, 0.84);
-          frameB.style.setProperty('--fb-ry', `${(-90 * clamp01(fbFlip * 2)).toFixed(2)}deg`);
-          frameB.style.opacity = fbFlip < 0.5 ? '1' : '0';
+          frameB.style.setProperty('--fb-s', '1');
+          frameB.style.setProperty('--fb-ry', '0deg');
+          frameB.style.opacity = '0';
         }
 
         if (portal) {
