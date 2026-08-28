@@ -84,7 +84,37 @@ export class AppComponent implements AfterViewInit, OnDestroy {
   // laid over the plate is the one thing this chapter must not look like, and
   // this one ended mid-forearm at the edge of its own file, so any advance at
   // all stepped her arm sideways along a hard vertical seam.
-  frameBAsset: string | null = null;
+  /**
+   * The three places Adi is reachable, in one object.
+   *
+   * PLACEHOLDERS. Every one of these is a real destination the moment the real
+   * handles are dropped in here - nothing else in the template or the styles
+   * refers to a URL, so changing them is a one line edit and cannot go stale in
+   * two places. The WhatsApp entry is the wa.me form, which wants a number in
+   * international format with no plus and no separators.
+   */
+  readonly socialLinks = {
+    whatsapp: 'https://wa.me/972000000000',
+    instagram: 'https://www.instagram.com/',
+    tiktok: 'https://www.tiktok.com/'
+  };
+
+  /**
+   * THE LAPTOP, HER HANDS AND HER FOREARM, CUT OUT OF THE SAME PHOTOGRAPH.
+   *
+   * This was switched off for most of the build because the layer cannot rotate
+   * on its own - turning it would turn her hands with it. That was the wrong
+   * conclusion: it does not need to rotate. It needs to COME FORWARD, and it is
+   * the only asset that can do that while keeping the fingers on the machine,
+   * because the fingers are part of it. The lid-only extraction never could:
+   * whatever it did, it did away from her hands.
+   *
+   * Registered against the plate by template match at 0.9944 correlation, so at
+   * rest it is the photograph's own pixels lying exactly on top of themselves
+   * and is literally invisible.
+   */
+  frameBAsset: string | null =
+    'assets/lovable-uploads/MyAssets/AdiArieli/frame-b-laptop.png';
 
   // ── bridgeCinematic ───────────────────────────────────────────────────────
   // Master switch for the laptop move. While false the section is a plain
@@ -815,6 +845,7 @@ export class AppComponent implements AfterViewInit, OnDestroy {
     const base = document.querySelector<HTMLElement>('.bridge-frame--a');
     const baseImg = document.querySelector<HTMLImageElement>('.bridge-frame--a img');
     const veil = document.querySelector<HTMLElement>('.bridge-veil');
+    const frameB = document.querySelector<HTMLElement>('.bridge-frame--b');
     const portal = document.querySelector<HTMLElement>('.laptop-portal');
     const next = document.querySelector<HTMLElement>('#process');
     const HANDOFF_VH = 48;
@@ -920,6 +951,15 @@ export class AppComponent implements AfterViewInit, OnDestroy {
     // What the plate itself does across the whole chapter. Deliberately small:
     // it is a photograph being held still while something comes out of it.
     const PLATE_PUSH = 1.18;
+
+    // How far the cut-out advances, and it is bounded by anatomy rather than by
+    // taste. The layer carries her forearm, and that forearm has to stay joined
+    // to a shoulder that is NOT scaling, because the shoulder is in the plate.
+    // At 2.45x the arm was half the screen while her body stayed where it was
+    // and the join at the sleeve came apart. Around 1.5 the arm's own width
+    // covers the seam and the advance still reads clearly as the machine coming
+    // toward the camera - which is the whole point of using this layer.
+    const FB_PUSH = 0.5;
 
     // What the laptop does, on its own, independently of the plate. This is the
     // motion the viewer is meant to read, and it is roughly three times the
@@ -1436,7 +1476,10 @@ export class AppComponent implements AfterViewInit, OnDestroy {
             `${(-90 * Math.min(1, flip * 2)).toFixed(2)}deg`
           );
           cardPlace.style.setProperty('--lid-po', '100%');
-          if (card) card.style.opacity = flip < 0.5 ? '1' : '0';
+          // The lid-only card is retired: frame B is the object now, and two
+          // representations of the same laptop on screen at once is exactly the
+          // duplication that made the old handoff visible.
+          if (card) card.style.opacity = '0';
           // The unwind leads the turn slightly, so the plate's perspective is
           // already coming out of the card by the time the screen arrives.
           cardPlace.style.setProperty('--lid-place', placeCard(ease(track(p, 0.18, 0.72))));
@@ -1452,6 +1495,28 @@ export class AppComponent implements AfterViewInit, OnDestroy {
         // the moment of the flip it is exactly where the laptop is and the same
         // size as the laptop - which is what makes the handoff invisible. From
         // there it unwinds to square and grows to take the frame.
+        // ── THE APPROACH IS NOW ONE LAYER AND ONE SCALE ────────────────────
+        //
+        // The whole assembly - machine, both hands, forearm - advances as a
+        // single piece, which is what the previous versions could never do. It
+        // grows about the point where her forearm leaves the frame, so the arm
+        // stays attached to her shoulder while the laptop end swings forward
+        // and enlarges: she is offering it to you. Nothing detaches, nothing
+        // slides off her fingers, and no projective geometry is involved.
+        //
+        // This is the phone chapter's method exactly - anchor, scale, curve -
+        // and it is here for the same reason: it reads as an object arriving
+        // and it cannot come apart.
+        if (frameB) {
+          const adv = Math.pow(track(p, 0.14, 0.62), 1.15);
+          const fbS = 1 + FB_PUSH * adv;
+          frameB.style.setProperty('--fb-s', fbS.toFixed(4));
+          // Edge on as the screen takes over, so the swap has nothing to show.
+          const fbFlip = track(p, 0.60, 0.84);
+          frameB.style.setProperty('--fb-ry', `${(-90 * clamp01(fbFlip * 2)).toFixed(2)}deg`);
+          frameB.style.opacity = fbFlip < 0.5 ? '1' : '0';
+        }
+
         if (portal) {
           const flip = track(p, 0.60, 0.84);
           const nearNow = Math.pow(track(p, 0.18, 0.66), 1.05);

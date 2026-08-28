@@ -1012,6 +1012,53 @@
     </div>
   </footer>
 
+  <!-- THE SOCIAL DOCK. Mobile only, and deliberately quiet: three circles that
+       sit in the air near the foot of the screen and are meant to go unnoticed
+       until they are wanted. It is not a bottom navigation bar - it does not
+       span the width, it carries no labels and no badges, and it never takes
+       precedence over the content or the header above it. Icons are inline SVG
+       in the same stroked language as the back-to-top control, so no icon
+       dependency is introduced for three glyphs. -->
+  <nav class="social-dock" aria-label="הרשתות של עדי">
+    <a
+      class="social-dock__link"
+      [href]="socialLinks.whatsapp"
+      target="_blank"
+      rel="noopener noreferrer"
+      aria-label="וואטסאפ"
+    >
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M21 11.5a8.4 8.4 0 0 1-12.6 7.3L3 20.5l1.8-5.2A8.4 8.4 0 1 1 21 11.5z" />
+        <path d="M8.9 8.6c.2-.5.4-.5.7-.5h.5c.2 0 .4 0 .6.5l.7 1.7c.1.3 0 .5-.1.6l-.4.5c-.1.2-.2.3 0 .6a6 6 0 0 0 2.6 2.3c.3.1.4 0 .6-.1l.5-.6c.2-.2.4-.1.6 0l1.6.8c.3.2.4.3.4.5a1.7 1.7 0 0 1-1.2 1.5 3 3 0 0 1-2-.2 9.6 9.6 0 0 1-4.6-4.3 3.6 3.6 0 0 1-.7-2 2 2 0 0 1 .2-1.3z" />
+      </svg>
+    </a>
+    <a
+      class="social-dock__link"
+      [href]="socialLinks.instagram"
+      target="_blank"
+      rel="noopener noreferrer"
+      aria-label="אינסטגרם"
+    >
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <rect x="3.5" y="3.5" width="17" height="17" rx="5" />
+        <circle cx="12" cy="12" r="3.8" />
+        <circle cx="17.1" cy="6.9" r="1" fill="currentColor" stroke="none" />
+      </svg>
+    </a>
+    <a
+      class="social-dock__link"
+      [href]="socialLinks.tiktok"
+      target="_blank"
+      rel="noopener noreferrer"
+      aria-label="טיקטוק"
+    >
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M14.2 3.5v10.9a3.6 3.6 0 1 1-3.6-3.6" />
+        <path d="M14.2 3.5a4.9 4.9 0 0 0 4.6 4.3" />
+      </svg>
+    </a>
+  </nav>
+
   <button
     type="button"
     class="back-to-top"

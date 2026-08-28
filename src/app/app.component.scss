@@ -317,6 +317,106 @@ select {
   }
 }
 
+// ─────── SOCIAL DOCK (mobile) ──────────────────────────────────────────────────
+//
+// Jewellery, not a widget. Three circles floating together near the foot of the
+// screen, in the page's own paper and hairline language rather than in the three
+// brands' colours - a row of magenta, green and black would be the loudest thing
+// on the page and would belong to those companies rather than to Adi. They read
+// as hers, and the icons are enough to say what they are.
+//
+// It is not a bottom bar: it does not span the width and it is centred, which
+// keeps it clear of the back-to-top control sitting in the bottom inline corner.
+
+.social-dock {
+  position: fixed;
+  z-index: 890;             // under the header, above the page
+  inset-inline: 0;
+  margin-inline: auto;
+  width: fit-content;
+  // Lifted off the true bottom, and off the home indicator on a modern iPhone.
+  bottom: calc(env(safe-area-inset-bottom, 0px) + clamp(14px, 2.4vh, 22px));
+  display: flex;
+  gap: 10px;
+  padding: 8px;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--bg) 82%, transparent);
+  border: 1px solid color-mix(in srgb, var(--rule) 70%, transparent);
+  box-shadow: 0 6px 22px rgba(26, 24, 22, 0.07);
+  backdrop-filter: blur(10px) saturate(1.05);
+  -webkit-backdrop-filter: blur(10px) saturate(1.05);
+}
+
+.social-dock__link {
+  width: 46px;
+  height: 46px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  color: var(--text);
+  background: color-mix(in srgb, #fff 78%, transparent);
+  border: 1px solid color-mix(in srgb, var(--rule) 60%, transparent);
+  -webkit-tap-highlight-color: transparent;
+  transition: transform 260ms var(--ease-smooth), color 260ms var(--ease-smooth),
+    border-color 260ms var(--ease-smooth);
+
+  svg {
+    width: 21px;
+    height: 21px;
+    display: block;
+  }
+
+  // Felt, not watched: a pixel and a half of lift and a touch of the brand blue.
+  &:hover,
+  &:focus-visible {
+    transform: translateY(-1.5px);
+    color: var(--brand-accent-dim);
+    border-color: color-mix(in srgb, var(--brand-accent-dim) 45%, transparent);
+  }
+
+  &:active {
+    transform: translateY(0) scale(0.96);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--brand-accent);
+    outline-offset: 3px;
+  }
+}
+
+// THE DOCK IS FIXED, SO THE PAGE HAS TO END ABOVE IT.
+//
+// Without this the last line of the footer sits permanently underneath the three
+// circles and can never be scrolled clear - the one way a floating element can
+// actually take content away from a visitor rather than just sitting over it in
+// passing. The clearance is the dock's own height plus its offset and the safe
+// area, so it is exactly as tall as it needs to be and no taller.
+@media (max-width: 767.98px) {
+  .site-footer {
+    padding-bottom: calc(env(safe-area-inset-bottom, 0px) + clamp(92px, 14vh, 116px));
+  }
+}
+
+// Desktop has the header, the footer and the contact form; it does not need a
+// floating dock, so it is not rendered rather than merely hidden.
+@media (min-width: 768px) {
+  .social-dock {
+    display: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .social-dock__link {
+    transition: none;
+
+    &:hover,
+    &:focus-visible,
+    &:active {
+      transform: none;
+    }
+  }
+}
+
 // ─────── BACK TO TOP BUTTON ────────────────────────────────────────────────────
 
 .back-to-top {
@@ -2220,6 +2320,33 @@ div[id] {
     will-change: transform;
   }
 
+  // FRAME B, laid on the plate exactly where it came from.
+  //
+  // The rect is measured, not guessed: matching the cut-out against the plate
+  // puts it at 0.0007 / 0.0981 of the picture, 0.7673 wide and 0.4150 tall,
+  // which in the scene's own 1000 x 1497 space is the box below. At rest it is
+  // the same pixels lying on themselves, so the layer cannot be seen at all.
+  //
+  // The origin is where her forearm leaves the frame. Growing about that point
+  // is what keeps the arm attached to her while the machine comes forward.
+  .is-cinematic .bridge-frame--b {
+    position: absolute;
+    left: 0.7px;
+    top: 146.9px;
+    width: 767.3px;
+    height: 621.3px;
+    transform-origin: 100% 75%;
+    transform: scale(var(--fb-s, 1)) rotateY(var(--fb-ry, 0deg));
+    will-change: transform;
+    pointer-events: none;
+
+    img {
+      display: block;
+      width: 100%;
+      height: 100%;
+    }
+  }
+
   // The photograph's own edge. Driven from the camera window, so the frame is
   // whatever the shot is actually looking at and never a second composition
   // laid on top of the first.
@@ -2263,27 +2390,11 @@ div[id] {
   //
   // The move is small on purpose. Depth here comes from parallax against a plate
   // that is very nearly still, not from magnification.
-  .is-cinematic .bridge-frame--b {
-    position: absolute;
-    z-index: 2;
-    transform-origin: 45% 62%;
-    transform:
-      translate3d(var(--fb-x, 0px), var(--fb-y, 0px), 0)
-      rotate(var(--fb-rot, 0deg))
-      scale(var(--fb-scale, 1));
-    opacity: var(--fb-opacity, 0);
-    will-change: transform, opacity;
-    pointer-events: none;
-
-    img {
-      display: block;
-      width: 100%;
-      height: auto;
-      // A touch of contact shadow so the foreground object sits in front of the
-      // plate instead of floating on it.
-      filter: drop-shadow(0 var(--fb-shadow-y, 0px) var(--fb-shadow-b, 0px) rgba(48, 32, 26, 0.34));
-    }
-  }
+  // (An earlier frame-B rule lived here, driving --fb-x/--fb-y/--fb-rot/
+  // --fb-scale/--fb-opacity. Nothing has set those variables since that attempt
+  // was abandoned, so it resolved to scale(1) and silently overrode the real
+  // placement above - which is why the cut-out was registered, carrying a scale
+  // of 2.45, and still rendering at identity. Removed.)
 
   .is-cinematic .bridge-veil {
     position: absolute;
