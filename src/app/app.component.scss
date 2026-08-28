@@ -2053,6 +2053,13 @@ div[id] {
   // size of the plate so the lens has somewhere to sit: the vanishing point is
   // put on the lid itself, which is what makes the hinge read as an object
   // turning under a camera rather than a rectangle being skewed.
+  // THE OLD 3D CHAIN IS OFF. Its elements stay in the DOM so the markup is not
+  // churned, but nothing about them is animated or painted any more.
+  .is-cinematic .laptop-place,
+  .is-cinematic .laptop-card {
+    display: none;
+  }
+
   .is-cinematic .laptop-layer {
     position: absolute;
     left: 0;
@@ -2204,35 +2211,55 @@ div[id] {
   // has no width on screen, so the exchange happens where there is nothing to
   // see. This is what backface-visibility would do if the placement matrix were
   // not mirrored.
-  // The independent screen. Its box never changes; a 2D placement puts it where
-  // the laptop is and a single rotateY carries it through the turn, so once it
-  // is round it is a rectangle facing the camera and nothing can rake it.
+  // THE OBJECT, AND IT IS A 2D COMPOSITE.
+  //
+  // The phone chapter - the one transition on this site that reads as a real
+  // object leaving a photograph - is translate3d, rotate and scale. No
+  // perspective, no rotateY, no matrix3d, no 3D context anywhere. Every attempt
+  // to give the laptop genuine 3D produced something less convincing and, in the
+  // end, unstable: the projective placement threw the card's centre to
+  // (-4025, -18343) and the perspective divide blew it past five thousand pixels
+  // wide. A plain scale cannot do either of those things.
+  //
+  // So this is the phone's architecture with the laptop's material. The box is
+  // anchored on the lid's own position in the photograph, starts at the size the
+  // lid really occupies, carries the lid's own pixels, and grows on an
+  // accelerating curve while its lean unwinds to square. The turn the viewer
+  // reads is that unwinding: the object coming round to face the camera.
   .is-cinematic .laptop-portal {
     position: absolute;
     left: 0;
     top: 0;
+    // The screen's proportion, which is also the lid extraction's, so nothing
+    // inside this box is ever stretched.
     width: 1200px;
     height: 784px;
     transform-origin: 50% 50%;
     transform:
-      translate(calc(var(--pt-x, 0px) - 600px), calc(var(--pt-y, 0px) - 392px))
-      rotateY(var(--pt-ry, 90deg))
-      scale(var(--pt-s, 0.2));
+      translate3d(calc(var(--pt-x, 50vw) - 600px), calc(var(--pt-y, 40vh) - 392px), 0)
+      rotate(var(--pt-rot, 0deg))
+      scale(var(--pt-sx, 0), var(--pt-sy, 0));
     opacity: var(--pt-o, 0);
     background: #100e0d;
     padding: 4.5%;
     box-shadow: inset 0 0 0 10px #1c1614;
-    backface-visibility: hidden;
     pointer-events: none;
     z-index: 3;
-    will-change: transform;
+    will-change: transform, opacity;
   }
 
-  // The lens the portal turns under. Short enough that the turn has body,
-  // centred on the screen itself so it arrives square rather than from below.
-  .is-cinematic .bridge-sticky {
-    perspective: 2200px;
-    perspective-origin: 50% 50%;
+  // The lid sits over the screen and hands it the frame.
+  .is-cinematic .laptop-portal__lid {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    display: block;
+    opacity: var(--pt-lid, 1);
+    // The extraction carries a sliver of backdrop along its top and right; the
+    // existing trim stays, and the bottom is left alone because that edge is the
+    // hinge and it has to stay where it was measured.
+    clip-path: inset(3% 3% 0 2%);
   }
 
   .is-cinematic .laptop-face--screen {

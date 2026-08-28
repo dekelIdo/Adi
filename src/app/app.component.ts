@@ -1041,6 +1041,11 @@ export class AppComponent implements AfterViewInit, OnDestroy {
       [0.3205, 0.3520],
       [0.1085, 0.3875]
     ];
+    // The lid as it is measured off the photograph: 227 scene units across its
+    // top edge, which leans 21.5 degrees. The whole animation starts from these.
+    const LID_W = 227;
+    const LID_H = 270;
+    const LID_TILT = -21.5;
     const CARD_W = 1200;
     const CARD_H = 784;
     // How far the lid swings, and the sign matters as much as the size.
@@ -1293,274 +1298,59 @@ export class AppComponent implements AfterViewInit, OnDestroy {
         // THE OPENING. It starts once the approach has made the laptop the
         // subject, and runs to the very end, so the last stretch of the chapter
         // is the screen still coming round rather than a frozen frame.
-        if (cardPlace) {
-          // Half linear, half smoothstep, from 0.20.
-          //
-          // Pure linear was the previous attempt and it read as machinery: a
-          // constant angular rate has no arc to it, and the eye reads constant
-          // as mechanical however smooth the frames are. Pure smoothstep is the
-          // opposite failure, spending its first third almost stationary and
-          // then dumping the whole turn into the end.
-          //
-          // Blending them keeps soft ends without a dead middle. The angular
-          // rate rises from about 64 degrees per unit of scroll through the
-          // early build, peaks near 80 across the strongest stretch, and settles
-          // back to about 49 as the lid goes past — an object gathering pace and
-          // then carrying its own momentum, rather than a value being animated.
-          // Crosses 90 degrees - the moment the screen takes the frame - at
-          // about 0.66, which is where the storyboard puts it, and keeps
-          // turning to the last frame so the ending is still moving.
-          const t = track(p, 0.15, 1);
-          const turn = 0.45 * t + 0.55 * (t * t * (3 - 2 * t));
-          // THE LAPTOP TURNS AROUND; THE LID ONLY TIPS.
-          //
-          // Swinging the lid 186 degrees about its own hinge puts it below the
-          // deck, pointing at the floor - which is where the screen kept showing
-          // up, a small card under her hands. That is what a bottom hinge does.
-          // The storyboard's turn is not the lid opening at all: it is the whole
-          // laptop coming round to face the viewer, which is a rotation about
-          // the VERTICAL axis through the hinge. So the yaw carries the reveal
-          // and the pitch stays a small tip, the one the photograph already has.
-          const spin = LID_OPEN * turn;
-          const deg = LID_TIP * turn;
-
-          // The approach. Weighted late on purpose: an object coming toward a
-          // lens covers ground slowly while it is far off and then arrives, so
-          // the first third is a separation you feel rather than see, and the
-          // last third is the object filling the frame. Anchored at the hinge by
-          // the transform chain, so it grows out of where it actually sits in
-          // the photograph instead of swelling about its own middle.
-          // The approach finishes at 0.88, not at 1.
-          //
-          // Running the growth all the way to the end meant the largest and
-          // therefore softest frame of the whole chapter was also the last one,
-          // and it simply stopped there. The object now reaches its full size
-          // while there is still scroll left, which is what gives the ending
-          // somewhere to go.
-          // Starting at 0.12 and rising sooner, so the object has visibly begun
-          // to separate from the photograph by a third of the way through
-          // rather than halfway. The exponent keeps the middle accelerating into
-          // the strongest stretch instead of arriving all at once.
-          // Close to linear in DISTANCE, which is what makes the apparent motion
-          // accelerate on its own: 1/(1 - z/d) climbs faster the nearer the
-          // object gets, so an object closing at a steady rate appears to speed
-          // up as it arrives. That is the acceleration into the strongest
-          // stretch, and it comes from the physics rather than from an easing
-          // curve laid on top.
-          // Linear in distance now, not shaped. The apparent motion accelerates
-          // on its own because 1/(1 - z/d) climbs faster the nearer the object
-          // gets, and the previous exponent was pushing travel into the last
-          // stretch on top of that: the object crept through the middle and then
-          // lunged over the final fifteen per cent. Even distance spreads the
-          // crest across 55 to 80, where it belongs.
-          // Linear in DISTANCE, from 18%. The acceleration the eye reads is not
-          // in this curve and must not be: 1/(1 - z/d) climbs on its own, and
-          // steeply, as the object nears the lens. An object closing at a steady
-          // rate appears to speed up as it arrives, which is the physics doing
-          // the easing. Shaping this as well would double the effect and push
-          // all the travel into a lunge at the end, which is what an earlier
-          // version did. Starting at 0.18 keeps the first fifth a photograph.
-          // IT MUST STILL BE MOVING AT THE END.
-          //
-          // Rendered beside the phone chapter, the failure was obvious: the last
-          // three checkpoints of the laptop were the same picture. The travel
-          // finished at 0.92 and the pass added so little at that distance that
-          // the final fifth was the next section sliding up over a parked
-          // object. The phone's last frames are a different frame each time.
-          //
-          // So the travel now runs to the very end, and the slight exponent puts
-          // more of it late, where the divide is also climbing hardest. The two
-          // compound: the top edge of the lid roughly doubles again across the
-          // final fifth alone, which is the momentum the ending was missing.
-          // Starting at 0.15 also brings the moment it crosses the edge of the
-          // photograph forward, out of the last third and into the middle where
-          // it belongs.
-          // THE APPROACH HAS TO HAPPEN WHILE THE CARD IS STILL ON SCREEN.
-          //
-          // It ran to the very end, but the turn hides the card just before the
-          // halfway mark, so only a third of the travel was ever visible: the
-          // laptop flipped almost from where it started and the depth the whole
-          // chapter rests on was being spent on an element nobody could see.
-          // The travel now completes as the turn takes over.
-          // THE STORYBOARD SPENDS MORE THAN HALF THE CHAPTER APPROACHING.
-          //
-          // Its own captions: 20% "beginning of depth and forward movement",
-          // 40% "the laptop advances toward the viewer", and only at 60% "the
-          // screen begins to flip". The back of the machine stays toward us and
-          // GROWS for the whole first stretch, and that stretch is where the
-          // object stops being a photograph and becomes a thing in the room.
-          // The turn used to start at 0.20 and the screen was round by 0.47, so
-          // that approach never happened - the laptop flipped almost from where
-          // it started. It now runs to 0.66 and hands straight into the turn.
-          const near = Math.pow(track(p, 0.18, 0.66), 1.05);
-          // The approach, and then the arrival. Up to the turn-over this is the
-          // small nudge it always was; past it the screen is the next chapter
-          // and has to become the page, the way the phone chapter's screen does.
-          // Expressed against the viewport so it finishes covering on any
-          // screen rather than at a size of its own.
-          const grow = ease(track(p, 0.66, 1));
-          // The card already arrives with the placement scale and the
-          // perspective divide baked into its rendered size, so deriving a
-          // cover factor from the raw card width asked for about ten times too
-          // much and tore the screen into a wedge across the last fifth.
-          const cover = 2.6;
-          const lidS = (1 + (OBJECT_SCALE - 1) * near) * (1 + (cover - 1) * grow * grow);
-          cardPlace.style.setProperty('--lid-s', lidS.toFixed(4));
-
-          // And then it passes, by continuing to come at the lens rather than by
-          // travelling across it.
-          //
-          // The first attempt slid the object up and out of frame, and that was
-          // plainly wrong the moment it rendered: sliding it away uncovers the
-          // laptop still sitting in the photograph underneath, so the chapter
-          // ended by revealing the very thing the object was standing in for.
-          // Depth cannot do that. The near edge swings closer, the perspective
-          // divide widens, and the object overruns the frame while never
-          // stopping being the thing in front of the picture.
-          // Overlapped with the tail of the approach rather than starting after
-          // it, so the two blend into one continuous closing instead of handing
-          // over with a step.
-          // One continuous approach. The pass is no longer a separate term added
-          // at the end: it is the same travel, still going.
-          // THE APPROACH EASES OFF AS THE TURN BEGINS.
-          //
-          // Measured through the handoff, the card was running away: 877px wide
-          // at 0.66, 2441 at 0.72, 7907 at 0.74, with its centre thrown right
-          // off the frame. The yaw carries the card's leading edge toward the
-          // lens on top of the depth it has already travelled, and the two
-          // together were taking it to the viewpoint, where the projection goes
-          // singular. That runaway either side of the swap is the scale jump.
-          //
-          // Physically the object comes forward and THEN turns; it does not keep
-          // closing on the lens while it rotates. So the depth is drawn back as
-          // the turn runs, which keeps the geometry clear of the viewpoint and
-          // lets the card and the screen meet at the same size.
-          const flipNow = track(p, 0.60, 0.84);
-          const zNear = OBJECT_Z * near * (1 - 0.5 * flipNow);
-          cardPlace.style.setProperty('--lid-z', `${zNear.toFixed(1)}px`);
-
-          // The same value drives how the lid is lit. As it comes round it
-          // catches more of the key light that is already in the photograph and
-          // the crease at the hinge deepens, which is the cue that was missing:
-          // the surface was holding one flat tone through the whole turn, and a
-          // panel that never changes value as it rotates reads as a picture of
-          // a panel.
-          // No yaw. It was there to make a one-sided panel read as solid; the
-          // turn now carries the card through its own edge onto the other face,
-          // which does that on its own and does it honestly.
-          // THE TURN IS A FLIP ACROSS TWO ELEMENTS, AND THE SWAP IS INVISIBLE
-          // BECAUSE IT HAPPENS EDGE ON.
-          //
-          // The photographed back turns away to 90 degrees and the screen comes
-          // from -90 to square. At the halfway point both are exactly edge on to
-          // the camera and neither has any width, so ownership passes from the
-          // photograph's coordinate system to the screen's own at the one moment
-          // there is nothing on screen to see. No crossfade, no jump: one object
-          // rotating, drawn by whichever representation is honest at that angle.
-          // THE DIRECTION, SETTLED FROM THE PHOTOGRAPH RATHER THAN THE SIGN.
-          //
-          // Adi stands on the right of the frame looking left and down at the
-          // machine. What the camera sees is the BACK of the lid; the screen is
-          // on the far side, facing right, toward her. So the only turn that can
-          // bring the screen round to us is the one where the lid's RIGHT edge
-          // advances toward the camera and its left edge recedes.
-          //
-          // In CSS a positive rotateY carries the face that points at the viewer
-          // round toward +X, which advances the element's LEFT edge. That is the
-          // turn this had, and it is why it read as the laptop showing us more
-          // of its back and turning away from her gaze. Negative advances the
-          // right edge. Negative is the screen coming round.
-          const flip = track(p, 0.60, 0.84);
-          // THE SWAP HAS TO HAPPEN EDGE ON, AND IT WAS NOT.
-          //
-          // The card turned to -90 across the WHOLE window while the handover
-          // fired at the halfway mark - so at the moment it gave up the frame it
-          // was only at -45 degrees and still 474px wide, and the screen took
-          // over at 347. That mismatch is the jump. Each element now owns half
-          // the window: the back reaches -90 exactly as the swap fires, and the
-          // screen starts from +90 at the same instant. Both are edge on there,
-          // both have no width, and there is nothing to see change.
-          cardPlace.style.setProperty(
-            '--lid-yaw',
-            `${(-90 * Math.min(1, flip * 2)).toFixed(2)}deg`
-          );
-          cardPlace.style.setProperty('--lid-po', '100%');
-          // The lid is the animated object: it turns on the hinge her fingers
-          // are closed around while the deck, the hands and the arm stay exactly
-          // where the photograph put them. A lid opening in fixed hands is what
-          // actually happens when someone turns a laptop toward you.
-          if (card) card.style.opacity = flip < 0.5 ? '1' : '0';
-          // The unwind leads the turn slightly, so the plate's perspective is
-          // already coming out of the card by the time the screen arrives.
-          cardPlace.style.setProperty('--lid-place', placeCard(ease(track(p, 0.18, 0.72))));
-
-          cardPlace.style.setProperty('--lid-t', turn.toFixed(4));
-          cardPlace.style.setProperty('--lid-open', `${deg.toFixed(2)}deg`);
-          cardPlace.style.setProperty('--face-lid', '1');
-        }
-
-        // THE SCREEN'S PLACEMENT. Plain 2D, like the phone chapter's portal.
+        // ── THE OBJECT ─────────────────────────────────────────────────────
         //
-        // Its centre is the lid's own centroid carried through the camera, so at
-        // the moment of the flip it is exactly where the laptop is and the same
-        // size as the laptop - which is what makes the handoff invisible. From
-        // there it unwinds to square and grows to take the frame.
-        // FRAME B IS NOT ANIMATED. It carries her hands and her forearm, so any
-        // scale applied to it scales HER: at 1.5x the arm visibly grew against a
-        // shoulder that could not, and at 2.45x the sleeve came apart. The layer
-        // is registered and left at identity, which is invisible, and the lid
-        // below is the object that moves. The hands belong to the photograph.
-        if (frameB) {
-          frameB.style.setProperty('--fb-s', '1');
-          frameB.style.setProperty('--fb-ry', '0deg');
-          frameB.style.opacity = '0';
+        // One element, three numbers: where it is, how big it is, how far it is
+        // still leaning. That is the whole animation, and it is the phone
+        // chapter's architecture with the laptop's material.
+        if (portal) {
+          // WHERE. The lid's centroid carried through the camera. The plate is
+          // locked, so this anchor is fixed - the object grows out of the exact
+          // point in the photograph where the laptop actually is, and can never
+          // arrive from the side.
+          const ax = padX - cx * BASE * s + CENTROID[0] * s;
+          const ay = padY - cy * BASE * IMG_R * s + CENTROID[1] * s;
+          portal.style.setProperty('--pt-x', `${ax.toFixed(1)}px`);
+          portal.style.setProperty('--pt-y', `${ay.toFixed(1)}px`);
+
+          // HOW BIG. It starts at the width the lid really occupies on screen
+          // and finishes covering the viewport, on the accelerating curve the
+          // phone chapter uses - growth that reads as approach because it
+          // quickens the way a closing object's apparent size does.
+          // TWO SCALES, CONVERGING. The lid in the photograph is foreshortened -
+          // 227 units across but 270 tall, taller than it is wide - while the
+          // extraction is landscape. A single uniform scale can never sit on it,
+          // which is why the layer showed a double edge as it faded in. So the
+          // box starts squashed to the shape the lid really presents and the two
+          // axes converge as it comes round. That convergence IS the
+          // un-foreshortening: the object turning to face the camera, done with
+          // two numbers instead of a projective matrix.
+          const restX = (LID_W * s) / CARD_W;
+          const restY = (LID_H * s) / CARD_H;
+          const cover = (w * 1.02) / CARD_W;
+          const open = track(p, 0.32, 0.94);
+          const g = Math.pow(open, 2.1);
+          portal.style.setProperty('--pt-sx', (restX + g * (cover - restX)).toFixed(4));
+          portal.style.setProperty('--pt-sy', (restY + g * (cover - restY)).toFixed(4));
+
+          // HOW FAR IT IS STILL LEANING. The photograph shows the lid at 21.5
+          // degrees; that lean unwinds to square as it comes forward, and THAT
+          // is the turn the viewer reads - the object coming round to face the
+          // camera, in the direction Adi is looking.
+          portal.style.setProperty(
+            '--pt-rot',
+            `${(LID_TILT * (1 - ease(track(p, 0.30, 0.80)))).toFixed(2)}deg`
+          );
+
+          // It fades up over its own footprint while it is still the same size
+          // and angle as the lid beneath it, so there is nothing to see change.
+          portal.style.setProperty('--pt-o', track(p, 0.26, 0.34).toFixed(3));
+          // Then the lid's pixels hand the box to the screen.
+          portal.style.setProperty('--pt-lid', (1 - track(p, 0.52, 0.60)).toFixed(3));
         }
 
-        if (portal) {
-          const flip = track(p, 0.60, 0.84);
-          const nearNow = Math.pow(track(p, 0.18, 0.66), 1.05);
-          const zNow = OBJECT_Z * nearNow * (1 - 0.5 * flip);
-          const grow = (1 + (OBJECT_SCALE - 1) * nearNow) * (2000 / (2000 - zNow));
-          const cxs = padX - cx * BASE * s + CENTROID[0] * s;
-          const cys = padY - cy * BASE * IMG_R * s + CENTROID[1] * s;
-          const base0 = (RECT_W * s * grow) / CARD_W;
-          // IT SETTLES; IT DOES NOT SWALLOW THE FRAME.
-          //
-          // The screen is a 1200x784 landscape panel and a phone is portrait, so
-          // asking it to COVER the viewport meant a width nearly three times the
-          // screen and a final frame showing two words of a headline. The
-          // storyboard does not do that either: at 90% the screen is large with
-          // the page still around it, and the section itself takes over from
-          // there. So it grows to just inside the width and stops, and the
-          // Process chapter rising over it is what finishes the move.
-          // IT HAS TO ARRIVE, NOT EDGE FORWARD.
-          //
-          // Beside the phone chapter this was the gap that mattered: the phone
-          // ends up covering the viewport more than twice over, and the laptop's
-          // screen was growing by about a third from the size the lid already
-          // had. It turned correctly and then simply sat there, which is why it
-          // read as competent rather than impressive. The screen now overruns
-          // the frame, and the content holds its size while the bezel passes.
-          const target = (w * 1.06) / CARD_W;
-          const take = ease(track(p, 0.74, 0.97));
-          portal.style.setProperty('--pt-x', `${cxs.toFixed(1)}px`);
-          portal.style.setProperty('--pt-y', `${cys.toFixed(1)}px`);
-          // Arrives from the same side the back left by: +90 down to square.
-          portal.style.setProperty(
-            '--pt-ry',
-            `${(90 * (1 - clamp01((flip - 0.5) * 2))).toFixed(2)}deg`
-          );
-          // No counter-scale. Holding the content while the bezel grew left a
-          // large black frame around a small panel, which is its own kind of
-          // wrong: the screen has to stay a screen. It settles at the width
-          // instead, and the Process chapter rising over it finishes the move.
-          portal.style.setProperty('--pt-s', (base0 + (target - base0) * take).toFixed(4));
-          // Hands over to the real chapter rather than sitting on top of it.
-          portal.style.setProperty(
-            '--pt-o',
-            flip < 0.5 ? '0' : (1 - track(p, 0.96, 1)).toFixed(3)
-          );
-        }
+        // The photograph finishes as the screen becomes the page.
+        base.style.opacity = (1 - track(p, 0.86, 1)).toFixed(3);
 
         veil.style.setProperty('--bridge-veil', '0');
 
@@ -1580,7 +1370,6 @@ export class AppComponent implements AfterViewInit, OnDestroy {
         // screen is larger than the lid it replaced by the time the turn is
         // done, so it covers the photographed lid on its own and the plate can
         // stay. It now holds until the screen has already overrun the frame.
-        base.style.opacity = (1 - track(p, 0.88, 1)).toFixed(3);
 
         // THE HANDOFF. The next chapter is parked below where its margin would
         // put it and rises through the last third of the same scroll, so it is
