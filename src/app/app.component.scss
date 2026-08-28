@@ -2240,9 +2240,36 @@ div[id] {
       rotate(var(--pt-rot, 0deg))
       scale(var(--pt-sx, 0), var(--pt-sy, 0));
     opacity: var(--pt-o, 0);
-    background: #100e0d;
-    padding: 4.5%;
-    box-shadow: inset 0 0 0 10px #1c1614;
+    // THE MACHINE'S OWN COLOUR, SAMPLED OFF THE PHOTOGRAPH.
+    //
+    // The frame used to be #100e0d with a ten pixel #1c1614 inset - a thick
+    // black slab that announced itself as a UI card and had nothing to do with
+    // the laptop Adi is holding. Her MacBook is rose gold: sampling the lid
+    // region of the plate gives a body of #c6a792, a cool reflective highlight
+    // at #d3cad0, a warm shadowed edge at #b58f79 and #a27560 in the hinge line.
+    // Those five values are the whole material, and they are measured, not
+    // chosen - which is why the object now reads as the same machine.
+    //
+    // The construction is the real one: an aluminium shell, then a thin dark
+    // bezel, then the display. The shell dominates, so what the viewer sees is a
+    // peach laptop rather than a black rectangle.
+    --mb-r: 2.4%;
+    --mb-shell: 1.5%;
+    background:
+      linear-gradient(157deg,
+        #d8cfd2 0%,
+        #cdb09b 22%,
+        #c6a792 52%,
+        #bd9a83 78%,
+        #b58f79 100%);
+    border-radius: var(--mb-r);
+    padding: var(--mb-shell);
+    // One hairline of specular along the top edge, the way brushed aluminium
+    // catches a studio light, and a restrained contact shadow underneath.
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.5),
+      inset 0 -1px 0 rgba(120, 84, 66, 0.28),
+      0 18px 46px rgba(84, 58, 46, 0.16);
     pointer-events: none;
     z-index: 3;
     will-change: transform, opacity;
@@ -2273,9 +2300,17 @@ div[id] {
   }
 
   .is-cinematic .laptop-screen {
+    // The bezel: thin, and warm rather than pure black, because the dark line
+    // around a real screen picks up the colour of the shell around it.
+    border: 1.3% solid #2a211d;
+    border-radius: 1.1%;
     background: var(--surface);
     height: 100%;
-    padding: 5% 7%;
+    // DESIGNED FOR THIS DISPLAY, not the desktop section shrunk into it. The
+    // content was filling barely half the panel with the rest dead space, which
+    // is what made it read as a section pasted into a rectangle rather than a
+    // page being shown on a laptop.
+    padding: 6% 7.5%;
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -2289,14 +2324,14 @@ div[id] {
 
   .is-cinematic .laptop-screen-kicker {
     font-family: var(--font-body);
-    font-size: 24px;
+    font-size: 30px;
     letter-spacing: 0.16em;
     color: #b98b6a;
   }
 
   .is-cinematic .laptop-screen-title {
     font-family: var(--font-display);
-    font-size: 58px;
+    font-size: 76px;
     font-weight: 400;
     line-height: 1.05;
     color: #1a1816;
@@ -2314,14 +2349,14 @@ div[id] {
       justify-content: flex-start;
       gap: 16px;
       font-family: var(--font-body);
-      font-size: 28px;
+      font-size: 36px;
       color: #1a1816;
       border-top: 1px solid rgba(26, 24, 22, 0.12);
-      padding: 2.4% 0;
+      padding: 3.4% 0;
     }
 
     span {
-      font-size: 38px;
+      font-size: 46px;
       color: rgba(26, 24, 22, 0.26);
     }
   }
