@@ -4137,6 +4137,49 @@ div[id] {
   padding-bottom: clamp(70px, 10vw, 132px);
 }
 
+// ─────── REEL FOCUS ────────────────────────────────────────────────────────────
+//
+// The chosen reel comes to the middle of the screen and the wall behind it
+// steps back. No overlay, no dialog, no chrome: the piece is simply given the
+// attention, and tapping it again puts it back. It stays in the document the
+// whole time, so nothing about the page's layout or scroll position changes.
+
+// Scoped through the section so this outranks .reveal.is-visible, which is
+// declared later in the file and was resetting the transform to none - the card
+// was being told to centre itself and then told not to, so at 1440 it sat three
+// hundred pixels from where it belonged.
+.section-social .social-item.is-focused {
+  z-index: 60;
+  transform: translate(var(--reel-fx, 0), var(--reel-fy, 0)) scale(var(--reel-fs, 1));
+  transition: transform 620ms var(--ease-expo);
+  will-change: transform;
+}
+
+.section-social .social-item.is-focused .social-frame {
+  box-shadow: 0 30px 90px rgba(10, 8, 6, 0.45);
+}
+
+// The rest of the wall recedes rather than disappearing - it is still the
+// context the piece belongs to.
+.section-social.has-focus .social-item:not(.is-focused) {
+  opacity: 0.24;
+  transition: opacity 480ms var(--ease-smooth);
+}
+
+.section-social.has-focus::before {
+  opacity: 0.55;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .social-item.is-focused {
+    transition: none;
+  }
+
+  .section-social.has-focus .social-item:not(.is-focused) {
+    transition: none;
+  }
+}
+
 // ─────── CONTACT SECTION ───────────────────────────────────────────────────────
 // The closing scene. Photograph, message and action are one composition sharing
 // a single baseline grid — not a picture next to a form in a card.

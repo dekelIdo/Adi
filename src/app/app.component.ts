@@ -160,6 +160,9 @@ export class AppComponent implements AfterViewInit, OnDestroy {
    * scrolled, it is out of the way when it should be and to hand from then on.
    */
   socialDockVisible = false;
+  private focusedReel?: HTMLElement;
+  private reelResize?: () => void;
+  private reelScrollOut?: () => void;
   openFaqIndex: number | null = null;
   currentHeaderTheme: 'light' | 'dark' = 'dark'; // Start with dark for hero
 
@@ -268,6 +271,7 @@ export class AppComponent implements AfterViewInit, OnDestroy {
     if (this.playingVideoId === video.id) {
       el.pause();
       this.playingVideoId = null;
+      this.clearReelFocus();
       return;
     }
 
@@ -290,15 +294,87 @@ export class AppComponent implements AfterViewInit, OnDestroy {
     // sound wherever sound is permitted.
     el.muted = false;
     void el.play().then(
-      () => (this.playingVideoId = video.id),
+      () => {
+        this.playingVideoId = video.id;
+        this.focusReel(el);
+      },
       () => {
         el.muted = true;
         void el.play().then(
-          () => (this.playingVideoId = video.id),
+          () => {
+            this.playingVideoId = video.id;
+            this.focusReel(el);
+          },
           () => (this.playingVideoId = null)
         );
       }
     );
+  }
+
+  /**
+   * FOCUS, NOT A MODAL.
+   *
+   * A reel the visitor chose to watch should be the thing they are looking at,
+   * so it comes to the middle of the screen and grows enough to be worth
+   * watching - and no further. It stays in the document, keeps its own aspect
+   * ratio and never covers the whole interface, because this is a portfolio
+   * piece being looked at rather than a video player being opened.
+   *
+   * The scale is whatever fits with room to breathe on the smallest axis, so a
+   * tall 9:16 reel on a short phone is bounded by height and a wide one by
+   * width. It is never allowed past 1.5: past that the source stops holding up
+   * and it starts feeling like a takeover.
+   */
+  private focusReel(el: HTMLVideoElement): void {
+    const card = el.closest<HTMLElement>('.social-item');
+    if (!card) return;
+    this.clearReelFocus();
+    const place = () => {
+      const r = card.getBoundingClientRect();
+      if (!r.width || !r.height) return;
+      const fit = Math.min(
+        1.5,
+        (window.innerHeight * 0.84) / r.height,
+        (window.innerWidth * 0.88) / r.width
+      );
+      const scale = Math.max(1, fit);
+      card.style.setProperty('--reel-fx', `${(window.innerWidth / 2 - (r.left + r.width / 2)).toFixed(1)}px`);
+      card.style.setProperty('--reel-fy', `${(window.innerHeight / 2 - (r.top + r.height / 2)).toFixed(1)}px`);
+      card.style.setProperty('--reel-fs', scale.toFixed(3));
+    };
+    place();
+    card.classList.add('is-focused');
+    document.querySelector('.section-social')?.classList.add('has-focus');
+    this.focusedReel = card;
+    // Kept centred while the viewport changes; a deliberate scroll away is
+    // taken as "I am done with this one" and releases it.
+    this.reelResize = () => place();
+    this.reelScrollOut = () => {
+      if (Math.abs(window.scrollY - startY) > window.innerHeight * 0.35) {
+        el.pause();
+        this.playingVideoId = null;
+        this.clearReelFocus();
+        this.cdr.markForCheck();
+      }
+    };
+    const startY = window.scrollY;
+    window.addEventListener('resize', this.reelResize, { passive: true });
+    window.addEventListener('scroll', this.reelScrollOut, { passive: true });
+  }
+
+  private clearReelFocus(): void {
+    if (this.reelResize) window.removeEventListener('resize', this.reelResize);
+    if (this.reelScrollOut) window.removeEventListener('scroll', this.reelScrollOut);
+    this.reelResize = undefined;
+    this.reelScrollOut = undefined;
+    if (this.focusedReel) {
+      this.focusedReel.classList.remove('is-focused');
+      this.focusedReel.style.removeProperty('--reel-fx');
+      this.focusedReel.style.removeProperty('--reel-fy');
+      this.focusedReel.style.removeProperty('--reel-fs');
+      this.focusedReel = undefined;
+    }
+    document.querySelector('.section-social')?.classList.remove('has-focus');
   }
 
   toggleFaq(i: number): void {
@@ -1383,7 +1459,9 @@ export class AppComponent implements AfterViewInit, OnDestroy {
           const restX = (LID_W * s) / CARD_W;
           const restY = (LID_H * s) / CARD_H;
           const cover = (w * 1.02) / CARD_W;
-          const open = track(p, 0.32, 0.94);
+          // Same correction as the phone chapter: the last samples showed no
+          // movement because this closed before the runway did.
+          const open = track(p, 0.32, 0.99);
           const g = Math.pow(open, 2.1);
           const recompose = Math.pow(open, 1.35);
           portal.style.setProperty(
@@ -1612,7 +1690,13 @@ export class AppComponent implements AfterViewInit, OnDestroy {
         // stage there is only about half a viewport of travel, so spending any
         // of it idle would force the motion itself to move faster to keep up.
         const emerge = track(p, 0.05, 0.34);
-        const open = track(p, 0.30, 0.86);
+        // THE TAIL WAS FROZEN. Sampling the chapter at forty points, the phone
+        // stopped moving entirely from 90% to the end - five consecutive
+        // samples with no change - because this window closed at 0.86 while the
+        // section kept scrolling. The object arrived and then waited for the
+        // page to catch up, which is the one thing a scroll-driven object must
+        // never do. Closing at 0.97 spends the runway it actually has.
+        const open = track(p, 0.30, 0.97);
         // The device element carries the cut-out handset at its own aspect
         // ratio, 119x287. The curve is unchanged; the constants are only
         // renormalised against that base, so the phone is the same number of
