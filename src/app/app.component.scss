@@ -335,34 +335,52 @@ select {
   margin-inline: auto;
   width: fit-content;
   // Lifted off the true bottom, and off the home indicator on a modern iPhone.
-  bottom: calc(env(safe-area-inset-bottom, 0px) + clamp(14px, 2.4vh, 22px));
+  bottom: calc(env(safe-area-inset-bottom, 0px) + clamp(10px, 1.8vh, 16px));
   display: flex;
-  gap: 10px;
-  padding: 8px;
+  gap: 8px;
+  padding: 6px;
   border-radius: 999px;
-  background: color-mix(in srgb, var(--bg) 82%, transparent);
-  border: 1px solid color-mix(in srgb, var(--rule) 70%, transparent);
-  box-shadow: 0 6px 22px rgba(26, 24, 22, 0.07);
+  // Quieter than it was. The group had a solid pill behind it and a shadow that
+  // made it read as a fourth navigation bar; it is a utility layer and should
+  // barely register until it is wanted.
+  background: color-mix(in srgb, var(--bg) 62%, transparent);
+  border: 1px solid color-mix(in srgb, var(--rule) 46%, transparent);
+  box-shadow: 0 4px 16px rgba(26, 24, 22, 0.05);
+  // Held back over the hero.
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(8px);
+  transition: opacity 420ms var(--ease-smooth), transform 420ms var(--ease-smooth),
+    visibility 0s linear 420ms;
+
+  &.is-visible {
+    opacity: 1;
+    visibility: visible;
+    transform: none;
+    transition: opacity 420ms var(--ease-smooth), transform 420ms var(--ease-smooth),
+      visibility 0s;
+  }
   backdrop-filter: blur(10px) saturate(1.05);
   -webkit-backdrop-filter: blur(10px) saturate(1.05);
 }
 
 .social-dock__link {
-  width: 46px;
-  height: 46px;
+  // 44 rather than 46: still the full comfortable target, a touch less present.
+  width: 44px;
+  height: 44px;
   border-radius: 50%;
   display: grid;
   place-items: center;
-  color: var(--text);
-  background: color-mix(in srgb, #fff 78%, transparent);
-  border: 1px solid color-mix(in srgb, var(--rule) 60%, transparent);
+  color: color-mix(in srgb, var(--text) 78%, transparent);
+  background: color-mix(in srgb, #fff 66%, transparent);
+  border: 1px solid color-mix(in srgb, var(--rule) 48%, transparent);
   -webkit-tap-highlight-color: transparent;
   transition: transform 260ms var(--ease-smooth), color 260ms var(--ease-smooth),
     border-color 260ms var(--ease-smooth);
 
   svg {
-    width: 21px;
-    height: 21px;
+    width: 19px;
+    height: 19px;
     display: block;
   }
 
@@ -406,6 +424,10 @@ select {
 }
 
 @media (prefers-reduced-motion: reduce) {
+  .social-dock {
+    transition: none;
+  }
+
   .social-dock__link {
     transition: none;
 

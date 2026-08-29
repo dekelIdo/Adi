@@ -1032,9 +1032,15 @@
        precedence over the content or the header above it. Icons are inline SVG
        in the same stroked language as the back-to-top control, so no icon
        dependency is introduced for three glyphs. -->
-  <nav class="social-dock" aria-label="הרשתות של עדי">
+  <nav
+    class="social-dock"
+    [class.is-visible]="socialDockVisible"
+    [attr.aria-hidden]="!socialDockVisible"
+    aria-label="הרשתות של עדי"
+  >
     <a
       class="social-dock__link"
+      [tabindex]="socialDockVisible ? 0 : -1"
       [href]="socialLinks.whatsapp"
       target="_blank"
       rel="noopener noreferrer"
@@ -1047,6 +1053,7 @@
     </a>
     <a
       class="social-dock__link"
+      [tabindex]="socialDockVisible ? 0 : -1"
       [href]="socialLinks.instagram"
       target="_blank"
       rel="noopener noreferrer"
@@ -1060,6 +1067,7 @@
     </a>
     <a
       class="social-dock__link"
+      [tabindex]="socialDockVisible ? 0 : -1"
       [href]="socialLinks.tiktok"
       target="_blank"
       rel="noopener noreferrer"

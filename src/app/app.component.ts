@@ -150,6 +150,16 @@ export class AppComponent implements AfterViewInit, OnDestroy {
   private scrollListeners: Array<() => void> = [];
   private rafIds: number[] = [];
   backToTopVisible = false;
+  /**
+   * The dock waits until the hero is behind you.
+   *
+   * It is a utility, and a utility has no business competing with the opening
+   * frame - which is exactly what it was doing: on a phone it sat directly over
+   * the client logos, so the first thing the page said about who Adi works with
+   * arrived with three circles on top of it. Held back until the hero is mostly
+   * scrolled, it is out of the way when it should be and to hand from then on.
+   */
+  socialDockVisible = false;
   openFaqIndex: number | null = null;
   currentHeaderTheme: 'light' | 'dark' = 'dark'; // Start with dark for hero
 
@@ -637,8 +647,23 @@ export class AppComponent implements AfterViewInit, OnDestroy {
 
   // ─── Back to top ───────────────────────────────────────────────────────────
   private initBackToTop(): void {
+    // MARK FOR CHECK, or none of this reaches the DOM.
+    //
+    // This component is OnPush and the listener only assigned fields. Zone's
+    // patched scroll handler ticks change detection globally, but an OnPush view
+    // is skipped unless it has been marked dirty - so backToTopVisible has been
+    // flipping correctly and the button has never once appeared. Found while
+    // wiring the dock's own visibility onto the same signal.
     const update = () => {
-      this.backToTopVisible = window.scrollY > 400;
+      const top = window.scrollY;
+      const nextTop = top > 400;
+      // Roughly the hero's own height, so the dock arrives with the second
+      // screen rather than sitting on the first.
+      const nextDock = top > window.innerHeight * 0.72;
+      if (nextTop === this.backToTopVisible && nextDock === this.socialDockVisible) return;
+      this.backToTopVisible = nextTop;
+      this.socialDockVisible = nextDock;
+      this.cdr.markForCheck();
     };
     update();
     this.scrollListeners.push(update);
