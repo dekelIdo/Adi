@@ -3043,11 +3043,21 @@ div[id] {
   gap: 0;
   width: max-content;
   will-change: transform;
+  // FAIL-SAFE DIRECTION: running by default, paused only when told.
+  //
+  // This was paused in CSS and started by a class the IntersectionObserver adds.
+  // That inverts the risk: the observer is attached once, and if the element is
+  // not in the DOM at that moment - a conditional block, a slow mobile load -
+  // it is never observed and the rail stays stopped forever with nothing in the
+  // console to say so. Which is exactly the "carousel stopped rotating" report.
+  //
+  // Now the animation runs on its own and the observer only pauses it off
+  // screen. If the observer never runs the rail still turns; the worst case is a
+  // little wasted work rather than a dead carousel.
   animation: reelScroll 52s linear infinite;
-  animation-play-state: paused;
 
-  &.is-reeling {
-    animation-play-state: running;
+  &.is-idle {
+    animation-play-state: paused;
   }
 }
 
@@ -3162,11 +3172,12 @@ div[id] {
   gap: 0;
   width: max-content;
   will-change: transform;
+  // Same inversion as the portfolio rail above: runs on its own, pauses only
+  // when the observer says it is off screen.
   animation: reelScroll 44s linear infinite;
-  animation-play-state: paused;
 
-  &.is-reeling {
-    animation-play-state: running;
+  &.is-idle {
+    animation-play-state: paused;
   }
 }
 
@@ -4719,8 +4730,19 @@ div[id] {
   // which reads as a compressed template rather than as one frame. At 93svh the
   // photograph owns the opening screen and only the strip breaks the fold, which
   // is enough to say there is more without giving the next chapter away.
+  // THE CLIENTS BELONG ON THE FIRST SCREEN.
+  //
+  // 93svh was chosen so the photograph would own the opening and only a strip of
+  // the marquee would break the fold. Measured, that strip is 44px on an 844
+  // viewport and 16px on an 800 one - not a hint of more, just a sliver, and the
+  // visitor had to nudge the page to find out who Adi works with. That is the
+  // one thing the marquee exists to say.
+  //
+  // 79svh lifts it by about ninety pixels, enough that the logos read at a
+  // glance. The photograph still owns the screen; this is the smallest
+  // reduction that does the job.
   .hero {
-    min-height: clamp(560px, 93svh, 760px);
+    min-height: clamp(540px, 79svh, 690px);
   }
 
   .hero-img {

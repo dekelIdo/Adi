@@ -87,16 +87,16 @@ export class AppComponent implements AfterViewInit, OnDestroy {
   /**
    * The three places Adi is reachable, in one object.
    *
-   * PLACEHOLDERS. Every one of these is a real destination the moment the real
-   * handles are dropped in here - nothing else in the template or the styles
-   * refers to a URL, so changing them is a one line edit and cannot go stale in
-   * two places. The WhatsApp entry is the wa.me form, which wants a number in
-   * international format with no plus and no separators.
+   * Instagram and TikTok are her real profiles. WhatsApp is still a placeholder:
+   * wa.me wants a number in international format with no plus and no separators,
+   * and I do not have hers. Nothing else in the template or the styles refers to
+   * a URL, so replacing it is a one line edit that cannot go stale in two
+   * places.
    */
   readonly socialLinks = {
     whatsapp: 'https://wa.me/972000000000',
-    instagram: 'https://www.instagram.com/',
-    tiktok: 'https://www.tiktok.com/'
+    instagram: 'https://www.instagram.com/adi_arieli1/',
+    tiktok: 'https://www.tiktok.com/@adiarieli0'
   };
 
   /**
@@ -267,10 +267,27 @@ export class AppComponent implements AfterViewInit, OnDestroy {
       }
     });
 
-    el.muted = true; // required for inline autoplay on iOS
+    // SOUND ON, BECAUSE SHE ASKED FOR IT.
+    //
+    // This ran el.muted = true on every play, including this one - a tap. That
+    // flag exists for autoplay, where browsers require it, and this is the
+    // opposite case: an explicit gesture, which is exactly the condition under
+    // which audio is allowed. Muting here threw away the only permission the
+    // browser was ever going to give.
+    //
+    // If a browser refuses anyway the promise rejects, and rather than leave her
+    // with nothing we retry muted - so the reel always plays, and it plays with
+    // sound wherever sound is permitted.
+    el.muted = false;
     void el.play().then(
       () => (this.playingVideoId = video.id),
-      () => (this.playingVideoId = null)
+      () => {
+        el.muted = true;
+        void el.play().then(
+          () => (this.playingVideoId = video.id),
+          () => (this.playingVideoId = null)
+        );
+      }
     );
   }
 
@@ -1308,10 +1325,23 @@ export class AppComponent implements AfterViewInit, OnDestroy {
           // locked, so this anchor is fixed - the object grows out of the exact
           // point in the photograph where the laptop actually is, and can never
           // arrive from the side.
-          const ax = padX - cx * BASE * s + CENTROID[0] * s;
-          const ay = padY - cy * BASE * IMG_R * s + CENTROID[1] * s;
-          portal.style.setProperty('--pt-x', `${ax.toFixed(1)}px`);
-          portal.style.setProperty('--pt-y', `${ay.toFixed(1)}px`);
+          const lidX = padX - cx * BASE * s + CENTROID[0] * s;
+          const lidY = padY - cy * BASE * IMG_R * s + CENTROID[1] * s;
+
+          // AND IT RECOMPOSES AS IT GROWS.
+          //
+          // The lid sits at about a quarter of the way across the picture, so
+          // anchoring the object there for the whole move meant that by the time
+          // it was full size it hung off the left edge - on a 390 screen its
+          // centre was at x=98 with a width of 398, cutting a hundred pixels off
+          // the side. That is the cropping the testers reported, and it is a
+          // composition fault rather than a transform one.
+          //
+          // So the anchor travels from the lid's real position to the middle of
+          // the frame as the object comes forward. At rest it is exactly on the
+          // laptop, which is what registration needs; by the time it dominates
+          // it is centred, which is what a camera operator would do. The drift
+          // is the object being followed, not the photograph moving.
 
           // HOW BIG. It starts at the width the lid really occupies on screen
           // and finishes covering the viewport, on the accelerating curve the
@@ -1330,6 +1360,15 @@ export class AppComponent implements AfterViewInit, OnDestroy {
           const cover = (w * 1.02) / CARD_W;
           const open = track(p, 0.32, 0.94);
           const g = Math.pow(open, 2.1);
+          const recompose = Math.pow(open, 1.35);
+          portal.style.setProperty(
+            '--pt-x',
+            `${(lidX + (w / 2 - lidX) * recompose).toFixed(1)}px`
+          );
+          portal.style.setProperty(
+            '--pt-y',
+            `${(lidY + (h * 0.44 - lidY) * recompose).toFixed(1)}px`
+          );
           portal.style.setProperty('--pt-sx', (restX + g * (cover - restX)).toFixed(4));
           portal.style.setProperty('--pt-sy', (restY + g * (cover - restY)).toFixed(4));
 
@@ -1652,7 +1691,8 @@ export class AppComponent implements AfterViewInit, OnDestroy {
       const obs = new IntersectionObserver(
         (entries) => {
           entries.forEach((entry) => {
-            entry.target.classList.toggle('is-reeling', entry.isIntersecting);
+            // Pauses off screen; the CSS already has them running.
+            entry.target.classList.toggle('is-idle', !entry.isIntersecting);
           });
         },
         { rootMargin: '120px 0px' }
