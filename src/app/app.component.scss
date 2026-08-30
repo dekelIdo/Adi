@@ -136,6 +136,16 @@ html {
 }
 
 @media (prefers-reduced-motion: reduce) {
+  // The headline mask is the only reveal that hides with geometry rather than
+  // opacity, so it is released explicitly - a 0.01ms transition would still
+  // leave the initial clip applied.
+  .section-title.reveal,
+  .section-title.reveal.is-visible {
+    animation: none;
+    clip-path: none;
+    transform: none;
+  }
+
   html {
     scroll-behavior: auto;
   }
@@ -4621,12 +4631,62 @@ div[id] {
   }
 }
 
-.reveal-hero {
-  transform: translateY(20px);
+// A MOTION GRAMMAR, BECAUSE THERE WAS ONLY ONE MOTION.
+//
+// These read as four treatments and were one. .reveal-rise and .reveal-float
+// were byte-identical to the default, .reveal-hero appears nowhere in the
+// markup, and the rest differed only in how far they slid: 10, 14 or 20 pixels.
+// Eighty-two elements, one animation, separated by a 55ms stagger - so a
+// headline arrived exactly like a paragraph, and a card exactly like a caption.
+// When everything enters the same way nothing is more important than anything
+// else, and that flatness is what reads as generated rather than directed.
+//
+// The reference for this pass makes the point from the other side: it carries no
+// animation library at all, and its authority comes from sequence and space. So
+// this is not more motion. It is the same amount, told in three grammars
+// instead of one.
+
+// LEVEL 2 - EDITORIAL. A headline is not nudged into place, it is uncovered:
+// the type rises out from behind its own baseline. It is the one gesture on the
+// page that says a chapter is beginning, and it is reserved for that.
+// FAIL-SAFE BY CONSTRUCTION. The hiding is still opacity, exactly as every other
+// reveal on the page, so a title that never receives is-visible behaves the way
+// it always has and nothing new can hide it. The mask is an ANIMATION played on
+// arrival rather than a resting state, which means the element's resting clip is
+// none - there is no state in which geometry can strand a headline offscreen.
+// Two earlier attempts held the clip as the resting state and both left titles
+// invisible; this cannot.
+.section-title.reveal {
+  transform: translateY(0.2em);
+
+  &.is-visible {
+    transform: none;
+    animation: titleUnmask 900ms var(--ease-expo) both;
+  }
 }
 
+@keyframes titleUnmask {
+  // Generous on three sides so descenders, the accent underline and any RTL
+  // overhang are never sliced. Only the bottom edge masks.
+  from {
+    clip-path: inset(-40% -25% 105% -25%);
+  }
+  to {
+    clip-path: inset(-40% -25% -40% -25%);
+  }
+}
+
+// LEVEL 3 - OBJECT. Cards and statements have physical presence, so they settle
+// rather than slide: a card arrives by coming to rest at its own size. The
+// distance is smaller than the default on purpose - the scale carries the
+// movement, so the travel does not have to.
 .reveal-rise {
-  transform: translateY(14px);
+  transform: translateY(8px) scale(0.988);
+  transform-origin: 50% 85%;
+
+  &.is-visible {
+    transform: none;
+  }
 }
 
 .reveal-float {
@@ -4647,8 +4707,16 @@ div[id] {
   --drift-scale: 1;
 }
 
+// LEVEL 1 - MICRO. Small secondary text has no business travelling; it simply
+// resolves, which keeps the eye on whatever is at Level 2 or 3 in the same
+// frame instead of giving six things equal billing.
 .reveal-soft {
-  transform: translateY(10px);
+  transform: none;
+  transition: opacity 620ms var(--ease-smooth);
+
+  &.is-visible {
+    transform: none;
+  }
 }
 
 // Stagger delays
