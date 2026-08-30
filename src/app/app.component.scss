@@ -2275,8 +2275,12 @@ div[id] {
     // The construction is the real one: an aluminium shell, then a thin dark
     // bezel, then the display. The shell dominates, so what the viewer sees is a
     // peach laptop rather than a black rectangle.
-    --mb-r: 2.4%;
-    --mb-shell: 1.5%;
+    // The shell was 1.5%, which at the size this renders is about five pixels -
+    // too thin to register as metal, so the object read as a white card with a
+    // hairline. 2.8% is still a MacBook's proportion and it is enough that the
+    // aluminium is actually seen, which is the whole point of sampling it.
+    --mb-r: 2.6%;
+    --mb-shell: 2.8%;
     background:
       linear-gradient(157deg,
         #d8cfd2 0%,
@@ -2289,9 +2293,12 @@ div[id] {
     // One hairline of specular along the top edge, the way brushed aluminium
     // catches a studio light, and a restrained contact shadow underneath.
     box-shadow:
-      inset 0 1px 0 rgba(255, 255, 255, 0.5),
-      inset 0 -1px 0 rgba(120, 84, 66, 0.28),
-      0 18px 46px rgba(84, 58, 46, 0.16);
+      // A brighter specular along the top edge and a deeper one underneath, so
+      // the frame has a lit side and a shadowed side rather than one flat tone.
+      inset 0 2px 0 rgba(255, 255, 255, 0.62),
+      inset 0 -2px 0 rgba(120, 84, 66, 0.38),
+      inset 2px 0 0 rgba(255, 255, 255, 0.18),
+      0 20px 52px rgba(84, 58, 46, 0.2);
     pointer-events: none;
     z-index: 3;
     will-change: transform, opacity;
@@ -2324,8 +2331,10 @@ div[id] {
   .is-cinematic .laptop-screen {
     // The bezel: thin, and warm rather than pure black, because the dark line
     // around a real screen picks up the colour of the shell around it.
-    border: 1.3% solid #2a211d;
-    border-radius: 1.1%;
+    // Thinner and warmer: the dark line around a real display is barely there,
+    // and it takes its colour from the shell around it.
+    border: 0.9% solid #34281f;
+    border-radius: 0.9%;
     background: var(--surface);
     height: 100%;
     // DESIGNED FOR THIS DISPLAY, not the desktop section shrunk into it. The

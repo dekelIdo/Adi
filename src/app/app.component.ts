@@ -1708,7 +1708,23 @@ export class AppComponent implements AfterViewInit, OnDestroy {
         // 390 screen; starting at 26 put a slab in front of her hand instead of
         // taking its place. The emerge term absorbs the difference, so the
         // device is the same size from the end of the emerge beat onward.
-        const scale = 0.105 + emerge * 0.2445 + Math.pow(open, 2.1) * need;
+        // GEOMETRIC, NOT ADDITIVE.
+        //
+        // The old curve added pow(open, 2.1) * need to a base, which meant the
+        // RATE of apparent growth was itself accelerating. Measured as the ratio
+        // between consecutive samples - the honest way to judge something that
+        // goes from twelve pixels to two thousand - it ramped from 1.10 to 1.36
+        // and decayed back to 1.11: a bulge in the middle, which the eye reads
+        // as the shot lurching and then easing off.
+        //
+        // A dolly at a steady rate multiplies apparent size by a constant factor
+        // per unit of travel, so the interpolation is geometric. Same start,
+        // same finish, same drama - but the growth rate is flat, which is what
+        // makes it feel like the page is moving the object rather than scrubbing
+        // a video.
+        const base = 0.105 + emerge * 0.2445;
+        const arrive = 0.3495 + need;
+        const scale = open > 0 ? base * Math.pow(arrive / base, open) : base;
 
         portal.style.setProperty('--portal-scale', scale.toFixed(3));
         // Solid almost at once. Fading a physical object in over a sixth of the
