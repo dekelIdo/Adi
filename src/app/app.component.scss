@@ -836,9 +836,44 @@ select {
 
 // ─────── BRAND MARQUEE ─────────────────────────────────────────────────────────
 
+// ─────── BRIDGE 1 — THE HERO RESOLVES INTO ITS OWN PROOF ──────────────────────
+//
+// Measured across the page, the boundaries between the three opaque dark fields
+// and the paper runs between them are all hard cuts. This is the first one the
+// visitor meets and the most abrupt: a near-black hero at rgb(10,8,6) ends, and
+// 252,251,250 paper begins on the next pixel. The clients read as a separate
+// component that loaded after the hero rather than as the hero's first piece of
+// evidence.
+//
+// The fix is tone, not motion - which is how the reference does it too, with no
+// animation library anywhere. The marquee carries the hero's own darkness at its
+// top edge and lets it fall to paper across the first eighty pixels, so the logos
+// appear to surface out of the hero's shadow. Nothing moves, nothing fades in on
+// scroll, no element is added: the two chapters simply stop having a seam.
 .brand-marquee-section {
   padding: clamp(30px, 5vh, 54px) 0 clamp(32px, 5.4vh, 58px);
   background: var(--bg);
+  position: relative;
+  isolation: isolate;
+
+  &::before {
+    content: "";
+    position: absolute;
+    inset-inline: 0;
+    inset-block-start: 0;
+    height: clamp(56px, 9vh, 92px);
+    z-index: -1;
+    pointer-events: none;
+    // The hero's exact field, released into the page's paper. Ends fully
+    // transparent so the marquee's own background finishes the transition.
+    background: linear-gradient(
+      to bottom,
+      rgb(10, 8, 6) 0%,
+      rgba(10, 8, 6, 0.55) 34%,
+      rgba(10, 8, 6, 0.16) 68%,
+      rgba(10, 8, 6, 0) 100%
+    );
+  }
 }
 
 .brand-marquee-intro {
