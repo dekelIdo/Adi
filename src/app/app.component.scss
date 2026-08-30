@@ -2070,13 +2070,27 @@ div[id] {
   // 100vh of document for 65vh of travel, where the old build spent 128vh of
   // document to get 28vh of travel and then made the visitor scroll a further
   // screen of nothing before the process chapter arrived.
+  // THE LAPTOP CHAPTER WAS THE SLOWEST PART OF THE FILM.
+  //
+  // Measured as visual change per pixel scrolled - the honest way to ask whether
+  // a runway is the right length - the phone chapter runs at 3.04 and the laptop
+  // at 0.59. Five times less happening per unit of scroll, in two chapters of
+  // the same story, which is what makes this one feel like it is asking for
+  // patience rather than carrying you.
+  //
+  // Three variants were built and measured with the choreography untouched:
+  // 165vh gives 0.59, 145vh gives 0.85, 130vh gives 1.28. 145 is the one taken.
+  // 130 more than doubles the density but leaves only 253px of travel, and this
+  // object has more beats than the phone does - it approaches, turns, reveals a
+  // screen and hands over - so it needs the room to be read. The object's motion
+  // is unchanged; only the distance it is spread over.
   .section-bridge.is-cinematic {
-    margin-bottom: -48vh;
+    margin-bottom: -42vh;
   }
 
   .is-cinematic .bridge-stage {
     position: relative;
-    height: 165vh;
+    height: 145vh;
   }
 
   .is-cinematic .bridge-sticky {
