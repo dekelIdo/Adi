@@ -1163,6 +1163,9 @@ export class AppComponent implements AfterViewInit, OnDestroy {
     // top edge, which leans 21.5 degrees. The whole animation starts from these.
     const LID_W = 227;
     const LID_H = 270;
+    // The hinge line: the lowest point of the lid quad in scene units, which is
+    // where her fingers close around the machine.
+    const LID_BOTTOM = 580.1;
     const LID_TILT = -21.5;
     const CARD_W = 1200;
     const CARD_H = 784;
@@ -1464,13 +1467,29 @@ export class AppComponent implements AfterViewInit, OnDestroy {
           const open = track(p, 0.32, 0.99);
           const g = Math.pow(open, 2.1);
           const recompose = Math.pow(open, 1.35);
+
+          // AND IT STAYS SEATED IN HER HANDS WHILE IT GROWS.
+          //
+          // Centred on the lid's centroid, the panel grows about its own middle,
+          // which lifts its bottom edge off the hinge - watching the checkpoints
+          // the machine visibly rose away from her fingers as it enlarged, and
+          // that is what makes it read as a panel laid over the photograph
+          // rather than the lid of something she is holding.
+          //
+          // So while it is still small the anchor is chosen to keep its BOTTOM
+          // on the hinge line rather than its centre on the centroid: the object
+          // grows upward out of her hands, which is what a lid opening does.
+          // Only once it has taken the frame does it recompose to the middle,
+          // by which point the hands are no longer the reference.
+          const hingeY = padY - cy * BASE * IMG_R * s + LID_BOTTOM * s;
+          const seatedY = hingeY - (CARD_H * (restY + g * (cover - restY))) / 2;
           portal.style.setProperty(
             '--pt-x',
             `${(lidX + (w / 2 - lidX) * recompose).toFixed(1)}px`
           );
           portal.style.setProperty(
             '--pt-y',
-            `${(lidY + (h * 0.44 - lidY) * recompose).toFixed(1)}px`
+            `${(seatedY + (h * 0.44 - seatedY) * recompose).toFixed(1)}px`
           );
           portal.style.setProperty('--pt-sx', (restX + g * (cover - restX)).toFixed(4));
           portal.style.setProperty('--pt-sy', (restY + g * (cover - restY)).toFixed(4));
