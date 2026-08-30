@@ -4371,6 +4371,20 @@ div[id] {
   padding: var(--space-xl) 0;
 }
 
+// ─────── FAQ — AN EDITORIAL INDEX, NOT AN ACCORDION ───────────────────────────
+//
+// What was here read as a SaaS component: a gradient blue circle carrying a "+",
+// a chevron-weight affordance on every row, and a max-height hack that eased
+// toward a guessed 500px rather than the answer's real height - so a short answer
+// snapped and a long one crawled, and no two rows opened at the same speed.
+//
+// This is the same list told as an index. The questions are numbered in the
+// brand's own numeral language - the one the services and process chapters
+// already use - so the section belongs to the page rather than to a component
+// library. Numbering comes from a CSS counter, so not a character of the copy is
+// touched. The rows are hairlines and space; the only thing that changes when a
+// question opens is that it becomes the one you are meant to be reading.
+
 .faq-list {
   display: flex;
   flex-direction: column;
@@ -4378,6 +4392,7 @@ div[id] {
   max-width: 920px;
   margin: 0 auto;
   border-top: 1px solid var(--rule);
+  counter-reset: faq;
 }
 
 .faq-item {
@@ -4388,82 +4403,132 @@ div[id] {
   box-shadow: none;
   overflow: hidden;
   transition: none;
-
-  &--open {
-    box-shadow: none;
-  }
 }
 
 .faq-q {
   width: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--space-sm);
-  padding: var(--space-sm) var(--space-md);
+  display: grid;
+  // number · question · mark. The number is a fixed column so every question
+  // starts on the same optical line, which is what makes a list read as an index.
+  grid-template-columns: auto 1fr auto;
+  align-items: baseline;
+  gap: clamp(12px, 3vw, 22px);
+  padding: clamp(17px, 2.4vh, 24px) clamp(4px, 1.4vw, 12px);
   background: none;
   border: none;
-  font-size: var(--text-base);
-  font-weight: 600;
-  color: var(--text);
+  font-family: var(--font-body);
+  font-size: clamp(1rem, 3.6vw, 1.12rem);
+  font-weight: 500;
+  line-height: 1.45;
+  color: color-mix(in srgb, var(--text) 72%, transparent);
   text-align: start;
   cursor: pointer;
-  transition: color var(--motion-mid) var(--ease-smooth);
+  transition: color 320ms var(--ease-smooth);
 
-  &:hover {
-    color: color-mix(in srgb, var(--brand-accent) 58%, var(--text));
-  }
-}
-
-.faq-icon {
-  flex-shrink: 0;
-  width: 27px;
-  height: 27px;
-  border-radius: 50%;
-  background: linear-gradient(145deg, var(--brand-accent), var(--brand-accent-dim));
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: all 280ms var(--ease-smooth);
-
+  // The index numeral, from a counter so the copy is untouched.
   &::before {
-    content: "+";
-    font-size: var(--text-xl);
+    counter-increment: faq;
+    content: counter(faq, decimal-leading-zero);
+    font-size: 0.72rem;
     font-weight: 600;
-    color: var(--text);
-    line-height: 1;
-    transition: all 280ms var(--ease-smooth);
+    letter-spacing: 0.1em;
+    color: color-mix(in srgb, var(--text) 34%, transparent);
+    transition: color 320ms var(--ease-smooth);
+    font-variant-numeric: tabular-nums;
   }
 
-  .faq-item--open & {
-    transform: rotate(45deg);
+  &:hover,
+  &:focus-visible {
+    color: var(--text);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--brand-accent);
+    outline-offset: -3px;
   }
 }
 
-.faq-body {
-  max-height: 0;
-  overflow: hidden;
-  transition: max-height 540ms var(--ease-expo);
+// THE OPEN QUESTION IS THE THING YOU ARE READING. It is the only state change:
+// the row it belongs to comes fully forward while the others sit back a little.
+.faq-item--open .faq-q {
+  color: var(--text);
+  font-weight: 600;
+}
 
-  .faq-item--open & {
-    max-height: 500px;
+.faq-item--open .faq-q::before {
+  color: var(--brand-accent-dim);
+}
+
+// The mark: two hairlines, not a filled circle. The vertical one retracts as the
+// answer opens, so the gesture is the row opening rather than an icon spinning.
+.faq-icon {
+  position: relative;
+  flex-shrink: 0;
+  width: 13px;
+  height: 13px;
+  align-self: center;
+
+  &::before,
+  &::after {
+    content: "";
+    position: absolute;
+    inset-block-start: 50%;
+    inset-inline-start: 0;
+    width: 100%;
+    height: 1px;
+    background: color-mix(in srgb, var(--text) 46%, transparent);
+    transition: transform 420ms var(--ease-expo), background-color 320ms var(--ease-smooth);
   }
+
+  &::after {
+    transform: rotate(90deg);
+  }
+}
+
+.faq-item--open .faq-icon::after {
+  transform: rotate(0deg);
+}
+
+.faq-item--open .faq-icon::before,
+.faq-item--open .faq-icon::after {
+  background: var(--text);
+}
+
+// GRID ROWS, NOT A GUESSED MAX-HEIGHT. This animates to the answer's actual
+// height, so every row opens at the same speed regardless of how long the answer
+// is - which the 500px ceiling could never do.
+.faq-body {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows 520ms var(--ease-expo);
 
   > div {
-    padding: 0 var(--space-md) var(--space-md);
+    overflow: hidden;
+    min-height: 0;
+    padding-inline: calc(0.72rem + clamp(12px, 3vw, 22px)) clamp(4px, 1.4vw, 12px);
   }
 
   p {
-    font-size: var(--text-base);
-    line-height: 1.72;
+    margin: 0;
+    padding-bottom: clamp(18px, 2.6vh, 26px);
+    max-width: 62ch;
     color: var(--text-muted);
-    margin-bottom: var(--space-xs);
-
-    &:last-child {
-      margin-bottom: 0;
-    }
+    line-height: 1.72;
   }
 }
+
+.faq-item--open .faq-body {
+  grid-template-rows: 1fr;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .faq-body,
+  .faq-icon::before,
+  .faq-icon::after {
+    transition: none;
+  }
+}
+
 
 // ── THE ESCAPING FRAME (applied last, to beat the per-section wrappers) ────────
 // Only the photograph leaves the grid; the text keeps its gutter. That contrast
