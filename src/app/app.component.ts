@@ -52,7 +52,20 @@ interface Review {
 
 interface BrandLogo {
   name: string;
-  logo: string;
+  /**
+   * The client's real mark. Optional on purpose.
+   *
+   * Two of these clients have no logo file in the repository, and what stood in
+   * for them were SVGs containing nothing but a <text> element - their name set
+   * in Assistant and shipped as an image. Greyscaled and dropped to half opacity
+   * beside four genuine marks, those read as logos that had failed to load, on
+   * the one strip of the page whose entire job is to be believed.
+   *
+   * A name a studio sets in its own typeface is honest and looks deliberate; a
+   * fabricated wordmark looks like a placeholder nobody replaced. So a client
+   * without a mark is typeset instead, and the interface says so.
+   */
+  logo?: string;
   href: string;
   scale?: 'clalit' | 'large' | 'default';
 }
@@ -167,11 +180,11 @@ export class AppComponent implements AfterViewInit, OnDestroy {
   currentHeaderTheme: 'light' | 'dark' = 'dark'; // Start with dark for hero
 
   brandLogos: BrandLogo[] = [
-    { name: 'Clalit Active+', logo: 'assets/brand-logos/clalit-active.svg', href: 'https://www.clalit.co.il', scale: 'clalit' },
+    { name: 'Clalit Active+', href: 'https://www.clalit.co.il' },
     { name: 'Allen Carr', logo: 'assets/lovable-uploads/client-allen-carr.png', href: '#', scale: 'default' },
     { name: 'Movement', logo: 'assets/lovable-uploads/client-movement.png', href: '#', scale: 'large' },
     { name: 'Moon Productions', logo: 'assets/lovable-uploads/client-moon-productions.png', href: '#', scale: 'default' },
-    { name: 'Ichilov Well', logo: 'assets/brand-logos/ichilov-well.svg', href: 'https://www.ichilov.org.il', scale: 'default' }
+    { name: 'Ichilov Well', href: 'https://www.ichilov.org.il' }
   ];
 
   /**

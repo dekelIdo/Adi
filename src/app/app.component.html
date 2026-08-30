@@ -98,7 +98,8 @@
               target="_blank"
               rel="noopener noreferrer"
               [attr.aria-label]="brand.name">
-              <img [src]="brand.logo" [alt]="brand.name" />
+              <img *ngIf="brand.logo" [src]="brand.logo" [alt]="brand.name" />
+              <span *ngIf="!brand.logo" class="brand-track-name">{{ brand.name }}</span>
             </a>
           </div>
           <div class="brand-track-set" aria-hidden="true">
@@ -111,7 +112,8 @@
               target="_blank"
               rel="noopener noreferrer"
               tabindex="-1">
-              <img [src]="brand.logo" alt="" />
+              <img *ngIf="brand.logo" [src]="brand.logo" alt="" />
+              <span *ngIf="!brand.logo" class="brand-track-name" aria-hidden="true">{{ brand.name }}</span>
             </a>
           </div>
         </div>
