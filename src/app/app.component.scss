@@ -4490,7 +4490,19 @@ div[id] {
 // ─────── FOOTER ────────────────────────────────────────────────────────────────
 
 .site-footer {
-  padding: var(--space-sm) 0;
+  // THE PAGE WAS ENDING AT A THIRD OF ITS OWN RHYTHM.
+  //
+  // Every section boundary on this page is the sum of two tier paddings - 32+32
+  // through the middle of the page, 42+54 at the open chapters. The footer
+  // contributed var(--space-sm), which measures 10px on a phone and 11.7 on a
+  // desktop, so the last transition on the site was about a third of every one
+  // before it: the last FAQ question sat 32px from the copyright line and the
+  // composition stopped rather than closing.
+  //
+  // It takes the open tier at the top, which is what the other closing chapters
+  // use, and keeps a modest foot - the page ends here, and on a phone the dock
+  // clearance below already carries the rest.
+  padding: var(--sec-open) 0 var(--space-sm);
   background: linear-gradient(135deg, rgba(10, 8, 6, 0.97), rgba(6, 5, 4, 0.99));
   border-top: 1px solid rgba(196, 217, 240, 0.07);
 
@@ -5036,8 +5048,11 @@ div[id] {
   }
 
   // Footer
+  // Mobile kept the old flat var(--space-sm) here, which is what was ending the
+  // page at a third of its rhythm on the viewport that matters most. Same open
+  // tier as desktop; the dock clearance below still supplies the foot.
   .site-footer {
-    padding: var(--space-sm) 0;
+    padding: var(--sec-open) 0 var(--space-sm);
   }
 }
 
