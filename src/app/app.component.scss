@@ -1251,20 +1251,37 @@ select {
   }
 }
 
+// INK, NOT A PASTEL CAPSULE.
+//
+// In practice this styles exactly one element: the form's submit, the single
+// most important control on the site. The header CTA carries .btn-primary too
+// but overrides all of it, drawing itself from currentColor instead.
+//
+// It was a pale blue 999px pill with dark text - the default shape and the
+// default weight of every SaaS form on the internet, and the one place where
+// #bbddfa stopped being this page's hairline accent and became a fill. On a
+// cream editorial page the most confident thing a button can be is the same ink
+// the words are set in. So it is: solid, paper-coloured type, and a radius that
+// is drawn rather than fully rounded, because a capsule reads as a component
+// and a rectangle with a small radius reads as print. The blue stays where it
+// works - underlines, focus rings, the accent rule under a heading.
 .btn-primary {
-  background: var(--brand-accent);
-  color: var(--text);
-  border-color: var(--brand-accent);
+  background: var(--text);
+  color: var(--bg);
+  border-color: var(--text);
+  border-radius: var(--r-chip);
   box-shadow: none;
 
-  &:hover {
-    background: var(--brand-accent-dim);
-    border-color: var(--brand-accent-dim);
-    box-shadow: none;
+  &:hover,
+  &:focus-visible {
+    // Not a lighter blue: the same ink, lifted. The control gets more present
+    // under the pointer rather than changing identity.
+    background: #1b1917;
+    border-color: #1b1917;
   }
 
   &:active {
-    background: var(--brand-accent-dim);
+    background: var(--text);
   }
 }
 
@@ -4424,18 +4441,69 @@ div[id] {
   }
 }
 
+// INK, NOT A PASTEL CAPSULE.
+//
+// This is the single most important control on the site, and it was a pale blue
+// 999px pill with dark text - the default shape and the default weight of every
+// SaaS form on the internet, and the one place where #bbddfa stopped being this
+// page's hairline accent and became a fill. On a cream editorial page the most
+// confident thing a button can be is the same ink the words are set in. So it
+// is: solid, paper-coloured type, and a radius that is drawn rather than fully
+// rounded, because a capsule reads as a component and a small radius reads as
+// print. The blue keeps the work it is good at - underlines, focus rings, the
+// accent rule under a heading.
 .btn-submit {
   margin-top: var(--space-xs);
   align-self: flex-start;
-  background: var(--brand-accent);
-  color: var(--text);
-  border-color: var(--brand-accent);
+  background: var(--text);
+  color: var(--bg);
+  border-color: var(--text);
+  border-radius: var(--r-chip);
   box-shadow: none;
 
-  &:hover {
-    background: var(--brand-accent-dim);
-    border-color: var(--brand-accent-dim);
-    box-shadow: none;
+  &:hover,
+  &:focus-visible {
+    // The same ink, lifted. It becomes more present under the pointer rather
+    // than changing identity.
+    background: #1b1917;
+    border-color: #1b1917;
+  }
+}
+
+// AN EDITORIAL SPREAD, NOT TEXT BESIDE A FLOATING PICTURE.
+//
+// Centring the photograph against the taller form column is mathematically
+// correct and compositionally wrong: it left the picture hanging in the middle
+// of its column with roughly 180px of empty page under it, and the two halves
+// read as two unrelated objects that happen to sit side by side. Sharing a top
+// and a bottom line is what makes two columns read as one spread - it is the
+// oldest rule in page layout and it costs nothing here, because the crop can
+// give way instead of the composition.
+//
+// Only where there ARE two columns. Below 700px the layout is a single column
+// and a stretched row has no height to fill.
+@media (min-width: 700px) {
+  .contact-layout {
+    align-items: stretch;
+  }
+
+  .contact-img {
+    display: flex;
+
+    picture {
+      flex: 1;
+      display: flex;
+      min-height: 0;
+    }
+
+    img {
+      width: 100%;
+      height: 100%;
+      // The frame gives way, not the layout. She sits toward the end side of
+      // this photograph, so the crop is held there as the column changes height.
+      object-fit: cover;
+      object-position: 62% 50%;
+    }
   }
 }
 
@@ -4576,9 +4644,28 @@ div[id] {
   grid-template-rows: 0fr;
   transition: grid-template-rows 520ms var(--ease-expo);
 
+  // THE COLLAPSING ELEMENT CARRIES NO VERTICAL PADDING. EVER.
+  //
+  // This is the whole architecture of the open/close, and it is the one rule
+  // that is easy to break by accident. `min-height: 0` lets the CONTENT box
+  // collapse to nothing, which is what allows the 0fr track to reach zero - but
+  // padding is outside the content box and `min-height` has no authority over
+  // it. So a single vertical padding value here puts a floor under the closed
+  // state: the row can never measure less than that padding, and because the
+  // child is clipped rather than hidden, what shows in that gap is the top
+  // slice of the answer, bleeding out of a question that is supposed to be
+  // shut. That is exactly what was happening on mobile, where an old rule from
+  // the accordion this replaced was still setting the `padding` shorthand here
+  // - it survived because the desktop rule sets padding-inline only, so the
+  // fault appeared on phones and nowhere else.
+  //
+  // Vertical space belongs to the content INSIDE the box (the paragraph's own
+  // padding-bottom, below), never to the box that collapses. padding-block is
+  // pinned to 0 so a future shorthand cannot quietly reintroduce the floor.
   > div {
     overflow: hidden;
     min-height: 0;
+    padding-block: 0;
     padding-inline: calc(0.72rem + clamp(12px, 3vw, 22px)) clamp(4px, 1.4vw, 12px);
   }
 
@@ -4893,10 +4980,26 @@ div[id] {
   }
 }
 
-// Stagger delays
+// STAGGER, AND WHAT IS LEFT TO STAGGER.
+//
+// Eighty elements used to arrive on this page and every one of them arrived the
+// same way: up fourteen pixels, over the same duration, separated by the same
+// 55ms. A five row list therefore took most of a third of a second to assemble
+// itself one card at a time, which is the cadence of a component library
+// demonstrating itself rather than of a page being read.
+//
+// Two things changed. Supporting copy no longer animates at all - a paragraph
+// that fades in after its own headline is the single most template-like moment
+// on any site, and in print the sentence under a title is simply already there.
+// The headline is the event; the copy exists. That is stillness used on purpose,
+// and it is what makes the moments that DO move read as deliberate.
+//
+// And a list is one object, not five. What still staggers does so at half the
+// old interval, so a group settles as a unit with its first row leading rather
+// than dealing itself out like a hand of cards.
 @for $i from 1 through 6 {
   .delay-#{$i} {
-    transition-delay: #{$i * 55}ms;
+    transition-delay: #{$i * 28}ms;
   }
 }
 
@@ -5285,8 +5388,12 @@ div[id] {
     font-size: clamp(0.98rem, 2.4vw, 1.08rem);
   }
 
+  // Inline only. The `padding` shorthand that used to be here set a bottom
+  // padding on the collapsing grid item, which is what stopped the closed state
+  // from reaching zero height and leaked a strip of every answer between the
+  // questions. Vertical rhythm comes from the paragraph inside.
   .faq-body > div {
-    padding: 0 var(--space-sm) var(--space-sm);
+    padding-inline: var(--space-sm);
   }
 
   // Footer
