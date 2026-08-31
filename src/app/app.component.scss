@@ -1163,6 +1163,69 @@ select {
   display: none;
 }
 
+// ─────── CALLS TO ACTION — ONE LANGUAGE, TWO JOBS ─────────────────────────────
+//
+// The hero already made this decision and its own comment says so out loud:
+// "Quiet CTA: Editorial link, not button". It offers the most important link on
+// the page as a line of type with a hairline under it, and it is the most
+// authored moment here. Every other call to action then reverted to a ghost
+// pill - a transparent capsule with a 26% white border - in three near-identical
+// variants, one of which was never used in the markup at all. On top of that,
+// all four buttons ran a mousemove listener so they drifted five pixels toward
+// the cursor. That flourish is the signature of a template, not of a brand, and
+// it made the fixed header CTA wobble under the pointer.
+//
+// So there is one rule now, and it is a rule rather than a set of options:
+//
+//   A LINK IS TYPE.        Going somewhere - reading on, jumping to contact.
+//   A BUTTON IS A COMMIT.  Submitting the form; the one persistent header CTA.
+//
+// The chapter-closing "let's start" was the page's emotional close and it was
+// wearing the weakest element on the site. It sits on a dark photograph exactly
+// as the hero does, so it now speaks in the hero's voice - a size up, because
+// it is the end of the argument rather than the beginning.
+
+.cta-link {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  font-family: var(--font-body);
+  font-size: clamp(0.98rem, 2.6vw, 1.12rem);
+  font-weight: 500;
+  letter-spacing: 0.005em;
+  color: rgba(255, 255, 255, 0.86);
+  text-decoration: none;
+  border-bottom: 1px solid rgba(187, 221, 250, 0.38);
+  padding-bottom: 3px;
+  // Nothing moves. The line under the type is the whole gesture.
+  transition: color 280ms var(--ease-smooth), border-color 280ms var(--ease-smooth);
+
+  &:hover,
+  &:focus-visible {
+    color: #fff;
+    border-bottom-color: var(--brand-accent);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--brand-accent);
+    outline-offset: 6px;
+    border-radius: 2px;
+  }
+
+  // A line of type is only about 20px tall, which is not something a thumb can
+  // reliably hit. The touch target is grown to the 44px minimum with a
+  // transparent overlay instead of with padding, so the target is comfortable
+  // while the underline still measures exactly the width of the words.
+  &::after {
+    content: "";
+    position: absolute;
+    inset-inline: -14px;
+    inset-block: 50%;
+    block-size: 44px;
+    transform: translateY(-50%);
+  }
+}
+
 // ─────── BUTTONS ───────────────────────────────────────────────────────────────
 
 .btn {
@@ -1178,20 +1241,13 @@ select {
   border-radius: var(--r-control);
   border: 1px solid transparent;
   cursor: pointer;
-  transition: all 280ms var(--ease-smooth);
+  transition: background-color 280ms var(--ease-smooth),
+    border-color 280ms var(--ease-smooth), color 280ms var(--ease-smooth);
   text-decoration: none;
   line-height: 1.2;
 
-  // Magnetic effect
-  transform: translate(calc(var(--mx, 0) * 1px), calc(var(--my, 0) * 1px));
-
-  &:hover {
-    transform: translate(calc(var(--mx, 0) * 1px), calc(var(--my, 0) * 1px - 2px));
-  }
-  
   &:active {
-    transform: translate(calc(var(--mx, 0) * 1px), calc(var(--my, 0) * 1px));
-    transition: all 120ms var(--ease-smooth);
+    transform: translateY(1px);
   }
 }
 
@@ -1209,37 +1265,6 @@ select {
 
   &:active {
     background: var(--brand-accent-dim);
-  }
-}
-
-.btn-secondary {
-  background: rgba(255, 255, 255, 0.06);
-  border-color: rgba(255, 255, 255, 0.26);
-  color: rgba(255, 255, 255, 0.92);
-  box-shadow: none;
-
-  &:hover,
-  &:focus-visible {
-    background: rgba(255, 255, 255, 0.12);
-    border-color: rgba(255, 255, 255, 0.44);
-    box-shadow: none;
-  }
-}
-
-.btn-glass {
-  background: rgba(255, 255, 255, 0.06);
-  border-color: rgba(255, 255, 255, 0.26);
-  box-shadow: none;
-
-  &--brand {
-    color: rgba(255, 255, 255, 0.93);
-
-    &:hover,
-    &:focus-visible {
-      background: rgba(255, 255, 255, 0.12);
-      border-color: rgba(255, 255, 255, 0.44);
-      box-shadow: none;
-    }
   }
 }
 
@@ -2404,65 +2429,51 @@ div[id] {
   .is-cinematic .laptop-screen {
     // The bezel: thin, and warm rather than pure black, because the dark line
     // around a real screen picks up the colour of the shell around it.
-    // Thinner and warmer: the dark line around a real display is barely there,
-    // and it takes its colour from the shell around it.
     border: 0.9% solid #34281f;
     border-radius: 0.9%;
     background: var(--surface);
     height: 100%;
-    // DESIGNED FOR THIS DISPLAY, not the desktop section shrunk into it. The
-    // content was filling barely half the panel with the rest dead space, which
-    // is what made it read as a section pasted into a rectangle rather than a
-    // page being shown on a laptop.
-    padding: 6% 7.5%;
+    // A CHAPTER CARD. The screen used to hold a headline and a four step list -
+    // the same headline the Process section carries word for word, and four
+    // steps that did not match its four steps. Now it holds the chapter's name
+    // and nothing else, so the laptop announces the chapter and the chapter
+    // itself is delivered once, underneath.
+    // Centred on both axes: with a single line on it, anything else looks like
+    // content that failed to load.
     display: flex;
     flex-direction: column;
+    align-items: center;
     justify-content: center;
-    gap: 2%;
-    // START, not end. The screen is an RTL surface, so "end" is its LEFT edge:
-    // the headline was being pushed against the left margin and running off it,
-    // which is why it read as clipped. Hebrew sets from the right.
-    text-align: start;
+    padding: 6% 7.5%;
+    text-align: center;
     direction: rtl;
   }
 
   .is-cinematic .laptop-screen-kicker {
     font-family: var(--font-body);
-    font-size: 30px;
-    letter-spacing: 0.16em;
+    // Sized for the panel rather than for the page: this box is a fixed
+    // 1200x784 that the portal scales, so the type is set in px against that
+    // frame and arrives at whatever size the laptop happens to be.
+    font-size: 46px;
+    font-weight: 500;
+    letter-spacing: 0.34em;
+    // The tracking is applied to the right of every glyph including the last,
+    // which throws a centred Hebrew line left by half a space.
+    text-indent: 0.34em;
     color: #b98b6a;
+    line-height: 1.2;
   }
 
-  .is-cinematic .laptop-screen-title {
-    font-family: var(--font-display);
-    font-size: 76px;
-    font-weight: 400;
-    line-height: 1.05;
-    color: #1a1816;
-    margin-bottom: 2%;
-  }
-
-  .is-cinematic .laptop-screen-steps {
-    list-style: none;
-    margin: 0;
-    padding: 0;
-
-    li {
-      display: flex;
-      align-items: baseline;
-      justify-content: flex-start;
-      gap: 16px;
-      font-family: var(--font-body);
-      font-size: 36px;
-      color: #1a1816;
-      border-top: 1px solid rgba(26, 24, 22, 0.12);
-      padding: 3.4% 0;
-    }
-
-    span {
-      font-size: 46px;
-      color: rgba(26, 24, 22, 0.26);
-    }
+  // The one mark under it: the same hairline the section headings use, at the
+  // width of a short rule rather than the width of the words, so the card reads
+  // as titled rather than underlined.
+  .is-cinematic .laptop-screen-kicker::after {
+    content: "";
+    display: block;
+    width: 108px;
+    height: 1px;
+    margin: 26px auto 0;
+    background: rgba(185, 139, 106, 0.42);
   }
 
   .is-cinematic .bridge-scene {
@@ -4721,11 +4732,46 @@ div[id] {
 
 // A dark interior. It carries no type at all: the testimonials heading sits
 // directly beneath it and was saying the same thing twice.
+//
+// This is the ONE plate that opens directly out of a dark section, and it was the
+// only place on the page where a bright photograph began against near-black on a
+// dead straight full-width line. The others are not treated: they come out of
+// light fields that already meet their images naturally, and giving all three the
+// same fade for symmetry would be an engineered gradient rather than a
+// composition.
 .chapter-plate--warmth {
   background: #16120f;
 
   img {
     object-position: 52% 17%;
+  }
+
+  // A CHANGE OF LIGHT, NOT A SCRIM.
+  //
+  // The plate's own interior tone carries a little way down into the frame and
+  // lets go - the way the top of a room falls off away from its light source,
+  // which is what this photograph actually shows. The stops are eased rather
+  // than linear: a straight ramp has a visible upper edge and reads as a band
+  // laid over the picture, whereas an eased falloff has no edge to find. It is
+  // short enough that it never reaches her face, and it darkens only the ceiling
+  // the shot already had.
+  &::before {
+    content: "";
+    position: absolute;
+    inset-block-start: 0;
+    inset-inline: 0;
+    block-size: clamp(60px, 10vh, 104px);
+    z-index: 1;
+    pointer-events: none;
+    background: linear-gradient(
+      to bottom,
+      #16120f 0%,
+      rgba(22, 18, 15, 0.92) 18%,
+      rgba(22, 18, 15, 0.72) 38%,
+      rgba(22, 18, 15, 0.42) 60%,
+      rgba(22, 18, 15, 0.16) 80%,
+      rgba(22, 18, 15, 0) 100%
+    );
   }
 }
 

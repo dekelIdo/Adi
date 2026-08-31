@@ -401,7 +401,6 @@ export class AppComponent implements AfterViewInit, OnDestroy {
     this.initBackToTop();
     this.initHeroParallax();
     this.initCursorGlow();
-    this.initMagneticButtons();
     this.initCarouselDrag();
     this.initReelPlayback();
     this.initLivingPhotograph();
@@ -833,38 +832,6 @@ export class AppComponent implements AfterViewInit, OnDestroy {
         },
         { passive: true }
       );
-    });
-  }
-
-  // ─── Magnetic buttons ─────────────────────────────────────────────────────
-  // On hover, buttons shift slightly toward the cursor for a premium tactile feel.
-  private initMagneticButtons(): void {
-    if (!window.matchMedia('(hover:hover)').matches) return;
-
-    const btns = Array.from(document.querySelectorAll<HTMLElement>('.btn'));
-
-    btns.forEach((btn) => {
-      const STRENGTH = 5; // max pixel shift
-
-      btn.addEventListener(
-        'mousemove',
-        (e: MouseEvent) => {
-          const rect = btn.getBoundingClientRect();
-          const cx = rect.left + rect.width / 2;
-          const cy = rect.top + rect.height / 2;
-          const dx = ((e.clientX - cx) / rect.width) * 2;
-          const dy = ((e.clientY - cy) / rect.height) * 2;
-          btn.style.setProperty('--mx', String((dx * STRENGTH).toFixed(2)));
-          btn.style.setProperty('--my', String((dy * STRENGTH).toFixed(2)));
-        },
-        { passive: true }
-      );
-
-      const reset = () => {
-        btn.style.setProperty('--mx', '0');
-        btn.style.setProperty('--my', '0');
-      };
-      btn.addEventListener('mouseleave', reset);
     });
   }
 
