@@ -35,6 +35,17 @@ export interface AdminConfig {
   anonKey: string;
   bucket: string;
   table: string;
+  /**
+   * Whether the Google provider is actually enabled on the Supabase project.
+   *
+   * The sign-in button is rendered ONLY when this is true, because a Google
+   * button that cannot complete a sign-in is worse than no button: it looks
+   * like the feature exists and then fails in front of the user. The code below
+   * is complete and needs no change to start working - this flag is flipped to
+   * true once the provider is switched on in the Supabase dashboard (see
+   * README next to admin.config.json).
+   */
+  googleAuth?: boolean;
 }
 
 const CONFIG_URL = 'assets/admin.config.json';
@@ -126,6 +137,74 @@ export class MediaService {
     const data = await res.json();
     if (!data?.access_token) throw new Error('AUTH');
     this.token = data.access_token;
+  }
+
+  /**
+   * GOOGLE SIGN IN — the same architecture as everything else here: a plain
+   * redirect to Supabase's own authorize endpoint, no SDK and no new
+   * dependency. Supabase talks to Google, then sends the browser back to
+   * `redirect_to` with the session in the URL fragment, which
+   * `completeOAuthRedirect` below picks up.
+   *
+   * The fragment is used rather than a query string on purpose: it never
+   * reaches a server or a log.
+   */
+  async signInWithGoogle(): Promise<void> {
+    const cfg = await this.loadConfig();
+    if (!cfg) throw new Error('CONFIG');
+    if (!cfg.googleAuth) throw new Error('PROVIDER_DISABLED');
+    // Back to this exact screen, including the hash route the admin is reached
+    // through, so the visitor lands where they started.
+    const redirect = `${window.location.origin}${window.location.pathname}${window.location.hash || ''}`;
+    const url =
+      `${cfg.url}/auth/v1/authorize?provider=google` +
+      `&redirect_to=${encodeURIComponent(redirect)}`;
+    window.location.assign(url);
+  }
+
+  /**
+   * Called once on admin start-up. If we have just come back from Google the
+   * session is sitting in the URL fragment; take it, then scrub the fragment so
+   * a token is never left in the address bar, in history, or in a shared link.
+   *
+   * Returns what happened so the screen can tell the difference between "signed
+   * in", "the user cancelled" and "nothing to do".
+   */
+  completeOAuthRedirect(): 'signed-in' | 'error' | 'none' {
+    const hash = window.location.hash || '';
+    const q = hash.includes('access_token=') || hash.includes('error=')
+      ? new URLSearchParams(hash.slice(hash.indexOf('#') + 1).replace(/^[^?]*\?/, ''))
+      : null;
+    if (!q) {
+      // The fragment may be a bare token string rather than a nested query.
+      const raw = hash.replace(/^#/, '');
+      if (!raw.includes('access_token=') && !raw.includes('error=')) return 'none';
+      const p = new URLSearchParams(raw);
+      return this.consumeOAuthParams(p);
+    }
+    return this.consumeOAuthParams(q);
+  }
+
+  private consumeOAuthParams(p: URLSearchParams): 'signed-in' | 'error' | 'none' {
+    const token = p.get('access_token');
+    const err = p.get('error') || p.get('error_description');
+    // Strip the sensitive part of the fragment either way, keeping any route
+    // hash (#admin) that was there before the redirect.
+    const clean = () => {
+      const route = (window.location.hash || '').split('#').find((x) => x && !x.includes('='));
+      const url = window.location.pathname + window.location.search + (route ? '#' + route : '');
+      window.history.replaceState({}, '', url);
+    };
+    if (token) {
+      this.token = token;
+      clean();
+      return 'signed-in';
+    }
+    if (err) {
+      clean();
+      return 'error';
+    }
+    return 'none';
   }
 
   signOut(): void {

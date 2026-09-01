@@ -95,6 +95,28 @@ const OUT_H = 1350;
           <button type="submit" class="btn btn--primary" [disabled]="busy">
             {{ busy ? 'רגע…' : 'כניסה' }}
           </button>
+
+          <!-- GOOGLE. Rendered only when the provider is actually enabled on
+               the Supabase project (admin.config.json -> googleAuth). A button
+               that cannot finish a sign-in is worse than no button, so this one
+               does not exist until the flow behind it works. -->
+          @if (googleAvailable) {
+            <div class="gate-or"><span>או</span></div>
+            <button
+              type="button"
+              class="btn btn--google"
+              [disabled]="busy"
+              (click)="signInWithGoogle()"
+            >
+              <svg viewBox="0 0 18 18" aria-hidden="true" width="18" height="18">
+                <path fill="#4285F4" d="M17.64 9.2c0-.64-.06-1.25-.16-1.84H9v3.48h4.84a4.14 4.14 0 0 1-1.8 2.72v2.26h2.92c1.71-1.57 2.68-3.89 2.68-6.62z"/>
+                <path fill="#34A853" d="M9 18c2.43 0 4.47-.8 5.96-2.18l-2.92-2.26c-.81.54-1.84.86-3.04.86-2.34 0-4.32-1.58-5.03-3.7H.96v2.33A9 9 0 0 0 9 18z"/>
+                <path fill="#FBBC05" d="M3.97 10.72a5.4 5.4 0 0 1 0-3.44V4.95H.96a9 9 0 0 0 0 8.1l3.01-2.33z"/>
+                <path fill="#EA4335" d="M9 3.58c1.32 0 2.5.45 3.44 1.35l2.58-2.58C13.46.89 11.43 0 9 0A9 9 0 0 0 .96 4.95l3.01 2.33C4.68 5.16 6.66 3.58 9 3.58z"/>
+              </svg>
+              <span>{{ busy ? 'רגע…' : 'המשך עם Google' }}</span>
+            </button>
+          }
         </form>
       } @else {
         <header class="masthead">
@@ -229,6 +251,29 @@ const OUT_H = 1350;
   `,
   styles: [
     `
+    /* GOOGLE. Google's brand guidance: their mark, unaltered, on a neutral
+       surface with a clear border - never recoloured and never placed inside a
+       coloured pill. It sits quieter than the primary control because email is
+       still the main route in. */
+    .gate-or {
+      display: flex; align-items: center; gap: 10px;
+      margin: 14px 0 12px; color: var(--ink-3, #8a8480); font-size: 0.78rem;
+    }
+    .gate-or::before, .gate-or::after {
+      content: ""; flex: 1; height: 1px; background: rgba(0,0,0,.10);
+    }
+    .btn--google {
+      display: flex; align-items: center; justify-content: center; gap: 10px;
+      width: 100%; min-height: 44px;
+      background: #fff; color: #3c4043;
+      border: 1px solid rgba(0,0,0,.16); border-radius: 6px;
+      font-weight: 600; cursor: pointer;
+      transition: background-color 200ms ease, border-color 200ms ease;
+    }
+    .btn--google:hover:not(:disabled) { background: #f7f7f7; border-color: rgba(0,0,0,.26); }
+    .btn--google:disabled { opacity: .6; cursor: default; }
+    .btn--google svg { flex: none; }
+
       /* THE PRIVATE SIDE OF THE SAME BRAND.
        *
        * This screen is not part of the landing page design system and cannot
@@ -630,7 +675,18 @@ export class AdminComponent implements OnInit {
   }
 
   async ngOnInit(): Promise<void> {
-    this.configured = !!(await this.media.loadConfig());
+    const cfg = await this.media.loadConfig();
+    this.configured = !!cfg;
+    this.googleAvailable = !!cfg?.googleAuth;
+
+    // If we have just come back from Google the session is in the URL fragment.
+    // Take it before anything else, and let the visitor know if they cancelled
+    // rather than leaving them staring at the form wondering what happened.
+    if (this.configured) {
+      const back = this.media.completeOAuthRedirect();
+      if (back === 'error') this.authError = 'הכניסה עם Google בוטלה.';
+    }
+
     this.ready = true;
     if (this.configured && this.media.signedIn) await this.refresh();
     this.cdr.markForCheck();
@@ -651,6 +707,24 @@ export class AdminComponent implements OnInit {
     } catch {
       this.authError = 'האימייל או הסיסמה שגויים.';
     } finally {
+      this.busy = false;
+      this.cdr.markForCheck();
+    }
+  }
+
+  /** True only when the Supabase project really has the Google provider on. */
+  googleAvailable = false;
+
+  async signInWithGoogle(): Promise<void> {
+    if (this.busy) return;
+    this.authError = '';
+    this.busy = true;
+    this.cdr.markForCheck();
+    try {
+      // Leaves the page. Nothing after this runs unless it fails to start.
+      await this.media.signInWithGoogle();
+    } catch {
+      this.authError = 'הכניסה עם Google לא זמינה כרגע.';
       this.busy = false;
       this.cdr.markForCheck();
     }

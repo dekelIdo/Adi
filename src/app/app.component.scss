@@ -3847,7 +3847,34 @@ div[id] {
   margin-bottom: var(--space-sm);
 }
 
-.why-statements,
+// WHEN THE TWO COLUMNS STACK, THE SECOND LIST LOSES ITS MEANING.
+//
+// This section is two different ideas side by side: what she thinks about, and
+// who the work is for. On a wide screen the horizontal split says that on its
+// own. Stacked on a phone the only thing between them was 15px - the exact gap
+// used BETWEEN ROWS OF THE SAME LIST - so seven rows ran together as one
+// undifferentiated column and the change of subject simply disappeared. The
+// second list also carries no heading, because on desktop its position was the
+// heading.
+//
+// It is given a real break instead: the section's own hairline and enough air
+// that the eye reads a new group. No label is invented and no decoration is
+// added - the rule is the one already used throughout this page.
+@media (max-width: 699.98px) {
+  .why-statements,
+.audience-statements {
+    margin-top: clamp(22px, 4vh, 38px);
+    padding-top: clamp(20px, 3.4vh, 32px);
+    border-top: 1px solid var(--rule);
+  }
+
+  // The first row already sits under that rule, so its own top border would
+  // double it.
+  .audience-statement:first-child {
+    border-top: none;
+  }
+}
+
 .audience-statements {
   display: flex;
   flex-direction: column;

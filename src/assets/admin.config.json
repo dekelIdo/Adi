@@ -3,5 +3,7 @@
   "url": "https://wrfagntltbiuyzsrywdb.supabase.co",
   "anonKey": "sb_publishable_AC6CRbXH1dQPOplTOkyL6A_LhDYKwSg",
   "bucket": "testimonials",
-  "table": "testimonials"
+  "table": "testimonials",
+  "googleAuth": false,
+  "_googleAuth": "Set to true ONLY after enabling the Google provider in the Supabase dashboard (Authentication > Providers > Google) with a Google Cloud OAuth Client ID and Secret. While false the Google button is not rendered at all, so there is never a button that cannot complete a sign-in."
 }
