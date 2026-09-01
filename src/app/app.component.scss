@@ -2876,7 +2876,14 @@ div[id] {
     // Sized for the panel rather than for the page: this box is a fixed
     // 1200x784 that the portal scales, so the type is set in px against that
     // frame and arrives at whatever size the laptop happens to be.
-    font-size: 46px;
+    //
+    // AND IT HAS TO COMMAND THAT FRAME. At 46px the words measured 32% of the
+    // panel's width and 11% of its height - the screen was three times wider and
+    // nine times taller than the only thing on it, so the payoff of the longest
+    // cinematic on the page read as a large empty rectangle with a caption
+    // floating in the middle. A title card's type carries the frame; this now
+    // takes a little over half the width at every scale.
+    font-size: 96px;
     font-weight: 500;
     letter-spacing: 0.34em;
     // The tracking is applied to the right of every glyph including the last,
@@ -2892,9 +2899,10 @@ div[id] {
   .is-cinematic .laptop-screen-kicker::after {
     content: "";
     display: block;
-    width: 108px;
-    height: 1px;
-    margin: 26px auto 0;
+    // In proportion with the type above it, which has doubled.
+    width: 200px;
+    height: 2px;
+    margin: 44px auto 0;
     background: rgba(185, 139, 106, 0.42);
   }
 
