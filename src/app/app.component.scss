@@ -353,43 +353,80 @@ select {
 
 // ─────── THE SIGNING EXPERIENCE ───────────────────────────────────────────────
 //
-// Real screenshots of the agreement a client is sent and the screen they sign it
-// on. The entire design job here is presentation: the evidence is already true,
-// and the failure mode would be dressing it up until it looked like a product
-// site. So there is no device chrome drawn around these - the screenshots arrive
-// with their own phone chassis, and a second frame around the first is the
-// clearest possible way to make something look faked. There are no badges, no
-// "fast / easy / smart", no invented statistics and no icons. Three plates, one
-// clearly the hero, off-axis, overlapping - an object, not a feature grid.
+// ONE GESTURE, TWO PLACES.
+//
+// This was two screenshots side by side, which reads as a screenshot gallery no
+// matter how carefully it is styled - and the chapter is not about owning a
+// signing system, it is about the moment of signing being made easy. So it is
+// told with the real photograph of Adi signing a real document and the real
+// screen a client signs on: the physical act and its digital counterpart, in one
+// frame, with the screen overlapping the picture so it belongs to the document
+// she is holding rather than sitting in a card beside it.
+//
+// The agreement screenshot was dropped rather than shrunk into a third plate.
+// The photograph says "a real document"; the screen says "and this is where you
+// sign it". A third rectangle only diluted both.
 
 .section-signing {
   position: relative;
-  // Continues the shoot chapter's surface rather than starting a new field: the
-  // two are one argument and a colour change between them would split it.
   background: var(--surface);
-  // Opens a little wider than it closes: the hero plate is tall, and without
-  // the extra head room its top edge sat tight under the floating header.
-  padding-block: clamp(44px, 7vh, 92px) clamp(34px, 5.6vh, 76px);
+  padding-block: clamp(30px, 5vh, 66px) clamp(34px, 5.4vh, 72px);
   overflow: hidden;
 }
 
-.signing-layout {
+.signing-scene {
   display: grid;
-  gap: clamp(22px, 4vh, 44px);
+  gap: clamp(18px, 3vh, 30px);
 }
 
+// ── The photograph ───────────────────────────────────────────────────────────
+.signing-photo {
+  position: relative;
+  margin: 0;
+  border-radius: var(--r-media);
+  overflow: hidden;
+
+  img {
+    width: 100%;
+    height: 100%;
+    display: block;
+    object-fit: cover;
+    // Held on the clipboard and the pen. The subject of this frame is the
+    // signature being made, not the full figure, so the crop closes on the
+    // gesture and lets the backdrop carry the rest.
+    object-position: 62% 16%;
+    filter: saturate(0.96) contrast(1.03);
+  }
+}
+
+// ── The screen it becomes ────────────────────────────────────────────────────
+.signing-screen {
+  margin: 0;
+  border-radius: 14px;
+  overflow: hidden;
+  background: var(--bg);
+  // Enough lift to sit above the photograph, far short of the drop shadows that
+  // make a screenshot look like a slide.
+  box-shadow: 0 1px 0 rgba(42, 40, 38, 0.06), 0 22px 48px rgba(42, 40, 38, 0.16);
+
+  img {
+    display: block;
+    width: 100%;
+    height: auto;
+  }
+}
+
+// ── The words ────────────────────────────────────────────────────────────────
 .signing-say {
   display: flex;
   flex-direction: column;
-  gap: clamp(10px, 1.8vh, 16px);
-  max-width: 34ch;
+  gap: clamp(8px, 1.4vh, 13px);
 }
 
-// The hinge line. Deliberately small and muted: it is a connective, not a
-// heading, and its whole job is to let the previous chapter finish inside this
-// one. Set at caption weight so it hands over rather than announcing itself.
+// The hinge from the production chapter. Small and muted: a connective, not a
+// heading - its job is to let the previous chapter finish inside this one.
 .signing-bridge {
-  margin: 0 0 clamp(8px, 1.4vh, 14px);
+  margin: 0;
   font-family: var(--font-body);
   font-size: clamp(0.86rem, 2.2vw, 0.95rem);
   font-weight: 500;
@@ -400,23 +437,24 @@ select {
 .signing-establish {
   margin: 0;
   font-family: var(--font-display);
-  font-size: clamp(1.6rem, 5.4vw, 2.5rem);
+  font-size: clamp(1.6rem, 5.2vw, 2.4rem);
   font-weight: 400;
   line-height: 1.12;
   letter-spacing: -0.022em;
   color: var(--text);
+  text-wrap: balance;
 }
 
-// THE PRODUCT DESCRIPTION IS THREE WORDS. They resolve one after another, which
-// is the only piece of choreography in the chapter and the only place the
-// sequence itself is the message.
+// THE PRODUCT DESCRIPTION IS THREE WORDS, and they resolve one after another -
+// the only choreography in the chapter, and the only place the sequence itself
+// is the message.
 .signing-steps {
   margin: 0;
   display: flex;
   flex-wrap: wrap;
   gap: 0 0.5em;
   font-family: var(--font-body);
-  font-size: clamp(1.02rem, 2.9vw, 1.24rem);
+  font-size: clamp(1.02rem, 2.9vw, 1.2rem);
   font-weight: 600;
   color: var(--text);
 
@@ -439,207 +477,117 @@ select {
   margin: 0;
   font-family: var(--font-body);
   font-size: clamp(0.92rem, 2.4vw, 1rem);
-  line-height: 1.72;
+  line-height: 1.7;
   color: var(--text-muted);
-  max-width: 40ch;
 
-  // The emotional point of the whole chapter, and the only emphasis in it.
+  // The emotional point of the chapter, and its only emphasis.
   em {
     display: block;
-    margin-top: 4px;
+    margin-top: 3px;
     font-style: normal;
     font-weight: 600;
     color: var(--text);
   }
 }
 
-// ── THE PLATES ────────────────────────────────────────────────────────────────
-//
-// Mobile is the primary case: this is a thing that happens on a phone, and a
-// screenshot of a phone screen shrunk to a third of a column is unreadable. So
-// on a phone the hero plate runs nearly the full column and the two supporting
-// plates sit beneath it as a pair - a vertical composition by choice, not a
-// desktop layout squeezed down.
-.signing-plates {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: clamp(12px, 3vw, 22px);
-  align-items: start;
-}
-
-.signing-plate {
-  margin: 0;
-  border-radius: var(--r-media);
-  overflow: hidden;
-  background: var(--bg);
-  // A hairline and a soft, low shadow. Enough to lift the plate off the page,
-  // far short of the drop shadows that make a screenshot look like a slide.
-  box-shadow: 0 1px 0 rgba(42, 40, 38, 0.06), 0 18px 40px rgba(42, 40, 38, 0.09);
-  opacity: 0;
-  transform: translateY(16px) scale(0.985);
-  transition: opacity 760ms var(--ease-expo), transform 760ms var(--ease-expo);
-
-  // NOTHING IS CROPPED AND NOTHING IS STRETCHED.
-  //
-  // The obvious way to make three plates tidy is a fixed aspect-ratio plus
-  // object-fit: cover. It is also the way to destroy the evidence: these
-  // screenshots are around 1:2, a forced 1:1.5 cuts a quarter of the height
-  // away, and anchored to the top the quarter that disappears is the BOTTOM -
-  // the signature box and the button that sends it, which is the entire thing
-  // this chapter exists to show. The plates take the screenshots' real shape.
-  img {
-    width: 100%;
-    height: auto;
-    display: block;
+// ── Phone: the photograph is the scene, the screen sits into its lower corner,
+//    the words close the chapter underneath. ─────────────────────────────────
+@media (max-width: 899.98px) {
+  .signing-scene {
+    position: relative;
+    grid-template-columns: 1fr;
   }
 
-  &[hidden] {
-    display: none;
-  }
-}
-
-// The group is what the observer watches, so the group itself must not fade -
-// only its children do. Without this the container's own .reveal would fade the
-// whole composition in as one flat block and the sequencing below would never be
-// seen.
-.signing-plates.reveal,
-.signing-steps.reveal {
-  opacity: 1;
-  transform: none;
-}
-
-// One composed arrival for the group, not three independent animations: the
-// hero lands first and the supporting pair follows it in.
-.signing-plates.is-visible .signing-plate {
-  opacity: 1;
-  transform: none;
-}
-
-.signing-plates.is-visible .signing-plate--agreement { transition-delay: 120ms; }
-
-// THE HERO. The screen the client actually signs on, across the full width of
-// the composition on a phone.
-.signing-plate--sign {
-  grid-column: 1 / -1;
-}
-
-.signing-plate--agreement {
-}
-
-// ── Tablet (600-899): still a vertical composition, but not a wall ──────────
-//
-// The phone layout runs the hero across the full column, which is right at
-// 390px and absurd at 768: the plate came out 720 wide and 1414 tall and the
-// chapter grew past 2500px. Same composition, bounded - and the frames hug the
-// pictures here too, otherwise each plate shows its own background down the
-// sides once the image stops filling the track.
-@media (min-width: 600px) and (max-width: 899.98px) {
-  .signing-plate {
-    width: fit-content;
-    justify-self: center;
+  .signing-photo {
+    // Tall enough for the gesture to read at phone width without the frame
+    // becoming a wall.
+    aspect-ratio: 4 / 5;
   }
 
-  .signing-plate img {
-    width: auto;
-    max-width: 100%;
+  .signing-screen {
+    // MOSTLY ON THE PICTURE, NOT HANGING OFF IT. At a shallower overlap the
+    // screen sat below the photograph's corner and read as a card that had
+    // fallen off it; roughly two thirds of its height now sits over the frame,
+    // which is what makes the two read as one object.
+    width: clamp(112px, 33vw, 156px);
+    margin-block-start: clamp(-210px, -46vw, -140px);
+    margin-inline-start: auto;
+    margin-inline-end: clamp(14px, 5vw, 30px);
+    position: relative;
+    z-index: 2;
   }
 
-  .signing-plate--sign img {
-    max-height: 62vh;
-  }
-
-  .signing-plate--agreement img {
-    max-height: 36vh;
-  }
-}
-
-// ── Desktop: the wider canvas buys asymmetry, not three equal columns ────────
-@media (min-width: 900px) {
-  // The text column is only as wide as the text. Given a generous share it
-  // right-aligns inside it and the leftover width becomes a hole in the middle
-  // of the composition - the words drift to one edge, the plates to the other,
-  // and the section reads as two objects rather than one spread.
-  .signing-layout {
-    grid-template-columns: minmax(0, 0.58fr) minmax(0, 1.42fr);
-    gap: clamp(30px, 3.6vw, 56px);
-    align-items: center;
-  }
-
-  // The column already sets the measure. Holding a 30ch cap on top of it left
-  // the words narrower than the space reserved for them, and that difference
-  // opened as a gap down the middle of the spread.
   .signing-say {
-    max-width: none;
+    margin-block-start: clamp(6px, 1.4vh, 12px);
+  }
+}
+
+// ── Tablet: the single-column composition, bounded. ──────────────────────────
+//
+// The phone layout runs the photograph at the full column width, which is right
+// at 390 and a wall at 768: the frame came out 720x900 and the chapter reached
+// 1313px, nearly double its own desktop height. Same composition, held to a
+// sensible size and centred.
+@media (min-width: 600px) and (max-width: 899.98px) {
+  .signing-photo {
+    width: min(100%, 460px);
+    margin-inline: auto;
   }
 
-  .signing-resolve {
-    max-width: none;
+  .signing-screen {
+    margin-inline-end: calc((100% - min(100%, 460px)) / 2 + clamp(14px, 3vw, 26px));
   }
 
-  // The hero holds the reading edge and runs tall; the agreement sits beside it
-  // dropped down and slightly overlapping, and the cover tucks under that. The
-  // stack is deliberately off-axis - three plates on one baseline would be the
-  // feature grid this is trying not to be.
-  .signing-plates {
-    grid-template-columns: 1.25fr 0.75fr;
-    align-items: start;
-    gap: clamp(14px, 1.8vw, 24px);
+  .signing-say {
+    max-width: 52ch;
+    margin-inline: auto;
+  }
+}
+
+// ── Desktop: the photograph holds one side, the screen overlaps its inner edge
+//    at the height of the clipboard, and the words live in the space beside. ──
+@media (min-width: 900px) {
+  .signing-scene {
+    grid-template-columns: minmax(0, 0.92fr) minmax(0, 1.08fr);
+    align-items: center;
+    column-gap: clamp(30px, 4vw, 64px);
   }
 
-  // BOUNDED BY HEIGHT, NOT BY A CROP. A phone screenshot is about 1:2, so a
-  // plate given half the spread's width comes out a thousand pixels tall and the
-  // chapter turns into a wall. Capping the picture's HEIGHT and letting its
-  // width follow keeps the composition in proportion without removing a single
-  // pixel of the evidence - and it holds whatever aspect the real files turn out
-  // to be, rather than being tuned to one.
-  .signing-plate img {
-    width: auto;
-    max-width: 100%;
-  }
-
-  // The frame hugs the picture. Once the image is bounded by height it no longer
-  // fills its track, and a figure still stretched to the full column shows its
-  // own background down both sides of the screenshot - which turns every plate
-  // into a card with the evidence floating in the middle of it. Shrink-wrapped,
-  // the hairline and the shadow belong to the screenshot itself.
-  .signing-plate {
-    width: fit-content;
-    justify-self: center;
-  }
-
-  .signing-plate--sign {
+  .signing-say {
     grid-column: 1;
     grid-row: 1;
-
-    img {
-      max-height: 74vh;
-    }
+    gap: clamp(10px, 1.6vh, 16px);
   }
 
-  .signing-plate--agreement {
+  .signing-photo {
     grid-column: 2;
     grid-row: 1;
-    margin-block-start: clamp(26px, 4vh, 54px);
-    // Reaches back under the hero so the two overlap rather than abut.
-    margin-inline-end: clamp(-34px, -2.4vw, -14px);
-    position: relative;
-    z-index: -1;
+    // Slightly shorter than it was. The words beside it are four short lines, so
+    // a taller frame only bought empty column rather than presence.
+    aspect-ratio: 1 / 1.06;
+    max-height: 64vh;
+    margin-inline-start: auto;
+    width: 100%;
   }
 
-  .signing-plate--agreement img {
-    max-height: 40vh;
+  // LEVEL WITH THE DOCUMENT SHE IS HOLDING. It sat well below the clipboard,
+  // which broke the one connection the composition exists to make - that the
+  // screen IS that document, moved to a phone. Anchored to the top of the frame
+  // and dropped to the clipboard's height instead of floating at centre.
+  .signing-screen {
+    grid-column: 2;
+    grid-row: 1;
+    width: clamp(150px, 13vw, 196px);
+    justify-self: start;
+    align-self: start;
+    margin-inline-start: clamp(-64px, -4vw, -34px);
+    margin-block-start: clamp(70px, 11vh, 130px);
+    position: relative;
+    z-index: 2;
   }
 }
 
-// Reduced motion must never be the reason a screenshot cannot be seen.
 @media (prefers-reduced-motion: reduce) {
-  .signing-plate,
-  .signing-plates.is-visible .signing-plate {
-    opacity: 1;
-    transform: none;
-    transition: none;
-  }
-
   .signing-steps span,
   .signing-steps.is-visible span {
     opacity: 1;

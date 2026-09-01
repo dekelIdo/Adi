@@ -173,43 +173,31 @@ export class AppComponent implements AfterViewInit, OnDestroy {
    * scrolled, it is out of the way when it should be and to hand from then on.
    */
   /**
-   * THE SIGNING EXPERIENCE — REAL SCREENSHOTS, NOT A DRAWN UI.
+   * THE SIGNING CHAPTER — ONE PHOTOGRAPH AND ONE SCREEN.
    *
-   * These are photographs of the actual product a client is sent: the agreement
-   * and the screen they sign it on. Nothing here is a redrawn interface, and
-   * nothing in the screenshots is transcribed into copy - the names and numbers
-   * that happen to appear in them are incidental image content, not text the
-   * page says or that a search engine can index.
+   * It used to be two screenshots side by side, which is what a screenshot
+   * gallery looks like no matter how it is styled. The chapter is not about
+   * having a signing system; it is about the moment of signing being made easy,
+   * so it is now told with the real photograph of Adi signing a document and
+   * the real screen a client signs on - the physical gesture and its digital
+   * counterpart, in one composition.
    *
-   * TWO, not three. There was a third plate - the agreement's cover page - and
-   * it was the difference between a composition and a row of screenshots: a
-   * third rectangle of the same kind gives the eye a third place to go and the
-   * hierarchy collapses into "here are some screenshots". One dominant and one
-   * supporting is the whole idea. `role` drives the composition rather than the
-   * order: the signature screen is the hero, the agreement supports it.
-   * If a file is not on disk yet the frame removes itself on the image's error
-   * event, so the page can never show a broken picture or an empty box.
+   * The agreement screenshot was dropped rather than shrunk into a third card.
+   * The photograph carries "a real document"; the screen carries "and this is
+   * where you sign it". A third plate only diluted both.
+   *
+   * The photograph is a shipped asset, so the section always has its scene. Only
+   * the screen is guarded: if that file is ever missing the frame removes itself
+   * and the photograph carries the chapter alone, rather than leaving a hole.
    */
-  signingShots: { src: string; alt: string; role: string; missing?: boolean }[] = [
-    {
-      src: 'assets/lovable-uploads/MyAssets/Signing/signing-sign.png',
-      alt: 'מסך החתימה של עדי, כפי שהוא נראה ללקוחה בטלפון',
-      role: 'sign',
-    },
-    {
-      src: 'assets/lovable-uploads/MyAssets/Signing/signing-agreement.png',
-      alt: 'ההסכם עצמו, פתוח במקום שבו חותמים',
-      role: 'agreement',
-    },
-  ];
+  signingScreen = {
+    src: 'assets/lovable-uploads/MyAssets/Signing/signing-sign.png',
+    alt: 'מסך החתימה של עדי, כפי שהוא נראה ללקוחה בטלפון',
+    missing: false,
+  };
 
-  /** The whole chapter stands down if none of its evidence is on disk. */
-  get hasSigningShots(): boolean {
-    return this.signingShots.some((s) => !s.missing);
-  }
-
-  onSigningShotMissing(shot: { missing?: boolean }): void {
-    shot.missing = true;
+  onSigningScreenMissing(): void {
+    this.signingScreen.missing = true;
     this.cdr.markForCheck();
   }
 

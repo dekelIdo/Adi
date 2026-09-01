@@ -879,54 +879,51 @@
          they read as an object that belongs to the brand rather than as three
          equal feature cards. The names and numbers inside the screenshots are
          incidental image content; nothing in them is repeated as text. -->
-    <section id="signing" class="section-signing" data-header-theme="light" *ngIf="hasSigningShots">
-      <div class="container signing-layout">
+    <section id="signing" class="section-signing" data-header-theme="light">
+      <div class="container signing-scene">
+
+        <!-- THE GESTURE. A real photograph of Adi signing a real document: the
+             clipboard held up, the pen mid-stroke. This is the chapter's scene,
+             not an illustration beside it. -->
+        <figure class="signing-photo">
+          <picture>
+            <source srcset="assets/lovable-uploads/MyAssets/Signing/signing-adi.webp" type="image/webp" />
+            <img
+              src="assets/lovable-uploads/MyAssets/Signing/signing-adi.jpg"
+              alt="עדי אריאלי חותמת על מסמך"
+              width="1400" height="2096" loading="lazy" decoding="async"
+            />
+          </picture>
+        </figure>
+
+        <!-- ITS DIGITAL COUNTERPART, and the reason the two are in one frame:
+             the same act, moved to the client's phone. It overlaps the
+             photograph deliberately - the screen belongs to the document she is
+             holding, rather than sitting in a card next to it. -->
+        @if (!signingScreen.missing) {
+          <figure class="signing-screen">
+            <img
+              [src]="signingScreen.src"
+              [alt]="signingScreen.alt"
+              loading="lazy"
+              decoding="async"
+              (error)="onSigningScreenMissing()"
+            />
+          </figure>
+        }
 
         <div class="signing-say">
-          <!-- THE HINGE BETWEEN THE TWO DIFFERENTIATORS.
-               The chapter above proves the quality of what comes OUT - the
-               lights, the rig, the set. This one proves the quality of the way
-               it is WORKED. Read back to back they are one argument rather than
-               two features, and this line is what makes the visitor feel the
-               join: the same care, turned around to face the client. -->
           <p class="signing-bridge reveal">אותה מחשבה, גם בצד שלך.</p>
           <p class="signing-establish reveal">גם על הדברים הקטנים חשבנו.</p>
-
-          <!-- The three words are the whole product description. They are set as
-               one line that breaks into three on a phone, and they resolve one
-               after another - the only motion in the chapter besides the plates
-               arriving. -->
           <p class="signing-steps reveal">
             <span>פותחים.</span>
             <span>קוראים.</span>
             <span>חותמים.</span>
           </p>
-
           <p class="signing-resolve">
             בלי להתקין כלום, בלי לפתוח חשבון ובלי ללמוד מערכת.
             <em>גם אם את לא טכנולוגית.</em>
           </p>
-        </div>
-
-        <div class="signing-plates reveal">
-          @for (shot of signingShots; track shot.src) {
-            <figure class="signing-plate" [class]="'signing-plate--' + shot.role" [hidden]="shot.missing">
-              <!-- One <img>, deliberately - no <picture>/<source> pair here.
-                   A <source type="image/webp"> wins in every browser that
-                   supports webp, so if the owner drops in PNGs alone the source
-                   404s, the img fires its error handler and the entire chapter
-                   removes itself. A silent disappearance is the worst possible
-                   failure for the one section built around evidence. A single
-                   img loads whatever is actually at the path. -->
-              <img
-                [src]="shot.src"
-                [alt]="shot.alt"
-                loading="lazy"
-                decoding="async"
-                (error)="onSigningShotMissing(shot)"
-              />
-            </figure>
-          }
         </div>
 
       </div>
