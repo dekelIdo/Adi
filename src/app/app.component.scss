@@ -2196,24 +2196,50 @@ div[id] {
   margin: 0 auto;
 }
 
+// THREE KEYWORDS, NOT THREE TABS.
+//
+// These are inert <span>s, and they were wearing this site's link costume: type
+// with an accent rule under it - the exact treatment the hero link, the chapter
+// CTA and the closing invitation all use. Sitting in a row at the foot of a text
+// block they read unmistakably as tab navigation, so the eye goes to them,
+// tries them, and nothing happens. A page that dresses static labels as
+// controls spends its credibility on a shrug.
+//
+// They are what she does, summarised in three words, so they are set in the
+// page's own metadata voice - the same small tracked caption the production
+// chapter uses - and the rule is gone. Nothing here pretends to be clickable,
+// and the real CTAs stop competing with decoration.
 .pillar-row {
   display: flex;
-  gap: 12px;
   flex-wrap: wrap;
-  margin-top: var(--space-sm);
+  align-items: baseline;
+  gap: clamp(10px, 2.4vw, 18px);
+  margin-top: clamp(14px, 2.4vh, 22px);
 }
 
 .pillar-tag {
-  padding: 7px 0;
-  margin-inline-end: var(--space-md);
-  border-radius: 0;
-  background: none;
+  padding: 0;
   border: none;
-  border-bottom: 1px solid color-mix(in srgb, var(--brand-accent) 70%, transparent);
+  background: none;
   box-shadow: none;
-  font-size: var(--text-sm);
+  font-family: var(--font-body);
+  font-size: clamp(0.78rem, 2vw, 0.86rem);
   font-weight: 500;
-  color: var(--text);
+  letter-spacing: 0.06em;
+  color: var(--text-light);
+
+  // A hairline mark between the words instead of under them: it separates the
+  // keywords without ever reading as an underline.
+  & + .pillar-tag::before {
+    content: "";
+    display: inline-block;
+    inline-size: 3px;
+    block-size: 3px;
+    border-radius: 50%;
+    margin-inline-end: clamp(10px, 2.4vw, 18px);
+    vertical-align: middle;
+    background: color-mix(in srgb, var(--text-light) 55%, transparent);
+  }
 }
 
 // ── VISUAL SURPRISE: one photograph belongs to two chapters ───────────────────
