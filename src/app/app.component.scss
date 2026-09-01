@@ -2359,6 +2359,23 @@ div[id] {
     color: color-mix(in srgb, var(--brand-accent) 70%, var(--text));
   }
 }
+// THE ROLE SETS ITSELF, INSTEAD OF BEING BROKEN BY HAND.
+//
+// The name was forced onto its own line with a <br/>, which is the right
+// composition - but a forced break is opaque to text-wrap: balance, so the
+// phrase after it had to fit on one line or split wherever it ran out. At 430px
+// it split as "מנהלת סושיאל ויוצרת" / "תוכן." and left a single word stranded
+// on a third line under a line four times its width.
+//
+// Making the role a block gets the same two-part composition without the manual
+// break - the name becomes its own anonymous block above it - and because it is
+// now a block, balance applies inside it and chooses an even split rather than
+// an orphan. No copy changed.
+.about-intro em {
+  display: block;
+  text-wrap: balance;
+}
+
 
 .about-photo-wrap {
   max-width: 420px;
