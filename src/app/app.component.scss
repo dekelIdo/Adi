@@ -6093,19 +6093,26 @@ div[id] {
   // page at a third of its rhythm on the viewport that matters most. Same open
   // tier as desktop.
   //
-  // THE DOCK IS FIXED, SO THE PAGE HAS TO END ABOVE IT. The clearance is the
-  // dock's own height plus its offset and the safe area - exactly as tall as it
-  // needs to be and no taller. It is declared here, in longhand, for a reason:
-  // it used to live in its own earlier media query and set `padding-bottom`,
-  // and this rule's `padding` shorthand silently overwrote it, so the signature
-  // at the foot of the page sat underneath the three circles and could not be
-  // scrolled clear. A shorthand always rewrites all four sides; a longhand pair
-  // cannot be undone by accident.
-  // .site-footer {
-  //   padding-block-start: var(--sec-open);
-  //   padding-block-end: calc(env(safe-area-inset-bottom, 0px) + clamp(92px, 14vh, 116px));
-  //   padding-inline: 0;
-  // }
+  // THE DOCK IS FIXED, SO THE PAGE HAS TO END ABOVE IT - BY THE DOCK'S OWN
+  // HEIGHT, AND NOT A PIXEL MORE.
+  //
+  // Measured rather than guessed: the dock renders 162x58 and sits 5-8px off
+  // the viewport floor, so it occupies 63-66px. The value below resolves to
+  // 70-84px, which clears the three circles with a small margin.
+  //
+  // It previously read clamp(92px, 14vh, 116px) - up to 50px more than the dock
+  // has ever needed - which is why it was worth commenting out rather than
+  // keeping. The clearance itself is worth having; that size was not.
+  //
+  // Declared in longhand deliberately: this rule used to live in its own earlier
+  // media query as `padding-bottom`, and a later `padding` SHORTHAND silently
+  // overwrote it, leaving the signature under the circles with no way to scroll
+  // it clear. A shorthand rewrites all four sides whether it means to or not.
+  .site-footer {
+    padding-block-start: var(--sec-open);
+    padding-block-end: calc(env(safe-area-inset-bottom, 0px) + clamp(70px, 9vh, 84px));
+    padding-inline: 0;
+  }
 }
 
 // ═══════════════════════════════════════════════════════════════════════════════

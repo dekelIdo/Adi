@@ -215,6 +215,8 @@ export class AppComponent implements AfterViewInit, OnDestroy {
 
   socialDockVisible = false;
   private lastDockScroll = 0;
+  /** Cached so the scroll handler measures one element, not a query per frame. */
+  private footerEl: HTMLElement | null = null;
   // Starts true so the dock is present the moment it is scrolled past, rather
   // than waiting for the first upward gesture to exist at all.
   private dockWantsShow = true;
@@ -810,12 +812,31 @@ export class AppComponent implements AfterViewInit, OnDestroy {
       if (goingUp || goingDown) this.dockWantsShow = goingUp;
       this.lastDockScroll = top;
 
-      const nextDock = top > window.innerHeight * 0.72 && this.dockWantsShow;
+      // AND IT NEVER SHARES THE SCREEN WITH THE SIGNATURE.
+      //
+      // Reserving footer padding for the dock only protects the resting state.
+      // Scrolling up moves the footer DOWN, straight into the band the dock
+      // occupies - measured at 22-24px of overlap across 320/390/430, with the
+      // dock on top of the copyright. No fixed padding can cover that, because
+      // the distance depends on how far the visitor scrolled.
+      //
+      // So the dock stands down once the page has ended. Its job is quick access
+      // to her channels while reading; at the signature there is nothing left to
+      // read, and covering the one line that says whose site this is would be
+      // the worst place of all for it to appear.
+      const footerTop = this.footerEl
+        ? this.footerEl.getBoundingClientRect().top
+        : Number.POSITIVE_INFINITY;
+      const atTheEnd = footerTop < window.innerHeight;
+
+      const nextDock =
+        top > window.innerHeight * 0.72 && this.dockWantsShow && !atTheEnd;
       if (nextTop === this.backToTopVisible && nextDock === this.socialDockVisible) return;
       this.backToTopVisible = nextTop;
       this.socialDockVisible = nextDock;
       this.cdr.markForCheck();
     };
+    this.footerEl = document.querySelector<HTMLElement>('.site-footer');
     update();
     this.scrollListeners.push(update);
     window.addEventListener('scroll', update, { passive: true });
