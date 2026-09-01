@@ -4318,9 +4318,21 @@ div[id] {
 }
 
 // ── The proof ────────────────────────────────────────────────────────────────
+// THE NARROW COLUMN GOES TO THE TALL PICTURE.
+//
+// Both proof frames are portrait, and the taller of the two - the lighting rig
+// at 1152x2048 - had been given the WIDER column. Forced into a short landscape
+// box it survived at 29% of its own source on a desktop, centred, so the light
+// heads were cut off the top and the stand bases off the bottom. What was left
+// was black poles, a wall socket and a power cable: the least flattering
+// possible reading of professional lighting, in the one chapter whose whole job
+// is to prove production capability.
+//
+// The weights are simply the right way round now, and the row is taller, so
+// each frame keeps a proportion closer to the photograph inside it.
 .shoot-proof {
   display: grid;
-  grid-template-columns: 1.15fr 0.85fr;
+  grid-template-columns: 0.85fr 1.15fr;
   gap: clamp(10px, 1.8vw, 20px);
   align-items: start;
   margin-top: clamp(26px, 5vh, 58px);
@@ -4348,12 +4360,20 @@ div[id] {
 // columns so there is still a dominant frame and a supporting one rather than
 // a two-up equipment grid.
 .shoot-detail {
-  height: clamp(196px, 42vw, 340px);
+  // Taller than it was: these are portrait photographs, and a short band throws
+  // most of them away.
+  height: clamp(230px, 54vw, 430px);
 
   img {
     height: 100%;
     object-fit: cover;
   }
+}
+
+// The subject of this frame is the LIGHT, not the floor. Anchored high so the
+// head and the softbox survive the crop instead of the sockets behind it.
+.shoot-detail--rig img {
+  object-position: 50% 22%;
 }
 
 .shoot-detail--set img {
@@ -4414,7 +4434,7 @@ div[id] {
   }
 
   .shoot-detail {
-    height: clamp(240px, 26vw, 360px);
+    height: clamp(300px, 33vw, 470px);
   }
 }
 
