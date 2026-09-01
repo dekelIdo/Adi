@@ -35,6 +35,20 @@
   --text-light: #86827f;
 
   // ─── AGGRESSIVELY REDUCED Spacing Scale (editorial rhythm)
+  // ─── TEXT FLOW. Two values, and only two, for the vertical relationships
+  // inside a block of copy.
+  //
+  // These existed nowhere before, and the result was eight different bottom
+  // margins on section headings (0, 10, 10, 10, 15, 20, 20px) and five on body
+  // paragraphs (0, 0, 0, 6, 10px) - with a wrapper `gap` stacked on top of them
+  // that also varied. Two mechanisms competing for one relationship, so the same
+  // heading-to-paragraph distance landed at 10px in one section, 20px in the
+  // next and 30px in a third. It reads as carelessness because it is.
+  //
+  // The ELEMENT owns its own bottom margin; wrappers contribute no row gap to
+  // text. One owner, one scale, everywhere.
+  --flow-tight: clamp(12px, 2vh, 18px);   // paragraph → paragraph
+  --flow-open: clamp(18px, 3.1vh, 30px);  // heading → its body
   --space-xs: clamp(4px, 0.7vh, 6px);
   --space-sm: clamp(8px, 1.3vh, 12px);
   --space-md: clamp(14px, 2.4vh, 24px);
@@ -1370,7 +1384,6 @@ select {
   // what was missing was the pause between them, and without it the two just
   // looked stacked. The reference gets its authority from exactly this gap: a
   // headline is given silence before anything is allowed to answer it.
-  margin-bottom: clamp(14px, 2.4vh, 28px);
   max-width: 18ch;
 
   em {
@@ -1521,6 +1534,42 @@ select {
     block-size: 44px;
     transform: translateY(-50%);
   }
+}
+
+// ONE HEADING-TO-BODY DISTANCE, EVERYWHERE. See --flow-open above for why this
+// rule exists rather than each heading carrying its own number.
+.section-title,
+.quote,
+.about-intro,
+.why-headline,
+.honesty-headline,
+.services-headline,
+.portfolio-headline,
+.story-card h3 {
+  margin-bottom: var(--flow-open);
+}
+
+// ONE PARAGRAPH-TO-PARAGRAPH DISTANCE, EVERYWHERE. The last one in a block adds
+// nothing, so a block never pays for space its wrapper already ends with.
+.section-body,
+.section-lead,
+.honesty-body,
+.why-sub,
+.story-card p {
+  margin-bottom: var(--flow-tight);
+
+  &:last-child {
+    margin-bottom: 0;
+  }
+}
+
+// The wrappers stand down. Their row gap used to be added on top of the margins
+// above, which is what made the same relationship measure differently depending
+// on which wrapper it happened to sit in.
+.about-copy,
+.split-copy,
+.contact-copy {
+  row-gap: 0;
 }
 
 // ─────── BUTTONS ───────────────────────────────────────────────────────────────
@@ -1778,7 +1827,7 @@ div[id] {
 .split-copy {
   display: flex;
   flex-direction: column;
-  gap: var(--space-sm);
+  // Spacing below is owned by --flow-open / --flow-tight, not here.
 }
 
 .quote {
@@ -1797,7 +1846,6 @@ div[id] {
   // space. Measured on a phone it sat 10px above its paragraph while every
   // comparable heading on the page sat at 15-20px - the tightest instance of
   // the one relationship that should read the same everywhere.
-  margin-bottom: clamp(14px, 2.4vh, 28px);
   quotes: """ """ "'" "'";
 
   &::before {
@@ -2171,7 +2219,7 @@ div[id] {
 .solution-copy {
   display: flex;
   flex-direction: column;
-  gap: var(--space-sm);
+  // Spacing owned by --flow-open / --flow-tight.
 }
 
 .solution-visual-wrap {
@@ -2278,7 +2326,7 @@ div[id] {
 .about-copy {
   display: flex;
   flex-direction: column;
-  gap: var(--space-sm);
+  // Spacing below is owned by --flow-open / --flow-tight, not here.
 }
 
 .about-eyebrow {
@@ -2297,7 +2345,6 @@ div[id] {
   font-weight: 400;
   line-height: 1.08;
   color: var(--text);
-  margin-bottom: var(--space-sm);
 
   em {
     // No true italic in either family, and Hebrew has no italic convention:
@@ -2354,7 +2401,6 @@ div[id] {
     font-weight: 400;
     letter-spacing: -0.02em;
     line-height: 1.15;
-    margin-bottom: 10px;
     color: var(--text);
   }
 
@@ -2363,9 +2409,9 @@ div[id] {
     line-height: 1.62;
     color: var(--text-muted);
 
-    & + p {
-      margin-top: 10px;
-    }
+    // Sibling spacing is the paragraph's own bottom margin (--flow-tight); a
+    // margin-top here stacked a second value on top of it.
+
   }
 }
 
@@ -3856,11 +3902,14 @@ div[id] {
   gap: var(--space-xl);
 }
 
+// No row gap: the heading and the paragraph inside carry --flow-open and
+// --flow-tight themselves, and a gap here was added on top of both - which put
+// this section's heading-to-body at 36px against the 26px it measures
+// everywhere else.
 .why-col,
 .audience-col {
   display: flex;
   flex-direction: column;
-  gap: var(--space-sm);
 }
 
 .why-headline {
@@ -3871,14 +3920,12 @@ div[id] {
   font-weight: 400;
   line-height: 1.04;
   color: var(--text);
-  margin-bottom: var(--space-sm);
 }
 
 .why-sub {
   font-size: var(--text-base);
   line-height: 1.68;
   color: var(--text-muted);
-  margin-bottom: var(--space-sm);
 }
 
 // WHEN THE TWO COLUMNS STACK, THE SECOND LIST LOSES ITS MEANING.
@@ -4033,7 +4080,6 @@ div[id] {
   font-weight: 400;
   line-height: 1.0;
   color: rgba(255, 255, 255, 0.94);
-  margin-bottom: var(--space-md);
 
   em {
     // No true italic in either family, and Hebrew has no italic convention:
@@ -4048,7 +4094,6 @@ div[id] {
   font-size: var(--text-lg);
   line-height: 1.68;
   color: rgba(255, 255, 255, 0.74);
-  margin-bottom: var(--space-sm);
 }
 
 .honesty-sign {
@@ -4842,7 +4887,7 @@ div[id] {
 .contact-copy {
   display: flex;
   flex-direction: column;
-  gap: var(--space-xs);
+  // Spacing below is owned by --flow-open / --flow-tight, not here.
 }
 
 // Hairline-led list, matching the editorial rows used through the page.
@@ -5882,11 +5927,19 @@ div[id] {
     .solution-wrap,
     .contact-layout,
     .split-grid,
-    .services-header,
-    .portfolio-editorial-header,
     .why-merged-grid {
       grid-template-columns: 1fr;
       gap: var(--space-md);
+    }
+
+    // Same shape as .section-intro-split below: these two are a heading column
+    // and the lead paragraph that belongs to it. Stacked, the shared gap was
+    // being added to the heading's own margin, so the one relationship that
+    // measures 26px everywhere else came out at 41px here. The heading owns it.
+    .services-header,
+    .portfolio-editorial-header {
+      grid-template-columns: 1fr;
+      row-gap: 0;
     }
 
     // .section-intro-split is stacked here too, but WITHOUT that gap. Its two
