@@ -5280,7 +5280,18 @@ div[id] {
 .section-final {
   position: relative;
   background: #0a0806;
-  padding-block: clamp(84px, 14vh, 168px) clamp(68px, 11vh, 132px);
+  // PROPORTION, NOT JUST AIR.
+  //
+  // This carried 118px above and 93px below a single 40px line on a phone -
+  // 211px of padding around 40px of content, better than five to one. A closing
+  // frame is allowed to be spare; it is not supposed to read as an empty black
+  // rectangle, which is exactly what that ratio produced.
+  //
+  // The bottom is the smaller of the two on purpose: the footer immediately
+  // below contributes its own top padding, and the two were stacking into 136px
+  // between the invitation and the signature. The footer's padding owns that
+  // relationship now, and this only has to finish its own frame.
+  padding-block: clamp(48px, 7.5vh, 92px) clamp(24px, 4vh, 48px);
   overflow: hidden;
   text-align: center;
 }
