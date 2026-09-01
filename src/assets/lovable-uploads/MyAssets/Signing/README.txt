@@ -13,10 +13,6 @@ exact paths and the chapter fills itself in - no code change is needed.
                           ("חתימת הלקוח"). This is the proof that a real contract
                           is being signed, not a form.
 
-  signing-cover.png       The cover page of the agreement ("הסכם עבודה והצעת
-                          מחיר"). The smallest plate - it establishes what the
-                          document is.
-
 Notes
 -----
 * Portrait screenshots. Anything close to a phone's aspect (roughly 1:2) composes

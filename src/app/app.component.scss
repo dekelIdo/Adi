@@ -510,7 +510,6 @@ select {
 }
 
 .signing-plates.is-visible .signing-plate--agreement { transition-delay: 120ms; }
-.signing-plates.is-visible .signing-plate--cover     { transition-delay: 210ms; }
 
 // THE HERO. The screen the client actually signs on, across the full width of
 // the composition on a phone.
@@ -518,8 +517,7 @@ select {
   grid-column: 1 / -1;
 }
 
-.signing-plate--agreement,
-.signing-plate--cover {
+.signing-plate--agreement {
 }
 
 // ── Tablet (600-899): still a vertical composition, but not a wall ──────────
@@ -544,9 +542,8 @@ select {
     max-height: 62vh;
   }
 
-  .signing-plate--agreement img,
-  .signing-plate--cover img {
-    max-height: 32vh;
+  .signing-plate--agreement img {
+    max-height: 36vh;
   }
 }
 
@@ -606,7 +603,7 @@ select {
 
   .signing-plate--sign {
     grid-column: 1;
-    grid-row: 1 / span 2;
+    grid-row: 1;
 
     img {
       max-height: 74vh;
@@ -623,15 +620,8 @@ select {
     z-index: -1;
   }
 
-  .signing-plate--cover {
-    grid-column: 2;
-    grid-row: 2;
-    margin-block-start: clamp(10px, 1.4vh, 18px);
-  }
-
-  .signing-plate--agreement img,
-  .signing-plate--cover img {
-    max-height: 34vh;
+  .signing-plate--agreement img {
+    max-height: 40vh;
   }
 }
 
@@ -5056,89 +5046,56 @@ div[id] {
 
 // ─────── FOOTER ────────────────────────────────────────────────────────────────
 
-// ─────── THE FINAL SCENE ───────────────────────────────────────────────────────
+// ─────── THE CLOSING FRAME ────────────────────────────────────────────────────
 //
-// The page used to end: contact form, FAQ, copyright. Technically an ending,
-// but the last thing a visitor read was administrative text, which is a strange
-// note to leave a brand on after a fifteen-thousand-pixel film.
+// NOT THE HERO. The distinction is the whole point of this block.
 //
-// This is the closing frame. It carries the hero's sentence and the hero's
-// invitation and nothing else - no new headline, no second argument, no card.
-// The whole idea is the callback: the same words that opened as a promise land
-// at the end as a conclusion, because by now they have been demonstrated. A
-// closing scene earns its place by what came before it, not by what it says.
+// This scene used to carry the hero's sentence verbatim, in the same display
+// face, white, on the same near-black ground, aligned to the same edge, with an
+// underlined link under it. Every ingredient of the opening scene was present
+// except its photograph - so it read as the hero rendering again and failing to
+// load, which is exactly how it was reported. A callback has to rhyme; that one
+// repeated.
 //
-// It shares the footer's field on purpose. The dark does not stop and restart;
-// the scene simply gets quieter until it is a signature, so there is no seam
-// between "the end of the film" and "the end of the page".
+// The composition is inverted instead. The hero sets a STATEMENT large with a
+// small invitation beneath it. This sets the INVITATION large and says nothing
+// else. They share the dark field and the drawn rule - the rhyme - and share no
+// words, no scale and no shape, so they cannot be confused. Nothing from the
+// hero is reused here: no class, no container, no asset.
+//
+// It sits in the footer's own field so the two are one closing frame, and the
+// page ends where it began without ending on a copy of where it began.
 
 .section-final {
   position: relative;
   background: #0a0806;
-  // Proportional to the rest of the film. A closing frame wants air around it,
-  // but a whole viewport of near-empty black for one sentence is a scroll tax,
-  // not a composition - this lands close to the page's open chapters.
-  padding-block: clamp(88px, 15vh, 172px) clamp(64px, 10vh, 120px);
+  // Room around one line. This is the last thing on the page and it is allowed
+  // to be nearly empty - the space is what makes the invitation land rather
+  // than simply appear.
+  padding-block: clamp(92px, 16vh, 190px) clamp(72px, 12vh, 140px);
   overflow: hidden;
 }
 
-.final-line {
-  margin: 0;
-  font-family: var(--font-display);
-  // A step above the section headings and just under the hero. It is the same
-  // sentence, so it is set in the same voice; it is the end, so it is calmer.
-  // Widening the page should make this MORE editorial, not merely emptier: the
-  // line grows into the frame so the space around it reads as chosen rather
-  // than left over. It ends a little above the hero's own size - it is the same
-  // sentence arriving with the weight of everything that has been shown since.
-  font-size: clamp(2.1rem, 6.4vw, 4.4rem);
-  font-weight: 400;
-  line-height: 1.1;
-  letter-spacing: -0.026em;
-  color: rgba(255, 255, 255, 0.94);
-  max-width: 15ch;
-
-  // Two lines, each uncovering from behind its own baseline, the second a beat
-  // after the first. It is the page's established editorial gesture - the same
-  // one the section headings use - so the closing frame speaks the grammar the
-  // rest of the page already taught, rather than introducing a new effect at
-  // the last possible moment. Each line needs its own box to be masked in.
-  span {
-    display: block;
-    clip-path: inset(-40% -25% 105% -25%);
-    transform: translateY(0.16em);
-    transition: clip-path 1000ms var(--ease-expo), transform 1000ms var(--ease-expo);
-  }
-
-  span:nth-child(2) {
-    transition-delay: 130ms;
-  }
-
-  &.is-visible span {
-    clip-path: inset(-40% -25% -40% -25%);
-    transform: none;
-  }
-}
-
-// The invitation, in the hero's language: type with a rule under it. A link is
-// type - the CTA system from the previous pass holds here, and this is the last
-// place on the page that would be improved by a pill.
+// THE INVITATION IS THE SUBJECT. In the hero this same phrase is a small link
+// under a headline; here it is the only thing on screen, in the display face, at
+// the size the headline had up there. Same voice, opposite job.
 .final-cta {
   position: relative;
   display: inline-block;
-  margin-block-start: clamp(30px, 5vh, 52px);
-  font-family: var(--font-body);
-  font-size: clamp(1rem, 2.7vw, 1.16rem);
-  font-weight: 500;
-  color: rgba(255, 255, 255, 0.9);
+  font-family: var(--font-display);
+  font-size: clamp(2rem, 6.2vw, 4.1rem);
+  font-weight: 400;
+  line-height: 1.1;
+  letter-spacing: -0.024em;
+  color: rgba(255, 255, 255, 0.94);
   text-decoration: none;
-  padding-bottom: 5px;
+  padding-bottom: clamp(8px, 1.4vh, 14px);
   transition: color 320ms var(--ease-smooth);
 
   // THE FINAL EXHALE. The rule draws itself out from the start of the words -
-  // the right, this being Hebrew - and comes to rest. It is the only thing on
-  // this screen that moves after the sentence has settled, and it is what makes
-  // the invitation feel offered rather than displayed.
+  // the right, this being Hebrew - and comes to rest. It is the only motion in
+  // the scene, and it is what makes the invitation feel offered rather than
+  // printed.
   &::before {
     content: "";
     position: absolute;
@@ -5148,7 +5105,8 @@ div[id] {
     background: rgba(187, 221, 250, 0.5);
     transform: scaleX(0);
     transform-origin: right center;
-    transition: transform 900ms var(--ease-expo) 420ms, background-color 320ms var(--ease-smooth);
+    transition: transform 1000ms var(--ease-expo) 260ms,
+      background-color 320ms var(--ease-smooth);
   }
 
   &.is-visible::before {
@@ -5166,32 +5124,13 @@ div[id] {
 
   &:focus-visible {
     outline: 2px solid var(--brand-accent);
-    outline-offset: 8px;
+    outline-offset: 10px;
     border-radius: 2px;
-  }
-
-  // The words are a small target for a thumb; the hit area is grown to 44px
-  // with a transparent overlay so the rule still measures exactly the words.
-  &::after {
-    content: "";
-    position: absolute;
-    inset-inline: -16px;
-    inset-block: 50%;
-    block-size: 44px;
-    transform: translateY(-50%);
   }
 }
 
-// Reduced motion: the sentence is simply there, and the rule is simply drawn.
-// Nothing on this screen may depend on an animation to become visible.
+// Reduced motion: the rule is simply already drawn.
 @media (prefers-reduced-motion: reduce) {
-  .final-line span,
-  .final-line.is-visible span {
-    clip-path: none;
-    transform: none;
-    transition: none;
-  }
-
   .final-cta::before,
   .final-cta.is-visible::before {
     transform: scaleX(1);

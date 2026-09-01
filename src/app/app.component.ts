@@ -181,8 +181,12 @@ export class AppComponent implements AfterViewInit, OnDestroy {
    * that happen to appear in them are incidental image content, not text the
    * page says or that a search engine can index.
    *
-   * `role` drives the composition rather than the order: the signature screen is
-   * the hero plate, the agreement supports it, the cover is the small detail.
+   * TWO, not three. There was a third plate - the agreement's cover page - and
+   * it was the difference between a composition and a row of screenshots: a
+   * third rectangle of the same kind gives the eye a third place to go and the
+   * hierarchy collapses into "here are some screenshots". One dominant and one
+   * supporting is the whole idea. `role` drives the composition rather than the
+   * order: the signature screen is the hero, the agreement supports it.
    * If a file is not on disk yet the frame removes itself on the image's error
    * event, so the page can never show a broken picture or an empty box.
    */
@@ -196,11 +200,6 @@ export class AppComponent implements AfterViewInit, OnDestroy {
       src: 'assets/lovable-uploads/MyAssets/Signing/signing-agreement.png',
       alt: 'ההסכם עצמו, פתוח במקום שבו חותמים',
       role: 'agreement',
-    },
-    {
-      src: 'assets/lovable-uploads/MyAssets/Signing/signing-cover.png',
-      alt: 'העמוד הראשון של הסכם העבודה',
-      role: 'cover',
     },
   ];
 
