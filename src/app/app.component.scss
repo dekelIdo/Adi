@@ -4766,6 +4766,8 @@ div[id] {
 .section-contact {
   padding: clamp(28px, 4.6vh, 58px) 0 clamp(26px, 4.2vh, 50px);
   background: linear-gradient(180deg, var(--bg) 0%, var(--surface) 100%);
+    padding-bottom: 22px;
+
 }
 
 .contact-layout {
@@ -5984,11 +5986,11 @@ div[id] {
   // at the foot of the page sat underneath the three circles and could not be
   // scrolled clear. A shorthand always rewrites all four sides; a longhand pair
   // cannot be undone by accident.
-  .site-footer {
-    padding-block-start: var(--sec-open);
-    padding-block-end: calc(env(safe-area-inset-bottom, 0px) + clamp(92px, 14vh, 116px));
-    padding-inline: 0;
-  }
+  // .site-footer {
+  //   padding-block-start: var(--sec-open);
+  //   padding-block-end: calc(env(safe-area-inset-bottom, 0px) + clamp(92px, 14vh, 116px));
+  //   padding-inline: 0;
+  // }
 }
 
 // ═══════════════════════════════════════════════════════════════════════════════
