@@ -3887,10 +3887,19 @@ div[id] {
 // that the eye reads a new group. No label is invented and no decoration is
 // added - the rule is the one already used throughout this page.
 @media (max-width: 699.98px) {
-  .why-statements,
-.audience-statements {
-    margin-top: clamp(22px, 4vh, 38px);
-    padding-top: clamp(20px, 3.4vh, 32px);
+  // ONLY the second list. This selector had picked up `.why-statements` as well,
+  // so the separator meant for one boundary was being applied to both - and the
+  // measured result on a phone was a 98px void above the first list and a 104px
+  // void above the second, against an internal row rhythm of 23-29px. One
+  // mistake, two holes, and it is the empty space visible in the production
+  // screenshots.
+  //
+  // The break is also smaller than it was. It has to say "new group"; it does
+  // not have to say "new section". Roughly double the row rhythm does that, and
+  // the hairline carries the rest.
+  .audience-statements {
+    margin-top: clamp(16px, 2.4vh, 24px);
+    padding-top: clamp(14px, 2.2vh, 22px);
     border-top: 1px solid var(--rule);
   }
 
@@ -3901,6 +3910,7 @@ div[id] {
   }
 }
 
+.why-statements,
 .audience-statements {
   display: flex;
   flex-direction: column;
@@ -4900,10 +4910,32 @@ div[id] {
       border-bottom-color: var(--text-muted);
     }
 
+    // Pointer focus keeps the field quiet - the underline simply comes forward.
+    // It is a slightly heavier weight than before because a hairline shifting
+    // from grey to pale blue was almost imperceptible, and it was the only
+    // signal the field had.
     &:focus {
       outline: none;
-      border-bottom-color: var(--brand-accent-dim);
+      border-bottom-color: var(--brand-accent);
+      border-bottom-width: 2px;
       box-shadow: none;
+    }
+
+    // KEYBOARD FOCUS MUST BE UNMISTAKABLE.
+    //
+    // These three inputs were the only tab stops on the entire page without a
+    // visible focus indicator - twenty-four stops, and the three that carry the
+    // conversion were the ones a keyboard user could not locate. `outline: none`
+    // with a hairline colour change is not an indicator.
+    //
+    // This is the same ring .cta-link and .final-cta already use, so the page
+    // has one focus language rather than a new one invented here, and because it
+    // is :focus-visible it never appears for a pointer - the field keeps its
+    // clean underline for everyone else.
+    &:focus-visible {
+      outline: 2px solid var(--brand-accent);
+      outline-offset: 4px;
+      border-radius: 2px;
     }
 
     &::placeholder {
