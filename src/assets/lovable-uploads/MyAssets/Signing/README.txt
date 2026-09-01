@@ -1,27 +1,29 @@
-THE SIGNING EXPERIENCE — REAL SCREENSHOTS GO HERE
-=================================================
+THE SIGNING EXPERIENCE — REAL SCREENSHOTS
+=========================================
 
-The signing chapter on the site (#signing, "גם על הדברים הקטנים חשבנו") is built
-and wired to the three files below. Save the owner's real screenshots at these
-exact paths and the chapter fills itself in - no code change is needed.
+Both files are in place and the #signing chapter renders them.
 
-  signing-sign.png        THE HERO. The signature screen: "חתימה / חתמי בתוך
-                          המסגרת", the signing box, and the save-and-send action.
-                          This is the largest plate in the composition.
+  signing-sign.png        337x541  THE HERO. The signature screen the client
+                          actually signs on: "חתימה / חתמי בתוך המסגרת", the
+                          signing box, and the save-and-send action.
 
-  signing-agreement.png   The agreement itself, scrolled to the signature block
-                          ("חתימת הלקוח"). This is the proof that a real contract
-                          is being signed, not a form.
+  signing-agreement.png   333x675  SUPPORTING. The agreement itself at the
+                          signature block, with Adi's own signature.
+
+Copied from MyAssets/AdiArieli/"SIGN AGGRE SCREENSHOR*.png". Those originals can
+be deleted once you are happy with how the chapter looks - nothing references
+them any more.
 
 Notes
 -----
-* Portrait screenshots. Anything close to a phone's aspect (roughly 1:2) composes
-  correctly; the frames crop to a consistent ratio rather than distorting.
-* PNG or JPG. Save at the exact filename above - the chapter loads whatever is
-  at that path. There is no webp <source>: it would win over the PNG in every
-  browser that supports it, and a missing webp would take the whole chapter down.
-* Until the files exist, each frame removes itself on load error, so the page
-  never shows a broken image and never shows an empty box.
-* The personal names and phone numbers visible in these screenshots are treated
-  as incidental image content. They are not transcribed into markup, alt text or
-  any indexable copy anywhere on the site.
+* These are 1x phone screenshots (337px and 333px wide). The layout caps them at
+  their native width so they are never upscaled and never soften. That is also
+  why the hero plate stops growing past 337px on a desktop: bigger would mean
+  blurrier, and a crisp small screenshot reads as real while a soft large one
+  reads as a mockup.
+* Nothing is cropped and nothing is stretched - measured distortion is 0 at
+  every width. The plates take the screenshots' true shape.
+* The personal details visible in the agreement are Adi's own business email and
+  phone, which the site already publishes. No third-party data appears.
+* There is no webp <source>: it would win over the PNG in every browser that
+  supports it, and a missing webp would take the whole chapter down.
