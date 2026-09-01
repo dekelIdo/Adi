@@ -419,11 +419,12 @@ select {
 // actually take content away from a visitor rather than just sitting over it in
 // passing. The clearance is the dock's own height plus its offset and the safe
 // area, so it is exactly as tall as it needs to be and no taller.
-@media (max-width: 767.98px) {
-  .site-footer {
-    padding-bottom: calc(env(safe-area-inset-bottom, 0px) + clamp(92px, 14vh, 116px));
-  }
-}
+// The clearance itself lives with the footer's other mobile padding rather than
+// here. Declared at this point in the file it could never take effect: two later
+// rules set the `padding` SHORTHAND on .site-footer, and a shorthand rewrites
+// padding-bottom whether or not it means to. The dock has therefore been sitting
+// on the last line of the page this whole time - see the footer's mobile rule.
+
 
 // Desktop has the header, the footer and the contact form; it does not need a
 // floating dock, so it is not rendered rather than merely hidden.
@@ -4499,10 +4500,15 @@ div[id] {
     img {
       width: 100%;
       height: 100%;
-      // The frame gives way, not the layout. She sits toward the end side of
-      // this photograph, so the crop is held there as the column changes height.
+      // The frame gives way, not the layout - but the frame still has to keep
+      // the picture. Held at 62% the column cut her heels off at the ankle,
+      // which is the one crop a seated full-length figure cannot survive: the
+      // pose is the whole photograph. Walked across the frame and looked at,
+      // 30% loses her face off the end edge and 62% loses the shoes; 40% is the
+      // window where the entire figure fits - heels, laptop, clipboard, face and
+      // phone - with air on both sides.
       object-fit: cover;
-      object-position: 62% 50%;
+      object-position: 40% 50%;
     }
   }
 }
@@ -4724,6 +4730,149 @@ div[id] {
 }
 
 // ─────── FOOTER ────────────────────────────────────────────────────────────────
+
+// ─────── THE FINAL SCENE ───────────────────────────────────────────────────────
+//
+// The page used to end: contact form, FAQ, copyright. Technically an ending,
+// but the last thing a visitor read was administrative text, which is a strange
+// note to leave a brand on after a fifteen-thousand-pixel film.
+//
+// This is the closing frame. It carries the hero's sentence and the hero's
+// invitation and nothing else - no new headline, no second argument, no card.
+// The whole idea is the callback: the same words that opened as a promise land
+// at the end as a conclusion, because by now they have been demonstrated. A
+// closing scene earns its place by what came before it, not by what it says.
+//
+// It shares the footer's field on purpose. The dark does not stop and restart;
+// the scene simply gets quieter until it is a signature, so there is no seam
+// between "the end of the film" and "the end of the page".
+
+.section-final {
+  position: relative;
+  background: #0a0806;
+  // Proportional to the rest of the film. A closing frame wants air around it,
+  // but a whole viewport of near-empty black for one sentence is a scroll tax,
+  // not a composition - this lands close to the page's open chapters.
+  padding-block: clamp(88px, 15vh, 172px) clamp(64px, 10vh, 120px);
+  overflow: hidden;
+}
+
+.final-line {
+  margin: 0;
+  font-family: var(--font-display);
+  // A step above the section headings and just under the hero. It is the same
+  // sentence, so it is set in the same voice; it is the end, so it is calmer.
+  // Widening the page should make this MORE editorial, not merely emptier: the
+  // line grows into the frame so the space around it reads as chosen rather
+  // than left over. It ends a little above the hero's own size - it is the same
+  // sentence arriving with the weight of everything that has been shown since.
+  font-size: clamp(2.1rem, 6.4vw, 4.4rem);
+  font-weight: 400;
+  line-height: 1.1;
+  letter-spacing: -0.026em;
+  color: rgba(255, 255, 255, 0.94);
+  max-width: 15ch;
+
+  // Two lines, each uncovering from behind its own baseline, the second a beat
+  // after the first. It is the page's established editorial gesture - the same
+  // one the section headings use - so the closing frame speaks the grammar the
+  // rest of the page already taught, rather than introducing a new effect at
+  // the last possible moment. Each line needs its own box to be masked in.
+  span {
+    display: block;
+    clip-path: inset(-40% -25% 105% -25%);
+    transform: translateY(0.16em);
+    transition: clip-path 1000ms var(--ease-expo), transform 1000ms var(--ease-expo);
+  }
+
+  span:nth-child(2) {
+    transition-delay: 130ms;
+  }
+
+  &.is-visible span {
+    clip-path: inset(-40% -25% -40% -25%);
+    transform: none;
+  }
+}
+
+// The invitation, in the hero's language: type with a rule under it. A link is
+// type - the CTA system from the previous pass holds here, and this is the last
+// place on the page that would be improved by a pill.
+.final-cta {
+  position: relative;
+  display: inline-block;
+  margin-block-start: clamp(30px, 5vh, 52px);
+  font-family: var(--font-body);
+  font-size: clamp(1rem, 2.7vw, 1.16rem);
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.9);
+  text-decoration: none;
+  padding-bottom: 5px;
+  transition: color 320ms var(--ease-smooth);
+
+  // THE FINAL EXHALE. The rule draws itself out from the start of the words -
+  // the right, this being Hebrew - and comes to rest. It is the only thing on
+  // this screen that moves after the sentence has settled, and it is what makes
+  // the invitation feel offered rather than displayed.
+  &::before {
+    content: "";
+    position: absolute;
+    inset-block-end: 0;
+    inset-inline: 0;
+    block-size: 1px;
+    background: rgba(187, 221, 250, 0.5);
+    transform: scaleX(0);
+    transform-origin: right center;
+    transition: transform 900ms var(--ease-expo) 420ms, background-color 320ms var(--ease-smooth);
+  }
+
+  &.is-visible::before {
+    transform: scaleX(1);
+  }
+
+  &:hover,
+  &:focus-visible {
+    color: #fff;
+
+    &::before {
+      background: var(--brand-accent);
+    }
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--brand-accent);
+    outline-offset: 8px;
+    border-radius: 2px;
+  }
+
+  // The words are a small target for a thumb; the hit area is grown to 44px
+  // with a transparent overlay so the rule still measures exactly the words.
+  &::after {
+    content: "";
+    position: absolute;
+    inset-inline: -16px;
+    inset-block: 50%;
+    block-size: 44px;
+    transform: translateY(-50%);
+  }
+}
+
+// Reduced motion: the sentence is simply there, and the rule is simply drawn.
+// Nothing on this screen may depend on an animation to become visible.
+@media (prefers-reduced-motion: reduce) {
+  .final-line span,
+  .final-line.is-visible span {
+    clip-path: none;
+    transform: none;
+    transition: none;
+  }
+
+  .final-cta::before,
+  .final-cta.is-visible::before {
+    transform: scaleX(1);
+    transition: none;
+  }
+}
 
 .site-footer {
   // THE PAGE WAS ENDING AT A THIRD OF ITS OWN RHYTHM.
@@ -5399,9 +5548,20 @@ div[id] {
   // Footer
   // Mobile kept the old flat var(--space-sm) here, which is what was ending the
   // page at a third of its rhythm on the viewport that matters most. Same open
-  // tier as desktop; the dock clearance below still supplies the foot.
+  // tier as desktop.
+  //
+  // THE DOCK IS FIXED, SO THE PAGE HAS TO END ABOVE IT. The clearance is the
+  // dock's own height plus its offset and the safe area - exactly as tall as it
+  // needs to be and no taller. It is declared here, in longhand, for a reason:
+  // it used to live in its own earlier media query and set `padding-bottom`,
+  // and this rule's `padding` shorthand silently overwrote it, so the signature
+  // at the foot of the page sat underneath the three circles and could not be
+  // scrolled clear. A shorthand always rewrites all four sides; a longhand pair
+  // cannot be undone by accident.
   .site-footer {
-    padding: var(--sec-open) 0 var(--space-sm);
+    padding-block-start: var(--sec-open);
+    padding-block-end: calc(env(safe-area-inset-bottom, 0px) + clamp(92px, 14vh, 116px));
+    padding-inline: 0;
   }
 }
 
