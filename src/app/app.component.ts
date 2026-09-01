@@ -172,6 +172,48 @@ export class AppComponent implements AfterViewInit, OnDestroy {
    * arrived with three circles on top of it. Held back until the hero is mostly
    * scrolled, it is out of the way when it should be and to hand from then on.
    */
+  /**
+   * THE SIGNING EXPERIENCE — REAL SCREENSHOTS, NOT A DRAWN UI.
+   *
+   * These are photographs of the actual product a client is sent: the agreement
+   * and the screen they sign it on. Nothing here is a redrawn interface, and
+   * nothing in the screenshots is transcribed into copy - the names and numbers
+   * that happen to appear in them are incidental image content, not text the
+   * page says or that a search engine can index.
+   *
+   * `role` drives the composition rather than the order: the signature screen is
+   * the hero plate, the agreement supports it, the cover is the small detail.
+   * If a file is not on disk yet the frame removes itself on the image's error
+   * event, so the page can never show a broken picture or an empty box.
+   */
+  signingShots: { src: string; alt: string; role: string; missing?: boolean }[] = [
+    {
+      src: 'assets/lovable-uploads/MyAssets/Signing/signing-sign.png',
+      alt: 'מסך החתימה של עדי, כפי שהוא נראה ללקוחה בטלפון',
+      role: 'sign',
+    },
+    {
+      src: 'assets/lovable-uploads/MyAssets/Signing/signing-agreement.png',
+      alt: 'ההסכם עצמו, פתוח במקום שבו חותמים',
+      role: 'agreement',
+    },
+    {
+      src: 'assets/lovable-uploads/MyAssets/Signing/signing-cover.png',
+      alt: 'העמוד הראשון של הסכם העבודה',
+      role: 'cover',
+    },
+  ];
+
+  /** The whole chapter stands down if none of its evidence is on disk. */
+  get hasSigningShots(): boolean {
+    return this.signingShots.some((s) => !s.missing);
+  }
+
+  onSigningShotMissing(shot: { missing?: boolean }): void {
+    shot.missing = true;
+    this.cdr.markForCheck();
+  }
+
   socialDockVisible = false;
   private focusedReel?: HTMLElement;
   private reelResize?: () => void;

@@ -807,7 +807,7 @@
          from behind it as the section is scrolled through. -->
     <section id="shoot-day" class="section-shoot" data-header-theme="light">
       <div class="container shoot-layout">
-        <figure class="shoot-lead" data-drift="0.45">
+        <figure class="shoot-lead reveal reveal-float" data-drift="0.45">
           <picture>
             <source srcset="assets/lovable-uploads/MyAssets/ShootDay/shoot-lead.webp" type="image/webp" />
             <img
@@ -840,6 +840,80 @@
             </picture>
           </figure>
         </div>
+
+        <!-- ONE LINE, AND ONLY ONE. This chapter was deliberately wordless and
+             mostly stays that way: the lights, the tripod and the set are the
+             argument, and a paragraph explaining them would weaken it. But
+             wordless also meant the visitor was never told what they were
+             looking at, so the evidence sat there without ever being cashed in.
+             The line names the thing and gets out of the way. -->
+        <p class="shoot-note">
+          <span>ציוד צילום ותאורה מקצועיים</span>
+          <span class="shoot-note-sub">לא רק מתכננים את התוכן. גם מפיקים אותו.</span>
+        </p>
+      </div>
+    </section>
+
+    <!-- ── THE SIGNING EXPERIENCE ───────────────────────────────────────────────
+         THE SECOND HALF OF THE SAME ARGUMENT.
+
+         It sits here, directly after the shoot day, on purpose. Those
+         photographs prove the quality of what comes OUT - the lights, the
+         camera, the set. This proves the quality of the way it is WORKED: the
+         agreement a client is actually sent and the screen they actually sign it
+         on. Output and process are the two halves of what makes a service
+         premium, so they are read one after the other rather than filed in
+         different parts of the page.
+
+         Everything below is a real screenshot. No interface has been redrawn, no
+         dashboard invented, no badge or statistic added. The plates are simply
+         presented well - one hero, two supporting, overlapping and off-axis so
+         they read as an object that belongs to the brand rather than as three
+         equal feature cards. The names and numbers inside the screenshots are
+         incidental image content; nothing in them is repeated as text. -->
+    <section id="signing" class="section-signing" data-header-theme="light" *ngIf="hasSigningShots">
+      <div class="container signing-layout">
+
+        <div class="signing-say">
+          <p class="signing-establish reveal">גם על הדברים הקטנים חשבנו.</p>
+
+          <!-- The three words are the whole product description. They are set as
+               one line that breaks into three on a phone, and they resolve one
+               after another - the only motion in the chapter besides the plates
+               arriving. -->
+          <p class="signing-steps reveal">
+            <span>פותחים.</span>
+            <span>קוראים.</span>
+            <span>חותמים.</span>
+          </p>
+
+          <p class="signing-resolve">
+            בלי להתקין כלום, בלי לפתוח חשבון ובלי ללמוד מערכת.
+            <em>גם אם את לא טכנולוגית.</em>
+          </p>
+        </div>
+
+        <div class="signing-plates reveal">
+          @for (shot of signingShots; track shot.src) {
+            <figure class="signing-plate" [class]="'signing-plate--' + shot.role" [hidden]="shot.missing">
+              <!-- One <img>, deliberately - no <picture>/<source> pair here.
+                   A <source type="image/webp"> wins in every browser that
+                   supports webp, so if the owner drops in PNGs alone the source
+                   404s, the img fires its error handler and the entire chapter
+                   removes itself. A silent disappearance is the worst possible
+                   failure for the one section built around evidence. A single
+                   img loads whatever is actually at the path. -->
+              <img
+                [src]="shot.src"
+                [alt]="shot.alt"
+                loading="lazy"
+                decoding="async"
+                (error)="onSigningShotMissing(shot)"
+              />
+            </figure>
+          }
+        </div>
+
       </div>
     </section>
 
