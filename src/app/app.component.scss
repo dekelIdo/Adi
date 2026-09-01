@@ -2541,6 +2541,24 @@ div[id] {
   // is unchanged; only the distance it is spread over.
   .section-bridge.is-cinematic {
     margin-bottom: -42vh;
+
+    // AND THE SAME DEVICE AT THE OTHER END, FOR THE SAME REASON.
+    //
+    // Entering the chapter there was a flat cream field of roughly 170px on a
+    // phone between the story's last line and the laptop appearing - more than
+    // twice the page's 74px seam median, and it read as a hole rather than as a
+    // pause. Two things make it: the section padding above (42px) and the
+    // camera's own entry offset inside the cinematic (~104px at 390).
+    //
+    // Only the first is safe to take, and this takes exactly that and no more.
+    // Pulling further would slide the chapter's field over the last paragraph,
+    // since the space above is the section's padding and then its text.
+    //
+    // The choreography is untouched: progress is read from the stage's own
+    // rect (`-rect.top / travel`), so moving the section changes only WHERE the
+    // sequence begins in the scroll, never how it runs. It is the same negative
+    // margin this chapter already uses on its closing edge.
+    margin-top: calc(-1 * var(--sec-base));
   }
 
   .is-cinematic .bridge-stage {
