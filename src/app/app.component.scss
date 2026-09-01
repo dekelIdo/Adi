@@ -369,6 +369,18 @@ select {
   max-width: 34ch;
 }
 
+// The hinge line. Deliberately small and muted: it is a connective, not a
+// heading, and its whole job is to let the previous chapter finish inside this
+// one. Set at caption weight so it hands over rather than announcing itself.
+.signing-bridge {
+  margin: 0 0 clamp(8px, 1.4vh, 14px);
+  font-family: var(--font-body);
+  font-size: clamp(0.86rem, 2.2vw, 0.95rem);
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  color: var(--text-light);
+}
+
 .signing-establish {
   margin: 0;
   font-family: var(--font-display);
