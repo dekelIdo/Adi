@@ -2140,13 +2140,21 @@ div[id] {
 }
 
 .editorial-img--portrait {
-  // This variant holds its shape with a padding-bottom ratio and takes its only
-  // child out of flow, so the figure has nothing in-flow to size against and was
-  // collapsing to zero width as a grid item. The result was the About portrait
-  // rendering at 0x643 and being invisible on the live site. An explicit width
-  // gives the ratio something to resolve against.
+  // ASPECT-RATIO, NOT A PADDING-BOTTOM HACK.
+  //
+  // A percentage padding resolves against the CONTAINING BLOCK's width, not the
+  // element's own. This figure is capped at 420px by .about-photo-wrap while its
+  // grid column is 604px wide, so `padding-bottom: 130%` was computing
+  // 130% x 604 = 785px of height for a box only 420px wide. The picture needed
+  // 546px. The other 240px was empty reserved space that set the height of the
+  // whole About row - the largest unexplained void on the desktop page.
+  //
+  // aspect-ratio resolves against the element's used width, so the frame is
+  // exactly as tall as the photograph it holds at any column width. The explicit
+  // width stays: the only child is out of flow, so without it the figure has
+  // nothing in-flow to size against and collapses as a grid item.
   width: 100%;
-  padding-bottom: 130%;
+  aspect-ratio: 1 / 1.3;
 
   img {
     position: absolute;

@@ -10,9 +10,8 @@ Both files are in place and the #signing chapter renders them.
   signing-agreement.png   333x675  SUPPORTING. The agreement itself at the
                           signature block, with Adi's own signature.
 
-Copied from MyAssets/AdiArieli/"SIGN AGGRE SCREENSHOR*.png". Those originals can
-be deleted once you are happy with how the chapter looks - nothing references
-them any more.
+These are the owner's real screenshots. The duplicates that briefly lived in
+MyAssets/AdiArieli/ have been removed - these two files are the only copies.
 
 Notes
 -----
