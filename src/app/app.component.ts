@@ -214,6 +214,10 @@ export class AppComponent implements AfterViewInit, OnDestroy {
   }
 
   socialDockVisible = false;
+  private lastDockScroll = 0;
+  // Starts true so the dock is present the moment it is scrolled past, rather
+  // than waiting for the first upward gesture to exist at all.
+  private dockWantsShow = true;
   private focusedReel?: HTMLElement;
   private reelResize?: () => void;
   private reelScrollOut?: () => void;
@@ -786,9 +790,27 @@ export class AppComponent implements AfterViewInit, OnDestroy {
     const update = () => {
       const top = window.scrollY;
       const nextTop = top > 400;
-      // Roughly the hero's own height, so the dock arrives with the second
-      // screen rather than sitting on the first.
-      const nextDock = top > window.innerHeight * 0.72;
+
+      // THE DOCK STANDS ASIDE WHILE YOU ARE READING FORWARD.
+      //
+      // It is a fixed element sitting over the middle of the reading column, so
+      // anything interactive that scrolls underneath it becomes untappable
+      // there. Probing elementFromPoint down the whole page found six positions
+      // where it genuinely swallowed a tap: the "let's start" link, two reel
+      // play buttons, a form field and two FAQ questions. A floating control
+      // that eats the controls beneath it is worse than no floating control.
+      //
+      // So it follows intent rather than position alone. Scrolling down is
+      // reading, and it gets out of the way; scrolling up is looking for
+      // something, which is exactly when a shortcut to her channels should be
+      // there. It still only exists past the hero, and it still never animates
+      // in on the first screen.
+      const goingUp = top < this.lastDockScroll - 4;
+      const goingDown = top > this.lastDockScroll + 4;
+      if (goingUp || goingDown) this.dockWantsShow = goingUp;
+      this.lastDockScroll = top;
+
+      const nextDock = top > window.innerHeight * 0.72 && this.dockWantsShow;
       if (nextTop === this.backToTopVisible && nextDock === this.socialDockVisible) return;
       this.backToTopVisible = nextTop;
       this.socialDockVisible = nextDock;
