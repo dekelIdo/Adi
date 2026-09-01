@@ -334,28 +334,6 @@ select {
 // meant nobody was ever told what they were looking at. This names it once, at
 // the size of a caption rather than a heading, so the pictures still lead.
 
-.shoot-note {
-  grid-column: 1 / -1;
-  margin: clamp(16px, 2.6vh, 26px) 0 0;
-  display: flex;
-  flex-direction: column;
-  gap: 5px;
-  font-family: var(--font-body);
-  text-align: start;
-
-  > span:first-child {
-    font-size: clamp(0.94rem, 2.5vw, 1.06rem);
-    font-weight: 600;
-    letter-spacing: 0.005em;
-    color: var(--text);
-  }
-}
-
-.shoot-note-sub {
-  font-size: clamp(0.84rem, 2.2vw, 0.94rem);
-  font-weight: 400;
-  color: var(--text-muted);
-}
 
 // ─────── THE SIGNING EXPERIENCE ───────────────────────────────────────────────
 //
@@ -1408,7 +1386,15 @@ select {
   line-height: 1.05;
   letter-spacing: -0.024em;
   color: var(--text);
-  margin-bottom: var(--space-xs);
+  // AIR AFTER A HEADLINE IS WHAT MAKES IT READ AS ART DIRECTED.
+  //
+  // This was var(--space-xs) - four to six pixels - so on every one of the
+  // page's text screens the lead paragraph started almost against the bottom of
+  // a 67px display headline. The type sizes were already in strong contrast;
+  // what was missing was the pause between them, and without it the two just
+  // looked stacked. The reference gets its authority from exactly this gap: a
+  // headline is given silence before anything is allowed to answer it.
+  margin-bottom: clamp(14px, 2.4vh, 28px);
   max-width: 18ch;
 
   em {
@@ -4167,22 +4153,36 @@ div[id] {
 // the details sit beside and below the lead rather than layered behind it, so a
 // narrow screen never has to render three overlapping photographs.
 
+// ─────── PRODUCTION ────────────────────────────────────────────────────────────
+//
+// A SCENE, NOT AN EQUIPMENT SECTION.
+//
+// The rhythm is taken from the reference and applied literally, because it is
+// the thing that makes that site feel expensive without carrying a single
+// effect: a very large photograph, a small sentence, silence, then the answer
+// at display scale. The two lines are deliberately unequal in size - the
+// admission is quiet, the claim is loud - since a reply set at the same size as
+// its question reads as a list of two facts instead of a turn.
+//
+// Nothing here is blown past its own resolution. The lead frame is 850px wide,
+// so it is given the biggest size that keeps it sharp instead of a full bleed
+// that would soften the one photograph carrying the argument. On a phone the
+// viewport is narrower than the file, so there it CAN run edge to edge - and it
+// does.
+
 .section-shoot {
   position: relative;
-  padding: clamp(30px, 5vh, 68px) 0 clamp(26px, 4.4vh, 58px);
+  padding-block: clamp(34px, 6vh, 78px) clamp(30px, 5vh, 66px);
   background: linear-gradient(180deg, var(--bg) 0%, var(--surface) 42%, var(--surface) 100%);
   overflow: hidden;
 }
 
-.shoot-layout {
+.shoot-scene {
   display: grid;
-  gap: clamp(12px, 2.4vw, 26px);
-  align-items: end;
+  gap: clamp(20px, 4vh, 40px);
 }
 
-.shoot-lead {
-  position: relative;
-  z-index: 2;
+.shoot-frame {
   margin: 0;
   border-radius: var(--r-media);
   overflow: hidden;
@@ -4195,11 +4195,57 @@ div[id] {
   }
 }
 
-.shoot-details {
+// ── The words ────────────────────────────────────────────────────────────────
+.shoot-words {
+  padding-inline: var(--container-padding);
+}
+
+// THE QUIET HALF. Small, muted, and set as an aside - it is the thing everyone
+// else can also say, so it is given no weight at all.
+.shoot-admit {
+  margin: 0;
+  font-family: var(--font-body);
+  font-size: clamp(0.94rem, 2.5vw, 1.05rem);
+  font-weight: 400;
+  color: var(--text-muted);
+}
+
+// THE LOUD HALF, and the whole point of the chapter. Display face, two lines,
+// each uncovering from behind its own baseline a beat apart - the page's own
+// editorial gesture, not a new one.
+.shoot-claim {
+  margin: clamp(8px, 1.4vh, 14px) 0 0;
+  font-family: var(--font-display);
+  font-size: clamp(2.2rem, 8.4vw, 4.6rem);
+  font-weight: 400;
+  line-height: 1.04;
+  letter-spacing: -0.028em;
+  color: var(--text);
+
+  span {
+    display: block;
+    clip-path: inset(-40% -25% 105% -25%);
+    transform: translateY(0.14em);
+    transition: clip-path 950ms var(--ease-expo), transform 950ms var(--ease-expo);
+  }
+
+  span:nth-child(2) {
+    transition-delay: 140ms;
+  }
+
+  &.is-visible span {
+    clip-path: inset(-40% -25% -40% -25%);
+    transform: none;
+  }
+}
+
+// ── The proof ────────────────────────────────────────────────────────────────
+.shoot-proof {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: 1.15fr 0.85fr;
   gap: clamp(10px, 1.8vw, 20px);
   align-items: start;
+  margin-top: clamp(26px, 5vh, 58px);
 }
 
 .shoot-detail {
@@ -4208,87 +4254,89 @@ div[id] {
   border-radius: var(--r-media);
   overflow: hidden;
   will-change: transform, opacity;
-  // Starting state, overridden by the scroll driver. Kept modest so that if
-  // script never runs the pictures are still perfectly visible.
+  // Resting state owned by CSS; the scroll driver only writes the properties.
+  // If it never runs the pictures are simply in place and fully visible.
   opacity: var(--shoot-o, 1);
   transform: translate3d(0, var(--shoot-y, 0px), 0);
 
   img {
     width: 100%;
-    height: auto;
     display: block;
     filter: saturate(0.96) contrast(1.03);
   }
 }
 
-// The lead dominates on the reading edge and the two details stack beside it,
-// the rig slightly overlapping the lead so the layers read as depth. From 640px:
-// below that the lead alone is nearly 800px tall on its own, which is the single
-// biggest block of vertical travel in the 540-699 band.
-@media (min-width: 540px) {
-  .shoot-layout {
-    grid-template-columns: 1.25fr 1fr;
-    align-items: center;
-  }
+// One shared height so the pair lands on a single baseline, with unequal
+// columns so there is still a dominant frame and a supporting one rather than
+// a two-up equipment grid.
+.shoot-detail {
+  height: clamp(196px, 42vw, 340px);
 
-  .shoot-lead {
-    margin-inline-start: calc(-1 * var(--bleed-out));
-    border-start-start-radius: 0;
-    border-end-start-radius: 0;
-  }
-
-  .shoot-details {
-    grid-template-columns: 1fr;
-    gap: clamp(14px, 2vw, 26px);
-  }
-
-  .shoot-detail--rig {
-    width: 74%;
-    margin-inline-start: -14%;
-  }
-
-  .shoot-detail--set {
-    width: 88%;
-    margin-inline-start: auto;
+  img {
+    height: 100%;
+    object-fit: cover;
   }
 }
 
-@media (max-width: 539px) {
-  // Narrow screens keep the idea and lose the layering: lead full width, the
-  // two details as a quiet pair underneath it.
-  .shoot-lead {
-    margin-inline-start: calc(-1 * var(--container-padding));
-    margin-inline-end: calc(-1 * var(--container-padding));
+.shoot-detail--set img {
+  object-position: 50% 40%;
+}
+
+.shoot-note {
+  grid-column: 1 / -1;
+  margin: clamp(12px, 2vh, 20px) 0 0;
+  font-family: var(--font-body);
+  font-size: clamp(0.8rem, 2.1vw, 0.88rem);
+  font-weight: 500;
+  letter-spacing: 0.06em;
+  color: var(--text-light);
+  text-align: start;
+}
+
+// ── Phone: the file is wider than the screen, so the frame can run edge to
+//    edge without being stretched. This is the most cinematic the picture can
+//    honestly be, and mobile is where it matters most.
+@media (max-width: 899.98px) {
+  .shoot-frame {
     border-radius: 0;
-  }
-
-  // The two details are a 1152x2048 portrait and a landscape frame, so at their
-  // natural heights the pair ended on two different baselines and read as an
-  // accident rather than a composition. They share one ratio here so the bottoms
-  // align, and the columns stay deliberately unequal so there is still a
-  // dominant frame and a supporting one instead of a two-up equipment grid.
-  .shoot-details {
-    grid-template-columns: 1.15fr 0.85fr;
-    align-items: start;
-  }
-
-  // A shared height rather than a shared ratio. With aspect-ratio the stretched
-  // row height fed back into the width, so both frames computed to 194px and the
-  // narrow one overhung its own column by 51px and ran off the screen edge.
-  // Fixing the height instead lets the columns stay unequal, which is the point,
-  // and still lands both frames on one baseline.
-  .shoot-detail {
-    width: 100%;
-    height: clamp(196px, 58vw, 268px);
+    margin-inline: calc(-1 * var(--container-padding));
 
     img {
-      height: 100%;
+      max-height: 74vh;
       object-fit: cover;
+      object-position: 50% 28%;
     }
   }
+}
 
-  .shoot-detail--set img {
-    object-position: 50% 40%;
+// ── Desktop: the photograph holds the reading edge at the largest size it can
+//    stay sharp at, and the words live in the silence beside it. The empty half
+//    is the composition, not a gap.
+@media (min-width: 900px) {
+  .shoot-scene {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 0.92fr);
+    align-items: center;
+    gap: clamp(36px, 5vw, 88px);
+    padding-inline: var(--container-padding);
+    max-width: var(--container-max, 1320px);
+    margin-inline: auto;
+  }
+
+  .shoot-frame {
+    // Never past its own pixels: 850 native, so it stops there.
+    max-width: 850px;
+  }
+
+  .shoot-words {
+    padding-inline: 0;
+  }
+
+  .shoot-proof {
+    max-width: var(--container-max, 1320px);
+  }
+
+  .shoot-detail {
+    height: clamp(240px, 26vw, 360px);
   }
 }
 
@@ -4296,6 +4344,13 @@ div[id] {
   .shoot-detail {
     opacity: 1;
     transform: none;
+  }
+
+  .shoot-claim span,
+  .shoot-claim.is-visible span {
+    clip-path: none;
+    transform: none;
+    transition: none;
   }
 }
 
