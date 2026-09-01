@@ -1473,6 +1473,25 @@ select {
   align-items: start;
 }
 
+// ONE SOURCE FOR THE HEADING-TO-LEAD SPACE, NOT TWO.
+//
+// Stacked on a phone this grid gave the heading and the lead a row gap, and the
+// heading ALSO contributed its own margin-bottom underneath it. Both resolve to
+// about 20px, so these sections landed at ~35px for the very relationship that
+// measures 15-20px everywhere else.
+//
+// The HEADING keeps ownership and the row gap stands down - not the other way
+// round. Handing it to the gap looked equivalent but is not: the gap measures
+// from the heading's line box, so how much air appears depends on that
+// heading's descender space, and the FAQ's shorter title came out at 8px while
+// its neighbours came out at 15px. The heading's own margin is the same value
+// for every section, which is the whole point of normalising it.
+//
+// The stacking rule for this wrapper lives with the other stacked grids at the
+// mobile tier, where .section-intro-split has been taken out of the shared list
+// - see the comment there. Adding a row-gap override here instead would have
+// been beaten by that rule and left another dead declaration behind.
+
 // Explicit accent rule (problem chapter). Draws in like the automatic one.
 .underline-accent {
   display: block;
@@ -1823,6 +1842,14 @@ div[id] {
   font-style: normal;
   line-height: 1.16;
   color: var(--text);
+  // THE SAME AIR EVERY OTHER SECTION HEADING GETS.
+  //
+  // This is a section's display headline at --text-3xl, but it is its own class
+  // and so it was missed when .section-title was given its heading-to-body
+  // space. Measured on a phone it sat 10px above its paragraph while every
+  // comparable heading on the page sat at 15-20px - the tightest instance of
+  // the one relationship that should read the same everywhere.
+  margin-bottom: clamp(14px, 2.4vh, 28px);
   quotes: """ """ "'" "'";
 
   &::before {
@@ -5867,7 +5894,6 @@ div[id] {
   // way to 1024 was turning tablets into a stretched phone, running 16,365px
   // tall at 768 against 14,332px at 1280.
   @media (max-width: 699px) {
-    .section-intro-split,
     .about-layout,
     .solution-wrap,
     .contact-layout,
@@ -5877,6 +5903,19 @@ div[id] {
     .why-merged-grid {
       grid-template-columns: 1fr;
       gap: var(--space-md);
+    }
+
+    // .section-intro-split is stacked here too, but WITHOUT that gap. Its two
+    // children are a heading and the lead paragraph under it - the one
+    // relationship .section-title's own margin-bottom already owns. Given the
+    // shared gap as well it was paying twice and landing at ~35px against the
+    // 15-20px the same relationship measures everywhere else. It is listed
+    // separately rather than left in the group because it is not the same kind
+    // of stack: the others are genuine columns of content coming to rest one
+    // under another.
+    .section-intro-split {
+      grid-template-columns: 1fr;
+      row-gap: 0;
     }
   }
 
