@@ -232,8 +232,10 @@ select {
       0 1px 0 rgba(255, 255, 255, calc(0.02 + var(--scrolled) * 0.08)) inset,
       0 0 0 1px rgba(255, 255, 255, calc(var(--scrolled) * 0.06)) inset;
 
-    .header-logo,
-    .header-cta {
+    // Only the logo follows the theme. The CTA carries its own accent fill and
+    // near-black type in both states, which is what keeps it readable over the
+    // dark hero and over the cream page without a second treatment.
+    .header-logo {
       color: rgba(255, 255, 255, 0.92);
     }
 
@@ -309,12 +311,26 @@ select {
   padding: clamp(8px, 1.4vh, 10px) clamp(16px, 2.6vw, 24px);
   font-family: var(--font-body);
   font-size: var(--text-xs);
-  font-weight: 500;
+  font-weight: 600;
   letter-spacing: 0.02em;
-  border-radius: var(--r-control);
-  border: 1px solid color-mix(in srgb, currentColor 30%, transparent);
-  background: none;
+  // A DRAWN RADIUS, NOT A CAPSULE, and the same one the other Level 2 control
+  // uses.
+  border-radius: var(--r-chip);
+  // FILLED, AND ITS OWN COLOUR RATHER THAN AN INHERITED ONE.
+  //
+  // This used to be an outline drawn from currentColor with no background,
+  // which meant its legibility depended entirely on whatever colour the header
+  // happened to be carrying. When .btn-primary's text turned cream the outline
+  // went cream too - on a cream header - and the only permanent call to action
+  // on the site became invisible against its own background.
+  //
+  // The accent is declared here explicitly so no ancestor theme and no future
+  // change to .btn-primary can take it away, and it reads at once on the dark
+  // header over the hero and on the cream header over the rest of the page.
+  background: var(--brand-accent);
   background-image: none;
+  color: var(--text);
+  border: 1px solid var(--brand-accent);
   box-shadow: none;
   transition: background-color 320ms var(--ease-smooth),
     border-color 320ms var(--ease-smooth);
@@ -322,8 +338,8 @@ select {
 
   &:hover,
   &:focus-visible {
-    background: color-mix(in srgb, currentColor 8%, transparent);
-    border-color: color-mix(in srgb, currentColor 54%, transparent);
+    background: var(--brand-accent-dim);
+    border-color: var(--brand-accent-dim);
   }
 }
 
@@ -1565,37 +1581,34 @@ select {
   }
 }
 
-// INK, NOT A PASTEL CAPSULE.
+// LEVEL 2 — PRIMARY ACTION. One treatment, used by the header CTA and the
+// form's submit, so the two most important controls on the site are visibly the
+// same family.
 //
-// In practice this styles exactly one element: the form's submit, the single
-// most important control on the site. The header CTA carries .btn-primary too
-// but overrides all of it, drawing itself from currentColor instead.
+// This was briefly near-black. That was wrong twice over: black is not in this
+// brand's palette - the system is paper, near-black TYPE, brand blue and
+// photographic warm neutrals - and because the header CTA inherits its colour
+// from here, painting the text `var(--bg)` turned it cream-on-cream against the
+// cream header and the control effectively disappeared. A filled accent reads
+// immediately on both header themes and belongs to the brand.
 //
-// It was a pale blue 999px pill with dark text - the default shape and the
-// default weight of every SaaS form on the internet, and the one place where
-// #bbddfa stopped being this page's hairline accent and became a fill. On a
-// cream editorial page the most confident thing a button can be is the same ink
-// the words are set in. So it is: solid, paper-coloured type, and a radius that
-// is drawn rather than fully rounded, because a capsule reads as a component
-// and a rectangle with a small radius reads as print. The blue stays where it
-// works - underlines, focus rings, the accent rule under a heading.
+// Not a 999px pill either. A capsule is the shape every template ships; a small
+// drawn radius reads as print and matches the radii already in the system.
 .btn-primary {
-  background: var(--text);
-  color: var(--bg);
-  border-color: var(--text);
+  background: var(--brand-accent);
+  color: var(--text);
+  border-color: var(--brand-accent);
   border-radius: var(--r-chip);
   box-shadow: none;
 
   &:hover,
   &:focus-visible {
-    // Not a lighter blue: the same ink, lifted. The control gets more present
-    // under the pointer rather than changing identity.
-    background: #1b1917;
-    border-color: #1b1917;
+    background: var(--brand-accent-dim);
+    border-color: var(--brand-accent-dim);
   }
 
   &:active {
-    background: var(--text);
+    background: var(--brand-accent-dim);
   }
 }
 
@@ -4824,32 +4837,21 @@ div[id] {
   }
 }
 
-// INK, NOT A PASTEL CAPSULE.
-//
-// This is the single most important control on the site, and it was a pale blue
-// 999px pill with dark text - the default shape and the default weight of every
-// SaaS form on the internet, and the one place where #bbddfa stopped being this
-// page's hairline accent and became a fill. On a cream editorial page the most
-// confident thing a button can be is the same ink the words are set in. So it
-// is: solid, paper-coloured type, and a radius that is drawn rather than fully
-// rounded, because a capsule reads as a component and a small radius reads as
-// print. The blue keeps the work it is good at - underlines, focus rings, the
-// accent rule under a heading.
+// The form's submit is the same Level 2 control as the header CTA; it only adds
+// the placement it needs inside the form.
 .btn-submit {
   margin-top: var(--space-xs);
   align-self: flex-start;
-  background: var(--text);
-  color: var(--bg);
-  border-color: var(--text);
+  background: var(--brand-accent);
+  color: var(--text);
+  border-color: var(--brand-accent);
   border-radius: var(--r-chip);
   box-shadow: none;
 
   &:hover,
   &:focus-visible {
-    // The same ink, lifted. It becomes more present under the pointer rather
-    // than changing identity.
-    background: #1b1917;
-    border-color: #1b1917;
+    background: var(--brand-accent-dim);
+    border-color: var(--brand-accent-dim);
   }
 }
 
@@ -5115,54 +5117,75 @@ div[id] {
 
 // ─────── THE CLOSING FRAME ────────────────────────────────────────────────────
 //
-// NOT THE HERO. The distinction is the whole point of this block.
+// END CREDITS, NOT A SECOND HERO. Everything here is chosen to be the opposite
+// of the opening scene, because the two kept converging:
 //
-// This scene used to carry the hero's sentence verbatim, in the same display
-// face, white, on the same near-black ground, aligned to the same edge, with an
-// underlined link under it. Every ingredient of the opening scene was present
-// except its photograph - so it read as the hero rendering again and failing to
-// load, which is exactly how it was reported. A callback has to rhyme; that one
-// repeated.
+//   HERO                          CLOSING FRAME
+//   display face                  body face
+//   aligned to the reading edge   centred
+//   very large                    moderate
+//   a photograph behind it        nothing behind it
+//   a statement, link underneath  no statement, the invitation alone
 //
-// The composition is inverted instead. The hero sets a STATEMENT large with a
-// small invitation beneath it. This sets the INVITATION large and says nothing
-// else. They share the dark field and the drawn rule - the rhyme - and share no
-// words, no scale and no shape, so they cannot be confused. Nothing from the
-// hero is reused here: no class, no container, no asset.
-//
-// It sits in the footer's own field so the two are one closing frame, and the
-// page ends where it began without ending on a copy of where it began.
+// An earlier version repeated the hero's sentence here in the hero's own
+// typeface, on the same dark ground, aligned the same way. That read as the
+// opening scene rendering a second time with its photograph missing. Even after
+// the sentence went, the display face and the right alignment kept the
+// resemblance alive. Both are gone now: this is set in the body face, centred,
+// and letter-spaced the way a card at the end of a film is - which no other
+// moment on this site looks like.
 
 .section-final {
   position: relative;
   background: #0a0806;
-  // Room around one line. This is the last thing on the page and it is allowed
-  // to be nearly empty - the space is what makes the invitation land rather
-  // than simply appear.
-  padding-block: clamp(92px, 16vh, 190px) clamp(72px, 12vh, 140px);
+  padding-block: clamp(84px, 14vh, 168px) clamp(68px, 11vh, 132px);
   overflow: hidden;
+  text-align: center;
 }
 
-// THE INVITATION IS THE SUBJECT. In the hero this same phrase is a small link
-// under a headline; here it is the only thing on screen, in the display face, at
-// the size the headline had up there. Same voice, opposite job.
+// A QUIET TRANSITION INTO IT. The FAQ is cream and this is near-black, and the
+// join was a hard full-width edge. A short fall-off carries the page down into
+// the dark instead of cutting to it - the same "change of light" the warmth
+// plate uses, and used here for the same reason: a boundary the composition
+// actually needs, not every boundary.
+.section-final::before {
+  content: "";
+  position: absolute;
+  inset-block-start: 0;
+  inset-inline: 0;
+  block-size: clamp(52px, 8vh, 96px);
+  pointer-events: none;
+  background: linear-gradient(
+    to bottom,
+    var(--surface) 0%,
+    rgba(20, 16, 13, 0.55) 46%,
+    rgba(10, 8, 6, 0.88) 76%,
+    rgba(10, 8, 6, 0) 100%
+  );
+  opacity: 0.5;
+}
+
 .final-cta {
   position: relative;
   display: inline-block;
-  font-family: var(--font-display);
-  font-size: clamp(2rem, 6.2vw, 4.1rem);
-  font-weight: 400;
-  line-height: 1.1;
-  letter-spacing: -0.024em;
-  color: rgba(255, 255, 255, 0.94);
+  // BODY FACE. The hero owns the display face on this page; borrowing it here
+  // was most of what made the two scenes rhyme too closely.
+  font-family: var(--font-body);
+  font-size: clamp(1.25rem, 3.4vw, 1.85rem);
+  font-weight: 500;
+  // Tracked open, the way a closing card is set. It slows the line down, which
+  // is the right pace for the last thing on the page.
+  letter-spacing: 0.16em;
+  text-indent: 0.16em;
+  line-height: 1.3;
+  color: rgba(255, 255, 255, 0.92);
   text-decoration: none;
-  padding-bottom: clamp(8px, 1.4vh, 14px);
+  padding-bottom: clamp(10px, 1.6vh, 16px);
   transition: color 320ms var(--ease-smooth);
 
-  // THE FINAL EXHALE. The rule draws itself out from the start of the words -
-  // the right, this being Hebrew - and comes to rest. It is the only motion in
-  // the scene, and it is what makes the invitation feel offered rather than
-  // printed.
+  // THE FINAL EXHALE. The rule draws itself open from the centre - the only
+  // motion in the scene, and centred like everything else here rather than
+  // running from the reading edge as the hero's underline does.
   &::before {
     content: "";
     position: absolute;
@@ -5171,7 +5194,7 @@ div[id] {
     block-size: 1px;
     background: rgba(187, 221, 250, 0.5);
     transform: scaleX(0);
-    transform-origin: right center;
+    transform-origin: center;
     transition: transform 1000ms var(--ease-expo) 260ms,
       background-color 320ms var(--ease-smooth);
   }
@@ -5196,7 +5219,6 @@ div[id] {
   }
 }
 
-// Reduced motion: the rule is simply already drawn.
 @media (prefers-reduced-motion: reduce) {
   .final-cta::before,
   .final-cta.is-visible::before {
