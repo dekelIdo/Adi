@@ -49,6 +49,11 @@
   // text. One owner, one scale, everywhere.
   --flow-tight: clamp(12px, 2vh, 18px);   // paragraph → paragraph
   --flow-open: clamp(18px, 3.1vh, 30px);  // heading → its body
+  // TEXT ↔ PICTURE, inside one composition. Wider than the distance between two
+  // paragraphs, narrower than the seam between two chapters - a picture is a new
+  // thought but not a new chapter. Every text→block boundary that used to be the
+  // sum of a margin and a padding and a row-gap now reads this one value.
+  --flow-media: clamp(24px, 4vh, 40px);   // text ↔ image, same composition
   --space-xs: clamp(4px, 0.7vh, 6px);
   --space-sm: clamp(8px, 1.3vh, 12px);
   --space-md: clamp(14px, 2.4vh, 24px);
@@ -425,14 +430,31 @@ select {
 }
 
 // ── The screen it becomes ────────────────────────────────────────────────────
+//
+// PLACED IN THE PHOTOGRAPH, ONCE. It sits low on the wall, on the left, directly
+// under the clipboard she is writing on - the physical document above, the same
+// document digital below, on one axis. Percentages are of the frame, so the
+// placement holds at every width from 320 up and there is not a single
+// breakpoint-specific offset left anywhere in this chapter.
+//
+// It is also much smaller than it was. At its old size it was the loudest thing
+// in the section and read as a mockup presented next to a photo; small, resting
+// inside the scene, it reads as a phone in the room.
 .signing-screen {
+  position: absolute;
+  inset-block-end: 6%;
+  inset-inline-end: 6%;   // RTL: the left of the frame, clear of her figure
+  width: 31%;
+  max-width: 158px;
   margin: 0;
-  border-radius: 14px;
+  z-index: 2;
+  border-radius: 12px;
   overflow: hidden;
   background: var(--bg);
-  // Enough lift to sit above the photograph, far short of the drop shadows that
-  // make a screenshot look like a slide.
-  box-shadow: 0 1px 0 rgba(42, 40, 38, 0.06), 0 22px 48px rgba(42, 40, 38, 0.16);
+  // Light in this photograph falls from the upper left, so the shadow is thrown
+  // down and slightly right of the object rather than straight down; that one
+  // detail is most of what makes it sit in the scene instead of on it.
+  box-shadow: 0 1px 0 rgba(42, 40, 38, 0.06), 6px 18px 34px rgba(42, 40, 38, 0.24);
 
   img {
     display: block;
@@ -529,18 +551,7 @@ select {
     aspect-ratio: 4 / 5;
   }
 
-  .signing-screen {
-    // MOSTLY ON THE PICTURE, NOT HANGING OFF IT. At a shallower overlap the
-    // screen sat below the photograph's corner and read as a card that had
-    // fallen off it; roughly two thirds of its height now sits over the frame,
-    // which is what makes the two read as one object.
-    width: clamp(112px, 33vw, 156px);
-    margin-block-start: clamp(-210px, -46vw, -140px);
-    margin-inline-start: auto;
-    margin-inline-end: clamp(14px, 5vw, 30px);
-    position: relative;
-    z-index: 2;
-  }
+  // Nothing to position: the screen is inside the frame and placed there once.
 
   .signing-say {
     margin-block-start: clamp(6px, 1.4vh, 12px);
@@ -557,10 +568,6 @@ select {
   .signing-photo {
     width: min(100%, 460px);
     margin-inline: auto;
-  }
-
-  .signing-screen {
-    margin-inline-end: calc((100% - min(100%, 460px)) / 2 + clamp(14px, 3vw, 26px));
   }
 
   .signing-say {
@@ -595,20 +602,11 @@ select {
     width: 100%;
   }
 
-  // LEVEL WITH THE DOCUMENT SHE IS HOLDING. It sat well below the clipboard,
-  // which broke the one connection the composition exists to make - that the
-  // screen IS that document, moved to a phone. Anchored to the top of the frame
-  // and dropped to the clipboard's height instead of floating at centre.
+  // The frame is much wider here, so the same 31% would make the phone larger
+  // than it is in life. Only the proportion changes; where it sits is settled
+  // once, in the base rule.
   .signing-screen {
-    grid-column: 2;
-    grid-row: 1;
-    width: clamp(150px, 13vw, 196px);
-    justify-self: start;
-    align-self: start;
-    margin-inline-start: clamp(-64px, -4vw, -34px);
-    margin-block-start: clamp(70px, 11vh, 130px);
-    position: relative;
-    z-index: 2;
+    width: 26%;
   }
 }
 
@@ -1296,18 +1294,38 @@ select {
 }
 
 // Shared by both image reels. Exactly one duplicated set = 50% of the track.
-@keyframes reelScroll {
-  from { transform: translate3d(0, 0, 0); }
-  to { transform: translate3d(-50%, 0, 0); }
+// WHICH WAY A REEL TRAVELS IS NOT A FREE CHOICE.
+//
+// A max-content track inside an overflow box is anchored at its INLINE START.
+// This page is RTL, so that anchor is the right edge and the track hangs off to
+// the left. Travelling -50% therefore drags the whole track away from the window
+// instead of through it: every reel on the page drained to bare paper part-way
+// into its cycle, which is the blank that shows up after the last card. The
+// travel has to be +50% here - the next card sits to the LEFT of the current
+// one, so bringing it into view means moving the track RIGHT.
+//
+// One set of travel lands exactly on a set boundary, so the second set arrives
+// in the first set's position and the loop hands back to itself invisibly.
+:host {
+  --reel-travel: 50%;
+}
+// An LTR context anchors at the left instead and has to travel the other way.
+// Nothing on this page is LTR today; the token is here so a reel dropped into
+// an LTR panel does not silently break the same way.
+:host-context([dir='ltr']) {
+  --reel-travel: -50%;
 }
 
-@media (prefers-reduced-motion: reduce) {
-  .portfolio-reel-track,
-  .results-rail,
-  .reviews-rail {
-    animation: none;
-  }
+@keyframes reelScroll {
+  from { transform: translate3d(0, 0, 0); }
+  to { transform: translate3d(var(--reel-travel, 50%), 0, 0); }
 }
+
+// The reduced-motion stop for the three reels does NOT live here, next to the
+// keyframe it cancels. It cannot: each rail declares its own `animation` further
+// down this file, and with equal specificity the later declaration wins, so a
+// rule written here was silently beaten and reduced motion never actually
+// stopped any of them. It sits immediately after the last rail instead.
 
 @keyframes brandScroll {
   from { transform: translate3d(0, 0, 0); }
@@ -1582,6 +1600,27 @@ select {
 .split-copy,
 .contact-copy {
   row-gap: 0;
+}
+
+// ONE OWNER FOR TEXT → BLOCK.
+//
+// Each block below owns the distance above it. The text in front of it gives up
+// its own bottom margin, because a paragraph followed by a picture or a row of
+// tags is not in a paragraph→paragraph relationship any more and should not go
+// on paying for one. Measured before this, every one of these boundaries was the
+// sum of two owners - 18px of paragraph margin under 22px of block margin, and
+// so on - which is why they landed at 40 and 42 and 79 with nothing connecting
+// them.
+.pillar-row,
+.shoot-proof,
+.services-footer {
+  margin-top: var(--flow-media);
+}
+
+:is(p, h2, h3, h4, ul, ol, blockquote):has(
+    + :is(.pillar-row, .shoot-proof, .services-footer)
+  ) {
+  margin-bottom: 0;
 }
 
 // ─────── BUTTONS ───────────────────────────────────────────────────────────────
@@ -2266,7 +2305,7 @@ div[id] {
   flex-wrap: wrap;
   align-items: baseline;
   gap: clamp(10px, 2.4vw, 18px);
-  margin-top: clamp(14px, 2.4vh, 22px);
+  // margin-top is --flow-media, set once with the other text→block boundaries.
 }
 
 .pillar-tag {
@@ -3875,7 +3914,10 @@ div[id] {
   flex-direction: column;
   gap: 0;
   max-width: 1000px;
-  margin: 0 auto var(--space-lg);
+  // No bottom margin: the footer beneath owns that distance on its own. Both
+  // carrying one meant the button sat 42px below the last row for no reason
+  // either rule could account for.
+  margin: 0 auto;
 }
 
 .services-row {
@@ -4001,8 +4043,14 @@ div[id] {
   // not have to say "new section". Roughly double the row rhythm does that, and
   // the hairline carries the rest.
   .audience-statements {
-    margin-top: clamp(16px, 2.4vh, 24px);
-    padding-top: clamp(14px, 2.2vh, 22px);
+    // The hairline is the divider and the air around it is ONE decision, made
+    // here. It used to be four - this margin, this padding, the grid's row-gap
+    // and the row padding on either side - which summed to 84px between two
+    // lines of a list whose own rows run at 22. The rule reads as a new group
+    // at less than half that; past a point the break stops saying "new group"
+    // and starts saying "something is missing".
+    margin-top: 0;
+    padding-top: clamp(12px, 1.8vh, 18px);
     border-top: 1px solid var(--rule);
   }
 
@@ -4180,7 +4228,15 @@ div[id] {
 .reviews-rail {
   display: flex;
   align-items: center;
-  gap: clamp(14px, 2.4vw, 26px);
+  // THE GUTTER LIVES ON THE CARD, NOT ON THE TRACK.
+  //
+  // With flex `gap`, a track of 2N cards carries 2N-1 gutters, so half of it is
+  // one set plus only HALF a gutter - and the loop, which travels exactly half,
+  // lands a few pixels short and twitches once per cycle. Carrying the gutter as
+  // a margin on each card makes the repeating unit uniform, so half the track is
+  // precisely one set and the hand-back is exact. This is the same arrangement
+  // the results and portfolio reels already use.
+  gap: 0;
   width: max-content;
   will-change: transform;
 
@@ -4201,8 +4257,28 @@ div[id] {
   }
 }
 
+// STOPPED, FOR ANYONE WHO ASKED FOR THAT.
+//
+// Placed here, after all three rails have declared their animation, because
+// cascade order decides this one: the same rule written beside the keyframe up
+// at the top of the file lost to every rail below it, and the reels kept moving
+// for people who had asked the system for stillness.
+@media (prefers-reduced-motion: reduce) {
+  .portfolio-reel-track,
+  .results-rail,
+  .reviews-rail {
+    animation: none;
+    // The global reduced-motion reset forces a 0.01ms duration on everything
+    // with !important, which would otherwise snap the track to the end of its
+    // travel rather than leave it where it starts.
+    animation-duration: 0s !important;
+    transform: none;
+  }
+}
+
 .review-card {
   flex-shrink: 0;
+  margin-inline-end: var(--reel-gap);
   // Wider. These are the only unmediated voices on the page and they were being
   // shown smaller than the portfolio stills; the rail scrolls, so the width can
   // afford to make each one a thing you actually read rather than glance past.
@@ -4304,6 +4380,16 @@ div[id] {
 
   .review-card {
     width: 100%;
+    // The grid supplies its own gutter; the reel's per-card one would stack on
+    // top of it and push the last column out of the container.
+    margin-inline-end: 0;
+  }
+
+  // From 1024 up the testimonials are laid out as three columns, all visible at
+  // once - there is no reel here and so nothing for a second set to do. Shown,
+  // it would simply print the same three messages again underneath.
+  .review-card--echo {
+    display: none;
   }
 
   .review-card--scatter-1,
@@ -4467,7 +4553,7 @@ div[id] {
   grid-template-columns: 0.85fr 1.15fr;
   gap: clamp(10px, 1.8vw, 20px);
   align-items: start;
-  margin-top: clamp(26px, 5vh, 58px);
+  // margin-top is --flow-media, set once with the other text→block boundaries.
 }
 
 .shoot-detail {
@@ -5481,8 +5567,16 @@ div[id] {
   // use, and keeps a modest foot - the page ends here, and on a phone the dock
   // clearance below already carries the rest.
   padding: var(--sec-open) 0 var(--space-sm);
-  background: linear-gradient(135deg, rgba(10, 8, 6, 0.97), rgba(6, 5, 4, 0.99));
-  border-top: 1px solid rgba(196, 217, 240, 0.07);
+  // ONE GROUND, SHARED WITH THE CLOSING SCENE ABOVE IT.
+  //
+  // This was a translucent diagonal gradient over a solid #0a0806 scene, plus a
+  // pale hairline across the join. Both were doing the same thing - drawing a
+  // boundary - and the result was that the last two blocks of the page read as
+  // two dark containers stacked, with a visible seam between the closing line
+  // and the credit that belongs to it. The ending is one movement: the same
+  // black carries from the closing statement through to the last line, and the
+  // distance between them is what separates them.
+  background: #0a0806;
 
   .container {
     text-align: center;
@@ -6157,19 +6251,20 @@ div[id] {
 
   .result-card {
     width: clamp(300px, 86vw, 400px);
-    scroll-snap-align: center;
   }
 
-  // Reviews rail mobile
+  // Reviews rail mobile.
+  //
+  // No gap and no padding here, both deliberately. A gap would sit on top of the
+  // gutter the card already carries and, worse, leave half of one gutter
+  // unaccounted for in the half-track the loop travels - the reel would twitch
+  // once per cycle. Padding is measured into the percentage the loop travels
+  // too, and threw the hand-back off by a full container inset. The inset it
+  // used to give the first card is moot now in any case: the reel is always
+  // mid-travel and never rests at its start.
   .reviews-rail {
-    gap: clamp(18px, 5vw, 24px);
-    padding: 0 var(--container-padding);
-  }
-
-  // Readability over quantity: fewer, larger messages on small screens, each
-  // one snapping to the gutter so it is never left half-read.
-  .review-card {
-    scroll-snap-align: start;
+    gap: 0;
+    padding: 0;
   }
 
   // Same ceiling as before, and the same fix: anything taller than about 1.2:1

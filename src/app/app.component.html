@@ -747,6 +747,7 @@
           @for (set of [0, 1]; track set) {
             @for (review of reviews; track review.src; let i = $index) {
               <div class="review-card"
+                   [class.review-card--echo]="set === 1"
                    [attr.aria-hidden]="set === 1 ? 'true' : null"
                    [class.review-card--scatter-1]="i % 3 === 0"
                    [class.review-card--scatter-2]="i % 3 === 1"
@@ -860,6 +861,16 @@
         <!-- THE GESTURE. A real photograph of Adi signing a real document: the
              clipboard held up, the pen mid-stroke. This is the chapter's scene,
              not an illustration beside it. -->
+        <!-- ONE FRAME, NOT TWO OBJECTS.
+             The photograph is the scene: the clipboard held up, the pen
+             mid-stroke. The signing screen lives INSIDE that frame rather than
+             beside it - literally a child of the picture, resting on the wall
+             below the document she is signing, clipped by the same rounded
+             edge. As siblings the two needed a negative margin at every width
+             to fake an overlap, and still read as a screenshot laid on a photo;
+             nested, the relationship is structural and there is nothing left to
+             position. The eye travels the way the sentence does: Adi, the
+             document, the same document on a phone. -->
         <figure class="signing-photo">
           <picture>
             <source srcset="assets/lovable-uploads/MyAssets/Signing/signing-adi.webp" type="image/webp" />
@@ -869,23 +880,19 @@
               width="1400" height="2096" loading="lazy" decoding="async"
             />
           </picture>
-        </figure>
 
-        <!-- ITS DIGITAL COUNTERPART, and the reason the two are in one frame:
-             the same act, moved to the client's phone. It overlaps the
-             photograph deliberately - the screen belongs to the document she is
-             holding, rather than sitting in a card next to it. -->
-        @if (!signingScreen.missing) {
-          <figure class="signing-screen">
-            <img
-              [src]="signingScreen.src"
-              [alt]="signingScreen.alt"
-              loading="lazy"
-              decoding="async"
-              (error)="onSigningScreenMissing()"
-            />
-          </figure>
-        }
+          @if (!signingScreen.missing) {
+            <figure class="signing-screen">
+              <img
+                [src]="signingScreen.src"
+                [alt]="signingScreen.alt"
+                width="337" height="541"
+                loading="lazy" decoding="async"
+                (error)="onSigningScreenMissing()"
+              />
+            </figure>
+          }
+        </figure>
 
         <div class="signing-say">
           <p class="signing-bridge reveal">אותה מחשבה, גם בצד שלך.</p>

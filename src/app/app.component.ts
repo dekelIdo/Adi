@@ -1374,7 +1374,20 @@ export class AppComponent implements AfterViewInit, OnDestroy {
         // So the scale is taken from the width as it always was, and the band is
         // made by showing less of the picture's HEIGHT, which crops from her
         // legs upward and keeps her face, the laptop and both hands.
-        const BAND = 0.72;
+        // 0.72 left 104px of bare paper above the laptop and the same below it,
+        // for the whole length of the cinematic. That band is the letterbox, and
+        // a letterbox is a legitimate device - but on a white page against white
+        // paper it does not read as a frame, it reads as the section forgetting
+        // to start, and it is the first thing the eye meets coming out of the
+        // paragraph above.
+        //
+        // Widening the band shows MORE of the picture's height at the SAME
+        // scale: `s` is taken from the width and is untouched, and `cy` still
+        // anchors on the same hold point, so her face, the laptop and both hands
+        // land on exactly the pixels they landed on before. Nothing is cropped
+        // more tightly than it was - the opposite - and the headroom comes down
+        // to about 67px, which is the page's own seam rhythm.
+        const BAND = 0.84;
         // The band may crop her legs. It may not crop her hands. The lid sits
         // between 0.158 and 0.388 of the picture's height and her fingers are
         // just under it, so this is the least of the frame the shot can show and
