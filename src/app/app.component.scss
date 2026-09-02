@@ -1821,13 +1821,22 @@ div[id] {
 }
 
 .split-grid--insight {
-  padding-block: var(--space-lg);
 }
 
 .split-copy {
   display: flex;
   flex-direction: column;
   // Spacing below is owned by --flow-open / --flow-tight, not here.
+}
+
+// The block padding belongs to the two-column composition only. Stacked on a
+// phone it lands on top of the section's own padding and the chapter opened at
+// 56px of headroom against the 32px every other section opens with - felt as a
+// sudden loosening rather than a rhythm.
+@media (min-width: 700px) {
+  .split-grid--insight {
+    padding-block: var(--space-lg);
+  }
 }
 
 .quote {
@@ -2307,8 +2316,16 @@ div[id] {
   align-items: start;
 }
 
-.about-layout .about-copy {
-  padding-top: clamp(10px, 4vh, 54px);
+// Only while the columns actually sit side by side. This nudge exists to settle
+// the copy optically against the tall portrait beside it - stacked on a phone
+// there is no portrait beside it, and the 34px simply lands on top of the
+// section's own 42px, so the About chapter opened with 76px of headroom against
+// the 32px every other section opens with. That difference is felt as "why is
+// there suddenly so much space here".
+@media (min-width: 700px) {
+  .about-layout .about-copy {
+    padding-top: clamp(10px, 4vh, 54px);
+  }
 }
 
 .about-layout .about-photo-wrap {
@@ -5571,11 +5588,18 @@ div[id] {
 // REVEAL ANIMATIONS
 // ═══════════════════════════════════════════════════════════════════════════════
 
+// ELEGANT MOTION BEATS VISIBLE ANIMATION.
+//
+// 14px over 680ms is long enough to watch, and watching an entrance is the one
+// thing an entrance should not invite. Shortened to 10px over 520ms: the same
+// gesture, now felt rather than followed. It also matters for rhythm - a large
+// vertical gap followed by a 680ms reveal reads as a gap AND a wait, and the
+// two compound into "nothing is happening here".
 .reveal {
   opacity: 0;
-  transform: translateY(14px);
-  transition: opacity var(--motion-slow) var(--ease-expo),
-    transform var(--motion-slow) var(--ease-expo);
+  transform: translateY(10px);
+  transition: opacity 520ms var(--ease-expo),
+    transform 520ms var(--ease-expo);
 
   &.is-visible {
     opacity: 1;
@@ -5714,9 +5738,12 @@ div[id] {
 // And a list is one object, not five. What still staggers does so at half the
 // old interval, so a group settles as a unit with its first row leading rather
 // than dealing itself out like a hand of cards.
+// And a shorter interval between them. At 28ms a six-item group still spread
+// 168ms of waiting across itself; at 18ms the group arrives as one thing with a
+// leading edge, which is what a stagger is supposed to convey.
 @for $i from 1 through 6 {
   .delay-#{$i} {
-    transition-delay: #{$i * 28}ms;
+    transition-delay: #{$i * 18}ms;
   }
 }
 
