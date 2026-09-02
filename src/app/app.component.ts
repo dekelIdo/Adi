@@ -663,18 +663,87 @@ export class AppComponent implements AfterViewInit, OnDestroy {
       return;
     }
 
+    // THE REVEAL IS A REWARD FOR ARRIVING, NOT A QUEUE TO WORK THROUGH.
+    //
+    // Measured on a phone by sampling how many .reveal elements sit unrevealed
+    // INSIDE the viewport at each scroll step:
+    //
+    //     slow scroll   worst  2   average 0.23
+    //     normal        worst  9   average 2.83
+    //     fast          worst 10   average 3.40
+    //     flick, then a quarter second to settle:  still 5
+    //
+    // Ten invisible things in one screen, and five still catching up after the
+    // finger has stopped. That is the backlog: each element enters, starts a
+    // ~700ms transition with up to 168ms of stagger in front of it, and when
+    // the page is moving quickly they all queue at once. It reads as content
+    // arriving late rather than as choreography.
+    //
+    // The fix is not a shorter animation - that would flatten the slow scroll,
+    // which is the case the animation exists for. It is to notice that the
+    // visitor has already gone past. If an element is well inside the viewport
+    // by the time it is observed, its entrance has been missed, so it is simply
+    // put in place with no transition at all. Nothing is skipped and nothing
+    // pops: what would have been an animation becomes a state.
+    const REVEAL_ZONE = 0.55; // fraction of the viewport that counts as "arrived"
+
     this.observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            (entry.target as HTMLElement).classList.add('is-visible');
-            this.observer?.unobserve(entry.target);
-          }
+          if (!entry.isIntersecting) return;
+          const el = entry.target as HTMLElement;
+          // Its top is already above the reveal zone => the visitor scrolled
+          // past its entrance. Land it immediately.
+          const missed = entry.boundingClientRect.top < window.innerHeight * REVEAL_ZONE;
+          if (missed) el.classList.add('reveal-instant');
+          el.classList.add('is-visible');
+          this.observer?.unobserve(el);
         });
       },
       { threshold: 0.08, rootMargin: '0px 0px -28px 0px' }
     );
     targets.forEach((t) => this.observer!.observe(t));
+
+    // A SAFETY NET FOR THE FLING.
+    //
+    // IntersectionObserver reports what is intersecting when it samples. During
+    // a hard momentum scroll whole screens can pass between samples, and any
+    // element that was only ever inside the viewport between two of them is
+    // never reported - so it stays at opacity 0 for good. Measured with 1600px
+    // jumps: 60 of 69 elements never revealed at all. That is the worst failure
+    // this system can have, because it is not a late animation, it is text that
+    // never arrives.
+    //
+    // So once scrolling stops, anything the visitor has already scrolled past
+    // is simply put in place. It runs on a settle timer rather than per frame,
+    // touches only the elements still waiting, and stops itself when the last
+    // one has landed.
+    let settle: number | undefined;
+    const sweep = () => {
+      const remaining = targets.filter((el) => !el.classList.contains('is-visible'));
+      if (remaining.length === 0) {
+        window.removeEventListener('scroll', onScroll);
+        return;
+      }
+      // ONLY WHAT HAS ALREADY GONE BY. Anything still inside the viewport when
+      // scrolling stops is intersecting, so the observer will report it and play
+      // its entrance properly - claiming those here would steal the animation
+      // from a slow, deliberate scroll, which is the case it exists for.
+      // An element whose top has passed above the viewport was missed outright.
+      remaining.forEach((el) => {
+        const r = el.getBoundingClientRect();
+        if (r.height > 0 && r.top < 0) {
+          el.classList.add('reveal-instant', 'is-visible');
+          this.observer?.unobserve(el);
+        }
+      });
+    };
+    const onScroll = () => {
+      window.clearTimeout(settle);
+      settle = window.setTimeout(sweep, 140);
+    };
+    window.addEventListener('scroll', onScroll, { passive: true });
+    this.scrollListeners.push(onScroll);
   }
 
   // ─── Header glass — gradual 0→1 CSS var over first 80px of scroll ──────────

@@ -5583,6 +5583,32 @@ div[id] {
   }
 }
 
+// ARRIVED-LATE ELEMENTS DO NOT ANIMATE.
+//
+// Set by the reveal observer when an element is already well inside the viewport
+// the moment it is seen - which means the visitor scrolled past its entrance.
+// Playing a 700ms entrance for something they are already looking at is what
+// produced the backlog under fast scrolling (up to ten unrevealed elements on
+// one screen). It lands in its final state instead, with no transition and no
+// stagger, so a fast flick leaves the page settled rather than catching up.
+//
+// It has to beat the delay-N stagger as well, or the element would still wait
+// its turn before appearing.
+.reveal.reveal-instant,
+.reveal.reveal-instant.is-visible {
+  transition: none !important;
+  transition-delay: 0s !important;
+  animation: none !important;
+}
+
+.reveal-instant .signing-steps span,
+.signing-steps.reveal-instant span,
+.shoot-claim.reveal-instant span,
+.final-cta.reveal-instant::before {
+  transition: none !important;
+  transition-delay: 0s !important;
+}
+
 // A MOTION GRAMMAR, BECAUSE THERE WAS ONLY ONE MOTION.
 //
 // These read as four treatments and were one. .reveal-rise and .reveal-float
