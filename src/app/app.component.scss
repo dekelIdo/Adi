@@ -1303,7 +1303,8 @@ select {
 
 @media (prefers-reduced-motion: reduce) {
   .portfolio-reel-track,
-  .results-rail {
+  .results-rail,
+  .reviews-rail {
     animation: none;
   }
 }
@@ -3759,7 +3760,8 @@ div[id] {
   will-change: transform;
   // Same inversion as the portfolio rail above: runs on its own, pauses only
   // when the observer says it is off screen.
-  animation: reelScroll 44s linear infinite;
+  // Per item, so a fourth result does not speed the reel up.
+  animation: reelScroll calc(var(--reel-count, 3) * 14.5s) linear infinite;
 
   &.is-idle {
     animation-play-state: paused;
@@ -4159,19 +4161,16 @@ div[id] {
   padding: var(--space-xl) 0;
 }
 
+// THE REEL RUNS ITSELF; THERE IS NO END TO DRAG TO.
+//
+// This used to be a horizontal scroll container with snap points. That is what
+// produced the blank: three cards, then the end of the track, then paper. A
+// reel that carries two sets and translates -50% has no end to reach - it hands
+// back to its own beginning at the set boundary, and the seam is invisible
+// because both halves are identical.
 .reviews-outer {
-  overflow-x: auto;
-  overflow-y: hidden;
+  overflow: hidden;
   padding: var(--space-sm) 0;
-  cursor: grab;
-  scroll-snap-type: x proximity;
-  scroll-padding-inline-start: var(--container-padding);
-  scrollbar-width: none;
-  -ms-overflow-style: none;
-
-  &::-webkit-scrollbar {
-    display: none;
-  }
 
   &:active {
     cursor: grabbing;
@@ -4182,7 +4181,24 @@ div[id] {
   display: flex;
   align-items: center;
   gap: clamp(14px, 2.4vw, 26px);
+  width: max-content;
   will-change: transform;
+
+  // SPEED IS PER ITEM, NOT PER TRACK. A fixed duration would run a four-item
+  // reel a third faster than a three-item one; --reel-count comes from the
+  // template, so the pace stays the same however many testimonials there are.
+  animation: reelScroll calc(var(--reel-count, 3) * 15s) linear infinite;
+
+  // Same fail-safe direction as the other two reels: running by default, paused
+  // only when the observer says it is off screen. If the observer never attaches
+  // the reel still moves rather than sitting dead.
+  &.is-idle {
+    animation-play-state: paused;
+  }
+
+  &:hover {
+    animation-play-state: paused;
+  }
 }
 
 .review-card {

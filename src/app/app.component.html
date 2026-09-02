@@ -566,60 +566,29 @@
         </div>
       </div>
       <div class="results-outer">
-        <div class="results-rail">
-          <!-- Set 1 -->
-          <div class="result-card">
-            <figure class="result-frame">
-              <img src="assets/lovable-uploads/MyAssets/Results/IMG_7629.PNG" alt="תוצאות" loading="lazy" />
-              <div class="result-overlay">
-                <span class="result-value">10K+</span>
-                <span class="result-desc">צפיות לסרטון</span>
+        <!-- TWO SETS, RENDERED - NOT SIX CARDS TYPED OUT.
+             The loop works by translating exactly -50%, which only lands on a
+             set boundary while the track holds two identical halves. Written by
+             hand that contract was a thing to remember; rendered from the list
+             twice it simply holds, for three results or for eight. The second
+             set is decorative and hidden from assistive tech so the numbers are
+             announced once. -->
+        <div class="results-rail" [style.--reel-count]="resultCards.length">
+          @for (set of [0, 1]; track set) {
+            @for (card of resultCards; track card.image) {
+              <div class="result-card" [attr.aria-hidden]="set === 1 ? 'true' : null">
+                <figure class="result-frame">
+                  <img [src]="card.image" [alt]="set === 1 ? '' : 'תוצאות'" loading="lazy" />
+                  <div class="result-overlay">
+                    <span class="result-value">{{ card.value }}</span>
+                    @if (card.desc) {
+                      <span class="result-desc">{{ card.desc }}</span>
+                    }
+                  </div>
+                </figure>
               </div>
-            </figure>
-          </div>
-          <div class="result-card">
-            <figure class="result-frame">
-              <img src="assets/lovable-uploads/MyAssets/Results/IMG_7323.PNG" alt="תוצאות" loading="lazy" />
-              <div class="result-overlay">
-                <span class="result-value">מעורבות גבוהה</span>
-              </div>
-            </figure>
-          </div>
-          <div class="result-card">
-            <figure class="result-frame">
-              <img src="assets/lovable-uploads/MyAssets/Results/IMG_3572.PNG" alt="תוצאות" loading="lazy" />
-              <div class="result-overlay">
-                <span class="result-value">צמיחה חודשית</span>
-                <span class="result-desc">עוקבים חדשים</span>
-              </div>
-            </figure>
-          </div>
-          <div class="result-card" aria-hidden="true">
-            <figure class="result-frame">
-              <img src="assets/lovable-uploads/MyAssets/Results/IMG_7629.PNG" alt="" loading="lazy" />
-              <div class="result-overlay">
-                <span class="result-value">10K+</span>
-                <span class="result-desc">צפיות לסרטון</span>
-              </div>
-            </figure>
-          </div>
-          <div class="result-card" aria-hidden="true">
-            <figure class="result-frame">
-              <img src="assets/lovable-uploads/MyAssets/Results/IMG_7323.PNG" alt="" loading="lazy" />
-              <div class="result-overlay">
-                <span class="result-value">מעורבות גבוהה</span>
-              </div>
-            </figure>
-          </div>
-          <div class="result-card" aria-hidden="true">
-            <figure class="result-frame">
-              <img src="assets/lovable-uploads/MyAssets/Results/IMG_3572.PNG" alt="" loading="lazy" />
-              <div class="result-overlay">
-                <span class="result-value">צמיחה חודשית</span>
-                <span class="result-desc">עוקבים חדשים</span>
-              </div>
-            </figure>
-          </div>
+            }
+          }
         </div>
       </div>
     </section>
@@ -764,34 +733,40 @@
       </div>
       <!-- Mobile: horizontal scroll rail. Desktop: floating scattered layout -->
       <div class="reviews-outer">
-        <div class="reviews-rail">
-          <!-- Same card, same classes, same scatter rhythm as before. The only
-               change is where the list comes from: `reviews` starts as the
-               static set that has always shipped here and is replaced at
-               runtime only if published records load successfully. -->
-          @for (review of reviews; track review.src; let i = $index) {
-            <div class="review-card reveal reveal-float"
-                 [class.review-card--scatter-1]="i % 3 === 0"
-                 [class.review-card--scatter-2]="i % 3 === 1"
-                 [class.review-card--scatter-3]="i % 3 === 2"
-                 [class.delay-1]="i % 3 === 0"
-                 [class.delay-2]="i % 3 === 1"
-                 [class.delay-3]="i % 3 === 2">
-              <div class="review-inner"
-                   [class.review-inner--tilt-l]="i % 3 === 0"
-                   [class.review-inner--tilt-r]="i % 3 === 2">
-                <figure class="review-frame">
-                  <img
-                    [src]="review.src"
-                    [alt]="review.alt"
-                    [width]="review.width"
-                    [height]="review.height"
-                    loading="lazy"
-                    decoding="async"
-                  />
-                </figure>
+        <!-- A REEL, NOT A TRACK THAT RUNS OUT.
+             This was a finite drag rail: three cards and then the end of the
+             track, so anyone who kept pushing arrived at empty paper. It now
+             carries two rendered sets and travels exactly -50%, which lands on
+             a set boundary and starts the same three again with nothing to see
+             at the join. The count drives the duration, so adding a fourth
+             testimonial keeps the same pace instead of speeding the reel up,
+             and nothing about the loop needs rewriting.
+             The second set is decorative: hidden from assistive tech so each
+             testimonial is announced once. -->
+        <div class="reviews-rail" [style.--reel-count]="reviews.length">
+          @for (set of [0, 1]; track set) {
+            @for (review of reviews; track review.src; let i = $index) {
+              <div class="review-card"
+                   [attr.aria-hidden]="set === 1 ? 'true' : null"
+                   [class.review-card--scatter-1]="i % 3 === 0"
+                   [class.review-card--scatter-2]="i % 3 === 1"
+                   [class.review-card--scatter-3]="i % 3 === 2">
+                <div class="review-inner"
+                     [class.review-inner--tilt-l]="i % 3 === 0"
+                     [class.review-inner--tilt-r]="i % 3 === 2">
+                  <figure class="review-frame">
+                    <img
+                      [src]="review.src"
+                      [alt]="set === 1 ? '' : review.alt"
+                      [width]="review.width"
+                      [height]="review.height"
+                      loading="lazy"
+                      decoding="async"
+                    />
+                  </figure>
+                </div>
               </div>
-            </div>
+            }
           }
         </div>
       </div>

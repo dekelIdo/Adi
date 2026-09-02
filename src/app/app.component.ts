@@ -152,6 +152,35 @@ export class AppComponent implements AfterViewInit, OnDestroy {
    * returns nothing usable, this array is never touched and the section looks
    * exactly as it does today. The public site does not depend on the admin.
    */
+  /**
+   * THE RESULTS REEL — DATA, NOT SIX HAND-WRITTEN CARDS.
+   *
+   * The rail loops by carrying two identical sets and translating exactly -50%,
+   * which is correct and seamless. But the duplication used to live in the
+   * markup as six literal blocks, so the "two sets" contract was something a
+   * person had to remember: add a fourth result and the halves stop matching,
+   * -50% no longer lands on a set boundary, and the reel visibly jumps.
+   *
+   * The list is the source now and the template renders it twice, so the
+   * contract holds for any number of items without anyone maintaining it.
+   */
+  resultCards: { image: string; value: string; desc?: string }[] = [
+    {
+      image: 'assets/lovable-uploads/MyAssets/Results/IMG_7629.PNG',
+      value: '10K+',
+      desc: 'צפיות לסרטון',
+    },
+    {
+      image: 'assets/lovable-uploads/MyAssets/Results/IMG_7323.PNG',
+      value: 'מעורבות גבוהה',
+    },
+    {
+      image: 'assets/lovable-uploads/MyAssets/Results/IMG_3572.PNG',
+      value: 'צמיחה חודשית',
+      desc: 'עוקבים חדשים',
+    },
+  ];
+
   reviews: Review[] = [
     { src: 'assets/lovable-uploads/MyAssets/Reviews/14050.jpg', alt: 'עדות לקוחה', width: 1170, height: 1280 },
     { src: 'assets/lovable-uploads/MyAssets/Reviews/IMG_6712.PNG', alt: 'עדות לקוחה', width: 1064, height: 932 },
@@ -436,14 +465,12 @@ export class AppComponent implements AfterViewInit, OnDestroy {
     this.initBackToTop();
     this.initHeroParallax();
     this.initCursorGlow();
-    this.initCarouselDrag();
     this.initReelPlayback();
     this.initLivingPhotograph();
     this.initShootDayReveal();
     this.initLaptopBridge();
     this.initSectionProgress();
     this.initEditorialDrift();
-    this.initReviewsNudge();
     void this.loadPublishedReviews();
   }
 
@@ -502,109 +529,10 @@ export class AppComponent implements AfterViewInit, OnDestroy {
     }
   }
 
-  // ─── Reviews: one-time idle affordance ────────────────────────────────────────
-  // The reviews rail is deliberately NOT a marquee: these are dense message
-  // screenshots and the visitor has to be able to read them without chasing.
-  // But a rail that never moves reads as static, and the next message sitting
-  // behind the edge fade can go unnoticed.
-  //
-  // So: exactly one nudge, the first time the section is seen. The rail drifts a
-  // short way toward the next message, revealing its edge, then settles back to
-  // the start so the first message is left fully readable. It never repeats, and
-  // it is abandoned the moment the visitor touches the rail themselves.
-  private initReviewsNudge(): void {
-    const rail = document.querySelector<HTMLElement>('.reviews-outer');
-    if (!rail) return;
+  // The reviews nudge was removed with the drag. It existed to hint that a
+  // static rail could be scrolled; the rail now moves on its own, so the hint
+  // has nothing left to teach and the two would have fought over scrollLeft.
 
-    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-
-    let userEngaged = false;
-    const engage = () => {
-      userEngaged = true;
-      remove();
-    };
-    const events: Array<keyof HTMLElementEventMap> = ['pointerdown', 'touchstart', 'wheel', 'keydown'];
-    const remove = () => events.forEach((e) => rail.removeEventListener(e, engage));
-    events.forEach((e) => rail.addEventListener(e, engage, { passive: true, once: true }));
-
-    const OUT = 620;
-    const HOLD = 220;
-    const BACK = 760;
-    const easeOut = (t: number) => 1 - Math.pow(1 - t, 3);
-    const easeInOut = (t: number) => (t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2);
-
-    const run = () => {
-      // Overflow is checked HERE, not at init: the review screenshots are lazy
-      // loaded, so at ngAfterViewInit they have no intrinsic size, the rail does
-      // not overflow yet, and an early guard would cancel the hint permanently.
-      // By the time the section is on screen the images have real widths.
-      if (rail.scrollWidth <= rail.clientWidth + 8) return;
-
-      // Snapping is suspended for the duration so the rail glides and settles
-      // instead of being yanked to an alignment point mid-gesture.
-      const snap = rail.style.scrollSnapType;
-      rail.style.scrollSnapType = 'none';
-
-      // RTL browsers disagree on the sign of scrollLeft, so probe rather than
-      // assume. This MUST happen after snapping is off: with snapping active a
-      // one-pixel test scroll is immediately snapped back to the start, which
-      // makes the negative-offset model look like the positive one and sends the
-      // whole animation in the direction that is clamped to zero.
-      const start = rail.scrollLeft;
-      rail.scrollLeft = start - 1;
-      const direction = rail.scrollLeft !== start ? -1 : 1;
-      rail.scrollLeft = start;
-
-      const distance = Math.min(46, rail.clientWidth * 0.12) * direction;
-
-      const t0 = performance.now();
-      const step = (now: number) => {
-        if (userEngaged) {
-          rail.style.scrollSnapType = snap;
-          return;
-        }
-        const elapsed = now - t0;
-        let offset: number;
-        if (elapsed < OUT) {
-          offset = distance * easeOut(elapsed / OUT);
-        } else if (elapsed < OUT + HOLD) {
-          offset = distance;
-        } else if (elapsed < OUT + HOLD + BACK) {
-          offset = distance * (1 - easeInOut((elapsed - OUT - HOLD) / BACK));
-        } else {
-          rail.scrollLeft = start;
-          rail.style.scrollSnapType = snap;
-          return;
-        }
-        rail.scrollLeft = start + offset;
-        const id = requestAnimationFrame(step);
-        this.rafIds.push(id);
-      };
-      const id = requestAnimationFrame(step);
-      this.rafIds.push(id);
-    };
-
-    this.zone.runOutsideAngular(() => {
-      const obs = new IntersectionObserver(
-        (entries) => {
-          entries.forEach((entry) => {
-            if (!entry.isIntersecting) return;
-            obs.disconnect(); // once, and only once
-            if (userEngaged) return;
-            window.setTimeout(() => {
-              if (!userEngaged) run();
-            }, 420);
-          });
-        },
-        // Deliberately low: the rail sits at the foot of its section, so with a
-        // high threshold the hint never fires on a normal scroll (at 0.45 it was
-        // silently never reaching the callback).
-        { threshold: 0.25 }
-      );
-      obs.observe(rail);
-      this.reviewsNudgeObserver = obs;
-    });
-  }
 
   // ─── ADI signature: editorial drift ───────────────────────────────────────────
   // Photographs move a few pixels slower than the text beside them as the page
@@ -1000,60 +928,12 @@ export class AppComponent implements AfterViewInit, OnDestroy {
   // fight over the same transform.
   // ═══════════════════════════════════════════════════════════════════════════
 
-  // ─── Carousel drag-to-scroll with momentum ────────────────────────────────
-  // Enables mouse-drag scrolling on desktop with smooth momentum decay.
-  private initCarouselDrag(): void {
-    const containers = Array.from(
-      document.querySelectorAll<HTMLElement>('.reviews-outer')
-    );
+  // ─── Carousel drag was removed ────────────────────────────────────────────
+  // It owned .reviews-outer alone, dragging it by scrollLeft. That container is
+  // now overflow:hidden with a CSS-animated reel inside, so there is nothing to
+  // scroll and nothing to drag: the two mechanisms would have written to the
+  // same element from different loops.
 
-    containers.forEach((container) => {
-      let isDown = false;
-      let startX = 0;
-      let scrollStart = 0;
-      let velocity = 0;
-      let lastX = 0;
-      let momentumId: number;
-
-      const stopMomentum = () => cancelAnimationFrame(momentumId);
-
-      const applyMomentum = () => {
-        if (Math.abs(velocity) < 0.4) return;
-        velocity *= 0.92; // friction coefficient
-        container.scrollLeft -= velocity;
-        momentumId = requestAnimationFrame(applyMomentum);
-        this.rafIds.push(momentumId);
-      };
-
-      container.addEventListener('mousedown', (e: MouseEvent) => {
-        isDown = true;
-        stopMomentum();
-        startX = e.pageX - container.offsetLeft;
-        scrollStart = container.scrollLeft;
-        lastX = e.pageX;
-        velocity = 0;
-      });
-
-      const onUp = () => {
-        if (!isDown) return;
-        isDown = false;
-        applyMomentum();
-      };
-
-      container.addEventListener('mouseleave', onUp);
-      container.addEventListener('mouseup', onUp);
-
-      container.addEventListener('mousemove', (e: MouseEvent) => {
-        if (!isDown) return;
-        e.preventDefault();
-        const x = e.pageX - container.offsetLeft;
-        const delta = x - startX;
-        velocity = e.pageX - lastX;
-        lastX = e.pageX;
-        container.scrollLeft = scrollStart - delta;
-      });
-    });
-  }
 
   // ─── Laptop reveal into the process chapter (mobile only) ────────────────────
   // She is holding her laptop out; the camera closes on it, focus falls off her
