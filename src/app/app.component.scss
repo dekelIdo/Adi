@@ -1018,7 +1018,7 @@ select {
 
 // ────── Desktop: Asymmetric editorial layout ──────
 
-@media (min-width: 1025px) {
+@media (min-width: 1024px) {
   .hero {
     min-height: clamp(680px, 86vh, 860px);
   }
@@ -2174,7 +2174,7 @@ div[id] {
 // is one half of .split-grid from 540px upward. Pairing them any earlier gave
 // columns of 176px at 768, which is too narrow to read. They only pair once the
 // stack itself is wide enough to carry two.
-@media (min-width: 1025px) {
+@media (min-width: 1024px) {
   .duo-cards {
     grid-template-columns: 1fr 1fr;
   }
@@ -2448,7 +2448,7 @@ div[id] {
 // On desktop the copy column is short and the portrait is tall, which left
 // roughly 280px of dead space under the paragraphs. Centring the copy against
 // the picture closes the void without changing either element.
-@media (min-width: 1025px) {
+@media (min-width: 1024px) {
   .about-layout {
     align-items: center;
   }
@@ -4371,6 +4371,11 @@ div[id] {
     grid-template-columns: repeat(3, 1fr);
     gap: var(--space-lg);
     padding: 0;
+    // The reel below 1024 sizes its track to max-content so it can travel; a
+    // grid sized to max-content lets its widest screenshot set every column and
+    // overflows the container. Here it is a grid, and it takes the container.
+    width: 100%;
+    animation: none;
     // One shared top line. The screenshots are genuinely different shapes and
     // forcing them to equal heights would mean cropping someone's message, so
     // the row is aligned where it can be — at the top — and allowed to be
@@ -5919,7 +5924,7 @@ div[id] {
 // The same groups get the same tiers they already have on a phone, at desktop
 // scale. Nothing is equalised: the sequence stays uneven on purpose, and the
 // dark chapter still opens wide and closes tight.
-@media (min-width: 1025px) {
+@media (min-width: 1024px) {
   :host {
     --sec-tight: clamp(26px, 3vh, 34px);
     --sec-base: clamp(38px, 4.4vh, 50px);
@@ -5961,7 +5966,7 @@ div[id] {
   }
 }
 
-@media (max-width: 1024px) {
+@media (max-width: 1023.98px) {
   :host {
     --sec-tight: clamp(18px, 2.8vh, 24px);
     --sec-base: clamp(26px, 3.8vh, 34px);
@@ -6009,7 +6014,7 @@ div[id] {
   }
 }
 
-@media (max-width: 1024px) {
+@media (max-width: 1023.98px) {
   :host {
     // MOBILE: Tight editorial rhythm
     --space-xs: clamp(4px, 0.7vh, 6px);
@@ -6420,7 +6425,7 @@ div[id] {
 // These grids stay two-column here rather than collapsing with the phone rules.
 // Ratios are gentler than desktop so neither column gets too narrow.
 
-@media (min-width: 700px) and (max-width: 1024px) {
+@media (min-width: 700px) and (max-width: 1023.98px) {
   .section-intro-split,
   .split-grid,
   .services-header,
@@ -6472,7 +6477,7 @@ div[id] {
 // composition as desktop, scaled down — the photograph keeps a portrait-shaped
 // panel and is barely cropped at all.
 
-@media (min-width: 700px) and (max-width: 1024px) {
+@media (min-width: 700px) and (max-width: 1023.98px) {
   .hero {
     min-height: clamp(620px, 80vh, 800px);
   }
@@ -6542,6 +6547,284 @@ div[id] {
 // ═══════════════════════════════════════════════════════════════════════════════
 // PRINT STYLES
 // ═══════════════════════════════════════════════════════════════════════════════
+
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// DESKTOP AND TABLET COMPOSITION
+//
+// Everything above this line was composed for a phone and, until now, simply
+// widened. This layer gives the page its own composition from 768 up, in four
+// tiers - 768, 1024, 1440, 1920 - and nothing in it touches a phone: every rule
+// is behind a min-width, the smallest of which is 768.
+//
+// It lives at the end of the file on purpose. Cascade order decides most of
+// what it does, and a desktop rule written above the base rule it recomposes is
+// silently beaten by it.
+// ═══════════════════════════════════════════════════════════════════════════════
+
+.header-nav {
+  display: none;
+}
+
+// ── TABLET AND UP ─────────────────────────────────────────────────────────────
+@media (min-width: 768px) {
+  // HEADING RIGHT, DECK LEFT, ON ONE BASELINE. The two halves of an intro used
+  // to be top-aligned, so a one-line deck floated at the top of its column while
+  // the heading ran two lines down beside it, and the pair read as two things
+  // that happened to be near each other. Aligned at the foot they read as one
+  // line of composition: the deck ends where the heading's rule ends.
+  .section-intro-split {
+    grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr);
+    column-gap: clamp(32px, 5vw, 96px);
+    align-items: end;
+  }
+
+  .section-intro-split .section-lead {
+    max-width: 42ch;
+  }
+
+  // The deck and the list or reel beneath it are text -> block, and take that
+  // distance. At the old 6px the FAQ's first hairline ran directly under the
+  // deck's last line and read as part of it.
+  .section-intro-split {
+    margin-bottom: var(--flow-media);
+  }
+}
+
+// ── DESKTOP ───────────────────────────────────────────────────────────────────
+@media (min-width: 1024px) {
+  // HEADER. The mark and the button stay where they are; the words sit between.
+  .header-nav {
+    display: flex;
+    align-items: center;
+    gap: clamp(22px, 2.4vw, 38px);
+  }
+
+  .header-nav__link {
+    font-family: var(--font-body);
+    font-size: 0.94rem;
+    font-weight: 500;
+    letter-spacing: 0.02em;
+    color: inherit;
+    opacity: 0.74;
+    text-decoration: none;
+    padding-block: 6px;
+    border-bottom: 1px solid transparent;
+    transition: opacity 280ms var(--ease-smooth), border-color 280ms var(--ease-smooth);
+
+    &:hover,
+    &:focus-visible {
+      opacity: 1;
+      border-bottom-color: color-mix(in srgb, var(--brand-accent) 85%, transparent);
+    }
+
+    &:focus-visible {
+      outline: 2px solid var(--brand-accent);
+      outline-offset: 4px;
+      border-radius: 2px;
+    }
+  }
+
+  // HERO. Two changes make it a desktop composition rather than a wide phone.
+  //
+  // The portrait leaves the container. It was bounded by the 1320px column, so
+  // at 1440 it stopped 60px short of the edge with a hard vertical cut and black
+  // beyond, and at 1920 the cut sat 300px in. With its containing block moved to
+  // the section it bleeds to the viewport's right edge at every width, and the
+  // mask on its inner edge still dissolves it into the dark.
+  //
+  // The type is centred on the dark half instead of pinned to the foot. Pinned,
+  // it left the whole upper-left of the frame empty - the more so the wider the
+  // screen. Centred against her, it holds the left as she holds the right.
+  .hero-campaign {
+    position: static;
+    justify-content: center;
+  }
+
+  .hero-portrait-full {
+    width: 60%;
+  }
+
+  .hero-exit {
+    padding-block: clamp(48px, 7vh, 88px);
+  }
+
+  // Wide enough that the second line of the headline stays one line. At 42%
+  // it broke after the second word and left one word alone on a third line.
+  .hero-identity,
+  .hero-quiet-cta {
+    max-width: min(760px, 46%);
+  }
+
+  .hero-identity {
+    margin-bottom: clamp(20px, 3vh, 30px);
+  }
+
+  .hero-essence {
+    font-size: clamp(3rem, 5vw, 5rem);
+    line-height: 1.02;
+    max-width: 14ch;
+  }
+
+  .hero-quiet-cta {
+    margin-bottom: 0;
+  }
+
+  // MEASURE. A paragraph that was fine in a phone column runs to 150 characters
+  // in a 1216px one.
+  .section-body {
+    max-width: 60ch;
+  }
+
+  // PROBLEM. Heading on the right, the six lines on the left, heading held in
+  // place while the lines pass. It was one 760px column in the middle of the
+  // page with the glow filling the half nobody was using.
+  // The heading column is wide enough for the heading to keep its two lines
+  // at 1024; at five-twelfths it broke into three.
+  #problem > .container {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.2fr);
+    column-gap: clamp(48px, 6vw, 110px);
+    align-items: start;
+  }
+
+  .problem-header {
+    max-width: none;
+    margin: 0;
+    position: sticky;
+    top: clamp(104px, 14vh, 136px);
+  }
+
+  .problem-list {
+    max-width: none;
+    margin: 0;
+  }
+
+  // INSIGHT. The photograph on the left already ran twice the height of the
+  // copy beside it, and the two lists were stacked under the photograph where
+  // they had no room. The stack wrapper is dissolved so its children are laid
+  // on the grid directly: the quote and its paragraphs at the top of the right
+  // column, the two lists at its foot, level with the photograph's lower edge.
+  // Top and bottom anchored; nothing floating in the middle.
+  .split-grid--insight {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    grid-template-rows: auto 1fr;
+    column-gap: clamp(48px, 6vw, 96px);
+    row-gap: clamp(28px, 4vh, 48px);
+    align-items: start;
+  }
+
+  .split-grid--insight .split-stack {
+    display: contents;
+  }
+
+  .split-grid--insight .split-copy {
+    grid-column: 1;
+    grid-row: 1;
+  }
+
+  .split-grid--insight .duo-cards {
+    grid-column: 1;
+    grid-row: 2;
+    align-self: end;
+    margin-top: 0;
+  }
+
+  .split-grid--insight .editorial-img {
+    grid-column: 2;
+    grid-row: 1 / span 2;
+  }
+
+  // ABOUT. The story ran the full container - 150-character lines under a
+  // two-column layout. Held to a measure and set at the inline start, its right
+  // edge is the copy column's right edge above it.
+  .story-card {
+    max-width: 58ch;
+  }
+
+  // PROCESS. Same figure as the problem: heading right and held, steps left.
+  // The closing note follows the steps in their column rather than dropping
+  // under the heading, which is where the grid would otherwise auto-place it.
+  #process > .container {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.5fr);
+    column-gap: clamp(48px, 6vw, 110px);
+    align-items: start;
+  }
+
+  #process > .container > .section-title {
+    position: sticky;
+    top: clamp(104px, 14vh, 136px);
+  }
+
+  .process-editorial {
+    max-width: none;
+    margin: 0;
+    grid-column: 2;
+  }
+
+  #process .section-close-note {
+    grid-column: 2;
+  }
+
+  // SERVICES. Four rows that were each a title and a line of tags, one under
+  // another in a 1000px column, become two by two. The hairline above each row
+  // is kept; only the first visual row goes without one, which is now two items
+  // rather than one.
+  .services-header {
+    grid-template-columns: minmax(0, 1.15fr) minmax(0, 0.85fr);
+    column-gap: clamp(40px, 5vw, 96px);
+    align-items: end;
+  }
+
+  .services-header-lead {
+    max-width: 40ch;
+  }
+
+  .services-matrix {
+    max-width: none;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    column-gap: clamp(40px, 5vw, 96px);
+  }
+
+  .services-row {
+    border-top: 1px solid var(--rule);
+  }
+
+  .services-row:nth-child(-n + 2) {
+    border-top: none;
+  }
+
+  // FAQ. The list was centred at 920px while its heading sat at the container's
+  // right edge, 150px further out - the two edges of one section, drifting.
+  // Set at the inline start the list's right edge is the heading's.
+  .faq-list {
+    margin: 0;
+  }
+
+  // THE CLOSE. Two words at 30px in a 1440px black field had no authority. The
+  // same words, the same rule beneath them, at a size the field can carry.
+  .section-final {
+    padding-block: clamp(76px, 11vh, 128px) clamp(40px, 5.6vh, 64px);
+  }
+
+  .final-cta {
+    font-size: clamp(2.2rem, 3vw, 3.2rem);
+    letter-spacing: 0.22em;
+    text-indent: 0.22em;
+    padding-bottom: clamp(16px, 2.2vh, 22px);
+  }
+}
+
+// ── LARGE ─────────────────────────────────────────────────────────────────────
+@media (min-width: 1920px) {
+  // A 1320px column at 1920 leaves 300px of margin either side. 1400 is still a
+  // measured page; the full-bleed chapters carry the rest of the width.
+  :host {
+    --container-max: 1400px;
+  }
+}
 
 @media print {
   .site-header,
