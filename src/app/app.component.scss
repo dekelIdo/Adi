@@ -640,7 +640,7 @@ select {
 
 // ── Phone: the photograph is the scene, the screen sits into its lower corner,
 //    the words close the chapter underneath. ─────────────────────────────────
-@media (max-width: 899.98px) {
+@media (max-width: 767.98px) {
   .signing-scene {
     position: relative;
     grid-template-columns: 1fr;
@@ -665,7 +665,7 @@ select {
 // at 390 and a wall at 768: the frame came out 720x900 and the chapter reached
 // 1313px, nearly double its own desktop height. Same composition, held to a
 // sensible size and centred.
-@media (min-width: 600px) and (max-width: 899.98px) {
+@media (min-width: 600px) and (max-width: 767.98px) {
   .signing-photo {
     width: min(100%, 460px);
     margin-inline: auto;
@@ -679,11 +679,13 @@ select {
 
 // ── Desktop: the photograph holds one side, the screen overlaps its inner edge
 //    at the height of the clipboard, and the words live in the space beside. ──
-@media (min-width: 900px) {
+// From 768px: the split, not the stack. The words take five columns, the
+// artwork seven, on the same gutter every other split on the page uses.
+@media (min-width: 768px) {
   .signing-scene {
-    grid-template-columns: minmax(0, 0.92fr) minmax(0, 1.08fr);
+    grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
     align-items: center;
-    column-gap: clamp(30px, 4vw, 64px);
+    column-gap: clamp(40px, 6vw, 110px);
   }
 
   .signing-say {
@@ -4632,45 +4634,10 @@ div[id] {
   }
 }
 
-// Desktop scattered layout
+// Desktop: the three-column grid itself is set once, from 768px, in the
+// tablet/desktop layer at the end of this file. Only the picture ceiling
+// remains here.
 @media (min-width: 1024px) {
-  .reviews-rail {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: var(--space-lg);
-    padding: 0;
-    // The reel below 1024 sizes its track to max-content so it can travel; a
-    // grid sized to max-content lets its widest screenshot set every column and
-    // overflows the container. Here it is a grid, and it takes the container.
-    width: 100%;
-    animation: none;
-    // One shared top line. The screenshots are genuinely different shapes and
-    // forcing them to equal heights would mean cropping someone's message, so
-    // the row is aligned where it can be — at the top — and allowed to be
-    // ragged at the foot, which is how a magazine sets a row of clippings.
-    align-items: start;
-  }
-
-  .review-card {
-    width: 100%;
-    // The grid supplies its own gutter; the reel's per-card one would stack on
-    // top of it and push the last column out of the container.
-    margin-inline-end: 0;
-  }
-
-  // From 1024 up the testimonials are laid out as three columns, all visible at
-  // once - there is no reel here and so nothing for a second set to do. Shown,
-  // it would simply print the same three messages again underneath.
-  .review-card--echo {
-    display: none;
-  }
-
-  .review-card--scatter-1,
-  .review-card--scatter-2,
-  .review-card--scatter-3 {
-    transform: none;
-  }
-
   // A ceiling, so one uploaded picture cannot set the height of the whole row.
   // The desktop layout is a three column grid, so the tallest card decides the
   // row: an 800x4000 screenshot rendered 2304px tall at 1440 and turned the
@@ -4690,18 +4657,6 @@ div[id] {
     // that is not extreme the ceiling never binds and nothing changes at all.
     max-height: clamp(520px, 74vh, 820px);
     object-fit: contain;
-  }
-
-  .review-card--scatter-1 {
-    transform: translateY(-20px);
-  }
-
-  .review-card--scatter-2 {
-    transform: translateY(12px);
-  }
-
-  .review-card--scatter-3 {
-    transform: translateY(-8px);
   }
 }
 
@@ -7519,9 +7474,52 @@ div[id] {
     will-change: auto;
   }
 
+  // ── MOTION AT REST ON WIDER SCREENS ────────────────────────────────────────
+  // Reveals fade, and only fade: no lift, no unmask, no settle. The page
+  // arrives; it does not perform. Hover and focus transitions are untouched,
+  // and the drawn hairlines under the headings still draw.
+  .reveal,
+  .reveal-rise,
+  .reveal-float,
+  .section-title.reveal {
+    transform: none;
+  }
+
+  .section-title.reveal.is-visible {
+    animation: none;
+  }
+
+  .editorial-img.reveal img,
+  .contact-img.reveal img {
+    --drift-scale: 1;
+    scale: 1;
+    transition: none;
+  }
+
+  .chapter-plate-media img {
+    --plate-scale: 1;
+    transition: none;
+  }
+
+  .shoot-claim span,
+  .shoot-claim.is-visible span {
+    clip-path: none;
+    transform: none;
+    transition: none;
+  }
+
+  .social-item.reveal .social-frame {
+    --settle: 1;
+  }
+
+  .hero-portrait-full picture {
+    will-change: auto;
+  }
+
   // ── TABLET COMPOSITION (768-1023) ───────────────────────────────────────────
+  // The shoot details keep the base 0.85/1.15 figure (the rig picture is the
+  // tall one); only the gutter joins the shared scale.
   .shoot-proof {
-    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
     gap: var(--grid-gap);
   }
 
@@ -7561,9 +7559,85 @@ div[id] {
     margin: 0;
   }
 
-  // ── THE SHOOT: the two details level with each other ───────────────────────
-  .shoot-proof {
-    grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
+  // ── THE DESKTOP COLUMN ─────────────────────────────────────────────────────
+  // One fluid gutter for the whole page (the hero already used this very
+  // value), and one column gap for every split, so edges align from chapter
+  // to chapter: five columns of words against seven of picture, or six and six.
+  :host {
+    --container-padding: var(--page-gutter-desktop);
+    --split-gap: clamp(48px, 6vw, 110px);
+  }
+
+  .header-nav {
+    gap: clamp(18px, 2vw, 34px);
+  }
+
+  // HERO. Signature, statement and invitation as one group on the left five
+  // columns, a hairline setting the invitation off from the statement.
+  .hero-identity,
+  .hero-quiet-cta {
+    max-width: min(640px, 41.6%);
+  }
+
+  .hero-quiet-cta {
+    padding-top: clamp(18px, 2.4vh, 28px);
+    border-top: 1px solid rgba(255, 255, 255, 0.16);
+  }
+
+  // SOLUTION. The photograph takes seven columns, the words five.
+  .solution-wrap {
+    grid-template-columns: minmax(0, 7fr) minmax(0, 5fr);
+    column-gap: var(--split-gap);
+  }
+
+  // THE PLATES. A chapter break, not a full screen. The identity portrait is
+  // anchored higher still: in the shorter band the base 15% cut her forehead.
+  .chapter-plate {
+    height: clamp(520px, 62vh, 720px);
+  }
+
+  .chapter-plate--identity img {
+    object-position: 58% 5%;
+  }
+
+  // ABOUT. Six and six here: on five columns at 1024 the heading broke her
+  // name across two lines. From 1440 the words take five and the restaurant
+  // photograph seven.
+  .about-layout {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    column-gap: var(--split-gap);
+  }
+
+  .about-photo-wrap {
+    max-width: 480px;
+  }
+
+  // SERVICES. Two by two with air between the rows, not flush hairlines.
+  .services-matrix {
+    row-gap: clamp(20px, 2.6vw, 36px);
+  }
+
+  // WHY. Headline column five, audience column seven.
+  .why-merged-grid {
+    grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
+    column-gap: var(--split-gap);
+  }
+
+  // CONTACT. Six and six, the photograph stretched to the card.
+  .contact-layout {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    column-gap: var(--split-gap);
+  }
+
+  // FOOTER. An ending: a hairline over the credit and the open tier's air.
+  .site-footer {
+    padding-block-start: var(--sec-open);
+    padding-block-end: clamp(28px, 4vh, 40px);
+  }
+
+  .site-footer .container {
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+    padding-block-start: clamp(20px, 3vh, 32px);
   }
 
   // ── THE STILLS SIT A LITTLE TALLER ON A REAL DESKTOP ───────────────────────
@@ -7582,6 +7656,35 @@ div[id] {
   .results-rail,
   .reviews-rail {
     gap: clamp(24px, 2vw, 36px);
+  }
+
+  // Type one step up on a wide screen. The hero group keeps its five columns
+  // but the pixel cap follows the larger type, so the statement stays on two
+  // lines at 1920 instead of breaking into three.
+  .hero-essence {
+    font-size: clamp(3.4rem, 5.4vw, 5.6rem);
+    // The group's pixel cap below is the one owner of the measure here; the
+    // 12ch cap from the 1024 layer would break the statement into three lines.
+    max-width: none;
+  }
+
+  // The share is of the 1240px container, not the viewport: 52% is 645px at
+  // 1920, the two-line measure for the larger statement.
+  .hero-identity,
+  .hero-quiet-cta {
+    max-width: min(760px, 52%);
+  }
+
+  .section-title {
+    font-size: 4.6rem;
+  }
+
+  .about-layout {
+    grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
+  }
+
+  .about-photo-wrap {
+    max-width: 520px;
   }
 }
 
