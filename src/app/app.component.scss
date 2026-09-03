@@ -385,6 +385,13 @@ select {
 
     .logo-img--light { opacity: 0; }
     .logo-img--dark { opacity: 1; }
+
+    // A horizontal wordmark needs a wider window: the frame becomes a pill of
+    // the same 38px height, so the header keeps its height and the complete
+    // lettering stays uncropped (object-fit: contain).
+    width: clamp(64px, 18vw, 78px);
+    height: 38px;
+    border-radius: 999px;
   }
 }
 
@@ -399,7 +406,7 @@ select {
   overflow: hidden;
   background: none;
   box-shadow: none;
-  transition: border-color 320ms var(--ease-smooth), box-shadow 220ms var(--ease-smooth);
+  transition: border-color 320ms var(--ease-smooth), box-shadow 220ms var(--ease-smooth), width 200ms var(--ease-smooth), border-radius 200ms var(--ease-smooth);
 
   position: relative;
 
