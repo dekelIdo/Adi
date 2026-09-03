@@ -761,28 +761,58 @@ select {
     margin-inline-start: calc(clamp(28px, 12vw, 64px) + var(--photo-shift));
   }
 
-  // The beam: an ellipse of cream light anchored at the lamp head, reaching
-  // left across the picture's upper right and fading out around her face.
-  // Low opacity and a blurred edge, so it lights her rather than fogs her.
+  // The beam: one soft cone, anchored at the umbrella's interior (right edge,
+  // origin right center), widening to the left and rising about nine degrees
+  // to her eyes and cheek, ending around her head and shoulder. Screen-blended
+  // so it lights rather than fogs; blurred so there is no hard edge.
   .about-photo-beam {
     display: block;
     position: absolute;
     z-index: 2;
     pointer-events: none;
-    inset-block-start: clamp(46px, 14vw, 78px);
-    inset-inline-start: clamp(4px, 2vw, 12px);
-    width: clamp(212px, 68vw, 294px);
-    height: clamp(142px, 40vw, 188px);
+    inset-block-start: clamp(60px, 19.2vw, 88px);
+    inset-inline-start: clamp(38px, 12vw, 56px);
+    width: clamp(150px, 45vw, 185px);
+    height: clamp(80px, 24vw, 105px);
+    transform-origin: right center;
     transform: rotate(-9deg);
-    transform-origin: 100% 40%;
-    background: radial-gradient(
-      ellipse 70% 55% at 88% 42%,
-      rgba(255, 239, 212, 0.68) 0%,
-      rgba(255, 239, 212, 0.34) 32%,
-      rgba(255, 239, 212, 0.12) 58%,
-      rgba(255, 239, 212, 0) 78%
+    // The right third of the cone lies over white paper, where a screen blend
+    // can show nothing, so the light is carried into the picture: still warm
+    // ivory at the umbrella, still fading to nothing, but holding its strength
+    // across the picture's edge to her face before the blue tail lets go.
+    background: linear-gradient(
+      to left,
+      rgba(255, 244, 222, 0.48) 0%,
+      rgba(255, 241, 214, 0.44) 34%,
+      rgba(255, 239, 210, 0.38) 60%,
+      rgba(187, 221, 250, 0.18) 84%,
+      transparent 100%
     );
-    filter: blur(10px);
+    clip-path: polygon(100% 42%, 100% 58%, 0 0, 0 100%);
+    filter: blur(8px);
+    mix-blend-mode: screen;
+  }
+
+  // The result of the light: a small warm lift where the beam lands - eyes,
+  // cheek, forehead - faint enough to keep skin, eyes and hairline as they are.
+  .about-layout .about-photo-stage::after {
+    content: '';
+    position: absolute;
+    z-index: 2;
+    pointer-events: none;
+    inset-inline-end: clamp(52px, 16.7vw, 78px);
+    inset-block-start: clamp(60px, 19.2vw, 86px);
+    width: clamp(82px, 23vw, 96px);
+    height: clamp(72px, 20.5vw, 88px);
+    border-radius: 50%;
+    background: radial-gradient(
+      ellipse at center,
+      rgba(255, 242, 218, 0.24) 0%,
+      rgba(255, 235, 205, 0.12) 38%,
+      transparent 72%
+    );
+    filter: blur(7px);
+    mix-blend-mode: screen;
   }
 
   // The lamp: the fixture alone, on the paper to the right, its head level
@@ -791,7 +821,8 @@ select {
     display: block;
     position: absolute;
     z-index: 3;
-    inset-block-start: clamp(60px, 19vw, 92px);
+    // Lifted so the umbrella's white interior sits level with her face.
+    inset-block-start: clamp(26px, 10vw, 56px);
     // Measured: the head crosses the picture's edge by 10-18px across 320-430.
     // Full-size equipment, not an icon: the height sets the scale (about
     // 328px at 390, a lamp head of ~85px) and the width follows the file.
