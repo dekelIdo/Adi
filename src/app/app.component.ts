@@ -70,6 +70,144 @@ interface BrandLogo {
   scale?: 'clalit' | 'large' | 'default';
 }
 
+// ═══════════════════════════════════════════════════════════════════════════════
+// ONE SCROLL PIPELINE.
+//
+// This page used to register ten scroll listeners, each with its own rAF, four
+// of them inside NgZone (so every scroll event also paid a full change-detection
+// tick), and each driver read layout after the previous one had written to it.
+// Now there is one listener, one frame, and two phases: every driver READS the
+// DOM first, then every driver WRITES. Reads that only depend on layout (not on
+// the scroll position) run in a third, rarer phase, `measure`, only after
+// something invalidated them - a resize, an image landing, the FAQ opening.
+//
+// Each driver keeps its exact maths. The rendered result is the same; what
+// changed is that the browser no longer recalculates style for the whole
+// document on every frame, and no longer lays the page out between drivers.
+// ═══════════════════════════════════════════════════════════════════════════════
+type Frame = { readonly y: number; readonly vw: number; readonly vh: number };
+
+interface ScrollDriver {
+  /** Layout-dependent caches. Runs with clean layout, before read(), only after invalidate(). */
+  measure?(f: Frame): void;
+  /** DOM reads only. Never writes. */
+  read?(f: Frame): void;
+  /** Style and attribute writes only. Never reads layout. */
+  write(f: Frame): void;
+}
+
+class ScrollPipeline {
+  private drivers: ScrollDriver[] = [];
+  private settlers: Array<{ fn: () => void; ms: number; id?: number }> = [];
+  private raf = 0;
+  private dirty = true;
+  private resizeTimer?: number;
+  private ro?: ResizeObserver;
+  private warned = false;
+  private readonly onScroll = () => {
+    this.request();
+    this.armSettlers();
+  };
+  private readonly onResize = () => {
+    window.clearTimeout(this.resizeTimer);
+    this.resizeTimer = window.setTimeout(() => this.invalidate(), 120);
+  };
+
+  /** Call inside NgZone.runOutsideAngular. */
+  start(): void {
+    window.addEventListener('scroll', this.onScroll, { passive: true });
+    window.addEventListener('resize', this.onResize, { passive: true });
+    if ('ResizeObserver' in window) {
+      // The body is unconstrained, so its height moves whenever layout moves
+      // anywhere in flow: a lazy image landing, a FAQ answer opening, the
+      // reviews swapping in. None of the per-frame writes affect layout, so
+      // this cannot feed back on itself.
+      this.ro = new ResizeObserver(() => this.invalidate());
+      this.ro.observe(document.body);
+    }
+  }
+
+  add(d: ScrollDriver): () => void {
+    this.drivers.push(d);
+    this.dirty = true;
+    return () => {
+      this.drivers = this.drivers.filter((x) => x !== d);
+    };
+  }
+
+  /** Runs `fn` once scrolling has been quiet for `ms`. Returns a remover. */
+  onSettle(fn: () => void, ms = 140): () => void {
+    const s: { fn: () => void; ms: number; id?: number } = { fn, ms };
+    this.settlers.push(s);
+    return () => {
+      window.clearTimeout(s.id);
+      this.settlers = this.settlers.filter((x) => x !== s);
+    };
+  }
+
+  invalidate(): void {
+    this.dirty = true;
+    this.request();
+  }
+
+  request(): void {
+    if (!this.raf) this.raf = requestAnimationFrame(() => this.frame());
+  }
+
+  /** Synchronous frame, for the first paint after the drivers are registered. */
+  runNow(): void {
+    if (this.raf) {
+      cancelAnimationFrame(this.raf);
+      this.raf = 0;
+    }
+    this.frame();
+  }
+
+  destroy(): void {
+    window.removeEventListener('scroll', this.onScroll);
+    window.removeEventListener('resize', this.onResize);
+    if (this.raf) cancelAnimationFrame(this.raf);
+    this.raf = 0;
+    window.clearTimeout(this.resizeTimer);
+    this.settlers.forEach((s) => window.clearTimeout(s.id));
+    this.settlers = [];
+    this.ro?.disconnect();
+    this.drivers = [];
+  }
+
+  private armSettlers(): void {
+    for (const s of this.settlers) {
+      window.clearTimeout(s.id);
+      s.id = window.setTimeout(s.fn, s.ms);
+    }
+  }
+
+  private frame(): void {
+    this.raf = 0;
+    const f: Frame = { y: window.scrollY, vw: window.innerWidth, vh: window.innerHeight };
+    const ds = this.drivers.slice();
+    if (this.dirty) {
+      this.dirty = false;
+      for (const d of ds) this.guard(() => d.measure?.(f));
+    }
+    for (const d of ds) this.guard(() => d.read?.(f));
+    for (const d of ds) this.guard(() => d.write(f));
+  }
+
+  // One driver throwing must not stop the others, as it could not when each
+  // had its own frame.
+  private guard(fn: () => void): void {
+    try {
+      fn();
+    } catch (e) {
+      if (!this.warned) {
+        this.warned = true;
+        console.warn('scroll driver failed', e);
+      }
+    }
+  }
+}
+
 @Component({
   selector: 'app-root',
   standalone: true,
@@ -144,7 +282,8 @@ export class AppComponent implements AfterViewInit, OnDestroy {
   bridgeCinematic = true;
 
   private observer?: IntersectionObserver;
-  private headerThemeObserver?: IntersectionObserver;
+  private pipeline?: ScrollPipeline;
+
   /**
    * THE FALLBACK IS THE DEFAULT. These three are the set that has always
    * shipped, and they are what renders unless published records are fetched
@@ -187,10 +326,8 @@ export class AppComponent implements AfterViewInit, OnDestroy {
     { src: 'assets/lovable-uploads/MyAssets/Reviews/IMG_6715.PNG', alt: 'עדות לקוחה', width: 1320, height: 547 }
   ];
 
-  private reviewsNudgeObserver?: IntersectionObserver;
   private reelObserver?: IntersectionObserver;
-  private scrollListeners: Array<() => void> = [];
-  private rafIds: number[] = [];
+
   backToTopVisible = false;
   /**
    * The dock waits until the hero is behind you.
@@ -459,18 +596,24 @@ export class AppComponent implements AfterViewInit, OnDestroy {
   }
 
   ngAfterViewInit(): void {
+    this.zone.runOutsideAngular(() => {
+      this.pipeline = new ScrollPipeline();
+      this.pipeline.start();
+    });
     this.initScrollReveal();
     this.initHeaderGlass();
-    this.initHeaderTheme(); // NEW: Context-aware header theme
-    this.initBackToTop();
+    this.initHeaderTheme();
     this.initHeroParallax();
     this.initCursorGlow();
     this.initReelPlayback();
     this.initLivingPhotograph();
     this.initShootDayReveal();
     this.initLaptopBridge();
-    this.initSectionProgress();
     this.initEditorialDrift();
+    // Last on purpose: it is the one driver that re-enters Angular, so its
+    // change detection lands after every other write of the frame.
+    this.initBackToTop();
+    this.zone.runOutsideAngular(() => this.pipeline?.runNow());
     void this.loadPublishedReviews();
   }
 
@@ -544,40 +687,35 @@ export class AppComponent implements AfterViewInit, OnDestroy {
   // reveal animation can keep using the same transform without the two fighting.
   private initEditorialDrift(): void {
     const targets = Array.from(document.querySelectorAll<HTMLElement>('[data-drift]'));
-    if (targets.length === 0) return;
-
+    const pipeline = this.pipeline;
+    if (targets.length === 0 || !pipeline) return;
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-
     const MAX = 12; // px — the whole effect, start to finish
-
-    this.zone.runOutsideAngular(() => {
-      let ticking = false;
-
-      const update = () => {
-        const vh = window.innerHeight;
-        targets.forEach((el) => {
+    const pending: Array<string | null> = targets.map(() => null);
+    const last: string[] = targets.map(() => '');
+    pipeline.add({
+      read: (f) => {
+        const vh = f.vh;
+        targets.forEach((el, i) => {
           const rect = el.getBoundingClientRect();
-          if (rect.bottom < -200 || rect.top > vh + 200) return;
-          // -1 when the element is entering at the bottom, +1 when leaving at the top
+          if (rect.bottom < -200 || rect.top > vh + 200) {
+            pending[i] = null;
+            return;
+          }
           const progress = (vh / 2 - (rect.top + rect.height / 2)) / (vh / 2 + rect.height / 2);
           const strength = parseFloat(el.dataset['drift'] || '0.5');
           const offset = Math.max(-1, Math.min(1, progress)) * MAX * strength;
-          el.style.setProperty('--drift', `${offset.toFixed(2)}px`);
+          pending[i] = `${offset.toFixed(2)}px`;
         });
-        ticking = false;
-      };
-
-      const onScroll = () => {
-        if (ticking) return;
-        ticking = true;
-        const id = requestAnimationFrame(update);
-        this.rafIds.push(id);
-      };
-
-      update();
-      this.scrollListeners.push(onScroll);
-      window.addEventListener('scroll', onScroll, { passive: true });
-      window.addEventListener('resize', onScroll, { passive: true });
+      },
+      write: () => {
+        targets.forEach((el, i) => {
+          const v = pending[i];
+          if (v === null || v === last[i]) return;
+          last[i] = v;
+          el.style.setProperty('--drift', v);
+        });
+      },
     });
   }
 
@@ -646,58 +784,50 @@ export class AppComponent implements AfterViewInit, OnDestroy {
     // is simply put in place. It runs on a settle timer rather than per frame,
     // touches only the elements still waiting, and stops itself when the last
     // one has landed.
-    let settle: number | undefined;
+    const pipeline = this.pipeline;
+    if (!pipeline) return;
+    let off: () => void = () => undefined;
     const sweep = () => {
       const remaining = targets.filter((el) => !el.classList.contains('is-visible'));
       if (remaining.length === 0) {
-        window.removeEventListener('scroll', onScroll);
+        off();
         return;
       }
-      // ONLY WHAT HAS ALREADY GONE BY. Anything still inside the viewport when
-      // scrolling stops is intersecting, so the observer will report it and play
-      // its entrance properly - claiming those here would steal the animation
-      // from a slow, deliberate scroll, which is the case it exists for.
-      // An element whose top has passed above the viewport was missed outright.
-      remaining.forEach((el) => {
+      // Read every rect first, then change classes: the classes change
+      // transforms, and a rect read after that would flush style again.
+      const missed = remaining.filter((el) => {
         const r = el.getBoundingClientRect();
-        if (r.height > 0 && r.top < 0) {
-          el.classList.add('reveal-instant', 'is-visible');
-          this.observer?.unobserve(el);
-        }
+        return r.height > 0 && r.top < 0;
+      });
+      missed.forEach((el) => {
+        el.classList.add('reveal-instant', 'is-visible');
+        this.observer?.unobserve(el);
       });
     };
-    const onScroll = () => {
-      window.clearTimeout(settle);
-      settle = window.setTimeout(sweep, 140);
-    };
-    window.addEventListener('scroll', onScroll, { passive: true });
-    this.scrollListeners.push(onScroll);
+    off = pipeline.onSettle(sweep, 140);
   }
 
   // ─── Header glass — gradual 0→1 CSS var over first 80px of scroll ──────────
   // Smoother than a binary flip: header fades from transparent to glass linearly.
   private initHeaderGlass(): void {
-    const host = document.querySelector<HTMLElement>('app-root');
-    if (!host) return;
-
+    const header = document.querySelector<HTMLElement>('.site-header');
+    const pipeline = this.pipeline;
+    if (!header || !pipeline) return;
     const RAMP = 80; // px of scroll to go from 0 to 1
-    let rafPending = false;
-
-    const update = () => {
-      if (!rafPending) {
-        rafPending = true;
-        const id = requestAnimationFrame(() => {
-          const progress = Math.min(1, window.scrollY / RAMP);
-          host.style.setProperty('--scrolled', progress.toFixed(3));
-          rafPending = false;
-        });
-        this.rafIds.push(id);
-      }
-    };
-
-    update();
-    this.scrollListeners.push(update);
-    window.addEventListener('scroll', update, { passive: true });
+    // Written on the header itself, not on the host: the header is the only
+    // thing that reads --scrolled, and a custom property changed on the host
+    // invalidated the computed style of every element on the page, every
+    // frame. Written only when the value changes, so past the ramp - most of
+    // the page - nothing is written at all.
+    let last = '';
+    pipeline.add({
+      write: (f) => {
+        const progress = Math.min(1, f.y / RAMP).toFixed(3);
+        if (progress === last) return;
+        last = progress;
+        header.style.setProperty('--scrolled', progress);
+      },
+    });
   }
 
   // ─── Header context-aware theme switcher ──────────────────────────────────────
@@ -715,116 +845,90 @@ export class AppComponent implements AfterViewInit, OnDestroy {
   // simpler and exact, at any viewport height.
   private initHeaderTheme(): void {
     const header = document.querySelector<HTMLElement>('.site-header');
-    if (!header) return;
-
+    const pipeline = this.pipeline;
+    if (!header || !pipeline) return;
     const sections = Array.from(
       document.querySelectorAll<HTMLElement>('[data-header-theme]')
     );
     if (sections.length === 0) return;
-
-    const apply = () => {
-      // Probe just below the header so the theme reflects what it overlaps.
-      const probeY = header.getBoundingClientRect().bottom - 1;
-
-      let theme: 'light' | 'dark' | null = null;
-      for (const section of sections) {
-        const rect = section.getBoundingClientRect();
-        if (rect.top <= probeY && rect.bottom > probeY) {
-          theme = section.getAttribute('data-header-theme') as 'light' | 'dark';
-        }
-      }
-      // Above the first section (rubber-band scroll) keep the hero's theme.
-      if (!theme) {
-        theme = (sections[0].getAttribute('data-header-theme') as 'light' | 'dark') ?? 'dark';
-      }
-
-      if (theme !== this.currentHeaderTheme) {
-        this.currentHeaderTheme = theme;
-      }
-      // Always write it: on first paint the attribute does not exist yet, so a
-      // change-only guard would leave the header unthemed.
-      header.setAttribute('data-theme', theme);
-    };
-
-    this.zone.runOutsideAngular(() => {
-      let ticking = false;
-      const onScroll = () => {
-        if (ticking) return;
-        ticking = true;
-        const id = requestAnimationFrame(() => {
-          apply();
-          ticking = false;
+    type Sec = { el: HTMLElement; theme: 'light' | 'dark'; top: number; bottom: number; live: boolean };
+    // The header is fixed, so its probe line is scroll-invariant; the sections'
+    // document positions are cached and refreshed only when layout changes.
+    // The two chapters that are translated by a cinematic (--handoff-y) are
+    // "live" and re-read each frame, since a cached top would be wrong for
+    // them by up to a viewport.
+    let probe = 0;
+    let secs: Sec[] = [];
+    let written: string | null = null;
+    pipeline.add({
+      measure: (f) => {
+        probe = header.getBoundingClientRect().bottom - 1;
+        secs = sections.map((el) => {
+          const r = el.getBoundingClientRect();
+          return {
+            el,
+            theme: (el.getAttribute('data-header-theme') as 'light' | 'dark') ?? 'dark',
+            top: r.top + f.y,
+            bottom: r.bottom + f.y,
+            live: getComputedStyle(el).transform !== 'none',
+          };
         });
-        this.rafIds.push(id);
-      };
-
-      apply();
-      this.scrollListeners.push(onScroll);
-      window.addEventListener('scroll', onScroll, { passive: true });
-      window.addEventListener('resize', onScroll, { passive: true });
+      },
+      read: (f) => {
+        for (const s of secs) {
+          if (!s.live) continue;
+          const r = s.el.getBoundingClientRect();
+          s.top = r.top + f.y;
+          s.bottom = r.bottom + f.y;
+        }
+      },
+      write: (f) => {
+        const y = f.y + probe;
+        let theme: 'light' | 'dark' | null = null;
+        for (const s of secs) {
+          if (s.top <= y && s.bottom > y) theme = s.theme;
+        }
+        if (!theme) theme = secs[0]?.theme ?? 'dark';
+        if (theme !== this.currentHeaderTheme) this.currentHeaderTheme = theme;
+        if (theme === written) return;
+        written = theme;
+        header.setAttribute('data-theme', theme);
+      },
     });
   }
 
   // ─── Back to top ───────────────────────────────────────────────────────────
   private initBackToTop(): void {
-    // MARK FOR CHECK, or none of this reaches the DOM.
-    //
-    // This component is OnPush and the listener only assigned fields. Zone's
-    // patched scroll handler ticks change detection globally, but an OnPush view
-    // is skipped unless it has been marked dirty - so backToTopVisible has been
-    // flipping correctly and the button has never once appeared. Found while
-    // wiring the dock's own visibility onto the same signal.
-    const update = () => {
-      const top = window.scrollY;
-      const nextTop = top > 400;
-
-      // THE DOCK STANDS ASIDE WHILE YOU ARE READING FORWARD.
-      //
-      // It is a fixed element sitting over the middle of the reading column, so
-      // anything interactive that scrolls underneath it becomes untappable
-      // there. Probing elementFromPoint down the whole page found six positions
-      // where it genuinely swallowed a tap: the "let's start" link, two reel
-      // play buttons, a form field and two FAQ questions. A floating control
-      // that eats the controls beneath it is worse than no floating control.
-      //
-      // So it follows intent rather than position alone. Scrolling down is
-      // reading, and it gets out of the way; scrolling up is looking for
-      // something, which is exactly when a shortcut to her channels should be
-      // there. It still only exists past the hero, and it still never animates
-      // in on the first screen.
-      const goingUp = top < this.lastDockScroll - 4;
-      const goingDown = top > this.lastDockScroll + 4;
-      if (goingUp || goingDown) this.dockWantsShow = goingUp;
-      this.lastDockScroll = top;
-
-      // AND IT NEVER SHARES THE SCREEN WITH THE SIGNATURE.
-      //
-      // Reserving footer padding for the dock only protects the resting state.
-      // Scrolling up moves the footer DOWN, straight into the band the dock
-      // occupies - measured at 22-24px of overlap across 320/390/430, with the
-      // dock on top of the copyright. No fixed padding can cover that, because
-      // the distance depends on how far the visitor scrolled.
-      //
-      // So the dock stands down once the page has ended. Its job is quick access
-      // to her channels while reading; at the signature there is nothing left to
-      // read, and covering the one line that says whose site this is would be
-      // the worst place of all for it to appear.
-      const footerTop = this.footerEl
-        ? this.footerEl.getBoundingClientRect().top
-        : Number.POSITIVE_INFINITY;
-      const atTheEnd = footerTop < window.innerHeight;
-
-      const nextDock =
-        top > window.innerHeight * 0.72 && this.dockWantsShow && !atTheEnd;
-      if (nextTop === this.backToTopVisible && nextDock === this.socialDockVisible) return;
-      this.backToTopVisible = nextTop;
-      this.socialDockVisible = nextDock;
-      this.cdr.markForCheck();
-    };
+    const pipeline = this.pipeline;
+    if (!pipeline) return;
     this.footerEl = document.querySelector<HTMLElement>('.site-footer');
-    update();
-    this.scrollListeners.push(update);
-    window.addEventListener('scroll', update, { passive: true });
+    let footerDocTop = Number.POSITIVE_INFINITY;
+    pipeline.add({
+      measure: (f) => {
+        footerDocTop = this.footerEl
+          ? this.footerEl.getBoundingClientRect().top + f.y
+          : Number.POSITIVE_INFINITY;
+      },
+      write: (f) => {
+        const top = f.y;
+        const nextTop = top > 400;
+        const goingUp = top < this.lastDockScroll - 4;
+        const goingDown = top > this.lastDockScroll + 4;
+        if (goingUp || goingDown) this.dockWantsShow = goingUp;
+        this.lastDockScroll = top;
+        const footerTop = footerDocTop - top;
+        const atTheEnd = footerTop < f.vh;
+        const nextDock = top > f.vh * 0.72 && this.dockWantsShow && !atTheEnd;
+        if (nextTop === this.backToTopVisible && nextDock === this.socialDockVisible) return;
+        // The only place the frame re-enters Angular, and only when one of the
+        // two booleans the template binds actually flips.
+        this.zone.run(() => {
+          this.backToTopVisible = nextTop;
+          this.socialDockVisible = nextDock;
+          this.cdr.markForCheck();
+        });
+      },
+    });
   }
 
   // ─── Hero parallax ─────────────────────────────────────────────────────────
@@ -840,44 +944,24 @@ export class AppComponent implements AfterViewInit, OnDestroy {
     const hero = document.querySelector<HTMLElement>('.hero');
     const picture = document.querySelector<HTMLElement>('.hero-portrait-full picture');
     const exit = document.querySelector<HTMLElement>('.hero-exit');
-    if (!hero || !picture || !exit) return;
-
+    const pipeline = this.pipeline;
+    if (!hero || !picture || !exit || !pipeline) return;
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-
     const clamp01 = (v: number) => (v < 0 ? 0 : v > 1 ? 1 : v);
-
-    this.zone.runOutsideAngular(() => {
-      let ticking = false;
-
-      const update = () => {
-        ticking = false;
-        const h = hero.offsetHeight || window.innerHeight;
-        // Nothing to do once the hero is fully behind us.
-        if (window.scrollY > h * 1.2) return;
-
-        const p = clamp01(window.scrollY / h);
-
-        // The photograph closes in slowly and drifts up at less than scroll
-        // speed, so it lags the page and stays present under the strip.
+    let h = 0;
+    pipeline.add({
+      measure: (f) => {
+        h = hero.offsetHeight || f.vh;
+      },
+      write: (f) => {
+        if (f.y > h * 1.2) return;
+        const p = clamp01(f.y / h);
         picture.style.setProperty('--hero-depth', (1 + p * 0.07).toFixed(4));
         picture.style.setProperty('--hero-shift', `${(p * -22).toFixed(1)}px`);
-
-        // The words go first: gone by a third of the hero.
         const typeOut = clamp01(p / 0.34);
         exit.style.setProperty('--hero-type-y', `${(typeOut * -46).toFixed(1)}px`);
         exit.style.setProperty('--hero-type-o', (1 - typeOut).toFixed(3));
-      };
-
-      const onScroll = () => {
-        if (ticking) return;
-        ticking = true;
-        const id = requestAnimationFrame(update);
-        this.rafIds.push(id);
-      };
-
-      update();
-      window.addEventListener('scroll', onScroll, { passive: true });
-      this.scrollListeners.push(onScroll);
+      },
     });
   }
 
@@ -1303,19 +1387,17 @@ export class AppComponent implements AfterViewInit, OnDestroy {
     // keep the placement honest while the object is turning out of the picture.
 
 
+    const pipeline = this.pipeline;
+    if (!pipeline) return;
     this.zone.runOutsideAngular(() => {
-      let ticking = false;
-
-      const update = () => {
-        ticking = false;
-
-        const rect = stage.getBoundingClientRect();
-        const travel = rect.height - window.innerHeight;
+      let rect: DOMRect | null = null;
+      const update = (f: Frame) => {
+        if (!rect) return;
+        const travel = rect.height - f.vh;
         if (travel <= 0) return;
-
         const p = clamp01(-rect.top / travel);
-        const w = window.innerWidth;
-        const h = window.innerHeight;
+        const w = f.vw;
+        const h = f.vh;
 
         // THE CAMERA. One eased push-in, and nothing else moves: no pan, no
         // rotation, no reframing. The photograph already carries the laptop at
@@ -1557,18 +1639,13 @@ export class AppComponent implements AfterViewInit, OnDestroy {
         }
       };
 
-      const onScroll = () => {
-        if (ticking) return;
-        ticking = true;
-        const id = requestAnimationFrame(update);
-        this.rafIds.push(id);
-      };
-
-      update();
-      this.scrollListeners.push(onScroll);
-      window.addEventListener('scroll', onScroll, { passive: true });
-      window.addEventListener('resize', onScroll, { passive: true });
-      if (!baseImg.complete) baseImg.addEventListener('load', onScroll, { once: true });
+      pipeline.add({
+        read: () => {
+          rect = stage.getBoundingClientRect();
+        },
+        write: update,
+      });
+      if (!baseImg.complete) baseImg.addEventListener('load', () => pipeline.invalidate(), { once: true });
     });
   }
 
@@ -1584,23 +1661,20 @@ export class AppComponent implements AfterViewInit, OnDestroy {
   private initShootDayReveal(): void {
     const section = document.querySelector<HTMLElement>('#shoot-day');
     const details = Array.from(document.querySelectorAll<HTMLElement>('[data-shoot-reveal]'));
-    if (!section || details.length === 0) return;
-
+    const pipeline = this.pipeline;
+    if (!section || details.length === 0 || !pipeline) return;
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-
-    this.zone.runOutsideAngular(() => {
-      let ticking = false;
-
-      const update = () => {
-        ticking = false;
-        const rect = section.getBoundingClientRect();
-        const vh = window.innerHeight;
+    let rect: DOMRect | null = null;
+    pipeline.add({
+      read: () => {
+        rect = section.getBoundingClientRect();
+      },
+      write: (f) => {
+        if (!rect) return;
+        const vh = f.vh;
         if (rect.bottom < -100 || rect.top > vh + 100) return;
-
-        // 0 as the section arrives from below, 1 once it is settled in view.
         const raw = (vh - rect.top) / (vh + rect.height * 0.45);
         const p = raw < 0 ? 0 : raw > 1 ? 1 : raw;
-
         details.forEach((el) => {
           const order = parseFloat(el.dataset['shootReveal'] || '1');
           const start = 0.16 + order * 0.07;
@@ -1609,19 +1683,7 @@ export class AppComponent implements AfterViewInit, OnDestroy {
           el.style.setProperty('--shoot-y', `${((1 - eased) * 34).toFixed(2)}px`);
           el.style.setProperty('--shoot-o', (0.15 + eased * 0.85).toFixed(3));
         });
-      };
-
-      const onScroll = () => {
-        if (ticking) return;
-        ticking = true;
-        const id = requestAnimationFrame(update);
-        this.rafIds.push(id);
-      };
-
-      update();
-      this.scrollListeners.push(onScroll);
-      window.addEventListener('scroll', onScroll, { passive: true });
-      window.addEventListener('resize', onScroll, { passive: true });
+      },
     });
   }
 
@@ -1660,35 +1722,63 @@ export class AppComponent implements AfterViewInit, OnDestroy {
     // Projects a normalised source point onto the rendered element, honouring
     // object-fit / object-position. Without this the portal drifts away from her
     // hand at every viewport that crops the image differently.
-    const phonePoint = () => {
-      const r = img.getBoundingClientRect();
+    // THE PHONE'S POINT, MEASURED AT REST AND SCALED IN ARITHMETIC.
+    //
+    // This used to be read from the image's rect on every frame, immediately
+    // after the frame's scale had been written - a forced style flush per
+    // frame. The frame scales about its own centre, so every point of it moves
+    // as O + k(Q - O); the point on the phone is measured once, at whatever
+    // scale the frame happens to have, un-scaled to rest, and thereafter
+    // derived from k. Same numbers, no read after the write.
+    let ox = 0;
+    let oy = 0;
+    let p0x = 0;
+    let p0y = 0;
+    const measure = () => {
+      const sticky = portal.parentElement as HTMLElement;
+      const sr = sticky.getBoundingClientRect();
+      const fr = frame.getBoundingClientRect();
+      const ir = img.getBoundingClientRect();
+      const m = getComputedStyle(frame).transform;
+      let a = 1;
+      let d = 1;
+      let e = 0;
+      let f6 = 0;
+      if (m && m !== 'none' && m.startsWith('matrix(')) {
+        const v = m.slice(7, -1).split(',').map(Number);
+        if (v.length === 6 && v.every((n) => !isNaN(n))) {
+          a = v[0] || 1;
+          d = v[3] || 1;
+          e = v[4];
+          f6 = v[5];
+        }
+      }
+      ox = fr.left + fr.width / 2 - e - sr.left;
+      oy = fr.top + fr.height / 2 - f6 - sr.top;
+      const w0 = ir.width / a;
+      const h0 = ir.height / d;
+      const x0 = ox + (ir.left - sr.left - e - ox) / a;
+      const y0 = oy + (ir.top - sr.top - f6 - oy) / d;
       const nw = img.naturalWidth || 4201;
       const nh = img.naturalHeight || 2806;
       const cs = getComputedStyle(img);
-      let dw = r.width;
-      let dh = r.height;
+      let dw = w0;
+      let dh = h0;
       let offX = 0;
       let offY = 0;
-
       if (cs.objectFit === 'cover' || cs.objectFit === 'contain') {
-        const scale =
-          cs.objectFit === 'cover'
-            ? Math.max(r.width / nw, r.height / nh)
-            : Math.min(r.width / nw, r.height / nh);
-        dw = nw * scale;
-        dh = nh * scale;
+        const s0 =
+          cs.objectFit === 'cover' ? Math.max(w0 / nw, h0 / nh) : Math.min(w0 / nw, h0 / nh);
+        dw = nw * s0;
+        dh = nh * s0;
         const pos = cs.objectPosition.split(' ');
         const px = parseFloat(pos[0]) / 100;
         const py = parseFloat(pos[1] ?? pos[0]) / 100;
-        offX = (r.width - dw) * (isNaN(px) ? 0.5 : px);
-        offY = (r.height - dh) * (isNaN(py) ? 0.5 : py);
+        offX = (w0 - dw) * (isNaN(px) ? 0.5 : px);
+        offY = (h0 - dh) * (isNaN(py) ? 0.5 : py);
       }
-
-      const stickyRect = (portal.parentElement as HTMLElement).getBoundingClientRect();
-      return {
-        x: r.left - stickyRect.left + offX + PHONE_U * dw,
-        y: r.top - stickyRect.top + offY + PHONE_V * dh
-      };
+      p0x = x0 + offX + PHONE_U * dw;
+      p0y = y0 + offY + PHONE_V * dh;
     };
 
     const clamp01 = (v: number) => (v < 0 ? 0 : v > 1 ? 1 : v);
@@ -1696,24 +1786,19 @@ export class AppComponent implements AfterViewInit, OnDestroy {
     // move can own its own slice of the scroll.
     const track = (v: number, a: number, b: number) => clamp01((v - a) / (b - a));
 
+    const pipeline = this.pipeline;
+    if (!pipeline) return;
     this.zone.runOutsideAngular(() => {
-      let ticking = false;
-
-      const update = () => {
-        ticking = false;
-        const rect = stage.getBoundingClientRect();
-        const travel = rect.height - window.innerHeight;
+      let rect: DOMRect | null = null;
+      const update = (f: Frame) => {
+        if (!rect) return;
+        const travel = rect.height - f.vh;
         if (travel <= 0) return;
-
         const p = clamp01(-rect.top / travel);
-
-        // She stays calm: the photograph barely moves. All the motion the eye
-        // reads belongs to the object, which is the whole point of the illusion.
-        frame.style.transform = `scale(${(1 + 0.05 * track(p, 0.04, 1)).toFixed(4)})`;
-
-        const pt = phonePoint();
-        portal.style.setProperty('--portal-x', `${pt.x.toFixed(1)}px`);
-        portal.style.setProperty('--portal-y', `${pt.y.toFixed(1)}px`);
+        const k = parseFloat((1 + 0.05 * track(p, 0.04, 1)).toFixed(4));
+        frame.style.transform = `scale(${k.toFixed(4)})`;
+        portal.style.setProperty('--portal-x', `${(ox + k * (p0x - ox)).toFixed(1)}px`);
+        portal.style.setProperty('--portal-y', `${(oy + k * (p0y - oy)).toFixed(1)}px`);
 
         // The portal appears in her hand, grows slowly while it still reads as a
         // phone, then accelerates once it is clearly a doorway rather than an
@@ -1815,23 +1900,18 @@ export class AppComponent implements AfterViewInit, OnDestroy {
         if (next) {
           const reveal = track(p, 0.40, 0.88);
           const eased = reveal * reveal * (3 - 2 * reveal);
-          next.style.setProperty('--handoff-y', `${((1 - eased) * HANDOFF_VH * window.innerHeight / 100).toFixed(1)}px`);
+          next.style.setProperty('--handoff-y', `${((1 - eased) * HANDOFF_VH * f.vh / 100).toFixed(1)}px`);
         }
       };
 
-      const onScroll = () => {
-        if (ticking) return;
-        ticking = true;
-        const id = requestAnimationFrame(update);
-        this.rafIds.push(id);
-      };
-
-      update();
-      this.scrollListeners.push(onScroll);
-      window.addEventListener('scroll', onScroll, { passive: true });
-      window.addEventListener('resize', onScroll, { passive: true });
-      // Geometry depends on the image's real size, so recompute once it lands.
-      if (!img.complete) img.addEventListener('load', onScroll, { once: true });
+      pipeline.add({
+        measure,
+        read: () => {
+          rect = stage.getBoundingClientRect();
+        },
+        write: update,
+      });
+      if (!img.complete) img.addEventListener('load', () => pipeline.invalidate(), { once: true });
     });
   }
 
@@ -1852,7 +1932,9 @@ export class AppComponent implements AfterViewInit, OnDestroy {
   // holds position, and any position in a seamless loop still shows content.
   private initReelPlayback(): void {
     const tracks = Array.from(
-      document.querySelectorAll<HTMLElement>('.portfolio-reel-track, .results-rail')
+      document.querySelectorAll<HTMLElement>(
+        '.portfolio-reel-track, .results-rail, .reviews-rail, .statement-track, .brand-track'
+      )
     );
     if (tracks.length === 0) return;
 
@@ -1875,26 +1957,6 @@ export class AppComponent implements AfterViewInit, OnDestroy {
 
 
   // ─── Section ambient indicator ────────────────────────────────────────────
-  private initSectionProgress(): void {
-    const host = document.querySelector<HTMLElement>('app-root');
-    if (!host) return;
-
-    const darkSections = new Set(['contact', 'portfolio', 'honesty']);
-
-    const obs = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            const id = (entry.target as HTMLElement).id;
-            host.classList.toggle('in-dark-section', darkSections.has(id));
-          }
-        });
-      },
-      { threshold: 0.4 }
-    );
-
-    document.querySelectorAll<HTMLElement>('section[id]').forEach((s) => obs.observe(s));
-  }
 
 
   scrollToTop(): void {
@@ -1903,13 +1965,8 @@ export class AppComponent implements AfterViewInit, OnDestroy {
 
   ngOnDestroy(): void {
     this.observer?.disconnect();
-    this.headerThemeObserver?.disconnect();
-    this.reviewsNudgeObserver?.disconnect();
     this.reelObserver?.disconnect();
-    this.rafIds.forEach((id) => cancelAnimationFrame(id));
-    this.scrollListeners.forEach((fn) => {
-      window.removeEventListener('scroll', fn);
-      window.removeEventListener('resize', fn);
-    });
+    this.pipeline?.destroy();
+    this.clearReelFocus();
   }
 }

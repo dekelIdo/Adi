@@ -1093,6 +1093,10 @@ select {
   display: flex;
   width: max-content;
   animation: marquee 36s linear infinite;
+
+  &.is-idle {
+    animation-play-state: paused;
+  }
 }
 
 .statement-set {
@@ -1207,6 +1211,10 @@ select {
   width: max-content;
   will-change: transform;
   animation: brandScroll 28s linear infinite;
+
+  &.is-idle {
+    animation-play-state: paused;
+  }
 
   @media (prefers-reduced-motion: reduce) {
     animation: none;
@@ -1920,7 +1928,10 @@ div[id] {
 .split-stack {
   display: flex;
   flex-direction: column;
-  gap: var(--space-md);
+  // No gap: the lists beneath the photograph own their own distance to it.
+  // With a gap here, a margin on the lists and padding inside them, the
+  // photograph-to-heading distance was three --space-md stacked (50px).
+  gap: 0;
 }
 
 // Duo cards (positive/negative comparison)
@@ -1945,7 +1956,6 @@ div[id] {
 // repeated, becomes punctuation rather than decoration.
 
 .section-title,
-.about-intro,
 .why-headline,
 .services-headline,
 .portfolio-headline,
@@ -1963,7 +1973,6 @@ div[id] {
 
 .reveal.is-visible .section-title::after,
 .section-title.reveal.is-visible::after,
-.about-intro.reveal.is-visible::after,
 .why-headline.reveal.is-visible::after,
 .services-headline.reveal.is-visible::after,
 .portfolio-headline.reveal.is-visible::after,
@@ -2064,7 +2073,9 @@ div[id] {
 .duo-cards {
   display: grid;
   gap: 0;
-  margin-top: var(--space-md);
+  // The rule sits close under the photograph, as a caption rule does; the
+  // heading then follows at the card's own padding. One value, not three.
+  margin-top: var(--flow-tight);
   border-top: 1px solid var(--rule-strong);
   border-bottom: 1px solid var(--rule-strong);
 }
@@ -5633,6 +5644,15 @@ div[id] {
     // fading in. Paired with the page's existing drift, nothing else moves.
     transform: translate3d(0, var(--drift, 0px), 0) scale(var(--plate-scale, 1.06));
     transition: transform 1600ms var(--ease-expo);
+
+    // Same split as the editorial pictures: the per-frame drift must not restart
+    // the 1600ms settle.
+    @supports (translate: 0 0) and (scale: 1) {
+      translate: 0 var(--drift, 0px);
+      scale: var(--plate-scale, 1.06);
+      transform: translateZ(0);
+      transition: scale 1600ms var(--ease-expo);
+    }
   }
 
   &.is-visible img {
@@ -5740,6 +5760,13 @@ div[id] {
   }
 }
 
+// The studio frame is scaled by its scroll driver from the first frame, so the
+// reveal's transform half never showed; what it did do was restart a 520ms
+// transition every frame the chapter was on screen. Opacity keeps its entrance.
+.action-frame.reveal {
+  transition: opacity 520ms var(--ease-expo);
+}
+
 // ARRIVED-LATE ELEMENTS DO NOT ANIMATE.
 //
 // Set by the reveal observer when an element is already well inside the viewport
@@ -5835,6 +5862,17 @@ div[id] {
   --drift-scale: 1.045;
   transform: translate3d(0, var(--drift, 0px), 0) scale(var(--drift-scale, 1));
   transition: transform 1100ms var(--ease-expo);
+
+  // The drift is rewritten every frame the picture is on screen; with it inside
+  // `transform`, every frame restarted the 1100ms entrance transition. On the
+  // individual properties the entrance scale transitions alone and the drift
+  // translate does not. Same matrix - translate then scale - same pixels.
+  @supports (translate: 0 0) and (scale: 1) {
+    translate: 0 var(--drift, 0px);
+    scale: var(--drift-scale, 1);
+    transform: translateZ(0);
+    transition: scale 1100ms var(--ease-expo);
+  }
 }
 
 .editorial-img.reveal.is-visible img,
@@ -5971,12 +6009,14 @@ div[id] {
     --sec-tight: clamp(18px, 2.8vh, 24px);
     --sec-base: clamp(26px, 3.8vh, 34px);
     --sec-open: clamp(34px, 5vh, 46px);
+    // Text <-> picture inside one composition, at phone scale. One value for
+    // every such boundary: the solution photograph to its heading, the about
+    // copy to its photograph, a paragraph to the tag row beneath it.
+    --flow-media: clamp(20px, 3.2vh, 30px);
   }
 
   // Default opening.
-  .section-problem,
   .section-bg-tint,
-  .section-bg-blue,
   .section-process,
   .section-services-editorial,
   .section-why-merged,
@@ -5984,9 +6024,28 @@ div[id] {
     padding-block: var(--sec-base);
   }
 
-  // New movements: the chapter where she appears, the work, the shoot, the
-  // close. These earn the extra air.
-  .section-bg-gradient,
+  // AN EDGE THAT MEETS A PHOTOGRAPH IS TIGHT. The shoot chapter already made
+  // this argument for its own opening: air in front of a picture delays it
+  // rather than framing it. The same is true of every seam on the page where
+  // a picture sits on one side - the logo strip into the problem list, the
+  // list's last rule into the dark plate, the lists into the solution
+  // photograph, the tag row into the full-bleed plate, the plate into the
+  // about heading. Each of these measured a base or open tier and read as a
+  // hole between a picture and the words that belong to it.
+  .section-problem,
+  .section-bg-blue {
+    padding-block: var(--sec-tight);
+  }
+
+  #insight {
+    padding-block: var(--sec-base) var(--sec-tight);
+  }
+
+  .section-bg-gradient {
+    padding-block: var(--sec-tight) var(--sec-open);
+  }
+
+  // New movements: the work, the close. These earn the extra air.
   .section-portfolio,
   .section-contact {
     padding-block: var(--sec-open);
@@ -6152,6 +6211,14 @@ div[id] {
       gap: var(--space-md);
     }
 
+    // Picture over heading, one composition: the media distance, the same one
+    // the about copy keeps to its photograph. At --space-md it was the
+    // tightest boundary on the page while its neighbours ran at 34 and 45.
+    .solution-wrap,
+    .split-grid {
+      row-gap: var(--flow-media);
+    }
+
     // Same shape as .section-intro-split below: these two are a heading column
     // and the lead paragraph that belongs to it. Stacked, the shared gap was
     // being added to the heading's own margin, so the one relationship that
@@ -6206,7 +6273,7 @@ div[id] {
       // not holding it back.
       max-width: calc(100% + var(--container-padding));
       margin: 0;
-      margin-block-start: clamp(18px, 3vh, 26px);
+      margin-block-start: var(--flow-media);
       margin-inline-end: calc(-1 * var(--container-padding));
       margin-inline-start: clamp(28px, 12vw, 64px);
       border-start-end-radius: 0;
