@@ -678,10 +678,18 @@ export class AppComponent implements AfterViewInit, OnDestroy {
     this.initHeroParallax();
     this.initCursorGlow();
     this.initReelPlayback();
-    this.initLivingPhotograph();
-    this.initShootDayReveal();
-    this.initLaptopBridge();
-    this.initEditorialDrift();
+    // FROM 768px THE PAGE IS A DIFFERENT COMPOSITION. The studio and laptop
+    // cinematics, the shoot-day reveal and the editorial drift are phone
+    // choreography; on tablet and desktop the same photographs are laid out
+    // statically by the stylesheet, so their drivers are simply not started.
+    // Below 768px nothing here changes: the same four calls, in the same order.
+    const wide = window.matchMedia('(min-width: 768px)').matches;
+    if (!wide) {
+      this.initLivingPhotograph();
+      this.initShootDayReveal();
+      this.initLaptopBridge();
+      this.initEditorialDrift();
+    }
     // Last on purpose: it is the one driver that re-enters Angular, so its
     // change detection lands after every other write of the frame.
     this.initBackToTop();

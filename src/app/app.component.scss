@@ -7298,6 +7298,293 @@ div[id] {
   }
 }
 
+// ═══════════════════════════════════════════════════════════════════════════════
+// TABLET AND DESKTOP: ONE COMPOSED PAGE, NOT A WIDE PHONE.
+//
+// Everything below is min-width only. The phone (under 768px) keeps every rule
+// it has. From 768px the page stops behaving like a phone: the two scroll
+// cinematics become still photographs set in the column, the reels become
+// grids, the scroll-driven opacities and drifts rest at their final values,
+// and nothing is held on a compositor layer for motion that no longer runs.
+// ═══════════════════════════════════════════════════════════════════════════════
+@media (min-width: 768px) {
+  :host {
+    --grid-gap: clamp(18px, 2.4vw, 32px);
+    --band-radius: var(--r-media);
+  }
+
+  // ── THE LAPTOP CHAPTER: a still, not a stage ────────────────────────────────
+  // The plate photograph (Adi holding the laptop) sits in the column as one
+  // wide picture between the about chapter and the process. No sticky, no
+  // 145vh of travel, no clip, no portal.
+  .section-bridge,
+  .section-bridge.is-cinematic {
+    margin: 0;
+    padding-block: var(--sec-base) 0;
+  }
+
+  .section-bridge .bridge-stage,
+  .section-bridge.is-cinematic .bridge-stage {
+    position: static;
+    height: auto;
+  }
+
+  .section-bridge .bridge-sticky,
+  .section-bridge.is-cinematic .bridge-sticky {
+    position: static;
+    height: auto;
+    overflow: visible;
+    background: none;
+  }
+
+  .section-bridge .bridge-scene,
+  .section-bridge.is-cinematic .bridge-scene {
+    position: relative;
+    inset: auto;
+    width: min(100% - 2 * var(--container-padding), var(--container-max));
+    height: auto;
+    margin-inline: auto;
+    transform: none !important;
+    will-change: auto;
+  }
+
+  .section-bridge .bridge-base,
+  .section-bridge.is-cinematic .bridge-base {
+    position: static;
+    display: block;
+    width: 100%;
+    height: auto;
+    transform: none !important;
+    filter: none !important;
+    opacity: 1 !important;
+    clip-path: none !important;
+    border-radius: var(--band-radius);
+    overflow: hidden;
+
+    // A portrait plate in a wide band lost her head. Held to a narrower,
+    // taller window - about 1.4:1, centred in the column - the crop keeps
+    // her face and the laptop together.
+    max-width: 880px;
+    margin-inline: auto;
+
+    img {
+      width: 100%;
+      height: clamp(440px, 44vw, 620px);
+      object-fit: cover;
+      object-position: 50% 12%;
+    }
+  }
+
+  .section-bridge .laptop-layer,
+  .section-bridge .bridge-frame--b,
+  .section-bridge .laptop-portal,
+  .section-bridge .bridge-veil {
+    display: none !important;
+  }
+
+  .section-process {
+    transform: none !important;
+  }
+
+  // ── THE STUDIO CHAPTER: a still, not a stage ────────────────────────────────
+  .section-action {
+    margin-bottom: 0;
+  }
+
+  .action-stage {
+    height: auto;
+  }
+
+  .action-sticky {
+    position: static;
+    height: auto;
+    overflow: visible;
+    display: block;
+    background: none;
+    padding-block: var(--sec-base) var(--sec-open);
+
+    &::before {
+      display: none;
+    }
+  }
+
+  .action-frame {
+    width: min(100% - 2 * var(--container-padding), var(--container-max));
+    margin-inline: auto;
+    transform: none !important;
+    will-change: auto;
+    border-radius: var(--band-radius);
+    overflow: hidden;
+
+    img {
+      height: clamp(380px, 48vw, 660px);
+      object-fit: cover;
+      object-position: 50% 42%;
+    }
+  }
+
+  .action-portal {
+    display: none !important;
+  }
+
+  .section-portfolio {
+    transform: none !important;
+    will-change: auto;
+  }
+
+  // ── REELS BECOME GRIDS ──────────────────────────────────────────────────────
+  .portfolio-reel-outer,
+  .results-outer,
+  .reviews-outer {
+    overflow: visible;
+    -webkit-mask-image: none;
+    mask-image: none;
+  }
+
+  .portfolio-reel-track,
+  .results-rail,
+  .reviews-rail {
+    display: grid;
+    width: min(100% - 2 * var(--container-padding), var(--container-max));
+    margin-inline: auto;
+    gap: var(--grid-gap);
+    animation: none !important;
+    transform: none !important;
+    will-change: auto;
+  }
+
+  .portfolio-reel-track {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .results-rail {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .reviews-rail {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    align-items: start;
+  }
+
+  .reel-card,
+  .result-card,
+  .review-card {
+    width: auto !important;
+    max-width: none;
+    margin-inline-end: 0;
+    transform: none;
+  }
+
+  // The second, echo set only exists to make a reel seamless.
+  .reel-card[aria-hidden="true"],
+  .result-card[aria-hidden="true"],
+  .review-card--echo {
+    display: none;
+  }
+
+  // One ratio across the work grid, whatever the reel used to allow each card.
+  .reel-card .reel-frame-inner {
+    padding-bottom: 125%;
+  }
+
+  .review-card--scatter-1,
+  .review-card--scatter-2,
+  .review-card--scatter-3 {
+    transform: none;
+  }
+
+  // ── SCROLL-DRIVEN VALUES REST AT THEIR FINAL STATE ──────────────────────────
+  [data-shoot-reveal] {
+    --shoot-o: 1;
+    --shoot-y: 0px;
+    will-change: auto;
+  }
+
+  [data-drift],
+  [data-drift] img {
+    --drift: 0px;
+    will-change: auto;
+  }
+
+  .shoot-frame,
+  .contact-img,
+  .editorial-img,
+  .laptop-place,
+  .laptop-card,
+  .laptop-layer,
+  .bridge-frame--b,
+  .laptop-portal,
+  .action-portal,
+  .hero-exit {
+    will-change: auto;
+  }
+
+  // ── TABLET COMPOSITION (768-1023) ───────────────────────────────────────────
+  .shoot-proof {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: var(--grid-gap);
+  }
+
+  .faq-list {
+    max-width: none;
+  }
+}
+
+@media (min-width: 1024px) {
+  // ── THE WORK: four across, one ratio, on the container ─────────────────────
+  .portfolio-reel-track {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+
+  .portfolio-reel-outer {
+    padding-block: var(--space-md) var(--space-lg);
+  }
+
+  // ── FAQ: the question in one column, the answers in the other ──────────────
+  #faq > .container {
+    display: grid;
+    grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
+    column-gap: clamp(48px, 6vw, 110px);
+    align-items: start;
+  }
+
+  #faq .section-intro-split {
+    grid-template-columns: minmax(0, 1fr);
+    row-gap: var(--flow-open);
+    position: sticky;
+    top: clamp(104px, 14vh, 136px);
+    margin: 0;
+  }
+
+  #faq .faq-list {
+    max-width: none;
+    margin: 0;
+  }
+
+  // ── THE SHOOT: the two details level with each other ───────────────────────
+  .shoot-proof {
+    grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
+  }
+
+  // ── THE STILLS SIT A LITTLE TALLER ON A REAL DESKTOP ───────────────────────
+  .section-bridge .bridge-base img,
+  .section-bridge.is-cinematic .bridge-base img {
+    height: clamp(520px, 43vw, 620px);
+  }
+
+  .action-frame img {
+    height: clamp(480px, 46vw, 700px);
+  }
+}
+
+@media (min-width: 1440px) {
+  .portfolio-reel-track,
+  .results-rail,
+  .reviews-rail {
+    gap: clamp(24px, 2vw, 36px);
+  }
+}
+
 @media print {
   .site-header,
   .back-to-top,
