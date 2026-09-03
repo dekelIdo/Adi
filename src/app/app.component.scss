@@ -6745,9 +6745,11 @@ div[id] {
   // PROCESS. Same figure as the problem: heading right and held, steps left.
   // The closing note follows the steps in their column rather than dropping
   // under the heading, which is where the grid would otherwise auto-place it.
+  // The same figure as the problem section, and for the same reason: at 1024
+  // a narrower heading column broke "אז איך נראה התהליך איתי?" into three lines.
   #process > .container {
     display: grid;
-    grid-template-columns: minmax(0, 1fr) minmax(0, 1.5fr);
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.2fr);
     column-gap: clamp(48px, 6vw, 110px);
     align-items: start;
   }
