@@ -295,6 +295,100 @@ select {
   }
 }
 
+// THE LOGO LIGHT. Two inert spans inside the logo link: a flashlight body to
+// the left of the mark, pointing right, and a soft cone of light from its head
+// to the mark. Both are absent (opacity 0) until the header is in its dark
+// state, so nothing can flash on load; they add no size to the link, take no
+// pointer events and no focus.
+.logo-light,
+.logo-beam {
+  position: absolute;
+  top: 50%;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 220ms var(--ease-smooth);
+}
+
+// The body: a short graphite cylinder with a slightly wider head on the right
+// and one metallic pale-blue edge along its top.
+.logo-light {
+  --fl-len: clamp(18px, 5.2vw, 22px);
+  --fl-gap: clamp(5px, 1.6vw, 8px);
+  // RTL: inline-start is the right edge, so 100% + gap from it is the left side of the mark.
+  inset-inline-start: calc(100% + var(--fl-gap));
+  width: var(--fl-len);
+  height: 8px;
+  transform: translateY(-50%);
+  border-radius: 4px 2px 2px 4px;
+  background: linear-gradient(180deg, #4a4d52 0%, #24262a 55%, #17181b 100%);
+  box-shadow: 0 1px 0 rgba(196, 217, 240, 0.55) inset, 0 1px 2px rgba(0, 0, 0, 0.5);
+
+  &::before {
+    // the head: a touch taller, seated on the right end
+    content: '';
+    position: absolute;
+    right: -2px;
+    top: -1.5px;
+    width: 6px;
+    height: 11px;
+    border-radius: 2px 3px 3px 2px;
+    background: linear-gradient(180deg, #5a5e64, #1c1d20);
+    box-shadow: 0 1px 0 rgba(196, 217, 240, 0.6) inset;
+  }
+
+  &::after {
+    // the lens: a warm point of light on the head's face
+    content: '';
+    position: absolute;
+    right: -3px;
+    top: 50%;
+    width: 3px;
+    height: 7px;
+    transform: translateY(-50%);
+    border-radius: 2px;
+    background: rgba(255, 244, 220, 0.95);
+    box-shadow: 0 0 4px 1px rgba(255, 240, 210, 0.7);
+  }
+}
+
+// The beam: from the head to the mark, widening gently to the right, edges
+// blurred so there is no hard triangle. Ends at the mark's centre.
+.logo-beam {
+  inset-inline-start: 50%;
+  width: calc(50% + clamp(5px, 1.6vw, 8px) + 3px);
+  height: 34px;
+  transform: translateY(-50%);
+  z-index: 1;
+  background: linear-gradient(
+    to right,
+    rgba(255, 246, 228, 0.55) 0%,
+    rgba(240, 240, 236, 0.32) 45%,
+    rgba(196, 217, 240, 0.12) 80%,
+    rgba(196, 217, 240, 0) 100%
+  );
+  clip-path: polygon(0 44%, 100% 0, 100% 100%, 0 56%);
+  filter: blur(2.5px);
+}
+
+.site-header[data-theme="dark"] {
+  .logo-light,
+  .logo-beam {
+    opacity: 1;
+  }
+
+  // The mark, lit from its left: a mild lift and a localised warm glow on that
+  // side. Shape and text untouched; the light state has none of this.
+  .logo-frame {
+    box-shadow:
+      -6px 0 14px -2px rgba(255, 244, 222, 0.42),
+      -1px 0 0 rgba(255, 246, 230, 0.35) inset;
+
+    img {
+      filter: brightness(1.12);
+    }
+  }
+}
+
 .logo-frame {
   width: clamp(38px, 4.2vw, 44px);
   height: clamp(38px, 4.2vw, 44px);
@@ -306,12 +400,13 @@ select {
   overflow: hidden;
   background: none;
   box-shadow: none;
-  transition: border-color 320ms var(--ease-smooth);
+  transition: border-color 320ms var(--ease-smooth), box-shadow 220ms var(--ease-smooth);
 
   img {
     width: 100%;
     height: 100%;
     object-fit: cover;
+    transition: filter 220ms var(--ease-smooth);
   }
 }
 
