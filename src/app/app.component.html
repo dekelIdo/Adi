@@ -1054,6 +1054,10 @@
                  happened, in a live region that also receives focus. The
                  fourth, hidden field is a honeypot: no person ever fills it. -->
             <form class="contact-form reveal delay-2" (submit)="submitLead($event)" novalidate>
+              <div class="contact-card-intro">
+                <p class="contact-card-label">בואו נדבר</p>
+                <p class="contact-card-lead">משאירים פרטים ואני חוזרת אליכם אישית.</p>
+              </div>
               <label>
                 <span>שם מלא</span>
                 <input
@@ -1114,6 +1118,7 @@
                 {{ leadState === 'sending' ? 'שולחת את הפרטים...' : 'השאירו פרטים' }}
               </button>
               <p class="contact-consent">בלחיצה על שליחה אני מאשר/ת שימוש בפרטים לצורך יצירת קשר.</p>
+              <p class="contact-trust" aria-hidden="true">ללא התחייבות • הפרטים נשארים פרטיים</p>
               <div class="contact-result" #leadResult tabindex="-1">
                 <p class="contact-result__ok" role="status" aria-live="polite">
                   @if (leadState === 'sent') { הפרטים התקבלו בהצלחה — אחזור אליכם בהקדם 💙 }
