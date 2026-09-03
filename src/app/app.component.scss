@@ -313,7 +313,7 @@ select {
 // and one metallic pale-blue edge along its top.
 .logo-light {
   --fl-len: clamp(18px, 5.2vw, 22px);
-  --fl-gap: clamp(9px, 2.5vw, 12px);
+  --fl-gap: clamp(12px, 3.3vw, 16px);
   // RTL: inline-start is the right edge, so 100% + gap from it is the left side of the mark.
   inset-inline-start: calc(100% + var(--fl-gap));
   width: var(--fl-len);
@@ -355,8 +355,8 @@ select {
 // blurred so there is no hard triangle. Ends at the mark's centre.
 .logo-beam {
   inset-inline-start: 50%;
-  width: calc(50% + clamp(9px, 2.5vw, 12px) + 3px);
-  height: 34px;
+  width: calc(50% + clamp(12px, 3.3vw, 16px) + 3px);
+  height: 26px;
   transform: translateY(-50%);
   z-index: 1;
   background: linear-gradient(
@@ -383,15 +383,10 @@ select {
       -6px 0 14px -2px rgba(255, 244, 222, 0.42),
       -1px 0 0 rgba(255, 246, 230, 0.35) inset;
 
-    .logo-img--light { opacity: 0; }
-    .logo-img--dark { opacity: 1; }
-
-    // A horizontal wordmark needs a wider window: the frame becomes a pill of
-    // the same 38px height, so the header keeps its height and the complete
-    // lettering stays uncropped (object-fit: contain).
-    width: clamp(64px, 18vw, 78px);
-    height: 38px;
-    border-radius: 999px;
+    // The only difference in the dark header: the same mark, in white.
+    img {
+      filter: brightness(0) invert(1);
+    }
   }
 }
 
@@ -406,24 +401,19 @@ select {
   overflow: hidden;
   background: none;
   box-shadow: none;
-  transition: border-color 320ms var(--ease-smooth), box-shadow 220ms var(--ease-smooth), width 200ms var(--ease-smooth), border-radius 200ms var(--ease-smooth);
+  transition: border-color 320ms var(--ease-smooth), box-shadow 220ms var(--ease-smooth);
 
-  position: relative;
-
-  // Two marks in one frame, layered; only one is ever visible. The original
-  // stays for the light header; the dark-mode lettering takes its place when
-  // the header is dark, by opacity alone, so nothing moves or resizes.
-  .logo-img {
-    position: absolute;
-    inset: 0;
+  img {
     width: 100%;
     height: 100%;
-    object-fit: contain;
-    transition: opacity 200ms var(--ease-smooth);
+    object-fit: cover;
+    transition: filter 220ms var(--ease-smooth);
   }
+}
 
-  .logo-img--light { opacity: 1; }
-  .logo-img--dark { opacity: 0; }
+// The light header shows the mark exactly as it is.
+.site-header:not([data-theme="dark"]) .logo-frame img {
+  filter: none;
 }
 
 .site-header .header-cta,
