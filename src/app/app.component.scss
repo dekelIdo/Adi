@@ -781,13 +781,13 @@ select {
     pointer-events: none;
     inset-block-start: clamp(46px, 14vw, 78px);
     inset-inline-start: clamp(4px, 2vw, 12px);
-    width: clamp(180px, 58vw, 250px);
-    height: clamp(120px, 34vw, 160px);
+    width: clamp(212px, 68vw, 294px);
+    height: clamp(142px, 40vw, 188px);
     transform: rotate(-9deg);
     transform-origin: 100% 40%;
     background: radial-gradient(
       ellipse 70% 55% at 88% 42%,
-      rgba(255, 239, 212, 0.62) 0%,
+      rgba(255, 239, 212, 0.68) 0%,
       rgba(255, 239, 212, 0.34) 32%,
       rgba(255, 239, 212, 0.12) 58%,
       rgba(255, 239, 212, 0) 78%
@@ -801,13 +801,17 @@ select {
     display: block;
     position: absolute;
     z-index: 3;
-    inset-block-start: clamp(54px, 17vw, 84px);
+    inset-block-start: clamp(60px, 19vw, 92px);
     // Measured: the head crosses the picture's edge by 10-18px across 320-430.
-    inset-inline-start: clamp(2px, 0.8vw, 4px);
-    width: clamp(64px, 19vw, 78px);
-    height: auto;
+    // Full-size equipment, not an icon: the height sets the scale (about
+    // 328px at 390, a lamp head of ~85px) and the width follows the file.
+    // Sat a touch past the container edge so the larger head crosses the
+    // picture by ~18-22px while body and stand stay on the paper.
+    inset-inline-start: calc(-1 * clamp(6px, 2.2vw, 9px));
+    height: clamp(300px, 84vw, 360px);
+    width: auto;
     max-width: none;
-    object-fit: unset;
+    object-fit: contain;
     filter: none;
     transition: none;
     pointer-events: none;
