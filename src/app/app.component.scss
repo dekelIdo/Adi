@@ -619,6 +619,114 @@ select {
   }
 }
 
+// ─────── MOBILE VISUAL INSTALLATION: STUDIO LIGHT + LENS PORTAL ───────────────
+//
+// Two supplied transparent PNGs, one continuous story, phone only. Both are
+// absent by default and switched on beneath 700px, the width up to which the
+// about chapter is the single-column composition they were designed against.
+// From 700px the about layout becomes two columns and from 1024 a different
+// composition again; neither is touched. Everything here lives in this block.
+.about-softbox,
+.about-portal {
+  display: none;
+}
+
+@media (max-width: 699.98px) {
+  // The layout is the stage: the portrait, the light and the portal stack in
+  // an explicit local order inside it, and the section (already overflow:
+  // clip on the phone) keeps the bleed off the document width. The header,
+  // the dock and every control are fixed above this stacking context.
+  .about-layout {
+    position: relative;
+    isolation: isolate;
+  }
+
+  .about-layout .about-photo-wrap {
+    position: relative;
+    z-index: 1;
+  }
+
+  // THE SOFTBOX. Anchored to the bottom of the portrait so the head sits level
+  // with its upper third and the beam falls across the picture's centre; on
+  // the right, pulled past the container and the screen edge so the head
+  // enters partly cut, the way a light stands just outside a frame. The face
+  // in the portrait is left of centre; the equipment reaches only the
+  // picture's far-right margin, and only the beam crosses her.
+  .about-softbox {
+    display: block;
+    position: absolute;
+    z-index: 2;
+    inset-block-end: clamp(-18px, -4vw, -10px);
+    inset-inline-start: calc(-1 * var(--container-padding) - 9vw);
+    width: clamp(215px, 74vw, 300px);
+    height: auto;
+    aspect-ratio: 2 / 3;
+    pointer-events: none;
+    user-select: none;
+    -webkit-user-select: none;
+    animation: softboxBreath 6s ease-in-out infinite;
+  }
+
+  // THE PORTAL. A block of its own between the portrait and the story, so its
+  // height is reserved before the picture arrives. Set to the right with the
+  // camera bleeding a little past the screen edge; the light trail curves
+  // back into the page. Its top rides over the portrait's lower edge on the
+  // right, where the picture is table and plates, never text.
+  .about-portal {
+    display: block;
+    position: relative;
+    z-index: 3;
+    width: clamp(224px, 74vw, 320px);
+    aspect-ratio: 2 / 3;
+    margin-inline-start: calc(-1 * var(--container-padding) - 5vw);
+    margin-inline-end: auto;
+    margin-block-start: calc(-1 * clamp(40px, 13vw, 68px));
+    // The camera's base must not rest on the story's first line.
+    margin-block-end: clamp(16px, 5vw, 26px);
+    pointer-events: none;
+    user-select: none;
+    -webkit-user-select: none;
+  }
+
+  .about-portal__img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    pointer-events: none;
+    user-select: none;
+    -webkit-user-select: none;
+  }
+
+  // Reveal: the project's own entrance (opacity and a 10px rise, from the
+  // IntersectionObserver system) plus, once visible, one soft optical pulse.
+  .about-portal.reveal.is-visible .about-portal__img {
+    animation: portalPulse 1.8s var(--ease-smooth) 1 both;
+  }
+}
+
+// Light breathing: slow, shallow, never a blink.
+@keyframes softboxBreath {
+  0%, 100% { opacity: 0.88; }
+  50% { opacity: 1; }
+}
+
+@keyframes portalPulse {
+  0% { opacity: 0.82; }
+  45% { opacity: 1; }
+  70% { opacity: 0.93; }
+  100% { opacity: 1; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .about-softbox,
+  .about-portal__img,
+  .about-portal.reveal.is-visible .about-portal__img {
+    animation: none;
+    opacity: 1;
+  }
+}
+
 // ─────── SOCIAL DOCK (mobile) ──────────────────────────────────────────────────
 //
 // Jewellery, not a widget. Three circles floating together near the foot of the
