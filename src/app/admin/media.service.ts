@@ -48,6 +48,36 @@ export interface AdminConfig {
   googleAuth?: boolean;
 }
 
+/**
+ * A contact-form submission as stored in `contact_leads` (see
+ * supabase/migrations/20260903120000_contact_leads.sql for the table and its
+ * row level security). The public site can only create one of these; reading
+ * and updating them requires the admin session.
+ */
+export type LeadStatus = 'new' | 'contacted' | 'closed';
+
+export interface Lead {
+  id: string;
+  created_at: string;
+  full_name: string;
+  phone: string;
+  email: string | null;
+  business_name: string | null;
+  message: string | null;
+  source_path: string;
+  status: LeadStatus;
+  admin_notes: string;
+}
+
+/** What the public form is allowed to send. Nothing else is accepted server side. */
+export interface LeadInput {
+  full_name: string;
+  phone: string;
+  email: string | null;
+  source_path: string;
+}
+
+const LEADS_TABLE = 'contact_leads';
 const CONFIG_URL = 'assets/admin.config.json';
 const TOKEN_KEY = 'aa-admin-token';
 
@@ -346,6 +376,59 @@ export class MediaService {
     });
     if (!res.ok) throw new Error(String(res.status));
     await this.removeFile(cfg, item.path).catch(() => undefined);
+  }
+
+  // ─── Leads ────────────────────────────────────────────────────────────────
+
+  /**
+   * The public form's one call. Anonymous role, insert only: the server keeps
+   * nothing but a fresh lead and returns nothing (`return=minimal`), so no
+   * read permission is involved. Throws on any failure; the caller shows a
+   * generic Hebrew message and never the server's words.
+   */
+  async submitLead(input: LeadInput): Promise<void> {
+    const cfg = await this.loadConfig();
+    if (!cfg) throw new Error('CONFIG');
+    const res = await fetch(`${cfg.url}/rest/v1/${LEADS_TABLE}`, {
+      method: 'POST',
+      headers: {
+        apikey: cfg.anonKey,
+        Authorization: `Bearer ${cfg.anonKey}`,
+        'Content-Type': 'application/json',
+        Prefer: 'return=minimal'
+      },
+      body: JSON.stringify(input)
+    });
+    if (!res.ok) throw new Error(String(res.status));
+  }
+
+  /** Every lead, newest first. Admin session required (RLS). */
+  async listLeads(): Promise<Lead[]> {
+    const cfg = await this.loadConfig();
+    if (!cfg) throw new Error('CONFIG');
+    if (!this.token) throw new Error('AUTH');
+    const res = await fetch(
+      `${cfg.url}/rest/v1/${LEADS_TABLE}?select=*&order=created_at.desc`,
+      { headers: this.headers(true) }
+    );
+    if (!res.ok) throw new Error(String(res.status));
+    return (await res.json()) as Lead[];
+  }
+
+  /** Status and/or private notes. Returns the row as stored. */
+  async updateLead(id: string, patch: { status?: LeadStatus; admin_notes?: string }): Promise<Lead> {
+    const cfg = await this.loadConfig();
+    if (!cfg) throw new Error('CONFIG');
+    if (!this.token) throw new Error('AUTH');
+    const res = await fetch(`${cfg.url}/rest/v1/${LEADS_TABLE}?id=eq.${encodeURIComponent(id)}`, {
+      method: 'PATCH',
+      headers: { ...this.headers(true), 'Content-Type': 'application/json', Prefer: 'return=representation' },
+      body: JSON.stringify(patch)
+    });
+    if (!res.ok) throw new Error(String(res.status));
+    const rows = (await res.json()) as Lead[];
+    if (!rows[0]) throw new Error('EMPTY');
+    return rows[0];
   }
 
   /** Writes a new order for exactly the two rows a move swaps. */

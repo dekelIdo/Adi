@@ -4,8 +4,7 @@ import {
   Testimonial,
   PUBLISHABLE_TYPES,
   MAX_UPLOAD_BYTES,
-  MAX_UPLOAD_LABEL
-} from './media.service';
+  MAX_UPLOAD_LABEL, Lead, LeadStatus } from './media.service';
 
 /** Secondary sanity check on the name, after the content type has been read. */
 const IMAGE_EXTS = ['jpg', 'jpeg', 'png', 'webp'];
@@ -69,7 +68,7 @@ const OUT_H = 1350;
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
-    <div class="shell" dir="rtl">
+    <div class="shell" [class.shell--wide]="tab === 'leads'" dir="rtl">
       @if (!ready) {
         <p class="note center pad">רגע…</p>
       } @else if (!configured) {
@@ -128,7 +127,91 @@ const OUT_H = 1350;
             </div>
             <button type="button" class="btn btn--quiet btn--sm" (click)="signOut()">יציאה</button>
           </div>
+          <nav class="tabs" aria-label="אזורי הניהול">
+            <button type="button" class="tab" [class.tab--on]="tab === 'media'" [attr.aria-current]="tab === 'media' ? 'page' : null" (click)="showTab('media')">תמונות</button>
+            <button type="button" class="tab" [class.tab--on]="tab === 'leads'" [attr.aria-current]="tab === 'leads' ? 'page' : null" (click)="showTab('leads')">
+              פניות
+              @if (newLeadCount > 0) { <span class="pill">{{ newLeadCount }}</span> }
+            </button>
+          </nav>
         </header>
+
+        @if (tab === 'leads') {
+          <section class="leads" aria-labelledby="leads-title">
+            <div class="head head--rule">
+              <p class="eyebrow">פניות</p>
+              <h2 id="leads-title">מי השאיר פרטים באתר</h2>
+              <p class="note">{{ newLeadCount }} חדשות · {{ leads.length }} סך הכול</p>
+            </div>
+
+            <div class="leads-tools">
+              <div class="chips" role="group" aria-label="סינון לפי סטטוס">
+                @for (f of leadFilters; track f.value) {
+                  <button type="button" class="chip" [class.chip--on]="leadFilter === f.value" [attr.aria-pressed]="leadFilter === f.value" (click)="setLeadFilter(f.value)">
+                    {{ f.label }} <span class="chip-n">{{ countFor(f.value) }}</span>
+                  </button>
+                }
+              </div>
+              <div class="row-end">
+                <button type="button" class="btn btn--quiet btn--sm" (click)="refreshLeads()" [disabled]="leadsLoading">רענון</button>
+                <button type="button" class="btn btn--quiet btn--sm" (click)="exportLeadsCsv()" [disabled]="leads.length === 0">ייצוא פניות ל־CSV</button>
+              </div>
+            </div>
+
+            @if (leadsLoading) {
+              <p class="note center pad">טוענת פניות…</p>
+            } @else if (leadsError) {
+              <p class="msg msg--bad">{{ leadsError }}</p>
+              <div class="row"><button type="button" class="btn btn--quiet btn--sm" (click)="refreshLeads()">נסי שוב</button></div>
+            } @else if (visibleLeads.length === 0) {
+              <div class="panel empty">
+                <p class="note">{{ leads.length === 0 ? 'עדיין אין פניות. ברגע שמישהו ישאיר פרטים באתר, זה יופיע כאן.' : 'אין פניות בסינון הזה.' }}</p>
+              </div>
+            } @else {
+              @if (leadOpError) { <p class="msg msg--bad">{{ leadOpError }}</p> }
+              <div class="leads-head" aria-hidden="true">
+                <span>מתי · מי</span><span>יצירת קשר</span><span>סטטוס · הערות</span>
+              </div>
+              <div class="leads-list">
+                @for (lead of visibleLeads; track lead.id) {
+                  <article class="lead" [class.lead--new]="lead.status === 'new'">
+                    <div class="lead-who">
+                      <p class="lead-when">{{ formatWhen(lead.created_at) }}</p>
+                      <h3 class="lead-name">{{ lead.full_name }}</h3>
+                      @if (lead.business_name) { <p class="lead-meta">{{ lead.business_name }}</p> }
+                      @if (lead.message) { <p class="lead-msg">{{ lead.message }}</p> }
+                    </div>
+                    <div class="lead-links">
+                      <a class="lead-link" [href]="'tel:' + telHref(lead.phone)" dir="ltr">{{ lead.phone }}</a>
+                      <a class="lead-link" [href]="waHref(lead.phone)" target="_blank" rel="noopener noreferrer">WhatsApp</a>
+                      @if (lead.email) { <a class="lead-link" [href]="'mailto:' + lead.email" dir="ltr">{{ lead.email }}</a> }
+                    </div>
+                    <div class="lead-side">
+                      <label class="lead-field">
+                        <span>סטטוס</span>
+                        <select [value]="lead.status" (change)="setLeadStatus(lead, $event)" [disabled]="leadBusy === lead.id">
+                          <option value="new">חדשה</option>
+                          <option value="contacted">נוצר קשר</option>
+                          <option value="closed">סגורה</option>
+                        </select>
+                      </label>
+                      <label class="lead-field">
+                        <span>הערות פנימיות</span>
+                        <textarea rows="2" maxlength="4000" [value]="noteFor(lead)" (input)="draftNote(lead, $event)" [disabled]="leadBusy === lead.id"></textarea>
+                      </label>
+                      <div class="lead-save">
+                        <button type="button" class="btn btn--quiet btn--sm" (click)="saveNote(lead)" [disabled]="leadBusy === lead.id || !noteDirty(lead)">
+                          {{ leadBusy === lead.id ? 'שומרת…' : 'שמירת הערה' }}
+                        </button>
+                        @if (savedNoteId === lead.id) { <span class="lead-saved" role="status">נשמר ✓</span> }
+                      </div>
+                    </div>
+                  </article>
+                }
+              </div>
+            }
+          </section>
+        } @else {
 
         <section class="panel">
           @if (step === 'idle') {
@@ -246,6 +329,7 @@ const OUT_H = 1350;
             </div>
           }
         </section>
+        }
       }
     </div>
   `,
@@ -615,6 +699,66 @@ const OUT_H = 1350;
         .masthead-row { align-items: center; }
       }
 
+      /* ─── Leads ─────────────────────────────────────────────────────── */
+      .shell--wide { max-width: 980px; }
+      .tabs { display: flex; gap: 6px; margin-top: 18px; border-bottom: 1px solid var(--line); }
+      .tab {
+        font: inherit; font-weight: 600; font-size: 0.95rem; color: var(--soft);
+        background: none; border: 0; border-bottom: 2px solid transparent;
+        padding: 10px 14px; margin-bottom: -1px; cursor: pointer;
+        display: inline-flex; align-items: center; gap: 8px;
+      }
+      .tab--on { color: var(--ink); border-bottom-color: var(--ink); }
+      .tab:focus-visible { outline: 2px solid var(--accent-deep); outline-offset: 2px; border-radius: 6px; }
+      .pill { min-width: 22px; padding: 1px 7px; border-radius: 999px; background: var(--ink); color: #fffdfb; font-size: 0.78rem; text-align: center; }
+      .leads { margin-top: 26px; }
+      .leads-tools { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; justify-content: space-between; margin: 14px 0 16px; }
+      .chips { display: flex; flex-wrap: wrap; gap: 8px; }
+      .chip {
+        font: inherit; font-size: 0.88rem; font-weight: 600; color: var(--ink);
+        background: #fff; border: 1px solid var(--line); border-radius: 999px;
+        padding: 8px 14px; cursor: pointer; min-height: 40px;
+      }
+      .chip--on { background: var(--ink); color: #fffdfb; border-color: var(--ink); }
+      .chip:focus-visible { outline: 2px solid var(--accent-deep); outline-offset: 2px; }
+      .chip-n { opacity: 0.7; margin-inline-start: 4px; }
+      .row-end { display: flex; gap: 8px; flex-wrap: wrap; }
+      .leads-head { display: none; }
+      .leads-list { display: flex; flex-direction: column; gap: 12px; }
+      .lead {
+        background: #fff; border: 1px solid var(--line); border-radius: 16px;
+        padding: 16px; display: grid; gap: 14px;
+        border-inline-start: 4px solid transparent;
+      }
+      .lead--new { border-inline-start-color: var(--accent-deep); }
+      .lead-when { margin: 0 0 4px; font-size: 0.8rem; color: var(--faint); }
+      .lead-name { margin: 0; font-size: 1.1rem; font-weight: 700; color: var(--ink); }
+      .lead-meta { margin: 6px 0 0; font-size: 0.9rem; color: var(--soft); }
+      .lead-msg { margin: 8px 0 0; font-size: 0.92rem; line-height: 1.55; color: var(--ink); white-space: pre-wrap; }
+      .lead-links { display: flex; flex-wrap: wrap; gap: 8px 14px; align-content: start; }
+      .lead-link { color: var(--accent-deep); font-weight: 600; text-decoration: none; padding: 6px 0; min-height: 36px; display: inline-flex; align-items: center; }
+      .lead-link:hover, .lead-link:focus-visible { text-decoration: underline; }
+      .lead-side { display: grid; gap: 10px; }
+      .lead-field { display: grid; gap: 6px; }
+      .lead-field span { font-size: 0.78rem; font-weight: 600; color: var(--soft); }
+      .lead-field select, .lead-field textarea {
+        font: inherit; width: 100%; padding: 10px 12px; border: 1px solid var(--line);
+        border-radius: 12px; background: #fff; color: var(--ink); min-height: 44px;
+      }
+      .lead-field textarea { resize: vertical; line-height: 1.5; }
+      .lead-field select:focus, .lead-field textarea:focus { outline: none; border-color: var(--accent-deep); box-shadow: 0 0 0 3px rgba(187, 221, 250, 0.4); }
+      .lead-save { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+      .lead-saved { color: var(--good); font-size: 0.88rem; font-weight: 600; }
+      @media (min-width: 720px) {
+        .leads-head {
+          display: grid; grid-template-columns: 1.3fr 1fr 1.2fr; gap: 16px;
+          padding: 0 16px 8px; font-size: 0.78rem; font-weight: 600; color: var(--faint);
+        }
+        .leads-list { gap: 8px; }
+        .lead { grid-template-columns: 1.3fr 1fr 1.2fr; gap: 16px; padding: 14px 16px; border-radius: 12px; align-items: start; }
+        .lead-links { flex-direction: column; gap: 4px; }
+      }
+
       @media (prefers-reduced-motion: reduce) {
         * { transition: none !important; }
       }
@@ -647,6 +791,25 @@ export class AdminComponent implements OnInit {
   title = '';
 
   items: Testimonial[] = [];
+
+  // ─── Leads ────────────────────────────────────────────────────────────────
+  tab: 'media' | 'leads' = 'media';
+  leads: Lead[] = [];
+  leadsLoaded = false;
+  leadsLoading = false;
+  leadsError = '';
+  leadOpError = '';
+  leadFilter: 'all' | LeadStatus = 'all';
+  readonly leadFilters: ReadonlyArray<{ value: 'all' | LeadStatus; label: string }> = [
+    { value: 'all', label: 'הכול' },
+    { value: 'new', label: 'חדשות' },
+    { value: 'contacted', label: 'נוצר קשר' },
+    { value: 'closed', label: 'סגורות' }
+  ];
+  leadBusy: string | null = null;
+  savedNoteId: string | null = null;
+  private noteDrafts = new Map<string, string>();
+  private savedNoteTimer?: number;
 
   srcUrl: string | null = null;
   croppedUrl: string | null = null;
@@ -730,9 +893,156 @@ export class AdminComponent implements OnInit {
     }
   }
 
+  // ─── Leads ────────────────────────────────────────────────────────────────
+  get newLeadCount(): number {
+    return this.leads.filter((l) => l.status === 'new').length;
+  }
+
+  get visibleLeads(): Lead[] {
+    return this.leadFilter === 'all' ? this.leads : this.leads.filter((l) => l.status === this.leadFilter);
+  }
+
+  countFor(value: 'all' | LeadStatus): number {
+    return value === 'all' ? this.leads.length : this.leads.filter((l) => l.status === value).length;
+  }
+
+  showTab(tab: 'media' | 'leads'): void {
+    this.tab = tab;
+    this.cdr.markForCheck();
+    if (tab === 'leads' && !this.leadsLoaded && !this.leadsLoading) void this.refreshLeads();
+  }
+
+  setLeadFilter(value: 'all' | LeadStatus): void {
+    this.leadFilter = value;
+    this.cdr.markForCheck();
+  }
+
+  async refreshLeads(): Promise<void> {
+    this.leadsLoading = true;
+    this.leadsError = '';
+    this.leadOpError = '';
+    this.cdr.markForCheck();
+    try {
+      this.leads = await this.media.listLeads();
+      this.leadsLoaded = true;
+      this.noteDrafts.clear();
+    } catch {
+      this.leadsError = 'לא הצלחנו לטעון את הפניות. בדקי את החיבור ונסי שוב.';
+    } finally {
+      this.leadsLoading = false;
+      this.cdr.markForCheck();
+    }
+  }
+
+  formatWhen(iso: string): string {
+    try {
+      return new Intl.DateTimeFormat('he-IL', { dateStyle: 'short', timeStyle: 'short' }).format(new Date(iso));
+    } catch {
+      return iso;
+    }
+  }
+
+  /** Digits only, a leading plus kept, so the phone app dials it as typed. */
+  telHref(phone: string): string {
+    const d = phone.replace(/[^\d+]/g, '');
+    return d.startsWith('+') ? '+' + d.slice(1).replace(/\+/g, '') : d;
+  }
+
+  /** wa.me wants the international number without a plus: 050… → 97250…. */
+  waHref(phone: string): string {
+    let d = phone.replace(/\D/g, '');
+    if (d.startsWith('972')) { /* already international */ }
+    else if (d.startsWith('0')) d = '972' + d.slice(1);
+    return `https://wa.me/${d}`;
+  }
+
+  async setLeadStatus(lead: Lead, event: Event): Promise<void> {
+    const next = (event.target as HTMLSelectElement).value as LeadStatus;
+    if (next === lead.status || this.leadBusy) return;
+    const previous = lead.status;
+    lead.status = next;
+    this.leadBusy = lead.id;
+    this.leadOpError = '';
+    this.cdr.markForCheck();
+    try {
+      const saved = await this.media.updateLead(lead.id, { status: next });
+      lead.status = saved.status;
+    } catch {
+      lead.status = previous;
+      (event.target as HTMLSelectElement).value = previous;
+      this.leadOpError = 'שינוי הסטטוס לא נשמר. נסי שוב.';
+    } finally {
+      this.leadBusy = null;
+      this.cdr.markForCheck();
+    }
+  }
+
+  noteFor(lead: Lead): string {
+    return this.noteDrafts.get(lead.id) ?? lead.admin_notes;
+  }
+
+  noteDirty(lead: Lead): boolean {
+    const draft = this.noteDrafts.get(lead.id);
+    return draft !== undefined && draft !== lead.admin_notes;
+  }
+
+  draftNote(lead: Lead, event: Event): void {
+    this.noteDrafts.set(lead.id, (event.target as HTMLTextAreaElement).value);
+    this.cdr.markForCheck();
+  }
+
+  async saveNote(lead: Lead): Promise<void> {
+    const draft = this.noteDrafts.get(lead.id);
+    if (draft === undefined || this.leadBusy) return;
+    this.leadBusy = lead.id;
+    this.leadOpError = '';
+    this.cdr.markForCheck();
+    try {
+      const saved = await this.media.updateLead(lead.id, { admin_notes: draft.slice(0, 4000) });
+      lead.admin_notes = saved.admin_notes;
+      this.noteDrafts.delete(lead.id);
+      this.savedNoteId = lead.id;
+      window.clearTimeout(this.savedNoteTimer);
+      this.savedNoteTimer = window.setTimeout(() => {
+        this.savedNoteId = null;
+        this.cdr.markForCheck();
+      }, 2500);
+    } catch {
+      this.leadOpError = 'ההערה לא נשמרה. נסי שוב.';
+    } finally {
+      this.leadBusy = null;
+      this.cdr.markForCheck();
+    }
+  }
+
+  /** The leads as loaded, as a UTF-8 CSV with a BOM so Excel reads the Hebrew. */
+  exportLeadsCsv(): void {
+    const cell = (v: unknown) => '"' + String(v ?? '').replace(/"/g, '""') + '"';
+    const label: Record<LeadStatus, string> = { new: 'חדשה', contacted: 'נוצר קשר', closed: 'סגורה' };
+    const head = ['תאריך', 'שם מלא', 'טלפון', 'מייל', 'שם העסק', 'הודעה', 'סטטוס', 'הערות', 'מקור'];
+    const rows = this.leads.map((l) => [
+      this.formatWhen(l.created_at), l.full_name, l.phone, l.email ?? '', l.business_name ?? '',
+      l.message ?? '', label[l.status] ?? l.status, l.admin_notes, l.source_path
+    ]);
+    const csv = '\uFEFF' + [head, ...rows].map((r) => r.map(cell).join(',')).join('\r\n');
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `leads-${new Date().toISOString().slice(0, 10)}.csv`;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+  }
+
   signOut(): void {
     this.media.signOut();
     this.items = [];
+    this.leads = [];
+    this.leadsLoaded = false;
+    this.noteDrafts.clear();
+    this.tab = 'media';
     this.reset();
     this.cdr.markForCheck();
   }

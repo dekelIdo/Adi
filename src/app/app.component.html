@@ -1049,20 +1049,79 @@
               </ul>
               <p class="contact-sign">ניפגש בקרוב, עדי 🙂</p>
             </div>
-            <form class="contact-form reveal delay-2">
+            <!-- THE FORM. Same three fields, same look; the values now travel
+                 to Supabase (contact_leads) and the visitor is told what
+                 happened, in a live region that also receives focus. The
+                 fourth, hidden field is a honeypot: no person ever fills it. -->
+            <form class="contact-form reveal delay-2" (submit)="submitLead($event)" novalidate>
               <label>
                 <span>שם מלא</span>
-                <input type="text" name="fullName" />
+                <input
+                  type="text"
+                  name="fullName"
+                  autocomplete="name"
+                  maxlength="100"
+                  [disabled]="leadState === 'sending'"
+                  [attr.aria-invalid]="leadErrors.fullName ? 'true' : null"
+                  [attr.aria-describedby]="leadErrors.fullName ? 'lead-err-name' : null"
+                />
+                @if (leadErrors.fullName) {
+                  <small id="lead-err-name" class="contact-error">{{ leadErrors.fullName }}</small>
+                }
               </label>
               <label>
                 <span>טלפון</span>
-                <input type="tel" name="phone" />
+                <input
+                  type="tel"
+                  name="phone"
+                  autocomplete="tel"
+                  inputmode="tel"
+                  maxlength="20"
+                  [disabled]="leadState === 'sending'"
+                  [attr.aria-invalid]="leadErrors.phone ? 'true' : null"
+                  [attr.aria-describedby]="leadErrors.phone ? 'lead-err-phone' : null"
+                />
+                @if (leadErrors.phone) {
+                  <small id="lead-err-phone" class="contact-error">{{ leadErrors.phone }}</small>
+                }
               </label>
               <label>
                 <span>מייל</span>
-                <input type="email" name="email" />
+                <input
+                  type="email"
+                  name="email"
+                  autocomplete="email"
+                  inputmode="email"
+                  maxlength="254"
+                  [disabled]="leadState === 'sending'"
+                  [attr.aria-invalid]="leadErrors.email ? 'true' : null"
+                  [attr.aria-describedby]="leadErrors.email ? 'lead-err-email' : null"
+                />
+                @if (leadErrors.email) {
+                  <small id="lead-err-email" class="contact-error">{{ leadErrors.email }}</small>
+                }
               </label>
-              <button class="btn btn-submit" type="submit">השאירו פרטים</button>
+              <label class="contact-hp" aria-hidden="true">
+                <span>אתר</span>
+                <input type="text" name="website" tabindex="-1" autocomplete="off" />
+              </label>
+              <button
+                class="btn btn-submit"
+                type="submit"
+                [disabled]="leadState === 'sending'"
+                [attr.aria-busy]="leadState === 'sending' ? 'true' : null"
+              >
+                {{ leadState === 'sending' ? 'שולחת את הפרטים...' : 'השאירו פרטים' }}
+              </button>
+              <p class="contact-consent">בלחיצה על שליחה אני מאשר/ת שימוש בפרטים לצורך יצירת קשר.</p>
+              <div class="contact-result" #leadResult tabindex="-1">
+                <p class="contact-result__ok" role="status" aria-live="polite">
+                  @if (leadState === 'sent') { הפרטים התקבלו בהצלחה — אחזור אליכם בהקדם 💙 }
+                </p>
+                <p class="contact-result__bad" role="alert">
+                  @if (leadState === 'error') { משהו השתבש בשליחת הפרטים. אפשר לנסות שוב. }
+                </p>
+              </div>
             </form>
           </div>
         </div>

@@ -1,4 +1,4 @@
-import { AfterViewInit, ChangeDetectorRef, Component, OnDestroy, NgZone } from '@angular/core';
+import { AfterViewInit, ChangeDetectorRef, Component, OnDestroy, NgZone, ViewChild, ElementRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
 interface PortfolioProject {
@@ -216,6 +216,78 @@ class ScrollPipeline {
   styleUrls: ['./app.component.scss']
 })
 export class AppComponent implements AfterViewInit, OnDestroy {
+  // ─── The contact form ──────────────────────────────────────────────────────
+  leadState: 'idle' | 'sending' | 'sent' | 'error' = 'idle';
+  leadErrors: { fullName?: string; phone?: string; email?: string } = {};
+  @ViewChild('leadResult') private leadResultRef?: ElementRef<HTMLElement>;
+  private leadCooldownUntil = 0;
+
+  /**
+   * One submission, one call. Values are read from the form itself (the same
+   * approach the admin screen takes), trimmed and checked here; the server's
+   * constraints and row level security check them again. Nothing personal is
+   * ever logged, and the visitor only ever sees the page's own Hebrew.
+   */
+  async submitLead(event: Event): Promise<void> {
+    event.preventDefault();
+    if (this.leadState === 'sending') return;
+    const form = event.target as HTMLFormElement;
+    const data = new FormData(form);
+    const read = (name: string) => String(data.get(name) ?? '').trim();
+
+    // Honeypot: a filled field means a bot. Say nothing, send nothing.
+    if (read('website')) {
+      form.reset();
+      return;
+    }
+    // A short cooldown after a success stops a double tap becoming two leads.
+    if (Date.now() < this.leadCooldownUntil) return;
+
+    const fullName = read('fullName');
+    const phoneRaw = read('phone');
+    const email = read('email');
+    const errors: typeof this.leadErrors = {};
+    if (fullName.length < 2 || fullName.length > 100) errors.fullName = 'איך קוראים לך? (2 תווים לפחות)';
+    // Israeli numbers as people actually type them: 050-1234567, 0501234567,
+    // +972501234567, 03-1234567. Separators are ignored, the digits are checked.
+    const phoneDigits = phoneRaw.replace(/[\s\-().]/g, '');
+    if (!/^(\+?972|0)\d{8,9}$/.test(phoneDigits) || phoneRaw.length > 20) errors.phone = 'צריך מספר טלפון תקין, למשל 050-1234567';
+    if (email && (email.length > 254 || !/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email))) errors.email = 'כתובת המייל לא נראית תקינה';
+    this.leadErrors = errors;
+    if (Object.keys(errors).length) {
+      this.leadState = 'idle';
+      this.cdr.markForCheck();
+      const first = form.querySelector<HTMLInputElement>('[aria-invalid="true"]');
+      first?.focus();
+      return;
+    }
+
+    this.leadState = 'sending';
+    this.cdr.markForCheck();
+    try {
+      // The Supabase gateway is loaded on demand, as the testimonials are: the
+      // landing page does not carry the admin code until it is needed.
+      const { MediaService } = await import('./admin/media.service');
+      await new MediaService().submitLead({
+        full_name: fullName,
+        phone: phoneRaw,
+        email: email || null,
+        source_path: window.location.pathname || '/'
+      });
+      form.reset();
+      this.leadState = 'sent';
+      this.leadCooldownUntil = Date.now() + 10_000;
+    } catch {
+      // Values stay in the fields; the button is live again; the message says
+      // it can be tried again. The server's error text never reaches the page.
+      this.leadState = 'error';
+    }
+    this.cdr.markForCheck();
+    // The result region is focusable so the outcome is reached, not just
+    // announced; a moment later so the text is already in the DOM.
+    setTimeout(() => this.leadResultRef?.nativeElement.focus({ preventScroll: false }), 30);
+  }
+
 
   // ── REAL_FRAME_B_ASSET ────────────────────────────────────────────────────
   // The laptop bridge is a two-frame interaction:

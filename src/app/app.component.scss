@@ -5291,6 +5291,69 @@ div[id] {
 
 // The form's submit is the same Level 2 control as the header CTA; it only adds
 // the placement it needs inside the form.
+// The form's states. The honeypot is off screen for eyes and for the tab
+// order alike; field errors sit under their field in the label's own type;
+// the result lives in a region that is announced and focused.
+.contact-form {
+  .contact-hp {
+    position: absolute;
+    inset-inline-start: -10000px;
+    inline-size: 1px;
+    block-size: 1px;
+    overflow: hidden;
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  input[aria-invalid='true'] {
+    border-bottom-color: #b6544a;
+  }
+
+  input[disabled] {
+    opacity: 0.6;
+  }
+}
+
+.contact-error {
+  display: block;
+  margin-top: 4px;
+  font-family: var(--font-body);
+  font-size: var(--text-xs);
+  line-height: 1.5;
+  color: #b6544a;
+}
+
+.contact-consent {
+  margin: 0;
+  font-family: var(--font-body);
+  font-size: var(--text-xs);
+  line-height: 1.55;
+  color: var(--text-light);
+}
+
+.contact-result {
+  outline: none;
+
+  p {
+    margin: 0;
+    font-family: var(--font-body);
+    font-size: var(--text-sm);
+    line-height: 1.6;
+
+    &:empty {
+      display: none;
+    }
+  }
+
+  .contact-result__ok {
+    color: var(--text);
+  }
+
+  .contact-result__bad {
+    color: #b6544a;
+  }
+}
+
 .btn-submit {
   margin-top: var(--space-xs);
   align-self: flex-start;
@@ -5304,6 +5367,11 @@ div[id] {
   &:focus-visible {
     background: var(--brand-accent-dim);
     border-color: var(--brand-accent-dim);
+  }
+
+  &[disabled] {
+    opacity: 0.7;
+    cursor: default;
   }
 }
 
