@@ -619,46 +619,81 @@ select {
   }
 }
 
-// ─────── MOBILE: STUDIO LIGHT ON THE PORTRAIT, LENS TRANSITION INTO THE STORY ─
+// ─────── MOBILE: THE STUDIO LIGHT STANDS BESIDE THE PORTRAIT ───────────────────
 //
-// Two small transparent WebPs, phone only. Off by default; on beneath 700px,
-// the width up to which the about chapter is the single-column composition
-// they belong to. Nothing outside this block changes for them.
+// Three siblings in one stage, phone only. The photograph keeps its crop and
+// its frame exactly; it is nudged left by a small fluid amount through its
+// margins (not a transform - the reveal owns that), which widens the strip of
+// paper on its right. The lamp stands in that strip, the head crossing the
+// picture's edge by a hand's width, the body and stand on the paper. A soft
+// cream beam, drawn here, leaves the head and settles around her face. Only
+// the beam crosses into the picture.
 //
-// This page is RTL: `inset-inline-start` is the RIGHT edge. The physical
-// intent is right-edge placement, so that is the property used.
-// Written with both ancestors and the element on purpose: the portrait's
-// nested `.about-layout .about-photo-wrap img` rule (width: 100%, height:
-// auto) and `.editorial-img img` (display, filter, transition) both outrank
-// a lone class, and did - the light rendered as a full-width filtered
-// picture on every viewport until this selector matched their weight.
-.about-layout .about-photo-wrap img.about-photo-light,
-.creative-lens-transition {
+// Explicit layers: photograph 1, beam 2, lamp 3. Nothing here is clipped; the
+// section already clips at the document edge so the page never scrolls
+// sideways. On wider screens the stage is display: contents and the beam and
+// lamp are absent, so the tablet and desktop composition is untouched.
+.about-photo-stage {
+  display: contents;
+}
+
+.about-photo-beam,
+.about-layout .about-photo-stage img.about-photo-light {
   display: none;
 }
 
 @media (max-width: 699.98px) {
-  // THE LIGHT. Anchored inside the portrait's own frame, which already clips
-  // to the picture's rounded window: the lamp head sits at the frame's right
-  // edge level with the upper third, the stand hangs from it inside the same
-  // window, and the beam falls down-left onto the right of the picture. One
-  // object in one frame, so no part of it can ever appear detached below.
-  // Above the picture, below everything real: the figure is a stacking
-  // context of its own (isolation), and text, controls and the dock sit
-  // above decorative artwork.
-  .about-layout .about-photo-wrap {
+  .about-layout .about-photo-stage {
+    --photo-shift: clamp(12px, 4vw, 20px);
+    display: block;
+    position: relative;
     isolation: isolate;
+    overflow: visible;
   }
 
-  .about-layout .about-photo-wrap img.about-photo-light {
+  // The photograph, nudged left by --photo-shift at the same width.
+  .about-layout .about-photo-stage .about-photo-wrap {
+    position: relative;
+    z-index: 1;
+    max-width: calc(100% + var(--container-padding) + var(--photo-shift));
+    margin-inline-end: calc(-1 * var(--container-padding) - var(--photo-shift));
+    margin-inline-start: calc(clamp(28px, 12vw, 64px) + var(--photo-shift));
+  }
+
+  // The beam: an ellipse of cream light anchored at the lamp head, reaching
+  // left across the picture's upper right and fading out around her face.
+  // Low opacity and a blurred edge, so it lights her rather than fogs her.
+  .about-photo-beam {
     display: block;
     position: absolute;
     z-index: 2;
-    inset-block-start: clamp(74px, 23vw, 112px);
-    // Just inside the frame's right edge: the lamp head sits at the edge and
-    // the stand, which is the asset's own right border, stays in the window.
-    inset-inline-start: clamp(2px, 1vw, 5px);
-    width: clamp(138px, 40vw, 172px);
+    pointer-events: none;
+    inset-block-start: clamp(46px, 14vw, 78px);
+    inset-inline-start: clamp(4px, 2vw, 12px);
+    width: clamp(180px, 58vw, 250px);
+    height: clamp(120px, 34vw, 160px);
+    transform: rotate(-9deg);
+    transform-origin: 100% 40%;
+    background: radial-gradient(
+      ellipse 70% 55% at 88% 42%,
+      rgba(255, 239, 212, 0.62) 0%,
+      rgba(255, 239, 212, 0.34) 32%,
+      rgba(255, 239, 212, 0.12) 58%,
+      rgba(255, 239, 212, 0) 78%
+    );
+    filter: blur(10px);
+  }
+
+  // The lamp: the fixture alone, on the paper to the right, its head level
+  // with her face and crossing the picture's edge by 10-18px.
+  .about-layout .about-photo-stage img.about-photo-light {
+    display: block;
+    position: absolute;
+    z-index: 3;
+    inset-block-start: clamp(54px, 17vw, 84px);
+    // Measured: the head crosses the picture's edge by 10-18px across 320-430.
+    inset-inline-start: clamp(2px, 0.8vw, 4px);
+    width: clamp(64px, 19vw, 78px);
     height: auto;
     max-width: none;
     object-fit: unset;
@@ -667,51 +702,6 @@ select {
     pointer-events: none;
     user-select: none;
     -webkit-user-select: none;
-    animation: portraitLightBreath 6s ease-in-out infinite;
-  }
-
-  // THE TRANSITION. A window of fixed height - its own number, not the
-  // picture's ratio - holding the artwork absolutely, set to the right with
-  // the camera bleeding a little past the edge (the section clips it). It
-  // starts under the portrait's lower boundary so Adi's cutout meets her
-  // photograph, and ends a short, normal distance before the story heading.
-  .creative-lens-transition {
-    display: block;
-    position: relative;
-    z-index: 3;
-    block-size: clamp(340px, 93vw, 392px);
-    margin-block-start: clamp(-26px, -6vw, -14px);
-    margin-block-end: clamp(24px, 6vw, 32px);
-    pointer-events: none;
-    user-select: none;
-    -webkit-user-select: none;
-  }
-
-  .creative-lens-transition__art {
-    position: absolute;
-    inset-block-start: 0;
-    // Past the container's edge and a little past the screen's: the lens
-    // bleeds, the section clips.
-    inset-inline-start: calc(-1 * var(--container-padding) - clamp(6px, 2vw, 12px));
-    width: clamp(226px, 62vw, 262px);
-    max-width: none;
-    height: auto;
-    pointer-events: none;
-    user-select: none;
-    -webkit-user-select: none;
-  }
-}
-
-// Light breathing: six seconds, six percent, never a blink.
-@keyframes portraitLightBreath {
-  0%, 100% { opacity: 0.94; }
-  50% { opacity: 1; }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .about-layout .about-photo-wrap img.about-photo-light {
-    animation: none;
-    opacity: 1;
   }
 }
 
@@ -734,13 +724,16 @@ select {
     margin: 0 auto;
     width: clamp(260px, 88vw, 400px);
     aspect-ratio: 2 / 3;
-    overflow: hidden;
+    overflow: visible;
+    background: none;
+    border: 0;
+    border-radius: 0;
+    box-shadow: none;
 
     img {
       display: block;
       width: 100%;
-      height: 100%;
-      object-fit: contain;
+      height: auto;
       user-select: none;
       -webkit-user-select: none;
     }

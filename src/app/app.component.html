@@ -272,6 +272,15 @@
               הגישה שלי: לא רק ליצור תוכן יפה, אלא ליצור תוכן שמביא תוצאות לעסק.
             </p>
           </div>
+          <!-- THE PORTRAIT AND ITS LIGHT (phone only). One stage, three
+               siblings: the photograph as it always was; a soft cream beam
+               drawn in CSS from the lamp toward her face; and the lamp
+               itself - the transparent fixture, standing in the strip of
+               paper to the right of the picture. The fixture is never inside
+               the picture's clipped frame; only the light crosses its edge.
+               On wider screens the stage is `display: contents` and the
+               beam and lamp do not exist. -->
+          <div class="about-photo-stage">
           <figure class="editorial-img editorial-img--portrait about-photo-wrap reveal reveal-float delay-2" data-drift="0.45">
             <!-- Filename had been lost from this src, so the About portrait was
                  requesting "/AdiArieli/.jpg" and 404ing. Restored, and served as
@@ -290,43 +299,21 @@
                 decoding="async"
               />
             </picture>
-
-            <!-- STUDIO LIGHT (phone only). A small side light at the right edge
-                 of the portrait, inside the picture's own window so lamp, stand
-                 and beam are one object, clipped by one frame. Out of flow: it
-                 adds no height. Decorative and inert. -->
+          </figure>
+            <span class="about-photo-beam" aria-hidden="true"></span>
             <img
               class="about-photo-light"
-              src="assets/lovable-uploads/MyAssets/AdiArieli/studio-softbox-light-mobile.webp"
+              src="assets/lovable-uploads/MyAssets/AdiArieli/studio-softbox-fixture-mobile.webp"
               alt=""
               aria-hidden="true"
               draggable="false"
-              width="384"
+              width="156"
               height="576"
               loading="lazy"
               decoding="async"
               fetchpriority="low"
             />
-          </figure>
-        </div>
-
-        <!-- CREATIVE LENS TRANSITION (phone only). One compact beat between the
-             portrait and the story: a fixed-height window, with the artwork
-             absolute inside it, set to the right. The window's height is its
-             own value, not the picture's ratio, so the picture arriving moves
-             nothing. -->
-        <div class="creative-lens-transition reveal" aria-hidden="true">
-          <img
-            class="creative-lens-transition__art"
-            src="assets/lovable-uploads/MyAssets/AdiArieli/creative-lens-portal-mobile.webp"
-            alt=""
-            draggable="false"
-            width="640"
-            height="960"
-            loading="lazy"
-            decoding="async"
-            fetchpriority="low"
-          />
+          </div>
         </div>
 
         <div class="story-card reveal delay-1">
@@ -925,8 +912,8 @@
              is for wider screens only and is not rendered or requested here. -->
         <figure class="signing-scene-mobile reveal">
           <img
-            src="assets/lovable-uploads/MyAssets/Signing/adi-arieli-private-sign-final-mobile.webp"
-            alt="עדי אריאלי חותמת על מסמך, והחתימה הדיגיטלית לצידה"
+            src="assets/lovable-uploads/MyAssets/Signing/adi-signing-rear-view-large-contract-mobile-final.webp"
+            alt="עדי אריאלי מביטה בחוזה הדיגיטלי המוגדל וחותמת עליו"
             width="768"
             height="1152"
             loading="lazy"
