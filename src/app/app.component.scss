@@ -715,6 +715,38 @@ select {
   }
 }
 
+// ─────── MOBILE: THE SIGNING SCENE AS ONE SUPPLIED COMPOSITION ─────────────────
+//
+// Off by default; on beneath 700px, where it replaces the photograph-and-screen
+// composition, which is hidden there (and, being lazy, never requested).
+// Tablet and desktop keep their composition untouched.
+.signing-scene-mobile {
+  display: none;
+}
+
+@media (max-width: 699.98px) {
+  .signing-scene .signing-photo {
+    display: none;
+  }
+
+  .signing-scene-mobile {
+    display: block;
+    margin: 0 auto;
+    width: clamp(260px, 88vw, 400px);
+    aspect-ratio: 2 / 3;
+    overflow: hidden;
+
+    img {
+      display: block;
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      user-select: none;
+      -webkit-user-select: none;
+    }
+  }
+}
+
 // ─────── SOCIAL DOCK (mobile) ──────────────────────────────────────────────────
 //
 // Jewellery, not a widget. Three circles floating together near the foot of the
