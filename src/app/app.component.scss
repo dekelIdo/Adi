@@ -619,109 +619,97 @@ select {
   }
 }
 
-// ─────── MOBILE VISUAL INSTALLATION: STUDIO LIGHT + LENS PORTAL ───────────────
+// ─────── MOBILE: STUDIO LIGHT ON THE PORTRAIT, LENS TRANSITION INTO THE STORY ─
 //
-// Two supplied transparent PNGs, one continuous story, phone only. Both are
-// absent by default and switched on beneath 700px, the width up to which the
-// about chapter is the single-column composition they were designed against.
-// From 700px the about layout becomes two columns and from 1024 a different
-// composition again; neither is touched. Everything here lives in this block.
-.about-softbox,
-.about-portal {
+// Two small transparent WebPs, phone only. Off by default; on beneath 700px,
+// the width up to which the about chapter is the single-column composition
+// they belong to. Nothing outside this block changes for them.
+//
+// This page is RTL: `inset-inline-start` is the RIGHT edge. The physical
+// intent is right-edge placement, so that is the property used.
+// Written with both ancestors and the element on purpose: the portrait's
+// nested `.about-layout .about-photo-wrap img` rule (width: 100%, height:
+// auto) and `.editorial-img img` (display, filter, transition) both outrank
+// a lone class, and did - the light rendered as a full-width filtered
+// picture on every viewport until this selector matched their weight.
+.about-layout .about-photo-wrap img.about-photo-light,
+.creative-lens-transition {
   display: none;
 }
 
 @media (max-width: 699.98px) {
-  // The layout is the stage: the portrait, the light and the portal stack in
-  // an explicit local order inside it, and the section (already overflow:
-  // clip on the phone) keeps the bleed off the document width. The header,
-  // the dock and every control are fixed above this stacking context.
-  .about-layout {
-    position: relative;
+  // THE LIGHT. Anchored inside the portrait's own frame, which already clips
+  // to the picture's rounded window: the lamp head sits at the frame's right
+  // edge level with the upper third, the stand hangs from it inside the same
+  // window, and the beam falls down-left onto the right of the picture. One
+  // object in one frame, so no part of it can ever appear detached below.
+  // Above the picture, below everything real: the figure is a stacking
+  // context of its own (isolation), and text, controls and the dock sit
+  // above decorative artwork.
+  .about-layout .about-photo-wrap {
     isolation: isolate;
   }
 
-  .about-layout .about-photo-wrap {
-    position: relative;
-    z-index: 1;
-  }
-
-  // THE SOFTBOX. Anchored to the bottom of the portrait so the head sits level
-  // with its upper third and the beam falls across the picture's centre; on
-  // the right, pulled past the container and the screen edge so the head
-  // enters partly cut, the way a light stands just outside a frame. The face
-  // in the portrait is left of centre; the equipment reaches only the
-  // picture's far-right margin, and only the beam crosses her.
-  .about-softbox {
+  .about-layout .about-photo-wrap img.about-photo-light {
     display: block;
     position: absolute;
     z-index: 2;
-    inset-block-end: clamp(-18px, -4vw, -10px);
-    inset-inline-start: calc(-1 * var(--container-padding) - 9vw);
-    width: clamp(215px, 74vw, 300px);
+    inset-block-start: clamp(74px, 23vw, 112px);
+    // Just inside the frame's right edge: the lamp head sits at the edge and
+    // the stand, which is the asset's own right border, stays in the window.
+    inset-inline-start: clamp(2px, 1vw, 5px);
+    width: clamp(138px, 40vw, 172px);
     height: auto;
-    aspect-ratio: 2 / 3;
+    max-width: none;
+    object-fit: unset;
+    filter: none;
+    transition: none;
     pointer-events: none;
     user-select: none;
     -webkit-user-select: none;
-    animation: softboxBreath 6s ease-in-out infinite;
+    animation: portraitLightBreath 6s ease-in-out infinite;
   }
 
-  // THE PORTAL. A block of its own between the portrait and the story, so its
-  // height is reserved before the picture arrives. Set to the right with the
-  // camera bleeding a little past the screen edge; the light trail curves
-  // back into the page. Its top rides over the portrait's lower edge on the
-  // right, where the picture is table and plates, never text.
-  .about-portal {
+  // THE TRANSITION. A window of fixed height - its own number, not the
+  // picture's ratio - holding the artwork absolutely, set to the right with
+  // the camera bleeding a little past the edge (the section clips it). It
+  // starts under the portrait's lower boundary so Adi's cutout meets her
+  // photograph, and ends a short, normal distance before the story heading.
+  .creative-lens-transition {
     display: block;
     position: relative;
     z-index: 3;
-    width: clamp(224px, 74vw, 320px);
-    aspect-ratio: 2 / 3;
-    margin-inline-start: calc(-1 * var(--container-padding) - 5vw);
-    margin-inline-end: auto;
-    margin-block-start: calc(-1 * clamp(40px, 13vw, 68px));
-    // The camera's base must not rest on the story's first line.
-    margin-block-end: clamp(16px, 5vw, 26px);
+    block-size: clamp(340px, 93vw, 392px);
+    margin-block-start: clamp(-26px, -6vw, -14px);
+    margin-block-end: clamp(24px, 6vw, 32px);
     pointer-events: none;
     user-select: none;
     -webkit-user-select: none;
   }
 
-  .about-portal__img {
-    display: block;
-    width: 100%;
-    height: 100%;
-    object-fit: contain;
+  .creative-lens-transition__art {
+    position: absolute;
+    inset-block-start: 0;
+    // Past the container's edge and a little past the screen's: the lens
+    // bleeds, the section clips.
+    inset-inline-start: calc(-1 * var(--container-padding) - clamp(6px, 2vw, 12px));
+    width: clamp(226px, 62vw, 262px);
+    max-width: none;
+    height: auto;
     pointer-events: none;
     user-select: none;
     -webkit-user-select: none;
-  }
-
-  // Reveal: the project's own entrance (opacity and a 10px rise, from the
-  // IntersectionObserver system) plus, once visible, one soft optical pulse.
-  .about-portal.reveal.is-visible .about-portal__img {
-    animation: portalPulse 1.8s var(--ease-smooth) 1 both;
   }
 }
 
-// Light breathing: slow, shallow, never a blink.
-@keyframes softboxBreath {
-  0%, 100% { opacity: 0.88; }
+// Light breathing: six seconds, six percent, never a blink.
+@keyframes portraitLightBreath {
+  0%, 100% { opacity: 0.94; }
   50% { opacity: 1; }
 }
 
-@keyframes portalPulse {
-  0% { opacity: 0.82; }
-  45% { opacity: 1; }
-  70% { opacity: 0.93; }
-  100% { opacity: 1; }
-}
-
 @media (prefers-reduced-motion: reduce) {
-  .about-softbox,
-  .about-portal__img,
-  .about-portal.reveal.is-visible .about-portal__img {
+  .about-layout .about-photo-wrap img.about-photo-light {
     animation: none;
     opacity: 1;
   }
