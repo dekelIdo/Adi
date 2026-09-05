@@ -483,9 +483,11 @@ select {
 // frame, with the screen overlapping the picture so it belongs to the document
 // she is holding rather than sitting in a card beside it.
 //
-// The agreement screenshot was dropped rather than shrunk into a third plate.
-// The photograph says "a real document"; the screen says "and this is where you
-// sign it". A third rectangle only diluted both.
+// Three layers, one photograph. The picture is the scene and is never
+// transformed; the agreement's signature block and the signing screen are
+// composited on the wall beneath the clipboard as two separate objects, each
+// with its own perspective and shadow, on the same axis as the document she is
+// writing on: the physical page, the agreement, the screen it is signed on.
 
 .section-signing {
   position: relative;
@@ -543,9 +545,9 @@ select {
 // inside the scene, it reads as a phone in the room.
 .signing-screen {
   position: absolute;
-  inset-block-end: 6%;
-  inset-inline-end: 6%;   // RTL: the left of the frame, clear of her figure
-  width: 31%;
+  inset-block-end: 3%;
+  inset-inline-end: 2%;   // RTL: the left of the frame, clear of her figure
+  width: 28%;
   max-width: 158px;
   margin: 0;
   z-index: 2;
@@ -561,6 +563,40 @@ select {
     display: block;
     width: 100%;
     height: auto;
+  }
+}
+
+// ── The agreement ────────────────────────────────────────────────────────────
+//
+// The signature block of the real agreement, behind the screen and a little
+// higher, turned a few degrees toward her so the two objects read as a stack on
+// the wall and not as two stickers. The perspective is applied to this layer
+// only. Percentages are of the frame, as the screen's are.
+.signing-paper {
+  position: absolute;
+  // On the wall: its top sits under her lower hand, its right edge stops
+  // short of her sleeve, so no layer ever crosses the clipboard or her body.
+  inset-block-end: 24%;
+  inset-inline-end: 5%;   // RTL: the left of the frame, under the clipboard
+  width: 25%;
+  max-width: 168px;
+  aspect-ratio: 3 / 4;
+  margin: 0;
+  z-index: 1;
+  border-radius: 8px;
+  overflow: hidden;
+  background: #fff;
+  transform: perspective(900px) rotateY(-12deg) rotateX(2deg);
+  transform-origin: 100% 50%;
+  box-shadow: 0 1px 0 rgba(42, 40, 38, 0.05), 8px 16px 30px rgba(42, 40, 38, 0.2);
+
+  img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    // The signature block: Adi's line signed, the client's still open.
+    object-position: 50% 64%;
   }
 }
 
@@ -647,9 +683,9 @@ select {
   }
 
   .signing-photo {
-    // Tall enough for the gesture to read at phone width without the frame
-    // becoming a wall.
-    aspect-ratio: 4 / 5;
+    // Tall enough for the gesture to read at phone width and for the wall
+    // beneath the clipboard to hold the two layers clear of her figure.
+    aspect-ratio: 3 / 4;
   }
 
   // Nothing to position: the screen is inside the frame and placed there once.
@@ -708,8 +744,19 @@ select {
   // The frame is much wider here, so the same 31% would make the phone larger
   // than it is in life. Only the proportion changes; where it sits is settled
   // once, in the base rule.
+  // The frame is wider and her figure holds more of it; the wall beneath the
+  // clipboard runs from the left edge to about a third of the frame and from
+  // just under her hand down. Both layers are set inside that space.
+  .signing-paper {
+    inset-block-end: 20%;
+    inset-inline-end: 8%;
+    width: 24%;
+    max-width: 180px;
+  }
+
   .signing-screen {
-    width: 26%;
+    inset-inline-end: 3%;
+    width: 22%;
   }
 }
 
@@ -840,41 +887,6 @@ select {
     pointer-events: none;
     user-select: none;
     -webkit-user-select: none;
-  }
-}
-
-// ─────── MOBILE: THE SIGNING SCENE AS ONE SUPPLIED COMPOSITION ─────────────────
-//
-// Off by default; on beneath 700px, where it replaces the photograph-and-screen
-// composition, which is hidden there (and, being lazy, never requested).
-// Tablet and desktop keep their composition untouched.
-.signing-scene-mobile {
-  display: none;
-}
-
-@media (max-width: 699.98px) {
-  .signing-scene .signing-photo {
-    display: none;
-  }
-
-  .signing-scene-mobile {
-    display: block;
-    margin: 0 auto;
-    width: clamp(260px, 88vw, 400px);
-    aspect-ratio: 2 / 3;
-    overflow: visible;
-    background: none;
-    border: 0;
-    border-radius: 0;
-    box-shadow: none;
-
-    img {
-      display: block;
-      width: 100%;
-      height: auto;
-      user-select: none;
-      -webkit-user-select: none;
-    }
   }
 }
 
