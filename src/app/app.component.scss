@@ -484,10 +484,11 @@ select {
 // she is holding rather than sitting in a card beside it.
 //
 // Three layers, one photograph. The picture is the scene and is never
-// transformed; the agreement's signature block and the signing screen are
-// composited on the wall beneath the clipboard as two separate objects, each
-// with its own perspective and shadow, on the same axis as the document she is
-// writing on: the physical page, the agreement, the screen it is signed on.
+// transformed. The agreement's signature block is a separate layer laid on the
+// sheet she is actually writing on, keyed so her hands and the pen stay in
+// front; the signing screen is composited on the wall beneath the clipboard as
+// its own object with its own shadow: the real gesture, the document, the
+// screen it is signed on.
 
 .section-signing {
   position: relative;
@@ -566,38 +567,20 @@ select {
   }
 }
 
-// ── The agreement ────────────────────────────────────────────────────────────
+// ── The agreement, on the sheet ──────────────────────────────────────────────
 //
-// The signature block of the real agreement, behind the screen and a little
-// higher, turned a few degrees toward her so the two objects read as a stack on
-// the wall and not as two stickers. The perspective is applied to this layer
-// only. Percentages are of the frame, as the screen's are.
-.signing-paper {
+// Not a card beside her: the agreement's signature block sits on the clipboard
+// she is writing on. The layer is a transparent image the exact size of the
+// photograph and shares the photograph's box, fit and crop, so it is pixel-locked
+// to the sheet at every width - there is nothing to position and nothing that
+// can drift. Her hands, the pen and the clip are cut out of the layer itself, so
+// the real pen meets the real signature line. Adi is never transformed.
+.signing-doc {
   position: absolute;
-  // On the wall: its top sits under her lower hand, its right edge stops
-  // short of her sleeve, so no layer ever crosses the clipboard or her body.
-  inset-block-end: 24%;
-  inset-inline-end: 5%;   // RTL: the left of the frame, under the clipboard
-  width: 25%;
-  max-width: 168px;
-  aspect-ratio: 3 / 4;
-  margin: 0;
+  inset: 0;
   z-index: 1;
-  border-radius: 8px;
-  overflow: hidden;
-  background: #fff;
-  transform: perspective(900px) rotateY(-12deg) rotateX(2deg);
-  transform-origin: 100% 50%;
-  box-shadow: 0 1px 0 rgba(42, 40, 38, 0.05), 8px 16px 30px rgba(42, 40, 38, 0.2);
-
-  img {
-    display: block;
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    // The signature block: Adi's line signed, the client's still open.
-    object-position: 50% 64%;
-  }
+  pointer-events: none;
+  user-select: none;
 }
 
 // ── The words ────────────────────────────────────────────────────────────────
@@ -741,19 +724,24 @@ select {
     width: 100%;
   }
 
+  // CLOSER TO THE GESTURE. In a frame this wide the full figure left the
+  // clipboard - the subject of the chapter - the size of a stamp. One shared
+  // enlargement on the photograph and its document layer (the same rule, the
+  // same origin, so the two cannot drift apart) brings the hands, the pen and
+  // the signature line up to a size at which the signing reads, and lets the
+  // frame crop her hair and the jeans the way an editorial crop would. Only the
+  // crop changes: the pixels are hers, unwarped.
+  .signing-plate {
+    transform: scale(1.22);
+    transform-origin: 40% 14%;
+  }
+
   // The frame is much wider here, so the same 31% would make the phone larger
   // than it is in life. Only the proportion changes; where it sits is settled
   // once, in the base rule.
   // The frame is wider and her figure holds more of it; the wall beneath the
   // clipboard runs from the left edge to about a third of the frame and from
-  // just under her hand down. Both layers are set inside that space.
-  .signing-paper {
-    inset-block-end: 20%;
-    inset-inline-end: 8%;
-    width: 24%;
-    max-width: 180px;
-  }
-
+  // just under her hand down. The screen is set inside that space.
   .signing-screen {
     inset-inline-end: 3%;
     width: 22%;

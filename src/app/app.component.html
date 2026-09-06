@@ -914,26 +914,30 @@
           <picture>
             <source srcset="assets/lovable-uploads/MyAssets/Signing/signing-adi.webp" type="image/webp" />
             <img
+              class="signing-plate"
               src="assets/lovable-uploads/MyAssets/Signing/signing-adi.jpg"
               alt="עדי אריאלי חותמת על מסמך"
               width="1400" height="2096" loading="lazy" decoding="async"
             />
           </picture>
 
-          <!-- THE DOCUMENT, AS A LAYER. The agreement she sends, its signature
-               block, composited on the wall beneath the clipboard: a separate
-               object with its own perspective and shadow. Only this layer and
-               the screen are transformed; the photograph and Adi are never
-               warped, masked or redrawn. -->
-          <figure class="signing-paper" aria-hidden="true">
-            <img
-              src="assets/lovable-uploads/MyAssets/Signing/signing-agreement.png"
-              alt=""
-              width="328" height="680"
-              loading="lazy" decoding="async"
-              draggable="false"
-            />
-          </figure>
+          <!-- THE DOCUMENT, ON THE SHEET SHE IS ACTUALLY WRITING ON.
+               A second image with the photograph's exact pixel dimensions, in the
+               same box with the same fit and crop, so it lands on the clipboard at
+               every width without a single positioned value. It carries only the
+               agreement's signature block - real screenshot pixels, perspective-
+               mapped onto the sheet and shaded by the sheet's own light - and it
+               is keyed to the sheet's paper: her hands, her nails, the pen and the
+               clip are transparent in this layer, so the real pen meets the real
+               signature line. The photograph itself is never masked, warped or
+               redrawn; Adi is the original pixels at every breakpoint. -->
+          <img
+            class="signing-plate signing-doc"
+            src="assets/lovable-uploads/MyAssets/Signing/signing-adi-agreement-layer.png"
+            alt=""
+            width="1400" height="2096" loading="lazy" decoding="async"
+            draggable="false" aria-hidden="true"
+          />
 
           @if (!signingScreen.missing) {
             <figure class="signing-screen">

@@ -420,10 +420,10 @@ export class AppComponent implements AfterViewInit, OnDestroy {
    * the real screen a client signs on - the physical gesture and its digital
    * counterpart, in one composition.
    *
-   * The agreement's signature block is composited into the same frame as a
-   * second, static layer (template only, no guard: it is decorative and
-   * aria-hidden). The photograph is never transformed; only the two objects
-   * placed on the wall beside her are.
+   * The agreement's signature block is a second, static image layer the exact
+   * size of the photograph, laid on the clipboard she is writing on (template
+   * only, no guard: it is decorative and aria-hidden). The photograph is never
+   * transformed; the layer is keyed so her hands and the pen stay in front.
    *
    * The photograph is a shipped asset, so the section always has its scene. Only
    * the screen is guarded: if that file is ever missing the frame removes itself
