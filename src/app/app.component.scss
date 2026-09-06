@@ -5956,9 +5956,16 @@ div[id] {
     text-align: center;
   }
 
+  // A CREDIT LINE, NOT A SENTENCE. Set the way the closing invitation above it
+  // is set - small, tracked open, quiet - so the last two lines of the page read
+  // as one typographic family: the invitation at closing scale, the signature
+  // beneath it at caption scale. Body size at 62% white read as one more
+  // paragraph that happened to be last.
   p {
-    font-size: var(--text-sm);
-    color: rgba(255, 255, 255, 0.62);
+    margin: 0;
+    font-size: 0.78rem;
+    letter-spacing: 0.06em;
+    color: rgba(255, 255, 255, 0.5);
     line-height: 1.7;
   }
 }
