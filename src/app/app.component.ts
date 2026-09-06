@@ -420,9 +420,10 @@ export class AppComponent implements AfterViewInit, OnDestroy {
    * the real screen a client signs on - the physical gesture and its digital
    * counterpart, in one composition.
    *
-   * The agreement screenshot was dropped rather than shrunk into a third card.
-   * The photograph carries "a real document"; the screen carries "and this is
-   * where you sign it". A third plate only diluted both.
+   * The agreement's signature block is a second, static image layer the exact
+   * size of the photograph, laid on the clipboard she is writing on (template
+   * only, no guard: it is decorative and aria-hidden). The photograph is never
+   * transformed; the layer is keyed so her hands and the pen stay in front.
    *
    * The photograph is a shipped asset, so the section always has its scene. Only
    * the screen is guarded: if that file is ever missing the frame removes itself
@@ -675,16 +676,17 @@ export class AppComponent implements AfterViewInit, OnDestroy {
     this.initScrollReveal();
     this.initHeaderGlass();
     this.initHeaderTheme();
-    this.initHeroParallax();
     this.initCursorGlow();
     this.initReelPlayback();
     // FROM 768px THE PAGE IS A DIFFERENT COMPOSITION. The studio and laptop
-    // cinematics, the shoot-day reveal and the editorial drift are phone
-    // choreography; on tablet and desktop the same photographs are laid out
-    // statically by the stylesheet, so their drivers are simply not started.
-    // Below 768px nothing here changes: the same four calls, in the same order.
+    // cinematics, the shoot-day reveal, the editorial drift and the hero
+    // parallax are phone choreography; on tablet and desktop the same
+    // photographs are laid out statically by the stylesheet, so their drivers
+    // are simply not started and the hero rests at its CSS defaults.
+    // Below 768px nothing here changes: the same calls, in the same order.
     const wide = window.matchMedia('(min-width: 768px)').matches;
     if (!wide) {
+      this.initHeroParallax();
       this.initLivingPhotograph();
       this.initShootDayReveal();
       this.initLaptopBridge();

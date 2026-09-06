@@ -910,33 +910,34 @@
              nested, the relationship is structural and there is nothing left to
              position. The eye travels the way the sentence does: Adi, the
              document, the same document on a phone. -->
-        <!-- THE SIGNING SCENE ON A PHONE: one supplied transparent composition
-             of Adi and the signing interface, on the page's own paper. No card,
-             no frame. Its box reserves the 2:3 ratio before the picture lands.
-             Below 700px this is the scene; the photograph composition below it
-             is for wider screens only and is not rendered or requested here. -->
-        <figure class="signing-scene-mobile reveal">
-          <img
-            src="assets/lovable-uploads/MyAssets/Signing/adi-signing-authentic-original-head-mobile-final.webp"
-            alt="עדי אריאלי מביטה בחוזה הדיגיטלי המוגדל וחותמת עליו"
-            width="768"
-            height="1152"
-            loading="lazy"
-            decoding="async"
-            fetchpriority="low"
-            draggable="false"
-          />
-        </figure>
-
         <figure class="signing-photo">
           <picture>
             <source srcset="assets/lovable-uploads/MyAssets/Signing/signing-adi.webp" type="image/webp" />
             <img
+              class="signing-plate"
               src="assets/lovable-uploads/MyAssets/Signing/signing-adi.jpg"
               alt="עדי אריאלי חותמת על מסמך"
               width="1400" height="2096" loading="lazy" decoding="async"
             />
           </picture>
+
+          <!-- THE DOCUMENT, ON THE SHEET SHE IS ACTUALLY WRITING ON.
+               A second image with the photograph's exact pixel dimensions, in the
+               same box with the same fit and crop, so it lands on the clipboard at
+               every width without a single positioned value. It carries only the
+               agreement's signature block - real screenshot pixels, perspective-
+               mapped onto the sheet and shaded by the sheet's own light - and it
+               is keyed to the sheet's paper: her hands, her nails, the pen and the
+               clip are transparent in this layer, so the real pen meets the real
+               signature line. The photograph itself is never masked, warped or
+               redrawn; Adi is the original pixels at every breakpoint. -->
+          <img
+            class="signing-plate signing-doc"
+            src="assets/lovable-uploads/MyAssets/Signing/signing-adi-agreement-layer.png"
+            alt=""
+            width="1400" height="2096" loading="lazy" decoding="async"
+            draggable="false" aria-hidden="true"
+          />
 
           @if (!signingScreen.missing) {
             <figure class="signing-screen">
