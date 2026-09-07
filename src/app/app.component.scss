@@ -7695,6 +7695,297 @@ div[id] {
   }
 }
 
+// ═══════════════════════════════════════════════════════════════════════════════
+// DESKTOP EDITORIAL LAYER — SECOND COMPOSITION
+//
+// The layer above stilled the phone's cinematics and paired things up. It still
+// read as a phone page widened: one column of list under a heading, photographs
+// running the full height of a figure with nothing beside them, a copy block
+// alone on one side of the container. This layer gives every chapter from 1024
+// up a deliberate two-column or grid composition on one container (1280 / 1360
+// / 1400), with the photography held to a controlled height and every copy
+// block in a readable measure. Nothing here reaches below 1024px; the tablet
+// tier below that keeps the first layer, and phones keep their frozen layout.
+// ═══════════════════════════════════════════════════════════════════════════════
+
+@media (min-width: 1024px) {
+  :host {
+    --container-max: 1280px;
+    // One vertical tier for the chapters that use .section. The phone tokens
+    // (26–50px) are proportioned to a 390px column; on a 1280px one they made
+    // every chapter start before the eye had left the one above.
+    --sec-desk: clamp(52px, 4.8vw, 72px);
+    // One photograph height for the split chapters, so the pictures that face
+    // copy across the page are the same size from chapter to chapter.
+    --split-photo: clamp(540px, 42vw, 660px);
+  }
+
+  .section {
+    padding-block: var(--sec-desk);
+  }
+
+  // ── PROBLEM: heading on five columns, six statements as two columns of three ─
+  #problem > .container {
+    grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
+    column-gap: var(--split-gap);
+    align-items: start;
+  }
+
+  .problem-header {
+    position: static;
+  }
+
+  #problem .section-glow {
+    opacity: 0.3;
+  }
+
+  .problem-list {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    column-gap: var(--split-gap);
+    row-gap: 0;
+  }
+
+  .problem-item,
+  .problem-item:first-child {
+    border-top: 1px solid var(--rule);
+    padding-block: clamp(20px, 1.8vw, 28px);
+    align-content: start;
+  }
+
+  .problem-item:nth-child(-n + 2) {
+    border-top: none;
+    padding-top: 0;
+  }
+
+  .problem-item p {
+    font-size: clamp(1.15rem, 1.3vw, 1.4rem);
+    line-height: 1.4;
+  }
+
+  // ── THE STATEMENT BAND: one line at reading scale, not a second hero ────────
+  .brand-break {
+    padding-block: clamp(56px, 5.4vw, 84px);
+  }
+
+  .brand-break-line-1,
+  .brand-break-line-2 {
+    display: inline;
+    font-size: clamp(2.6rem, 3.6vw, 4.2rem);
+    line-height: 1.15;
+  }
+
+  .brand-break-line-2 {
+    margin-inline-start: 0.3em;
+  }
+
+  .brand-break-line-sub {
+    display: block;
+    margin-top: clamp(16px, 1.5vw, 24px);
+  }
+
+  // ── INSIGHT: quote and lists on six, one controlled photograph on six ──────
+  .split-grid--insight {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    grid-template-rows: auto auto;
+    column-gap: var(--split-gap);
+    row-gap: clamp(32px, 3vw, 48px);
+    align-items: start;
+  }
+
+  .split-grid--insight .duo-cards {
+    align-self: start;
+  }
+
+  .split-grid--insight .editorial-img {
+    margin-inline: 0;
+    max-width: none;
+    border-radius: var(--r-media);
+  }
+
+  .split-grid--insight .editorial-img img {
+    height: var(--split-photo);
+    object-fit: cover;
+    object-position: 50% 10%;
+  }
+
+  // ── SOLUTION: the photograph held to the same height as the insight's ───────
+  .solution-wrap {
+    align-items: center;
+  }
+
+  .solution-visual-wrap img {
+    height: var(--split-photo);
+    object-fit: cover;
+    object-position: 50% 30%;
+  }
+
+  // ── PLATES: a chapter break the height of a wide band, not a screen ─────────
+  .chapter-plate {
+    height: clamp(420px, 44vh, 540px);
+  }
+
+  .chapter-plate--identity img {
+    object-position: 50% 14%;
+  }
+
+  // ── ABOUT: words on five, restaurant photograph on seven, story in two columns
+  .about-layout {
+    grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
+    column-gap: var(--split-gap);
+    align-items: center;
+  }
+
+  .about-photo-wrap {
+    max-width: none;
+    margin: 0;
+  }
+
+  .about-photo-wrap img {
+    height: var(--split-photo);
+    object-fit: cover;
+    object-position: 50% 28%;
+  }
+
+  .story-card {
+    max-width: none;
+    margin-top: clamp(48px, 4.4vw, 72px);
+    columns: 2;
+    column-gap: var(--split-gap);
+  }
+
+  .story-card h3 {
+    column-span: all;
+  }
+
+  .story-card p {
+    break-inside: avoid;
+  }
+
+  // ── THE LAPTOP STILL: the full column, a wide band, her face and the laptop ─
+  .section-bridge,
+  .section-bridge.is-cinematic {
+    padding-block: 0;
+  }
+
+  .section-bridge .bridge-base,
+  .section-bridge.is-cinematic .bridge-base {
+    max-width: none;
+  }
+
+  .section-bridge .bridge-base img,
+  .section-bridge.is-cinematic .bridge-base img {
+    height: clamp(460px, 36vw, 580px);
+    object-position: 50% 18%;
+  }
+
+  // ── PROCESS: heading on five, the four steps two by two on seven ───────────
+  #process > .container {
+    grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
+    column-gap: var(--split-gap);
+  }
+
+  .process-editorial {
+    display: grid;
+    // One column of steps at 1024, where two would wrap every title; two by two
+    // from 1280, where each column is a comfortable measure.
+    grid-template-columns: minmax(0, 1fr);
+    column-gap: var(--split-gap);
+    row-gap: clamp(28px, 2.6vw, 40px);
+    max-width: none;
+    margin: 0;
+  }
+
+  .process-row,
+  .process-row:first-child {
+    border-top: 1px solid var(--rule);
+    padding-top: clamp(18px, 1.6vw, 24px);
+  }
+
+  #process .section-close-note {
+    margin-top: clamp(28px, 2.6vw, 40px);
+  }
+
+  // ── THE STUDIO STILL: a wide band between process and the work ──────────────
+  .action-sticky {
+    padding-block: 0;
+  }
+
+  .action-frame img {
+    height: clamp(440px, 36vw, 580px);
+  }
+
+  // ── SHOOT DAY: the ring-light photograph on seven, the two lines on five ────
+  .shoot-scene {
+    grid-template-columns: minmax(0, 7fr) minmax(0, 5fr);
+    align-items: center;
+    column-gap: var(--split-gap);
+    width: min(100% - 2 * var(--container-padding), var(--container-max));
+    max-width: none;
+    padding-inline: 0;
+    margin-inline: auto;
+  }
+
+  .shoot-frame {
+    max-width: none;
+  }
+
+  .shoot-words {
+    padding-inline: 0;
+  }
+
+  .shoot-frame img {
+    height: var(--split-photo);
+    object-fit: cover;
+    object-position: 50% 20%;
+  }
+
+  .shoot-proof {
+    gap: var(--grid-gap);
+    margin-top: clamp(32px, 3vw, 48px);
+  }
+
+  // ── CONTACT: photograph on five, stretched to the card; words and form on seven
+  .contact-layout {
+    grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
+    column-gap: var(--split-gap);
+    align-items: stretch;
+  }
+
+  .contact-img {
+    height: 100%;
+    min-height: 100%;
+  }
+
+  .contact-img picture,
+  .contact-img img {
+    height: 100%;
+  }
+
+  .contact-img img {
+    object-fit: cover;
+    object-position: 64% 38%;
+  }
+}
+
+@media (min-width: 1280px) {
+  .process-editorial {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 1440px) {
+  :host {
+    --container-max: 1360px;
+  }
+}
+
+@media (min-width: 1920px) {
+  :host {
+    --container-max: 1400px;
+  }
+}
+
 @media print {
   .site-header,
   .back-to-top,
