@@ -1,4 +1,4 @@
-import { AfterViewInit, ChangeDetectorRef, Component, OnDestroy, NgZone, ViewChild, ElementRef } from '@angular/core';
+import { AfterViewInit, ChangeDetectorRef, Component, HostListener, OnDestroy, NgZone, ViewChild, ElementRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
 interface PortfolioProject {
@@ -440,6 +440,106 @@ export class AppComponent implements AfterViewInit, OnDestroy {
     this.cdr.markForCheck();
   }
 
+  /**
+   * PAGE NAVIGATION — ONE LIST, TWO PRESENTATIONS.
+   *
+   * The five chapters a visitor actually jumps to. The desktop bar and the phone
+   * menu both render this list, so the destinations can never drift apart, and
+   * every entry is a plain anchor: the browser does the scrolling, CSS
+   * scroll-margin-top clears the fixed header, and the cinematic chapters are
+   * never landed inside because each target is a stable section boundary.
+   */
+  readonly navLinks: ReadonlyArray<{ id: string; label: string }> = [
+    { id: 'about', label: 'אודות' },
+    { id: 'process', label: 'התהליך' },
+    { id: 'portfolio', label: 'עבודות' },
+    { id: 'services', label: 'שירותים' },
+    { id: 'testimonials', label: 'המלצות' },
+  ];
+
+  /** The phone menu, folded into the header; closed on every navigation. */
+  menuOpen = false;
+  /** The chapter under the reader now, for the quiet mark in the phone menu. */
+  activeSection: string | null = null;
+  private sectionObserver?: IntersectionObserver;
+
+  toggleMenu(): void {
+    this.menuOpen = !this.menuOpen;
+  }
+
+  closeMenu(): void {
+    if (!this.menuOpen) return;
+    this.menuOpen = false;
+    this.cdr.markForCheck();
+  }
+
+  // A tap on a chapter in the phone menu. The two chapters that a cinematic
+  // parks below the fold (--handoff-y) are translated by up to 65vh at the
+  // moment of the tap, and a native anchor jump scrolls to that translated box;
+  // by the time the driver has returned them to rest the page has overshot by
+  // the same distance. So the menu scrolls to the section's untransformed top
+  // itself, less its scroll-margin-top, through the page's own scroll-behavior
+  // (smooth, or none under reduced motion). The link stays a real anchor: the
+  // hash is pushed as a navigation would push it, and without script it simply
+  // works natively.
+  onMenuNavigate(event: MouseEvent, id: string): void {
+    this.closeMenu();
+    if (event.defaultPrevented || event.metaKey || event.ctrlKey || event.shiftKey) return;
+    const el = document.getElementById(id);
+    if (!el) return;
+    event.preventDefault();
+    const style = getComputedStyle(el);
+    const shift = style.transform && style.transform !== 'none' ? new DOMMatrix(style.transform).m42 : 0;
+    const margin = parseFloat(style.scrollMarginTop) || 0;
+    const top = Math.max(0, Math.round(el.getBoundingClientRect().top - shift + window.scrollY - margin));
+    history.pushState(null, '', `#${id}`);
+    window.scrollTo({ top, behavior: 'auto' });
+  }
+
+  @HostListener('document:keydown.escape')
+  onEscape(): void {
+    if (!this.menuOpen) return;
+    this.closeMenu();
+    document.querySelector<HTMLElement>('.header-menu-toggle')?.focus();
+  }
+
+  // A tap anywhere outside the header closes the menu; the page beneath is
+  // never locked, so this is the only way an open menu gets out of the way.
+  @HostListener('document:click', ['$event'])
+  onDocumentClick(event: Event): void {
+    if (!this.menuOpen) return;
+    const target = event.target as HTMLElement | null;
+    if (target?.closest('.site-header')) return;
+    this.closeMenu();
+  }
+
+  // Which chapter is under the reader: the navigation target whose box crosses
+  // a band around the middle of the viewport. One observer, five elements, no
+  // work per frame.
+  private initActiveSection(): void {
+    if (typeof IntersectionObserver === 'undefined') return;
+    const targets = this.navLinks
+      .map((l) => document.getElementById(l.id))
+      .filter((el): el is HTMLElement => !!el);
+    if (targets.length === 0) return;
+    const visible = new Set<string>();
+    this.sectionObserver = new IntersectionObserver(
+      (entries) => {
+        for (const e of entries) {
+          if (e.isIntersecting) visible.add(e.target.id);
+          else visible.delete(e.target.id);
+        }
+        // Document order wins when two cross the band at once.
+        const next = this.navLinks.find((l) => visible.has(l.id))?.id ?? null;
+        if (next === this.activeSection) return;
+        this.activeSection = next;
+        this.cdr.markForCheck();
+      },
+      { rootMargin: '-40% 0px -50% 0px', threshold: 0 }
+    );
+    targets.forEach((el) => this.sectionObserver!.observe(el));
+  }
+
   socialDockVisible = false;
   private lastDockScroll = 0;
   /** Cached so the scroll handler measures one element, not a query per frame. */
@@ -695,6 +795,7 @@ export class AppComponent implements AfterViewInit, OnDestroy {
     // Last on purpose: it is the one driver that re-enters Angular, so its
     // change detection lands after every other write of the frame.
     this.initBackToTop();
+    this.initActiveSection();
     this.zone.runOutsideAngular(() => this.pipeline?.runNow());
     void this.loadPublishedReviews();
   }
@@ -2048,6 +2149,7 @@ export class AppComponent implements AfterViewInit, OnDestroy {
   ngOnDestroy(): void {
     this.observer?.disconnect();
     this.reelObserver?.disconnect();
+    this.sectionObserver?.disconnect();
     this.pipeline?.destroy();
     this.clearReelFocus();
   }

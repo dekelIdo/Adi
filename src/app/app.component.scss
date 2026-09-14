@@ -416,6 +416,189 @@ select {
   filter: none;
 }
 
+// ─────── PAGE NAVIGATION ON A PHONE ───────────────────────────────────────────
+//
+// Below the desktop bar's breakpoint the header is a mark and a button with a
+// long page underneath it. This adds the one thing that was missing - a way to
+// reach a chapter without scrolling through every one before it - as quietly
+// as the header allows: two hairlines beside the button, and when they are
+// asked, the header itself grows downward into an index of five chapters.
+// One object, not a drawer over the page; nothing beneath is locked or dimmed.
+//
+// The control is drawn in currentColor, so it follows the header's own light
+// and dark states and needs no treatment of its own to stay readable.
+
+.header-menu-toggle {
+  display: none;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 6px;
+  width: 40px;
+  height: 40px;
+  margin-inline-start: auto;
+  margin-inline-end: 6px;
+  padding: 0;
+  background: none;
+  border: 0;
+  border-radius: var(--r-chip);
+  color: inherit;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+
+  &:focus-visible {
+    outline: 2px solid var(--brand-accent);
+    outline-offset: 2px;
+  }
+}
+
+.header-menu-toggle__line {
+  display: block;
+  width: 18px;
+  height: 1.25px;
+  background: currentColor;
+  opacity: 0.82;
+  transition: transform 200ms var(--ease-smooth), opacity 200ms var(--ease-smooth);
+}
+
+// Open: the two lines meet as a fine cross. Same two strokes, no third.
+.site-header.is-menu-open .header-menu-toggle__line {
+  opacity: 1;
+
+  &:first-child {
+    transform: translateY(3.625px) rotate(45deg);
+  }
+
+  &:last-child {
+    transform: translateY(-3.625px) rotate(-45deg);
+  }
+}
+
+.header-menu {
+  display: none;
+}
+
+@media (max-width: 1023.98px) {
+  .header-menu-toggle {
+    display: inline-flex;
+  }
+
+  // An open header is a surface, whatever the scroll position: the translucent
+  // resting state over the hero would put the index on top of the photograph.
+  .site-header.is-menu-open {
+    background: rgba(252, 251, 250, 0.97);
+    border-color: rgba(196, 217, 240, 0.23);
+    backdrop-filter: blur(26px) saturate(1.18);
+    -webkit-backdrop-filter: blur(26px) saturate(1.18);
+    box-shadow: 0 10px 36px rgba(16, 14, 12, 0.08), 0 1px 0 rgba(255, 255, 255, 0.58) inset;
+
+    &[data-theme="dark"] {
+      background: rgba(12, 10, 8, 0.94);
+      border-color: rgba(196, 217, 240, 0.2);
+      box-shadow: 0 10px 36px rgba(0, 0, 0, 0.26), 0 1px 0 rgba(255, 255, 255, 0.08) inset;
+    }
+  }
+
+  // GRID ROWS, NOT A GUESSED HEIGHT - the same mechanism the FAQ uses, so the
+  // header grows to the list's real height and back to nothing.
+  .header-menu {
+    display: grid;
+    grid-template-rows: 0fr;
+    transition: grid-template-rows 200ms var(--ease-smooth);
+
+    &.is-open {
+      grid-template-rows: 1fr;
+    }
+  }
+
+  .header-menu__inner {
+    overflow: hidden;
+    min-height: 0;
+    padding-inline: 16px;
+    opacity: 0;
+    transform: translateY(-4px);
+    transition: opacity 160ms var(--ease-smooth), transform 200ms var(--ease-smooth);
+
+    // The hairline that separates the index from the bar. Drawn inside the
+    // clipped box, so a closed menu shows nothing at all.
+    &::before {
+      content: "";
+      display: block;
+      height: 1px;
+      background: color-mix(in srgb, currentColor 12%, transparent);
+    }
+  }
+
+  .header-menu.is-open .header-menu__inner {
+    opacity: 1;
+    transform: none;
+    transition-delay: 40ms;
+  }
+
+  .header-menu__list {
+    list-style: none;
+    margin: 0;
+    padding: 2px 0 8px;
+  }
+
+  .header-menu__list li:first-child .header-menu__link {
+    border-top: none;
+  }
+
+  .header-menu__link {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    min-height: 44px;
+    padding: 0 2px;
+    font-family: var(--font-body);
+    font-size: 1rem;
+    font-weight: 500;
+    letter-spacing: 0.01em;
+    color: inherit;
+    opacity: 0.74;
+    text-decoration: none;
+    border-top: 1px solid color-mix(in srgb, currentColor 8%, transparent);
+    transition: opacity 200ms var(--ease-smooth);
+    -webkit-tap-highlight-color: transparent;
+
+    &:hover,
+    &:focus-visible {
+      opacity: 1;
+    }
+
+    &:focus-visible {
+      outline: 2px solid var(--brand-accent);
+      outline-offset: -2px;
+      border-radius: 2px;
+    }
+
+    // The chapter under the reader: full strength and a small dot at the line's
+    // end. No fill, no pill.
+    &.is-current {
+      opacity: 1;
+      font-weight: 600;
+
+      &::after {
+        content: "";
+        width: 5px;
+        height: 5px;
+        border-radius: 50%;
+        background: var(--brand-accent);
+      }
+    }
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .header-menu,
+  .header-menu__inner,
+  .header-menu-toggle__line,
+  .header-menu__link {
+    transition: none;
+  }
+}
+
 .site-header .header-cta,
 .header-cta {
   position: relative;

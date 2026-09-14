@@ -1,7 +1,7 @@
 <div class="page" dir="rtl">
   <div class="page-grain" aria-hidden="true"></div>
 
-  <header class="site-header" role="banner">
+  <header class="site-header" role="banner" [class.is-menu-open]="menuOpen">
     <div class="container header-inner">
       <a class="header-logo" href="#hero" aria-label="עדי אריאלי">
         <!-- A small studio light beside the mark, only while the header is
@@ -17,14 +17,54 @@
            the header is a mark and a button; from 1024 up there is a metre of
            empty bar between them, and this is what belongs there. -->
       <nav class="header-nav" aria-label="ניווט באתר">
-        <a class="header-nav__link" href="#about">אודות</a>
-        <a class="header-nav__link" href="#process">התהליך</a>
-        <a class="header-nav__link" href="#portfolio">עבודות</a>
-        <a class="header-nav__link" href="#services">שירותים</a>
-        <a class="header-nav__link" href="#testimonials">המלצות</a>
+        @for (link of navLinks; track link.id) {
+          <a class="header-nav__link" href="#{{ link.id }}">{{ link.label }}</a>
+        }
       </nav>
+      <!-- PHONE AND TABLET ONLY. Two hairlines beside the button, nothing more:
+           the control is meant to go unnoticed until it is wanted. It opens the
+           chapter list below, inside this same header, as one object. -->
+      <button
+        type="button"
+        class="header-menu-toggle"
+        aria-label="תפריט ניווט"
+        aria-controls="site-menu"
+        [attr.aria-expanded]="menuOpen"
+        (click)="toggleMenu()"
+      >
+        <span class="header-menu-toggle__line" aria-hidden="true"></span>
+        <span class="header-menu-toggle__line" aria-hidden="true"></span>
+      </button>
       <a class="btn btn-primary header-cta" href="#contact">השאירו פרטים</a>
     </div>
+    <!-- THE CHAPTER LIST. The same five destinations as the desktop bar, set
+         as an index inside the header: a hairline, five lines of the page's
+         own type, and one quiet mark on the chapter being read. Plain anchors;
+         the browser scrolls, scroll-margin-top clears the header. -->
+    <nav
+      id="site-menu"
+      class="header-menu"
+      aria-label="תפריט ניווט"
+      [class.is-open]="menuOpen"
+      [attr.aria-hidden]="!menuOpen"
+      [attr.inert]="menuOpen ? null : ''"
+    >
+      <div class="header-menu__inner">
+        <ul class="header-menu__list">
+          @for (link of navLinks; track link.id) {
+            <li>
+              <a
+                class="header-menu__link"
+                [class.is-current]="activeSection === link.id"
+                [attr.aria-current]="activeSection === link.id ? 'location' : null"
+                href="#{{ link.id }}"
+                (click)="onMenuNavigate($event, link.id)"
+              >{{ link.label }}</a>
+            </li>
+          }
+        </ul>
+      </div>
+    </nav>
   </header>
 
   <main id="main-content">
