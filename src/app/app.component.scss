@@ -433,11 +433,11 @@ select {
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  gap: 6px;
-  width: 40px;
-  height: 40px;
+  gap: 5px;
+  width: 44px;
+  height: 44px;
   margin-inline-start: auto;
-  margin-inline-end: 6px;
+  margin-inline-end: 12px;
   padding: 0;
   background: none;
   border: 0;
@@ -454,23 +454,29 @@ select {
 
 .header-menu-toggle__line {
   display: block;
-  width: 18px;
-  height: 1.25px;
+  width: 22px;
+  height: 1.5px;
+  border-radius: 1px;
   background: currentColor;
-  opacity: 0.82;
+  opacity: 0.92;
   transition: transform 200ms var(--ease-smooth), opacity 200ms var(--ease-smooth);
 }
 
-// Open: the two lines meet as a fine cross. Same two strokes, no third.
+// Open: the outer strokes meet as a cross, the middle one goes.
 .site-header.is-menu-open .header-menu-toggle__line {
   opacity: 1;
 
   &:first-child {
-    transform: translateY(3.625px) rotate(45deg);
+    transform: translateY(6.5px) rotate(45deg);
+  }
+
+  &:nth-child(2) {
+    opacity: 0;
+    transform: scaleX(0);
   }
 
   &:last-child {
-    transform: translateY(-3.625px) rotate(-45deg);
+    transform: translateY(-6.5px) rotate(-45deg);
   }
 }
 
@@ -514,7 +520,7 @@ select {
   .header-menu__inner {
     overflow: hidden;
     min-height: 0;
-    padding-inline: 16px;
+    padding-inline: 20px;
     opacity: 0;
     transform: translateY(-4px);
     transition: opacity 160ms var(--ease-smooth), transform 200ms var(--ease-smooth);
@@ -535,10 +541,14 @@ select {
     transition-delay: 40ms;
   }
 
+  // AN INDEX, NOT A WIDGET. Five chapters in the page's own display type,
+  // each on a hairline with its number at the line's end, and real air below
+  // the last one so the open header reads as a surface of the page.
   .header-menu__list {
     list-style: none;
     margin: 0;
-    padding: 2px 0 8px;
+    padding: 6px 0 20px;
+    counter-reset: chapter;
   }
 
   .header-menu__list li:first-child .header-menu__link {
@@ -549,14 +559,15 @@ select {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    min-height: 44px;
+    min-height: 54px;
     padding: 0 2px;
-    font-family: var(--font-body);
-    font-size: 1rem;
-    font-weight: 500;
-    letter-spacing: 0.01em;
+    counter-increment: chapter;
+    font-family: var(--font-display);
+    font-size: 1.32rem;
+    font-weight: 400;
+    letter-spacing: -0.01em;
     color: inherit;
-    opacity: 0.74;
+    opacity: 0.8;
     text-decoration: none;
     border-top: 1px solid color-mix(in srgb, currentColor 8%, transparent);
     transition: opacity 200ms var(--ease-smooth);
@@ -573,18 +584,25 @@ select {
       border-radius: 2px;
     }
 
-    // The chapter under the reader: full strength and a small dot at the line's
-    // end. No fill, no pill.
+    // The chapter's number at the line's end, in the numeral language the
+    // process and FAQ already use.
+    &::after {
+      content: "0" counter(chapter);
+      font-family: var(--font-body);
+      font-size: 0.72rem;
+      font-weight: 500;
+      letter-spacing: 0.08em;
+      font-variant-numeric: tabular-nums;
+      opacity: 0.55;
+    }
+
+    // The chapter under the reader: full strength, its number in the accent.
     &.is-current {
       opacity: 1;
-      font-weight: 600;
 
       &::after {
-        content: "";
-        width: 5px;
-        height: 5px;
-        border-radius: 50%;
-        background: var(--brand-accent);
+        color: var(--brand-accent);
+        opacity: 1;
       }
     }
   }
@@ -7437,124 +7455,9 @@ div[id] {
     --band-radius: var(--r-media);
   }
 
-  // ── THE LAPTOP CHAPTER: a still, not a stage ────────────────────────────────
-  // The plate photograph (Adi holding the laptop) sits in the column as one
-  // wide picture between the about chapter and the process. No sticky, no
-  // 145vh of travel, no clip, no portal.
-  .section-bridge,
-  .section-bridge.is-cinematic {
-    margin: 0;
-    padding-block: var(--sec-base) 0;
-  }
-
-  .section-bridge .bridge-stage,
-  .section-bridge.is-cinematic .bridge-stage {
-    position: static;
-    height: auto;
-  }
-
-  .section-bridge .bridge-sticky,
-  .section-bridge.is-cinematic .bridge-sticky {
-    position: static;
-    height: auto;
-    overflow: visible;
-    background: none;
-  }
-
-  .section-bridge .bridge-scene,
-  .section-bridge.is-cinematic .bridge-scene {
-    position: relative;
-    inset: auto;
-    width: min(100% - 2 * var(--container-padding), var(--container-max));
-    height: auto;
-    margin-inline: auto;
-    transform: none !important;
-    will-change: auto;
-  }
-
-  .section-bridge .bridge-base,
-  .section-bridge.is-cinematic .bridge-base {
-    position: static;
-    display: block;
-    width: 100%;
-    height: auto;
-    transform: none !important;
-    filter: none !important;
-    opacity: 1 !important;
-    clip-path: none !important;
-    border-radius: var(--band-radius);
-    overflow: hidden;
-
-    // A portrait plate in a wide band lost her head. Held to a narrower,
-    // taller window - about 1.4:1, centred in the column - the crop keeps
-    // her face and the laptop together.
-    max-width: 880px;
-    margin-inline: auto;
-
-    img {
-      width: 100%;
-      height: clamp(440px, 44vw, 620px);
-      object-fit: cover;
-      object-position: 50% 12%;
-    }
-  }
-
-  .section-bridge .laptop-layer,
-  .section-bridge .bridge-frame--b,
-  .section-bridge .laptop-portal,
-  .section-bridge .bridge-veil {
-    display: none !important;
-  }
-
-  .section-process {
-    transform: none !important;
-  }
-
-  // ── THE STUDIO CHAPTER: a still, not a stage ────────────────────────────────
-  .section-action {
-    margin-bottom: 0;
-  }
-
-  .action-stage {
-    height: auto;
-  }
-
-  .action-sticky {
-    position: static;
-    height: auto;
-    overflow: visible;
-    display: block;
-    background: none;
-    padding-block: var(--sec-base) var(--sec-open);
-
-    &::before {
-      display: none;
-    }
-  }
-
-  .action-frame {
-    width: min(100% - 2 * var(--container-padding), var(--container-max));
-    margin-inline: auto;
-    transform: none !important;
-    will-change: auto;
-    border-radius: var(--band-radius);
-    overflow: hidden;
-
-    img {
-      height: clamp(380px, 48vw, 660px);
-      object-fit: cover;
-      object-position: 50% 42%;
-    }
-  }
-
-  .action-portal {
-    display: none !important;
-  }
-
-  .section-portfolio {
-    transform: none !important;
-    will-change: auto;
-  }
+  // The laptop bridge and the studio photograph are NOT stilled here: those
+  // two scroll cinematics are one implementation at every width (see the
+  // "One camera" block above) and their drivers run everywhere.
 
   // ── REELS BECOME GRIDS ──────────────────────────────────────────────────────
   .portfolio-reel-outer,
@@ -7652,12 +7555,6 @@ div[id] {
   .shoot-frame,
   .contact-img,
   .editorial-img,
-  .laptop-place,
-  .laptop-card,
-  .laptop-layer,
-  .bridge-frame--b,
-  .laptop-portal,
-  .action-portal,
   .hero-exit {
     will-change: auto;
   }
@@ -7806,16 +7703,6 @@ div[id] {
   .site-footer .container {
     border-top: 1px solid rgba(255, 255, 255, 0.08);
     padding-block-start: clamp(20px, 3vh, 32px);
-  }
-
-  // ── THE STILLS SIT A LITTLE TALLER ON A REAL DESKTOP ───────────────────────
-  .section-bridge .bridge-base img,
-  .section-bridge.is-cinematic .bridge-base img {
-    height: clamp(520px, 43vw, 620px);
-  }
-
-  .action-frame img {
-    height: clamp(480px, 46vw, 700px);
   }
 }
 
@@ -8021,23 +7908,6 @@ div[id] {
     break-inside: avoid;
   }
 
-  // ── THE LAPTOP STILL: the full column, a wide band, her face and the laptop ─
-  .section-bridge,
-  .section-bridge.is-cinematic {
-    padding-block: 0;
-  }
-
-  .section-bridge .bridge-base,
-  .section-bridge.is-cinematic .bridge-base {
-    max-width: none;
-  }
-
-  .section-bridge .bridge-base img,
-  .section-bridge.is-cinematic .bridge-base img {
-    height: clamp(460px, 36vw, 580px);
-    object-position: 50% 18%;
-  }
-
   // ── PROCESS: the heading, then the four steps across the whole container ──
   // Held to seven columns beside the heading, the steps were four cramped
   // stacks with a 700px void under the heading. As a sequence they read in the
@@ -8068,15 +7938,6 @@ div[id] {
   #process .section-close-note {
     margin-top: 0;
     max-width: 44ch;
-  }
-
-  // ── THE STUDIO STILL: a wide band between process and the work ──────────────
-  .action-sticky {
-    padding-block: 0;
-  }
-
-  .action-frame img {
-    height: clamp(440px, 36vw, 580px);
   }
 
   // ── SHOOT DAY: the ring-light photograph on seven, the two lines on five ────

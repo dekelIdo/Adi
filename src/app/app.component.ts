@@ -778,18 +778,18 @@ export class AppComponent implements AfterViewInit, OnDestroy {
     this.initHeaderTheme();
     this.initCursorGlow();
     this.initReelPlayback();
-    // FROM 768px THE PAGE IS A DIFFERENT COMPOSITION. The studio and laptop
-    // cinematics, the shoot-day reveal, the editorial drift and the hero
-    // parallax are phone choreography; on tablet and desktop the same
-    // photographs are laid out statically by the stylesheet, so their drivers
-    // are simply not started and the hero rests at its CSS defaults.
-    // Below 768px nothing here changes: the same calls, in the same order.
+    // THE TWO SCROLL CINEMATICS RUN AT EVERY WIDTH. The studio photograph
+    // (the phone that opens into the WORK chapter) and the laptop bridge are
+    // one implementation with one camera; their stylesheet rules apply at
+    // every width and the drivers start everywhere, as they did before the
+    // tablet/desktop layer stilled them. Only the hero parallax, the shoot-day
+    // reveal and the editorial drift stay phone-only choreography.
+    this.initLivingPhotograph();
+    this.initLaptopBridge();
     const wide = window.matchMedia('(min-width: 768px)').matches;
     if (!wide) {
       this.initHeroParallax();
-      this.initLivingPhotograph();
       this.initShootDayReveal();
-      this.initLaptopBridge();
       this.initEditorialDrift();
     }
     // Last on purpose: it is the one driver that re-enters Angular, so its
