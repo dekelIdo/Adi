@@ -416,6 +416,189 @@ select {
   filter: none;
 }
 
+// ─────── PAGE NAVIGATION ON A PHONE ───────────────────────────────────────────
+//
+// Below the desktop bar's breakpoint the header is a mark and a button with a
+// long page underneath it. This adds the one thing that was missing - a way to
+// reach a chapter without scrolling through every one before it - as quietly
+// as the header allows: two hairlines beside the button, and when they are
+// asked, the header itself grows downward into an index of five chapters.
+// One object, not a drawer over the page; nothing beneath is locked or dimmed.
+//
+// The control is drawn in currentColor, so it follows the header's own light
+// and dark states and needs no treatment of its own to stay readable.
+
+.header-menu-toggle {
+  display: none;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 6px;
+  width: 40px;
+  height: 40px;
+  margin-inline-start: auto;
+  margin-inline-end: 6px;
+  padding: 0;
+  background: none;
+  border: 0;
+  border-radius: var(--r-chip);
+  color: inherit;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+
+  &:focus-visible {
+    outline: 2px solid var(--brand-accent);
+    outline-offset: 2px;
+  }
+}
+
+.header-menu-toggle__line {
+  display: block;
+  width: 18px;
+  height: 1.25px;
+  background: currentColor;
+  opacity: 0.82;
+  transition: transform 200ms var(--ease-smooth), opacity 200ms var(--ease-smooth);
+}
+
+// Open: the two lines meet as a fine cross. Same two strokes, no third.
+.site-header.is-menu-open .header-menu-toggle__line {
+  opacity: 1;
+
+  &:first-child {
+    transform: translateY(3.625px) rotate(45deg);
+  }
+
+  &:last-child {
+    transform: translateY(-3.625px) rotate(-45deg);
+  }
+}
+
+.header-menu {
+  display: none;
+}
+
+@media (max-width: 1023.98px) {
+  .header-menu-toggle {
+    display: inline-flex;
+  }
+
+  // An open header is a surface, whatever the scroll position: the translucent
+  // resting state over the hero would put the index on top of the photograph.
+  .site-header.is-menu-open {
+    background: rgba(252, 251, 250, 0.97);
+    border-color: rgba(196, 217, 240, 0.23);
+    backdrop-filter: blur(26px) saturate(1.18);
+    -webkit-backdrop-filter: blur(26px) saturate(1.18);
+    box-shadow: 0 10px 36px rgba(16, 14, 12, 0.08), 0 1px 0 rgba(255, 255, 255, 0.58) inset;
+
+    &[data-theme="dark"] {
+      background: rgba(12, 10, 8, 0.94);
+      border-color: rgba(196, 217, 240, 0.2);
+      box-shadow: 0 10px 36px rgba(0, 0, 0, 0.26), 0 1px 0 rgba(255, 255, 255, 0.08) inset;
+    }
+  }
+
+  // GRID ROWS, NOT A GUESSED HEIGHT - the same mechanism the FAQ uses, so the
+  // header grows to the list's real height and back to nothing.
+  .header-menu {
+    display: grid;
+    grid-template-rows: 0fr;
+    transition: grid-template-rows 200ms var(--ease-smooth);
+
+    &.is-open {
+      grid-template-rows: 1fr;
+    }
+  }
+
+  .header-menu__inner {
+    overflow: hidden;
+    min-height: 0;
+    padding-inline: 16px;
+    opacity: 0;
+    transform: translateY(-4px);
+    transition: opacity 160ms var(--ease-smooth), transform 200ms var(--ease-smooth);
+
+    // The hairline that separates the index from the bar. Drawn inside the
+    // clipped box, so a closed menu shows nothing at all.
+    &::before {
+      content: "";
+      display: block;
+      height: 1px;
+      background: color-mix(in srgb, currentColor 12%, transparent);
+    }
+  }
+
+  .header-menu.is-open .header-menu__inner {
+    opacity: 1;
+    transform: none;
+    transition-delay: 40ms;
+  }
+
+  .header-menu__list {
+    list-style: none;
+    margin: 0;
+    padding: 2px 0 8px;
+  }
+
+  .header-menu__list li:first-child .header-menu__link {
+    border-top: none;
+  }
+
+  .header-menu__link {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    min-height: 44px;
+    padding: 0 2px;
+    font-family: var(--font-body);
+    font-size: 1rem;
+    font-weight: 500;
+    letter-spacing: 0.01em;
+    color: inherit;
+    opacity: 0.74;
+    text-decoration: none;
+    border-top: 1px solid color-mix(in srgb, currentColor 8%, transparent);
+    transition: opacity 200ms var(--ease-smooth);
+    -webkit-tap-highlight-color: transparent;
+
+    &:hover,
+    &:focus-visible {
+      opacity: 1;
+    }
+
+    &:focus-visible {
+      outline: 2px solid var(--brand-accent);
+      outline-offset: -2px;
+      border-radius: 2px;
+    }
+
+    // The chapter under the reader: full strength and a small dot at the line's
+    // end. No fill, no pill.
+    &.is-current {
+      opacity: 1;
+      font-weight: 600;
+
+      &::after {
+        content: "";
+        width: 5px;
+        height: 5px;
+        border-radius: 50%;
+        background: var(--brand-accent);
+      }
+    }
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .header-menu,
+  .header-menu__inner,
+  .header-menu-toggle__line,
+  .header-menu__link {
+    transition: none;
+  }
+}
+
 .site-header .header-cta,
 .header-cta {
   position: relative;
@@ -6881,7 +7064,6 @@ div[id] {
   .contact-layout {
     grid-template-columns: 0.95fr 1fr;
     gap: var(--space-md);
-    align-items: center;
   }
 
   .why-merged-grid {
@@ -6899,6 +7081,13 @@ div[id] {
     margin-inline-start: 0;
     margin-inline-end: 0;
     border-radius: var(--r-media);
+
+    // Stretched to the form, the column is a tall strip - the same window the
+    // desktop uses - so it takes the desktop anchor: her face and the phone at
+    // the top of the frame, not the middle of the chair.
+    img {
+      object-position: 64% 38%;
+    }
   }
 }
 
@@ -7174,33 +7363,6 @@ div[id] {
     max-width: 58ch;
   }
 
-  // PROCESS. Same figure as the problem: heading right and held, steps left.
-  // The closing note follows the steps in their column rather than dropping
-  // under the heading, which is where the grid would otherwise auto-place it.
-  // The same figure as the problem section, and for the same reason: at 1024
-  // a narrower heading column broke "אז איך נראה התהליך איתי?" into three lines.
-  #process > .container {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr) minmax(0, 1.2fr);
-    column-gap: clamp(48px, 6vw, 110px);
-    align-items: start;
-  }
-
-  #process > .container > .section-title {
-    position: sticky;
-    top: clamp(104px, 14vh, 136px);
-  }
-
-  .process-editorial {
-    max-width: none;
-    margin: 0;
-    grid-column: 2;
-  }
-
-  #process .section-close-note {
-    grid-column: 2;
-  }
-
   // SERVICES. Four rows that were each a title and a line of tags, one under
   // another in a 1000px column, become two by two. The hairline above each row
   // is kept; only the first visual row goes without one, which is now two items
@@ -7444,6 +7606,25 @@ div[id] {
     display: none;
   }
 
+  // The three result screenshots have three aspect ratios and one caption has
+  // no second line, so the captions landed on three baselines. Card and figure
+  // hand the rail's two rows down (subgrid): every screenshot sits on one
+  // line, every hairline and caption on the next.
+  .results-rail {
+    row-gap: 0;
+  }
+
+  .result-card,
+  .result-frame {
+    display: grid;
+    grid-row: span 2;
+    grid-template-rows: subgrid;
+  }
+
+  .result-frame img {
+    align-self: end;
+  }
+
   // One ratio across the work grid, whatever the reel used to allow each card.
   .reel-card .reel-frame-inner {
     padding-bottom: 125%;
@@ -7597,26 +7778,12 @@ div[id] {
     column-gap: var(--split-gap);
   }
 
-  // THE PLATES. A chapter break, not a full screen. The identity portrait is
-  // anchored higher still: in the shorter band the base 15% cut her forehead.
-  .chapter-plate {
-    height: clamp(520px, 62vh, 720px);
-  }
-
-  .chapter-plate--identity img {
-    object-position: 58% 5%;
-  }
-
   // ABOUT. Six and six here: on five columns at 1024 the heading broke her
   // name across two lines. From 1440 the words take five and the restaurant
   // photograph seven.
   .about-layout {
     grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
     column-gap: var(--split-gap);
-  }
-
-  .about-photo-wrap {
-    max-width: 480px;
   }
 
   // SERVICES. Two by two with air between the rows, not flush hairlines.
@@ -7627,12 +7794,6 @@ div[id] {
   // WHY. Headline column five, audience column seven.
   .why-merged-grid {
     grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
-    column-gap: var(--split-gap);
-  }
-
-  // CONTACT. Six and six, the photograph stretched to the card.
-  .contact-layout {
-    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
     column-gap: var(--split-gap);
   }
 
@@ -7688,10 +7849,6 @@ div[id] {
 
   .about-layout {
     grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
-  }
-
-  .about-photo-wrap {
-    max-width: 520px;
   }
 }
 
@@ -7821,18 +7978,20 @@ div[id] {
   }
 
   // ── PLATES: a chapter break the height of a wide band, not a screen ─────────
+  // The identity portrait is 1500x2246 with her head in the top sixth. In a
+  // 420px band anchored at 14% the crop began at her brow; anchored near the
+  // top, and a little taller, the band holds her whole head and shoulders.
   .chapter-plate {
-    height: clamp(420px, 44vh, 540px);
+    height: clamp(480px, 52vh, 600px);
   }
 
   .chapter-plate--identity img {
-    object-position: 50% 14%;
+    object-position: 50% 6%;
   }
 
-  // ── ABOUT: words on five, restaurant photograph on seven, story in two columns
+  // ── ABOUT: six and six at 1024, five and seven from 1440 (set above), story
+  // in two columns. The split itself is owned by the layer above.
   .about-layout {
-    grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
-    column-gap: var(--split-gap);
     align-items: center;
   }
 
@@ -7879,17 +8038,21 @@ div[id] {
     object-position: 50% 18%;
   }
 
-  // ── PROCESS: heading on five, the four steps two by two on seven ───────────
+  // ── PROCESS: the heading, then the four steps across the whole container ──
+  // Held to seven columns beside the heading, the steps were four cramped
+  // stacks with a 700px void under the heading. As a sequence they read in the
+  // reading direction: two by two at 1024, four across from 1280, each on a
+  // hairline. The container's row gap is the one owner of heading→steps and
+  // steps→closing note.
   #process > .container {
-    grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
-    column-gap: var(--split-gap);
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    row-gap: clamp(40px, 4vw, 56px);
   }
 
   .process-editorial {
     display: grid;
-    // One column of steps at 1024, where two would wrap every title; two by two
-    // from 1280, where each column is a comfortable measure.
-    grid-template-columns: minmax(0, 1fr);
+    grid-template-columns: repeat(2, minmax(0, 1fr));
     column-gap: var(--split-gap);
     row-gap: clamp(28px, 2.6vw, 40px);
     max-width: none;
@@ -7899,11 +8062,12 @@ div[id] {
   .process-row,
   .process-row:first-child {
     border-top: 1px solid var(--rule);
-    padding-top: clamp(18px, 1.6vw, 24px);
+    padding-block: clamp(18px, 1.6vw, 24px) 0;
   }
 
   #process .section-close-note {
-    margin-top: clamp(28px, 2.6vw, 40px);
+    margin-top: 0;
+    max-width: 44ch;
   }
 
   // ── THE STUDIO STILL: a wide band between process and the work ──────────────
@@ -7970,7 +8134,34 @@ div[id] {
 
 @media (min-width: 1280px) {
   .process-editorial {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    column-gap: var(--grid-gap);
+  }
+
+  // Four across: the numeral sits over its step, so each column is a measure
+  // of words rather than a numeral beside a sliver.
+  .process-row {
+    grid-template-columns: minmax(0, 1fr);
+    row-gap: 12px;
+  }
+
+  .process-row-num {
+    font-size: clamp(2.4rem, 2.6vw, 3.2rem);
+  }
+}
+
+// ── DESKTOP 1024–1439: display type sized to the column ──────────────────────
+// The phone tokens top out at 67px, which on a five-column heading at 1024 set
+// "אולי גם אצלך זה מרגיש ככה" as four lines and the about name as six. One step
+// down here; the 1440 tier above keeps its 4.6rem.
+@media (min-width: 1024px) and (max-width: 1439.98px) {
+  .section-title {
+    font-size: clamp(3.2rem, 5vw, 4.2rem);
+  }
+
+  .about-intro,
+  .quote {
+    font-size: clamp(3rem, 4.8vw, 4.2rem);
   }
 }
 
