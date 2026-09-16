@@ -7064,7 +7064,6 @@ div[id] {
   .contact-layout {
     grid-template-columns: 0.95fr 1fr;
     gap: var(--space-md);
-    align-items: center;
   }
 
   .why-merged-grid {
@@ -7082,6 +7081,13 @@ div[id] {
     margin-inline-start: 0;
     margin-inline-end: 0;
     border-radius: var(--r-media);
+
+    // Stretched to the form, the column is a tall strip - the same window the
+    // desktop uses - so it takes the desktop anchor: her face and the phone at
+    // the top of the frame, not the middle of the chair.
+    img {
+      object-position: 64% 38%;
+    }
   }
 }
 
@@ -7357,33 +7363,6 @@ div[id] {
     max-width: 58ch;
   }
 
-  // PROCESS. Same figure as the problem: heading right and held, steps left.
-  // The closing note follows the steps in their column rather than dropping
-  // under the heading, which is where the grid would otherwise auto-place it.
-  // The same figure as the problem section, and for the same reason: at 1024
-  // a narrower heading column broke "אז איך נראה התהליך איתי?" into three lines.
-  #process > .container {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr) minmax(0, 1.2fr);
-    column-gap: clamp(48px, 6vw, 110px);
-    align-items: start;
-  }
-
-  #process > .container > .section-title {
-    position: sticky;
-    top: clamp(104px, 14vh, 136px);
-  }
-
-  .process-editorial {
-    max-width: none;
-    margin: 0;
-    grid-column: 2;
-  }
-
-  #process .section-close-note {
-    grid-column: 2;
-  }
-
   // SERVICES. Four rows that were each a title and a line of tags, one under
   // another in a 1000px column, become two by two. The hairline above each row
   // is kept; only the first visual row goes without one, which is now two items
@@ -7627,6 +7606,25 @@ div[id] {
     display: none;
   }
 
+  // The three result screenshots have three aspect ratios and one caption has
+  // no second line, so the captions landed on three baselines. Card and figure
+  // hand the rail's two rows down (subgrid): every screenshot sits on one
+  // line, every hairline and caption on the next.
+  .results-rail {
+    row-gap: 0;
+  }
+
+  .result-card,
+  .result-frame {
+    display: grid;
+    grid-row: span 2;
+    grid-template-rows: subgrid;
+  }
+
+  .result-frame img {
+    align-self: end;
+  }
+
   // One ratio across the work grid, whatever the reel used to allow each card.
   .reel-card .reel-frame-inner {
     padding-bottom: 125%;
@@ -7780,26 +7778,12 @@ div[id] {
     column-gap: var(--split-gap);
   }
 
-  // THE PLATES. A chapter break, not a full screen. The identity portrait is
-  // anchored higher still: in the shorter band the base 15% cut her forehead.
-  .chapter-plate {
-    height: clamp(520px, 62vh, 720px);
-  }
-
-  .chapter-plate--identity img {
-    object-position: 58% 5%;
-  }
-
   // ABOUT. Six and six here: on five columns at 1024 the heading broke her
   // name across two lines. From 1440 the words take five and the restaurant
   // photograph seven.
   .about-layout {
     grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
     column-gap: var(--split-gap);
-  }
-
-  .about-photo-wrap {
-    max-width: 480px;
   }
 
   // SERVICES. Two by two with air between the rows, not flush hairlines.
@@ -7810,12 +7794,6 @@ div[id] {
   // WHY. Headline column five, audience column seven.
   .why-merged-grid {
     grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
-    column-gap: var(--split-gap);
-  }
-
-  // CONTACT. Six and six, the photograph stretched to the card.
-  .contact-layout {
-    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
     column-gap: var(--split-gap);
   }
 
@@ -7871,10 +7849,6 @@ div[id] {
 
   .about-layout {
     grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
-  }
-
-  .about-photo-wrap {
-    max-width: 520px;
   }
 }
 
@@ -8004,18 +7978,20 @@ div[id] {
   }
 
   // ── PLATES: a chapter break the height of a wide band, not a screen ─────────
+  // The identity portrait is 1500x2246 with her head in the top sixth. In a
+  // 420px band anchored at 14% the crop began at her brow; anchored near the
+  // top, and a little taller, the band holds her whole head and shoulders.
   .chapter-plate {
-    height: clamp(420px, 44vh, 540px);
+    height: clamp(480px, 52vh, 600px);
   }
 
   .chapter-plate--identity img {
-    object-position: 50% 14%;
+    object-position: 50% 6%;
   }
 
-  // ── ABOUT: words on five, restaurant photograph on seven, story in two columns
+  // ── ABOUT: six and six at 1024, five and seven from 1440 (set above), story
+  // in two columns. The split itself is owned by the layer above.
   .about-layout {
-    grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
-    column-gap: var(--split-gap);
     align-items: center;
   }
 
@@ -8062,17 +8038,21 @@ div[id] {
     object-position: 50% 18%;
   }
 
-  // ── PROCESS: heading on five, the four steps two by two on seven ───────────
+  // ── PROCESS: the heading, then the four steps across the whole container ──
+  // Held to seven columns beside the heading, the steps were four cramped
+  // stacks with a 700px void under the heading. As a sequence they read in the
+  // reading direction: two by two at 1024, four across from 1280, each on a
+  // hairline. The container's row gap is the one owner of heading→steps and
+  // steps→closing note.
   #process > .container {
-    grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
-    column-gap: var(--split-gap);
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    row-gap: clamp(40px, 4vw, 56px);
   }
 
   .process-editorial {
     display: grid;
-    // One column of steps at 1024, where two would wrap every title; two by two
-    // from 1280, where each column is a comfortable measure.
-    grid-template-columns: minmax(0, 1fr);
+    grid-template-columns: repeat(2, minmax(0, 1fr));
     column-gap: var(--split-gap);
     row-gap: clamp(28px, 2.6vw, 40px);
     max-width: none;
@@ -8082,11 +8062,12 @@ div[id] {
   .process-row,
   .process-row:first-child {
     border-top: 1px solid var(--rule);
-    padding-top: clamp(18px, 1.6vw, 24px);
+    padding-block: clamp(18px, 1.6vw, 24px) 0;
   }
 
   #process .section-close-note {
-    margin-top: clamp(28px, 2.6vw, 40px);
+    margin-top: 0;
+    max-width: 44ch;
   }
 
   // ── THE STUDIO STILL: a wide band between process and the work ──────────────
@@ -8153,7 +8134,34 @@ div[id] {
 
 @media (min-width: 1280px) {
   .process-editorial {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    column-gap: var(--grid-gap);
+  }
+
+  // Four across: the numeral sits over its step, so each column is a measure
+  // of words rather than a numeral beside a sliver.
+  .process-row {
+    grid-template-columns: minmax(0, 1fr);
+    row-gap: 12px;
+  }
+
+  .process-row-num {
+    font-size: clamp(2.4rem, 2.6vw, 3.2rem);
+  }
+}
+
+// ── DESKTOP 1024–1439: display type sized to the column ──────────────────────
+// The phone tokens top out at 67px, which on a five-column heading at 1024 set
+// "אולי גם אצלך זה מרגיש ככה" as four lines and the about name as six. One step
+// down here; the 1440 tier above keeps its 4.6rem.
+@media (min-width: 1024px) and (max-width: 1439.98px) {
+  .section-title {
+    font-size: clamp(3.2rem, 5vw, 4.2rem);
+  }
+
+  .about-intro,
+  .quote {
+    font-size: clamp(3rem, 4.8vw, 4.2rem);
   }
 }
 
