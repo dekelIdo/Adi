@@ -433,10 +433,10 @@ select {
   align-items: center;
   justify-content: center;
   // The full 44px target, invisible; what shows is an 18 x 12 glyph at its
-  // centre. It stands just inside the CTA at the bar's end, so the two
-  // controls read as one group and the mark keeps the other end to itself -
-  // and the strokes never meet the studio light the mark carries over the
-  // hero, which lives on exactly the side a trigger beside the logo would.
+  // centre. It takes the bar's start edge - the navigation edge of a Hebrew
+  // page - with the mark between it and the CTA at the far end, so the bar
+  // reads as trigger / mark / action with the same air either side of the
+  // mark.
   width: 44px;
   height: 44px;
   padding: 0;
@@ -513,16 +513,13 @@ select {
     display: inline-flex;
   }
 
-  // The bar reads as two groups: the mark at the start, the two controls at
-  // the end. The auto margin absorbs the space between them; the CTA then
-  // follows the trigger at a hair, the strokes' own centring supplying the
-  // visible distance.
+  // Trigger on the start edge, mark in the middle, action at the end: the
+  // bar's space-between gives the mark the same air on both sides, and the
+  // trigger's box overhangs the padding by the glyph's own inset so the
+  // strokes end where the CTA's fill begins on the other side.
   .header-menu-toggle {
-    margin-inline-start: auto;
-  }
-
-  .header-cta {
-    margin-inline-start: 2px;
+    order: -1;
+    margin-inline-start: -13px;
   }
 
   // An open header is a surface, whatever the scroll position: the translucent
@@ -577,14 +574,13 @@ select {
     transition-delay: 40ms;
   }
 
-  // AN INDEX, NOT A WIDGET. Five chapters in the page's own display type,
-  // each on a hairline with its number at the line's end, and real air below
-  // the last one so the open header reads as a surface of the page.
+  // A LIST, NOT A WIDGET. Five chapters in the page's own display type, each
+  // on a hairline, and real air below the last one so the open header reads
+  // as a surface of the page. No numbers: the words are the index.
   .header-menu__list {
     list-style: none;
     margin: 0;
     padding: 6px 0 20px;
-    counter-reset: chapter;
   }
 
   .header-menu__list li:first-child .header-menu__link {
@@ -597,7 +593,6 @@ select {
     justify-content: space-between;
     min-height: 54px;
     padding: 0 2px;
-    counter-increment: chapter;
     font-family: var(--font-display);
     font-size: 1.32rem;
     font-weight: 400;
@@ -620,24 +615,23 @@ select {
       border-radius: 2px;
     }
 
-    // The chapter's number at the line's end, in the numeral language the
-    // process and FAQ already use.
+    // One small mark in the accent at the line's end, shown only on the
+    // chapter under the reader; every other line carries nothing.
     &::after {
-      content: "0" counter(chapter);
-      font-family: var(--font-body);
-      font-size: 0.72rem;
-      font-weight: 500;
-      letter-spacing: 0.08em;
-      font-variant-numeric: tabular-nums;
-      opacity: 0.55;
+      content: "";
+      flex: none;
+      width: 5px;
+      height: 5px;
+      border-radius: 50%;
+      background: var(--brand-accent-dim);
+      opacity: 0;
+      transition: opacity 200ms var(--ease-smooth);
     }
 
-    // The chapter under the reader: full strength, its number in the accent.
     &.is-current {
       opacity: 1;
 
       &::after {
-        color: var(--brand-accent);
         opacity: 1;
       }
     }
@@ -7138,6 +7132,15 @@ div[id] {
     --space-md: 16px;
     --space-lg: 24px;
     --space-xl: 32px;
+  }
+
+  // The header's action, one size down, so the mark keeps its air between
+  // the trigger and the CTA on the narrowest phones. Written at the base
+  // rule's own specificity, which is what sets the size it steps down from.
+  .site-header .header-cta {
+    min-height: 34px;
+    padding: 7px 12px;
+    font-size: 0.68rem;
   }
 
   .hero-essence {
