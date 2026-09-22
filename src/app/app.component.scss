@@ -431,65 +431,76 @@ select {
 .header-menu-toggle {
   display: none;
   align-items: center;
-  gap: 8px;
-  // Sits right after the mark, set off from it by a hairline. Height is the
-  // full 44px target; the width is the word's.
-  min-height: 44px;
-  margin-inline-start: 12px;
-  padding: 0 12px;
+  justify-content: center;
+  // The full 44px target, invisible; what shows is an 18 x 12 glyph at its
+  // centre. It stands just inside the CTA at the bar's end, so the two
+  // controls read as one group and the mark keeps the other end to itself -
+  // and the strokes never meet the studio light the mark carries over the
+  // hero, which lives on exactly the side a trigger beside the logo would.
+  width: 44px;
+  height: 44px;
+  padding: 0;
   border: 0;
-  border-inline-start: 1px solid color-mix(in srgb, currentColor 18%, transparent);
-  border-radius: 0;
+  border-radius: var(--r-chip);
   background: none;
   color: inherit;
-  font-family: var(--font-body);
-  font-size: 0.86rem;
-  font-weight: 500;
-  letter-spacing: 0.02em;
-  line-height: 1;
   cursor: pointer;
   -webkit-tap-highlight-color: transparent;
 
   &:focus-visible {
     outline: 2px solid var(--brand-accent);
     outline-offset: 2px;
-    border-radius: var(--r-chip);
   }
-}
-
-.header-menu-toggle__label {
-  opacity: 0.82;
 }
 
 .header-menu-toggle__glyph {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  gap: 4px;
-  width: 16px;
-  height: 16px;
+  position: relative;
+  display: block;
+  width: 18px;
+  height: 12px;
 }
 
+// Three hairline strokes in currentColor, drawn at the weight of the header's
+// own rules, so they follow its light and dark states without a treatment of
+// their own.
 .header-menu-toggle__line {
-  display: block;
-  width: 16px;
+  position: absolute;
+  inset-inline: 0;
   height: 1.5px;
   border-radius: 1px;
   background: currentColor;
-  opacity: 0.82;
-  transition: transform 200ms var(--ease-smooth), opacity 200ms var(--ease-smooth);
+  opacity: 0.9;
+  transition: transform 220ms var(--ease-smooth), opacity 160ms var(--ease-smooth);
+
+  &:nth-child(1) {
+    top: 0;
+  }
+
+  &:nth-child(2) {
+    top: 50%;
+    transform: translateY(-50%);
+  }
+
+  &:nth-child(3) {
+    bottom: 0;
+  }
 }
 
-// Open: the two strokes meet as a small cross and the word says what a tap does.
+// Open: the outer strokes meet as a cross, the middle one goes.
 .site-header.is-menu-open .header-menu-toggle__line {
   opacity: 1;
 
-  &:first-child {
-    transform: translateY(2.75px) rotate(45deg);
+  &:nth-child(1) {
+    transform: translateY(5.25px) rotate(45deg);
   }
 
-  &:last-child {
-    transform: translateY(-2.75px) rotate(-45deg);
+  &:nth-child(2) {
+    opacity: 0;
+    transform: translateY(-50%) scaleX(0);
+  }
+
+  &:nth-child(3) {
+    transform: translateY(-5.25px) rotate(-45deg);
   }
 }
 
@@ -502,10 +513,16 @@ select {
     display: inline-flex;
   }
 
-  // The bar reads as two groups: the brand and its index at the start, the
-  // one action at the end. The auto margin absorbs the space between them.
-  .header-cta {
+  // The bar reads as two groups: the mark at the start, the two controls at
+  // the end. The auto margin absorbs the space between them; the CTA then
+  // follows the trigger at a hair, the strokes' own centring supplying the
+  // visible distance.
+  .header-menu-toggle {
     margin-inline-start: auto;
+  }
+
+  .header-cta {
+    margin-inline-start: 2px;
   }
 
   // An open header is a surface, whatever the scroll position: the translucent
@@ -2681,6 +2698,96 @@ div[id] {
 
   .duo-card--positive {
     padding-inline-end: clamp(20px, 2.6vw, 36px);
+  }
+}
+
+// ─────── THE COMPARISON ON A PHONE ───────────────────────────────────────────
+//
+// Stacked, the hairline box above read as a grey checklist: two headings of
+// the same size, two lists with the same dash, one recessed by colour alone.
+// Here the contrast is carried by scale and material instead. The side to be
+// on opens on the accent rule and speaks in the display face - the heading
+// at chapter size, the four statements as ruled lines of the same voice the
+// problem list uses, so they read as claims rather than bullets. The other
+// side is set in the body face at reading size, in the muted ink, indented
+// off a single neutral hairline on the reading edge: still designed, still
+// legible, and visibly the smaller thought. No ticks, no crosses, no panels.
+// Desktop keeps its approved side-by-side composition.
+@media (max-width: 1023.98px) {
+  .duo-cards {
+    margin-top: var(--flow-tight);
+    border-top: 0;
+    border-bottom: 0;
+  }
+
+  .duo-card {
+    padding: 0;
+  }
+
+  .duo-card + .duo-card {
+    border-top: 0;
+  }
+
+  .duo-card ul {
+    gap: 0;
+  }
+
+  .duo-card li {
+    padding-inline-start: 0;
+  }
+
+  .duo-card--positive li::before,
+  .duo-card--muted li::before {
+    content: none;
+  }
+
+  .duo-card--positive {
+    padding-top: 14px;
+    border-top: 2px solid var(--brand-accent-dim);
+
+    h3 {
+      margin-bottom: 8px;
+      font-size: clamp(1.7rem, 5.4vw, 2.05rem);
+      line-height: 1.08;
+      letter-spacing: -0.025em;
+    }
+
+    li {
+      padding: 10px 0;
+      border-top: 1px solid var(--rule);
+      font-family: var(--font-display);
+      font-size: clamp(1.18rem, 3.5vw, 1.34rem);
+      line-height: 1.3;
+      letter-spacing: -0.014em;
+      color: var(--text);
+
+      &:first-child {
+        border-top: 0;
+      }
+    }
+  }
+
+  .duo-card--muted {
+    margin-top: 22px;
+    padding-inline-start: 16px;
+    border-inline-start: 1px solid var(--rule-strong);
+
+    h3 {
+      margin-bottom: 6px;
+      font-size: clamp(1.14rem, 3.2vw, 1.28rem);
+      color: var(--text-muted);
+    }
+
+    ul {
+      gap: 4px;
+    }
+
+    li {
+      font-family: var(--font-body);
+      font-size: clamp(0.98rem, 2.5vw, 1.06rem);
+      line-height: 1.45;
+      color: var(--text-muted);
+    }
   }
 }
 
@@ -6617,13 +6724,36 @@ div[id] {
   // photograph, the tag row into the full-bleed plate, the plate into the
   // about heading. Each of these measured a base or open tier and read as a
   // hole between a picture and the words that belong to it.
-  .section-problem,
   .section-bg-blue {
     padding-block: var(--sec-tight);
   }
 
+  // FOUR SEAMS THAT READ AS HOLES ON A PHONE. Each of them was a strip of
+  // paper, a divider, and a second strip before the next thing - 14 + rule
+  // + 24 + 32 from the last problem line to the dark plate's type, 32 + 32
+  // from its caption to the quote, and the comparison sitting in 15 + rule
+  // + 48 above the photograph that answers it. None of it was one decision.
+  // Now each seam has one owner and the dark plate's own edge does most of
+  // the separating, which is what an edge is for.
+  //
+  // The list's accent rule closes the chapter; the plate follows on a short
+  // breath rather than a full tier.
+  .section-problem {
+    padding-block: var(--sec-tight) var(--space-md);
+  }
+
+  // The plate is the loudest object on the page and needs the least air
+  // around its type: a breath above the display lines, and under the caption
+  // only enough that it does not touch the edge.
+  .brand-break {
+    padding-block: var(--space-lg) var(--space-md);
+  }
+
+  // Off the plate's edge and into the question on a tight tier; at its foot
+  // the comparison hands to the photograph below on the photograph section's
+  // own opening, which is the single owner of that seam.
   #insight {
-    padding-block: var(--sec-base) var(--sec-tight);
+    padding-block: var(--sec-tight) 0;
   }
 
   .section-bg-gradient {
@@ -6651,10 +6781,18 @@ div[id] {
     padding-block: var(--sec-tight);
   }
 
-  // The dark chapter opens wide and closes tight on purpose: it hands straight
-  // into the next section rather than resolving on its own.
+  // The dark chapter closes tight on purpose: it hands straight into the next
+  // section rather than resolving on its own. On a phone it also opens on the
+  // base tier rather than the open one: the seam before it measured 46px of
+  // paper and then 42px of black before the first frame, the same strip /
+  // edge / strip pattern as the seams the owner marked. The signing chapter
+  // above closes on the same base tier here; its edge does the separating.
   .section-social {
-    padding-block: var(--sec-open) var(--sec-tight);
+    padding-block: var(--sec-base) var(--sec-tight);
+  }
+
+  .section-signing {
+    padding-block-end: var(--sec-base);
   }
 }
 
