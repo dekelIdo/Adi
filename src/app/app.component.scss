@@ -7381,33 +7381,85 @@ div[id] {
     max-width: 58ch;
   }
 
-  // SERVICES. Four rows that were each a title and a line of tags, one under
-  // another in a 1000px column, become two by two. The hairline above each row
-  // is kept; only the first visual row goes without one, which is now two items
-  // rather than one.
+  // RESULTS. The figure under each screenshot is the statement; at 2.1rem it
+  // read as a caption on the desktop canvas.
+  .result-value {
+    font-size: clamp(2.2rem, 2.4vw, 3rem);
+  }
+
+  .result-desc {
+    font-size: var(--text-base);
+  }
+
+  // SERVICES — AN EDITORIAL SPREAD, NOT A LIST IN COLUMNS.
+  //
+  // The chapter heading and its lead sit together on one axis at the inline
+  // start; the lead no longer floats on the far side of the container. The
+  // four capabilities are a two-by-two matrix of cells with real scale: the
+  // numeral is a display element in the accent, the title is set in the
+  // display face, the copy holds a reading measure. Every cell opens on a
+  // hairline, and the CTA is the matrix's closing row on the same hairline,
+  // so it concludes the chapter instead of floating beneath it.
   .services-header {
-    grid-template-columns: minmax(0, 1.15fr) minmax(0, 0.85fr);
-    column-gap: clamp(40px, 5vw, 96px);
-    align-items: end;
+    grid-template-columns: minmax(0, 1fr);
+    row-gap: 0;
+    margin-bottom: clamp(44px, 4.2vw, 68px);
+    align-items: start;
+  }
+
+  .services-headline {
+    font-size: clamp(3.6rem, 4.4vw, 5.4rem);
+    max-width: 14ch;
   }
 
   .services-header-lead {
-    max-width: 40ch;
+    max-width: 46ch;
+    font-size: var(--text-lg);
+    line-height: 1.5;
   }
 
   .services-matrix {
     max-width: none;
     display: grid;
-    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-    column-gap: clamp(40px, 5vw, 96px);
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    column-gap: var(--split-gap);
+    row-gap: 0;
   }
 
-  .services-row {
-    border-top: 1px solid var(--rule);
+  .services-row,
+  .services-row:first-child {
+    grid-template-columns: auto minmax(0, 1fr);
+    column-gap: clamp(20px, 2vw, 32px);
+    align-items: start;
+    border-top: 1px solid var(--rule-strong);
+    padding: clamp(26px, 2.4vw, 36px) 0 clamp(34px, 3.2vw, 52px);
   }
 
-  .services-row:nth-child(-n + 2) {
-    border-top: none;
+  .services-row-num {
+    font-size: clamp(3.2rem, 3.8vw, 4.8rem);
+    line-height: 0.9;
+    min-width: 2.2ch;
+    color: color-mix(in srgb, var(--brand-accent) 78%, var(--text));
+  }
+
+  .services-row-title {
+    font-family: var(--font-display);
+    font-size: clamp(1.9rem, 2.1vw, 2.6rem);
+    font-weight: 400;
+    line-height: 1.1;
+    letter-spacing: -0.018em;
+    margin-bottom: clamp(10px, 1vw, 14px);
+  }
+
+  .services-row-tags {
+    max-width: 38ch;
+    line-height: 1.6;
+  }
+
+  .services-footer {
+    margin-top: 0;
+    border-top: 1px solid var(--rule-strong);
+    padding-top: clamp(26px, 2.4vw, 36px);
   }
 
   // FAQ. The list was centred at 920px while its heading sat at the container's
@@ -7433,10 +7485,11 @@ div[id] {
 
 // ── LARGE ─────────────────────────────────────────────────────────────────────
 @media (min-width: 1920px) {
-  // A 1320px column at 1920 leaves 300px of margin either side. 1400 is still a
-  // measured page; the full-bleed chapters carry the rest of the width.
+  // The column at 1920: wide enough that the split chapters, the matrices and
+  // the reels use the canvas, still a measured page. Type holds the 1440 tier;
+  // the photographs and the space between columns do the growing.
   :host {
-    --container-max: 1400px;
+    --container-max: 1520px;
   }
 }
 
@@ -7683,15 +7736,47 @@ div[id] {
     column-gap: var(--split-gap);
   }
 
-  // SERVICES. Two by two with air between the rows, not flush hairlines.
-  .services-matrix {
-    row-gap: clamp(20px, 2.6vw, 36px);
-  }
-
-  // WHY. Headline column five, audience column seven.
+  // WHY. Headline column five, audience column seven. The two lists are the
+  // chapter's substance and were set at body size with 11px rows - metadata
+  // beside a 74px heading. They take the lead size and rows with air, and the
+  // audience list starts on the heading's own baseline band.
   .why-merged-grid {
     grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
     column-gap: var(--split-gap);
+    align-items: start;
+  }
+
+  .why-sub {
+    font-size: var(--text-lg);
+    line-height: 1.5;
+    // Two even lines, never a stranded last word.
+    text-wrap: balance;
+  }
+
+  .why-statement,
+  .audience-statement {
+    padding: clamp(14px, 1.4vw, 20px) 0;
+  }
+
+  .why-statement-text,
+  .audience-statement p {
+    font-size: var(--text-lg);
+    line-height: 1.5;
+  }
+
+  .audience-statement {
+    gap: 20px;
+  }
+
+  .audience-mark {
+    width: 24px;
+    height: 24px;
+    font-size: var(--text-base);
+    margin-top: 0.15em;
+  }
+
+  .audience-col {
+    padding-top: clamp(14px, 1.4vw, 20px);
   }
 
   // FOOTER. An ending: a hairline over the credit and the open tier's air.
@@ -8034,7 +8119,8 @@ div[id] {
 
 @media (min-width: 1920px) {
   :host {
-    --container-max: 1400px;
+    --container-max: 1520px;
+    --split-photo: clamp(600px, 38vw, 760px);
   }
 }
 
