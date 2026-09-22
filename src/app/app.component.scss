@@ -430,53 +430,66 @@ select {
 
 .header-menu-toggle {
   display: none;
-  flex-direction: column;
-  justify-content: center;
   align-items: center;
-  gap: 5px;
-  width: 44px;
-  height: 44px;
-  margin-inline-start: auto;
-  margin-inline-end: 12px;
-  padding: 0;
-  background: none;
+  gap: 8px;
+  // Sits right after the mark, set off from it by a hairline. Height is the
+  // full 44px target; the width is the word's.
+  min-height: 44px;
+  margin-inline-start: 12px;
+  padding: 0 12px;
   border: 0;
-  border-radius: var(--r-chip);
+  border-inline-start: 1px solid color-mix(in srgb, currentColor 18%, transparent);
+  border-radius: 0;
+  background: none;
   color: inherit;
+  font-family: var(--font-body);
+  font-size: 0.86rem;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  line-height: 1;
   cursor: pointer;
   -webkit-tap-highlight-color: transparent;
 
   &:focus-visible {
     outline: 2px solid var(--brand-accent);
     outline-offset: 2px;
+    border-radius: var(--r-chip);
   }
+}
+
+.header-menu-toggle__label {
+  opacity: 0.82;
+}
+
+.header-menu-toggle__glyph {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 4px;
+  width: 16px;
+  height: 16px;
 }
 
 .header-menu-toggle__line {
   display: block;
-  width: 22px;
+  width: 16px;
   height: 1.5px;
   border-radius: 1px;
   background: currentColor;
-  opacity: 0.92;
+  opacity: 0.82;
   transition: transform 200ms var(--ease-smooth), opacity 200ms var(--ease-smooth);
 }
 
-// Open: the outer strokes meet as a cross, the middle one goes.
+// Open: the two strokes meet as a small cross and the word says what a tap does.
 .site-header.is-menu-open .header-menu-toggle__line {
   opacity: 1;
 
   &:first-child {
-    transform: translateY(6.5px) rotate(45deg);
-  }
-
-  &:nth-child(2) {
-    opacity: 0;
-    transform: scaleX(0);
+    transform: translateY(2.75px) rotate(45deg);
   }
 
   &:last-child {
-    transform: translateY(-6.5px) rotate(-45deg);
+    transform: translateY(-2.75px) rotate(-45deg);
   }
 }
 
@@ -487,6 +500,12 @@ select {
 @media (max-width: 1023.98px) {
   .header-menu-toggle {
     display: inline-flex;
+  }
+
+  // The bar reads as two groups: the brand and its index at the start, the
+  // one action at the end. The auto margin absorbs the space between them.
+  .header-cta {
+    margin-inline-start: auto;
   }
 
   // An open header is a surface, whatever the scroll position: the translucent

@@ -21,9 +21,11 @@
           <a class="header-nav__link" href="#{{ link.id }}">{{ link.label }}</a>
         }
       </nav>
-      <!-- PHONE AND TABLET ONLY. Three strokes at a readable size, clear of the
-           CTA: recognisable as navigation within a glance, quieter than the
-           CTA. It opens the chapter list below, inside this same header. -->
+      <!-- PHONE AND TABLET ONLY. The page's index, set beside the mark it
+           belongs to: a hairline off the logo, one quiet word in the page's
+           type and a small two-stroke glyph. It reads as part of the brand
+           group, so the CTA at the far end is the only control that asks for
+           attention. It opens the chapter list below, inside this same header. -->
       <button
         type="button"
         class="header-menu-toggle"
@@ -32,9 +34,11 @@
         [attr.aria-expanded]="menuOpen"
         (click)="toggleMenu()"
       >
-        <span class="header-menu-toggle__line" aria-hidden="true"></span>
-        <span class="header-menu-toggle__line" aria-hidden="true"></span>
-        <span class="header-menu-toggle__line" aria-hidden="true"></span>
+        <span class="header-menu-toggle__glyph" aria-hidden="true">
+          <span class="header-menu-toggle__line"></span>
+          <span class="header-menu-toggle__line"></span>
+        </span>
+        <span class="header-menu-toggle__label">{{ menuOpen ? 'סגירה' : 'תפריט' }}</span>
       </button>
       <a class="btn btn-primary header-cta" href="#contact">השאירו פרטים</a>
     </div>

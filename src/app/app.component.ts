@@ -541,12 +541,8 @@ export class AppComponent implements AfterViewInit, OnDestroy {
   }
 
   socialDockVisible = false;
-  private lastDockScroll = 0;
   /** Cached so the scroll handler measures one element, not a query per frame. */
   private footerEl: HTMLElement | null = null;
-  // Starts true so the dock is present the moment it is scrolled past, rather
-  // than waiting for the first upward gesture to exist at all.
-  private dockWantsShow = true;
   private focusedReel?: HTMLElement;
   private reelResize?: () => void;
   private reelScrollOut?: () => void;
@@ -1095,13 +1091,12 @@ export class AppComponent implements AfterViewInit, OnDestroy {
       write: (f) => {
         const top = f.y;
         const nextTop = top > 400;
-        const goingUp = top < this.lastDockScroll - 4;
-        const goingDown = top > this.lastDockScroll + 4;
-        if (goingUp || goingDown) this.dockWantsShow = goingUp;
-        this.lastDockScroll = top;
+        // The dock's state is context, never scroll direction: present once the
+        // hero is behind the reader, whichever way they are moving, and it
+        // stands down only when the footer has entered the viewport.
         const footerTop = footerDocTop - top;
         const atTheEnd = footerTop < f.vh;
-        const nextDock = top > f.vh * 0.72 && this.dockWantsShow && !atTheEnd;
+        const nextDock = top > f.vh * 0.72 && !atTheEnd;
         if (nextTop === this.backToTopVisible && nextDock === this.socialDockVisible) return;
         // The only place the frame re-enters Angular, and only when one of the
         // two booleans the template binds actually flips.
