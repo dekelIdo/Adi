@@ -4,7 +4,9 @@
   "private": true,
   "scripts": {
     "start": "ng serve",
-    "build": "node ./node_modules/@angular/cli/bin/ng build --configuration production"
+    "build": "node scripts/set-public-origin.mjs --check && node ./node_modules/@angular/cli/bin/ng build --configuration production",
+    "origin:check": "node scripts/set-public-origin.mjs --check",
+    "test:send-lead": "node --experimental-strip-types supabase/functions/send-lead/test.mjs"
   },
   "engines": {
     "node": "20.x"

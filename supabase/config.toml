@@ -1,0 +1,9 @@
+# Supabase CLI project config. Only the parts this repository needs.
+project_id = "wrfagntltbiuyzsrywdb"
+
+# The contact form calls this function anonymously from the public site, so the
+# gateway must not demand a signed-in JWT. The function itself is the gate:
+# validation, honeypot, rate limit, and the anon/service split described in
+# supabase/functions/send-lead/handler.ts.
+[functions.send-lead]
+verify_jwt = false

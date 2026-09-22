@@ -1,0 +1,5 @@
+{
+  "type": "module",
+  "private": true,
+  "description": "Lets Node run test.mjs against handler.ts as ES modules. Not used by the Supabase deploy, which bundles index.ts."
+}

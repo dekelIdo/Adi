@@ -78,6 +78,7 @@ export interface LeadInput {
 }
 
 const LEADS_TABLE = 'contact_leads';
+const LEAD_FUNCTION = 'send-lead';
 const CONFIG_URL = 'assets/admin.config.json';
 const TOKEN_KEY = 'aa-admin-token';
 
@@ -381,14 +382,37 @@ export class MediaService {
   // ─── Leads ────────────────────────────────────────────────────────────────
 
   /**
-   * The public form's one call. Anonymous role, insert only: the server keeps
-   * nothing but a fresh lead and returns nothing (`return=minimal`), so no
-   * read permission is involved. Throws on any failure; the caller shows a
-   * generic Hebrew message and never the server's words.
+   * The public form's one call. It goes to the `send-lead` Edge Function
+   * (supabase/functions/send-lead), which validates again, stores the lead and
+   * sends the email through Resend with server-side secrets; it answers 200
+   * only once the mail provider has accepted the message, so the page never
+   * shows success for an email that did not go out.
+   *
+   * While the function is not yet deployed on the project (the gateway answers
+   * 404 for an unknown function) the call falls back to the direct table
+   * insert the site shipped with, so a lead is still captured in the admin
+   * screen. Every other failure throws; the caller shows the page's own Hebrew.
    */
   async submitLead(input: LeadInput): Promise<void> {
     const cfg = await this.loadConfig();
     if (!cfg) throw new Error('CONFIG');
+    const res = await fetch(`${cfg.url}/functions/v1/${LEAD_FUNCTION}`, {
+      method: 'POST',
+      headers: { apikey: cfg.anonKey, Authorization: `Bearer ${cfg.anonKey}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        fullName: input.full_name,
+        phone: input.phone,
+        email: input.email ?? '',
+        sourcePath: input.source_path
+      })
+    });
+    if (res.ok) return;
+    if (res.status !== 404) throw new Error(String(res.status));
+    await this.insertLeadRow(cfg, input);
+  }
+
+  /** The original path: anonymous insert, RLS-guarded, no email. */
+  private async insertLeadRow(cfg: AdminConfig, input: LeadInput): Promise<void> {
     const res = await fetch(`${cfg.url}/rest/v1/${LEADS_TABLE}`, {
       method: 'POST',
       headers: {

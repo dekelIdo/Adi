@@ -1,0 +1,4 @@
+{
+  "_comment": "The ONE source of truth for the public site origin. Change it only through `node scripts/set-public-origin.mjs https://new-host` which rewrites every file that carries it (index.html canonical/OG/Twitter, robots.txt, sitemap.xml) and this file together. `npm run build` refuses to build if they disagree.",
+  "publicOrigin": "https://adi-gnga.onrender.com"
+}
