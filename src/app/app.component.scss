@@ -508,9 +508,51 @@ select {
   display: none;
 }
 
+// The wordmark exists for the phone header only.
+.logo-wordmark {
+  display: none;
+}
+
 @media (max-width: 1023.98px) {
   .header-menu-toggle {
     display: inline-flex;
+  }
+
+  // THREE ZONES, ONE TRUE CENTRE. The CTA is anchored to the end edge and
+  // the trigger to the start edge by the bar's own flex; the name is taken
+  // out of that flow and pinned to the bar's exact horizontal centre, so
+  // neither control's width can push it. The bar itself is centred on the
+  // viewport, so the bar's centre is the viewport's.
+  .header-inner {
+    position: relative;
+  }
+
+  .header-logo,
+  .header-logo:hover {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+  }
+
+  // On a phone the mark is the name, set as an editorial wordmark: one line,
+  // no circle, no light, nothing behind it. The serif stack is the device's
+  // own (Didot and Bodoni on iOS, Georgia elsewhere); nothing is loaded.
+  .logo-frame,
+  .logo-light,
+  .logo-beam {
+    display: none;
+  }
+
+  .logo-wordmark {
+    display: block;
+    font-family: "Didot", "Bodoni 72", "Playfair Display", Georgia, "Times New Roman", serif;
+    font-size: clamp(0.98rem, 4.2vw, 1.12rem);
+    font-weight: 400;
+    letter-spacing: 0.06em;
+    line-height: 1;
+    white-space: nowrap;
+    color: inherit;
   }
 
   // Trigger on the start edge, mark in the middle, action at the end: the
@@ -7134,13 +7176,13 @@ div[id] {
     --space-xl: 32px;
   }
 
-  // The header's action, one size down, so the mark keeps its air between
-  // the trigger and the CTA on the narrowest phones. Written at the base
-  // rule's own specificity, which is what sets the size it steps down from.
+  // The header's action, one size down, so the centred name keeps its air
+  // from the CTA on the narrowest phones. Written at the base rule's own
+  // specificity, which is what sets the size it steps down from.
   .site-header .header-cta {
     min-height: 34px;
-    padding: 7px 12px;
-    font-size: 0.68rem;
+    padding: 7px 10px;
+    font-size: 0.66rem;
   }
 
   .hero-essence {
