@@ -129,6 +129,7 @@
           <span class="s-word">ניהול סושיאל</span><span class="s-sep">◆</span>
           <span class="s-word">הפקת ימי צילום</span><span class="s-sep">◆</span>
           <span class="s-word">מיתוג דיגיטלי</span><span class="s-sep">◆</span>
+          <span class="s-word">פרסונל ברנד</span><span class="s-sep">◆</span>
           <span class="s-word">רילס</span><span class="s-sep">◆</span>
         </div>
         <div class="statement-set">
@@ -137,6 +138,7 @@
           <span class="s-word">ניהול סושיאל</span><span class="s-sep">◆</span>
           <span class="s-word">הפקת ימי צילום</span><span class="s-sep">◆</span>
           <span class="s-word">מיתוג דיגיטלי</span><span class="s-sep">◆</span>
+          <span class="s-word">פרסונל ברנד</span><span class="s-sep">◆</span>
           <span class="s-word">רילס</span><span class="s-sep">◆</span>
         </div>
       </div>
@@ -352,19 +354,6 @@
               />
             </picture>
           </figure>
-            <span class="about-photo-beam" aria-hidden="true"></span>
-            <img
-              class="about-photo-light"
-              src="assets/lovable-uploads/MyAssets/AdiArieli/studio-softbox-fixture-mobile.webp"
-              alt=""
-              aria-hidden="true"
-              draggable="false"
-              width="156"
-              height="576"
-              loading="lazy"
-              decoding="async"
-              fetchpriority="low"
-            />
           </div>
         </div>
 
@@ -729,7 +718,7 @@
           <!-- Left: Why column -->
           <div class="why-col">
             <h2 class="why-headline reveal delay-1">למה עסקים<br/>עובדים איתי?</h2>
-            <p class="why-sub">כי ניהול סושיאל זה לא רק להעלות פוסטים.</p>
+            <p class="why-sub">כי ניהול סושיאל זה לא רק להעלות פוסטים, זה להבין.</p>
             <div class="why-statements">
               <div class="why-statement reveal reveal-rise delay-2">
                 <span class="why-statement-text">מה גורם לאנשים לעצור על סרטון</span>
@@ -746,19 +735,19 @@
           <div class="audience-col">
             <div class="audience-statements">
               <div class="audience-statement reveal reveal-rise delay-1">
-                <span class="audience-mark">✓</span>
+                <span class="audience-mark" aria-hidden="true">✓</span>
                 <p>עסקים שרוצים להיראות מקצועיים ברשת</p>
               </div>
               <div class="audience-statement reveal reveal-rise delay-2">
-                <span class="audience-mark">✓</span>
+                <span class="audience-mark" aria-hidden="true">✓</span>
                 <p>בעלי עסקים שאין להם זמן לנהל סושיאל לבד</p>
               </div>
               <div class="audience-statement reveal reveal-rise delay-3">
-                <span class="audience-mark">✓</span>
+                <span class="audience-mark" aria-hidden="true">✓</span>
                 <p>מותגים שרוצים לצמוח דרך תוכן</p>
               </div>
               <div class="audience-statement reveal reveal-rise delay-4">
-                <span class="audience-mark">✓</span>
+                <span class="audience-mark" aria-hidden="true">✓</span>
                 <p>עסקים שמבינים ששיווק הוא מנוע הצמיחה שלהם</p>
               </div>
             </div>
@@ -900,12 +889,28 @@
            one line naming what it is. Quiet on purpose - the argument was
            already made above, this is only the evidence for it. -->
       <div class="container shoot-proof">
+        <!-- FUTURE ASSET SLOT. Adi wants this told through real footage of her
+             assembling the equipment herself, not a caption. That footage does
+             not exist yet, so the still photograph stays exactly as it is and
+             carries the point until it is replaced.
+
+             To wire in the real clip once it is supplied: drop it at
+             assets/lovable-uploads/MyAssets/ShootDay/shoot-rig-setup.mp4 (H.264
+             mp4; add a matching .webm if one is produced) at the same portrait
+             orientation as the current photograph (1152x2048, ~9:16), then swap
+             the <picture> below for:
+               <video class="shoot-detail-video" [poster]="'assets/lovable-uploads/MyAssets/ShootDay/shoot-rig.jpg'"
+                      autoplay muted loop playsinline preload="none">
+                 <source src="assets/lovable-uploads/MyAssets/ShootDay/shoot-rig-setup.mp4" type="video/mp4" />
+               </video>
+             .shoot-detail--rig already sizes and rounds whatever fills it, so
+             no layout change is needed beyond that swap. -->
         <figure class="shoot-detail shoot-detail--rig" data-shoot-reveal="1">
           <picture>
             <source srcset="assets/lovable-uploads/MyAssets/ShootDay/shoot-rig.webp" type="image/webp" />
             <img
               src="assets/lovable-uploads/MyAssets/ShootDay/shoot-rig.jpg"
-              alt="ציוד צילום ותאורה מקצועיים"
+              alt="ציוד הצילום של עדי"
               width="1152" height="2048" loading="lazy" decoding="async"
             />
           </picture>
@@ -920,7 +925,6 @@
             />
           </picture>
         </figure>
-        <p class="shoot-note">ציוד צילום ותאורה מקצועיים</p>
       </div>
     </section>
 
@@ -1055,6 +1059,16 @@
                 >
                   <span class="social-play-mark" aria-hidden="true"></span>
                 </button>
+                @if (playingVideoId === video.id) {
+                  <button
+                    type="button"
+                    class="social-fullscreen"
+                    (click)="requestVideoFullscreen(videoEl, $event)"
+                    aria-label="מסך מלא"
+                  >
+                    <span class="social-fullscreen-mark" aria-hidden="true"></span>
+                  </button>
+                }
               </div>
               <!-- Rendered only when a real post URL exists. Never fabricated. -->
               @if (video.instagramUrl) {
@@ -1095,6 +1109,7 @@
             <div class="contact-copy">
               <h2 class="section-title reveal delay-1">רוצה לבדוק אם זה מתאים לעסק שלך?</h2>
               <p class="section-body">השאירו פרטים ואחזור אליכם לשיחת היכרות קצרה.</p>
+              <p class="contact-lead reveal delay-2">נבין ביחד:</p>
               <ul class="contact-checklist reveal delay-3">
                 <li>מה מצב הסושיאל היום</li>
                 <li>מה המטרות של העסק</li>
@@ -1255,7 +1270,7 @@
             </button>
             <div class="faq-body"><div>
               <p>זו שאלה טבעית. לפעמים דווקא יום צילום מרוכז יכול להיות פתרון מצוין להתחלה.</p>
-              <p>ביום כזה אנחנו מצלמים יחד הרבה סרטונים ותכנים, ואני נותנת כיוון איך להשתמש בהם לאורך החודש, בלי להתחייב לניהול חודשי.</p>
+              <p>ביום כזה אנחנו מצלמים יחד סרטונים ותכנים, ואני מכווינה אתכם איך להשתמש בהם לאורך החודש, בלי להתחייב לניהול חודשי.</p>
             </div></div>
           </div>
 

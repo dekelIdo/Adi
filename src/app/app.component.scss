@@ -658,7 +658,9 @@ select {
     }
 
     // One small mark in the accent at the line's end, shown only on the
-    // chapter under the reader; every other line carries nothing.
+    // chapter under the reader; every other line carries nothing. A soft
+    // scale-in alongside the fade is the one bit of art direction it gets -
+    // still the same tiny dot, just settling into place rather than snapping.
     &::after {
       content: "";
       flex: none;
@@ -667,7 +669,8 @@ select {
       border-radius: 50%;
       background: var(--brand-accent-dim);
       opacity: 0;
-      transition: opacity 200ms var(--ease-smooth);
+      transform: scale(0.4);
+      transition: opacity 220ms var(--ease-smooth), transform 220ms var(--ease-expo);
     }
 
     &.is-current {
@@ -675,6 +678,7 @@ select {
 
       &::after {
         opacity: 1;
+        transform: scale(1);
       }
     }
   }
@@ -1048,108 +1052,11 @@ select {
   display: contents;
 }
 
-.about-photo-beam,
-.about-layout .about-photo-stage img.about-photo-light {
-  display: none;
-}
-
-@media (max-width: 699.98px) {
-  .about-layout .about-photo-stage {
-    --photo-shift: clamp(12px, 4vw, 20px);
-    display: block;
-    position: relative;
-    isolation: isolate;
-    overflow: visible;
-  }
-
-  // The photograph, nudged left by --photo-shift at the same width.
-  .about-layout .about-photo-stage .about-photo-wrap {
-    position: relative;
-    z-index: 1;
-    max-width: calc(100% + var(--container-padding) + var(--photo-shift));
-    margin-inline-end: calc(-1 * var(--container-padding) - var(--photo-shift));
-    margin-inline-start: calc(clamp(28px, 12vw, 64px) + var(--photo-shift));
-  }
-
-  // The beam: one soft cone, anchored at the umbrella's interior (right edge,
-  // origin right center), widening to the left and rising about nine degrees
-  // to her eyes and cheek, ending around her head and shoulder. Screen-blended
-  // so it lights rather than fogs; blurred so there is no hard edge.
-  .about-photo-beam {
-    display: block;
-    position: absolute;
-    z-index: 2;
-    pointer-events: none;
-    inset-block-start: clamp(60px, 19.2vw, 88px);
-    inset-inline-start: clamp(38px, 12vw, 56px);
-    width: clamp(150px, 45vw, 185px);
-    height: clamp(80px, 24vw, 105px);
-    transform-origin: right center;
-    transform: rotate(-9deg);
-    // The right third of the cone lies over white paper, where a screen blend
-    // can show nothing, so the light is carried into the picture: still warm
-    // ivory at the umbrella, still fading to nothing, but holding its strength
-    // across the picture's edge to her face before the blue tail lets go.
-    background: linear-gradient(
-      to left,
-      rgba(255, 244, 222, 0.48) 0%,
-      rgba(255, 241, 214, 0.44) 34%,
-      rgba(255, 239, 210, 0.38) 60%,
-      rgba(187, 221, 250, 0.18) 84%,
-      transparent 100%
-    );
-    clip-path: polygon(100% 42%, 100% 58%, 0 0, 0 100%);
-    filter: blur(8px);
-    mix-blend-mode: screen;
-  }
-
-  // The result of the light: a small warm lift where the beam lands - eyes,
-  // cheek, forehead - faint enough to keep skin, eyes and hairline as they are.
-  .about-layout .about-photo-stage::after {
-    content: '';
-    position: absolute;
-    z-index: 2;
-    pointer-events: none;
-    inset-inline-end: clamp(52px, 16.7vw, 78px);
-    inset-block-start: clamp(60px, 19.2vw, 86px);
-    width: clamp(82px, 23vw, 96px);
-    height: clamp(72px, 20.5vw, 88px);
-    border-radius: 50%;
-    background: radial-gradient(
-      ellipse at center,
-      rgba(255, 242, 218, 0.24) 0%,
-      rgba(255, 235, 205, 0.12) 38%,
-      transparent 72%
-    );
-    filter: blur(7px);
-    mix-blend-mode: screen;
-  }
-
-  // The lamp: the fixture alone, on the paper to the right, its head level
-  // with her face and crossing the picture's edge by 10-18px.
-  .about-layout .about-photo-stage img.about-photo-light {
-    display: block;
-    position: absolute;
-    z-index: 3;
-    // Lifted so the umbrella's white interior sits level with her face.
-    inset-block-start: clamp(26px, 10vw, 56px);
-    // Measured: the head crosses the picture's edge by 10-18px across 320-430.
-    // Full-size equipment, not an icon: the height sets the scale (about
-    // 328px at 390, a lamp head of ~85px) and the width follows the file.
-    // Sat a touch past the container edge so the larger head crosses the
-    // picture by ~18-22px while body and stand stay on the paper.
-    inset-inline-start: calc(-1 * clamp(6px, 2.2vw, 9px));
-    height: clamp(300px, 84vw, 360px);
-    width: auto;
-    max-width: none;
-    object-fit: contain;
-    filter: none;
-    transition: none;
-    pointer-events: none;
-    user-select: none;
-    -webkit-user-select: none;
-  }
-}
+// The lamp and its beam are gone (Adi: "להוריד את הפנס, להשאיר רק את התמונה").
+// .about-photo-stage stays `display: contents` at every width now, so the
+// figure lays out directly inside .about-layout and the stacked-mobile bleed
+// further down this file (.about-photo-wrap under max-width: 699px) sets its
+// position with no lamp to reserve room for.
 
 // ─────── SOCIAL DOCK (mobile) ──────────────────────────────────────────────────
 //
@@ -1831,6 +1738,14 @@ select {
 .reviews-outer {
   -webkit-mask-image: linear-gradient(to right, transparent 0, #000 clamp(96px, 30vw, 170px), #000 calc(100% - clamp(40px, 10vw, 90px)), transparent 100%);
   mask-image: linear-gradient(to right, transparent 0, #000 clamp(96px, 30vw, 170px), #000 calc(100% - clamp(40px, 10vw, 90px)), transparent 100%);
+}
+
+// Overrides the shared edge-mask above for this one rail: a word moves through
+// a thin ticker faster than a card moves through a wide reel, so the fade needs
+// to be proportionally wider to read as a dissolve rather than a hard cut.
+.statement-strip {
+  -webkit-mask-image: linear-gradient(to right, transparent 0, #000 14%, #000 86%, transparent 100%);
+  mask-image: linear-gradient(to right, transparent 0, #000 14%, #000 86%, transparent 100%);
 }
 
 // Shared by both image reels. Exactly one duplicated set = 50% of the track.
@@ -4280,6 +4195,7 @@ div[id] {
   font-size: var(--text-base);
   line-height: 1.68;
   color: rgba(255, 255, 255, 0.72);
+  max-width: 34ch;
 }
 
 .portfolio-header-line {
@@ -4287,6 +4203,31 @@ div[id] {
   height: 2px;
   background: linear-gradient(90deg, var(--brand-accent), transparent);
   border-radius: 2px;
+}
+
+// Stacked on a phone the line ran full width beneath two lines of body copy
+// and read as a stray bar rather than a mark. Short and set above the text
+// instead, it reads as the accent that opens the paragraph - the same
+// relationship the desktop composition already has, just reordered for a
+// single column - and the text keeps a measured width instead of running
+// the full gutter-to-gutter span.
+@media (max-width: 699.98px) {
+  .portfolio-header-left {
+    margin-bottom: var(--flow-tight);
+  }
+
+  .portfolio-header-right {
+    gap: 10px;
+  }
+
+  .portfolio-header-right .portfolio-header-line {
+    order: -1;
+    width: 44px;
+  }
+
+  .portfolio-header-desc {
+    max-width: 30ch;
+  }
 }
 
 // Infinite auto-scrolling reel
@@ -4425,6 +4366,15 @@ div[id] {
   padding: var(--space-md) 0;
 }
 
+.results-outer {
+  touch-action: pan-y;
+  cursor: grab;
+
+  &:active {
+    cursor: grabbing;
+  }
+}
+
 .results-rail {
   display: flex;
   gap: 0;
@@ -4435,7 +4385,8 @@ div[id] {
   // Per item, so a fourth result does not speed the reel up.
   animation: reelScroll calc(var(--reel-count, 3) * 14.5s) linear infinite;
 
-  &.is-idle {
+  &.is-idle,
+  &.is-dragging {
     animation-play-state: paused;
   }
 }
@@ -4665,32 +4616,89 @@ div[id] {
 // that the eye reads a new group. No label is invented and no decoration is
 // added - the rule is the one already used throughout this page.
 @media (max-width: 699.98px) {
-  // ONLY the second list. This selector had picked up `.why-statements` as well,
-  // so the separator meant for one boundary was being applied to both - and the
-  // measured result on a phone was a 98px void above the first list and a 104px
-  // void above the second, against an internal row rhythm of 23-29px. One
-  // mistake, two holes, and it is the empty space visible in the production
-  // screenshots.
-  //
-  // The break is also smaller than it was. It has to say "new group"; it does
-  // not have to say "new section". Roughly double the row rhythm does that, and
-  // the hairline carries the rest.
+  // ONE COMPOSITION, NOT TWO STACKED LISTS. Both groups now live inside a
+  // single bordered field - a top rule and a bottom rule around the whole
+  // thing - so the eye reads it as one comparison rather than a full "what
+  // she does" block, a gap, then a full "who it's for" block underneath.
+  .why-merged-grid {
+    gap: 0;
+    border-top: 1px solid var(--rule-strong);
+    border-bottom: 1px solid var(--rule-strong);
+  }
+
+  // THE STRONG SIDE. What she does, read first: full ink, the display face,
+  // and a short accent tick standing in for the brand-blue rule the desktop
+  // comparison draws with a divider. No card, no icon - the type carries it.
+  .why-col {
+    padding-block: clamp(14px, 2.2vh, 20px) clamp(10px, 1.6vh, 14px);
+  }
+
+  .why-statement {
+    padding: 9px 0;
+    padding-inline-start: 15px;
+    position: relative;
+    border-top: none;
+
+    &::before {
+      content: "";
+      position: absolute;
+      inset-inline-start: 0;
+      top: 0.75em;
+      width: 9px;
+      height: 2px;
+      background: var(--brand-accent-dim);
+    }
+  }
+
+  .why-statement-text {
+    font-family: var(--font-display);
+    font-size: clamp(1.02rem, 3vw, 1.14rem);
+    font-weight: 400;
+    letter-spacing: -0.01em;
+    line-height: 1.4;
+  }
+
+  // THE QUIET SIDE. Who it's for: smaller, muted, receded - still legible,
+  // visibly the secondary thought. The rule between the two groups is the
+  // only divider; the unicode check has no place here.
   .audience-statements {
-    // The hairline is the divider and the air around it is ONE decision, made
-    // here. It used to be four - this margin, this padding, the grid's row-gap
-    // and the row padding on either side - which summed to 84px between two
-    // lines of a list whose own rows run at 22. The rule reads as a new group
-    // at less than half that; past a point the break stops saying "new group"
-    // and starts saying "something is missing".
     margin-top: 0;
-    padding-top: clamp(12px, 1.8vh, 18px);
+    padding-top: clamp(12px, 1.8vh, 16px);
+    padding-bottom: clamp(14px, 2.2vh, 20px);
     border-top: 1px solid var(--rule);
   }
 
-  // The first row already sits under that rule, so its own top border would
-  // double it.
   .audience-statement:first-child {
     border-top: none;
+  }
+
+  .audience-statement {
+    padding: 7px 0;
+    gap: 12px;
+  }
+
+  .audience-statement p {
+    font-size: var(--text-sm);
+    line-height: 1.55;
+    color: var(--text-muted);
+  }
+
+  .audience-mark {
+    width: auto;
+    height: auto;
+    margin-top: 0.62em;
+    // The checkmark glyph itself is desktop-only furniture; it collapses to
+    // nothing here and the tick below stands in for it instead.
+    font-size: 0;
+
+    &::before {
+      content: "";
+      display: block;
+      width: 7px;
+      height: 1px;
+      background: var(--text-light);
+      opacity: 0.7;
+    }
   }
 }
 
@@ -4852,6 +4860,8 @@ div[id] {
 .reviews-outer {
   overflow: hidden;
   padding: var(--space-sm) 0;
+  touch-action: pan-y;
+  cursor: grab;
 
   &:active {
     cursor: grabbing;
@@ -4880,8 +4890,10 @@ div[id] {
 
   // Same fail-safe direction as the other two reels: running by default, paused
   // only when the observer says it is off screen. If the observer never attaches
-  // the reel still moves rather than sitting dead.
-  &.is-idle {
+  // the reel still moves rather than sitting dead. A drag pauses it the same
+  // way, so a dragged reel never fights the autoplay for the same pixels.
+  &.is-idle,
+  &.is-dragging {
     animation-play-state: paused;
   }
 
@@ -5362,6 +5374,78 @@ div[id] {
   }
 }
 
+// A small, obvious-enough corner control, shown only once a clip is actually
+// playing - the moment fullscreen becomes a reasonable thing to want. It
+// calls the browser's own fullscreen (webkitEnterFullscreen on iOS Safari,
+// requestFullscreen elsewhere), so entering and leaving is native behaviour
+// with nothing here to keep in sync afterwards.
+.social-fullscreen {
+  position: absolute;
+  z-index: 2;
+  inset-inline-end: 10px;
+  inset-block-end: 10px;
+  width: 34px;
+  height: 34px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  border-radius: 50%;
+  background: rgba(10, 8, 6, 0.46);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition: background-color 200ms var(--ease-smooth);
+
+  &:hover,
+  &:focus-visible {
+    background: rgba(10, 8, 6, 0.66);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--brand-accent);
+    outline-offset: 2px;
+  }
+}
+
+.social-fullscreen-mark {
+  position: relative;
+  width: 13px;
+  height: 13px;
+
+  &,
+  &::before,
+  &::after {
+    box-sizing: border-box;
+  }
+
+  // Two opposite corner brackets - the universal "expand" glyph, drawn rather
+  // than imported as an icon font.
+  &::before,
+  &::after {
+    content: "";
+    position: absolute;
+    width: 6px;
+    height: 6px;
+    border: 1.5px solid rgba(255, 255, 255, 0.92);
+  }
+
+  &::before {
+    top: 0;
+    inset-inline-start: 0;
+    border-inline-end: none;
+    border-block-end: none;
+  }
+
+  &::after {
+    bottom: 0;
+    inset-inline-end: 0;
+    border-inline-start: none;
+    border-block-start: none;
+  }
+}
+
 .social-play-mark {
   width: clamp(44px, 9vw, 56px);
   aspect-ratio: 1;
@@ -5636,6 +5720,17 @@ div[id] {
   // Spacing below is owned by --flow-open / --flow-tight, not here.
 }
 
+// A short lead-in, not a second heading - the same small tracked voice the
+// page's other metadata lines use (the pillar tags, the shoot caption), so
+// it reads as "here is what happens next" rather than as new emphasis.
+.contact-lead {
+  margin-top: var(--space-sm);
+  font-size: var(--text-xs);
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  color: var(--text-light);
+}
+
 // Hairline-led list, matching the editorial rows used through the page.
 // The old blue circular tick chips were the last of that UI-badge language.
 .contact-checklist {
@@ -5643,7 +5738,7 @@ div[id] {
   display: flex;
   flex-direction: column;
   gap: 3px;
-  margin: var(--space-xs) 0 0;
+  margin: 6px 0 0;
 
   li {
     display: block;
@@ -6796,10 +6891,19 @@ div[id] {
     padding-block: var(--sec-tight) var(--sec-open);
   }
 
-  // New movements: the work, the close. These earn the extra air.
-  .section-portfolio,
+  // New movement: the close. It earns the extra air.
   .section-contact {
     padding-block: var(--sec-open);
+  }
+
+  // WORK opens on the same open tier - it arrives through the cinematic
+  // portal and needs the room - but closes tight. The reel's own outer
+  // padding, this section's open-tier close and results' own top padding
+  // were three owners stacking into the largest dark field on the page
+  // before the next section ever got a say. One owner, and it is the open
+  // edge that keeps its air; the close is a normal chapter breath instead.
+  .section-portfolio {
+    padding-block: var(--sec-open) var(--sec-tight);
   }
 
   // The shoot chapter earns the open tier at its close, but not at its open:
@@ -7074,7 +7178,6 @@ div[id] {
 
   // Editorial rows: numeral stays in the hanging margin at every width.
   .problem-item,
-  .process-row,
   .services-row {
     gap: clamp(13px, 3.6vw, 18px);
   }
@@ -7083,9 +7186,56 @@ div[id] {
     padding: 14px 0;
   }
 
-  .process-row,
   .services-row {
     padding: 17px 0;
+  }
+
+  // THE PROCESS SPINE. Four giant numerals were the whole design device here
+  // - the generic 01/02/03/04-then-divider pattern this page uses nowhere
+  // else. The numeral drops to the small tracked metadata scale the problem
+  // list already uses elsewhere on the page, and what replaces the numeral's
+  // old visual weight is a continuous rule down the margin: each row
+  // contributes one segment via its own stretched grid cell, so the four
+  // segments meet exactly and read as one spine running the length of the
+  // chapter, marking the sequence without a single number dominating it.
+  .process-row {
+    grid-template-columns: 22px 1fr;
+    column-gap: clamp(16px, 3.6vw, 24px);
+    align-items: stretch;
+    // The padding that used to live on the row itself moves onto the content
+    // column alone (below): the numeral cell stretches to match whatever
+    // height that padding gives the row, border and all, so the four
+    // segments meet with nothing between them instead of a gap of padding
+    // at every row boundary.
+    padding: 0;
+    border-top: none;
+  }
+
+  .process-row:first-child {
+    border-top: none;
+  }
+
+  .process-row-num {
+    font-family: var(--font-body);
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 0.16em;
+    line-height: 1;
+    color: color-mix(in srgb, var(--brand-accent) 70%, var(--text-light));
+    padding-top: clamp(19px, 3.1vh, 25px);
+    padding-inline-end: clamp(16px, 3.6vw, 24px);
+    border-inline-end: 1px solid color-mix(in srgb, var(--brand-accent) 32%, var(--rule));
+    min-width: 0;
+  }
+
+  .process-row-content {
+    padding-block: clamp(16px, 2.6vh, 22px);
+  }
+
+  .process-row-title {
+    font-family: var(--font-display);
+    font-size: clamp(1.16rem, 3.6vw, 1.34rem);
+    font-weight: 400;
   }
 
   // Portfolio reel mobile

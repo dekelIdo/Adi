@@ -1,4 +1,4 @@
-import { AfterViewInit, ChangeDetectorRef, Component, HostListener, OnDestroy, NgZone, ViewChild, ElementRef } from '@angular/core';
+import { AfterViewInit, ChangeDetectorRef, Component, HostListener, OnDestroy, OnInit, NgZone, ViewChild, ElementRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
 interface PortfolioProject {
@@ -215,7 +215,7 @@ class ScrollPipeline {
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.scss']
 })
-export class AppComponent implements AfterViewInit, OnDestroy {
+export class AppComponent implements OnInit, AfterViewInit, OnDestroy {
   // ─── The contact form ──────────────────────────────────────────────────────
   leadState: 'idle' | 'sending' | 'sent' | 'error' = 'idle';
   leadErrors: { fullName?: string; phone?: string; email?: string } = {};
@@ -546,15 +546,20 @@ export class AppComponent implements AfterViewInit, OnDestroy {
   private focusedReel?: HTMLElement;
   private reelResize?: () => void;
   private reelScrollOut?: () => void;
+  private reelOutsideClose?: (e: Event) => void;
   openFaqIndex: number | null = null;
   currentHeaderTheme: 'light' | 'dark' = 'dark'; // Start with dark for hero
 
+  // Clalit's href starts as the Google Play listing (a real, working
+  // destination even before ngOnInit runs) and is replaced in ngOnInit with
+  // whichever store matches the visitor's platform - see getClalitAppUrl().
   brandLogos: BrandLogo[] = [
-    { name: 'Clalit Active+', href: 'https://www.clalit.co.il' },
+    { name: 'Clalit Active+', href: 'https://play.google.com/store/apps/details?id=co.il.move_club.app1' },
     { name: 'Allen Carr', logo: 'assets/lovable-uploads/client-allen-carr.png', href: 'https://www.allencarr.co.il/', scale: 'default' },
     { name: 'Movement', logo: 'assets/lovable-uploads/client-movement.png', href: 'https://movement-group.com/en/', scale: 'large' },
     { name: 'Moon Productions', logo: 'assets/lovable-uploads/client-moon-productions.png', href: 'https://moonproduction.co.il/', scale: 'default' },
-    { name: 'Ichilov Well', href: 'https://www.ichilov.org.il' }
+    { name: 'Noma Security', logo: 'assets/lovable-uploads/client-noma.png', href: 'https://noma.security/', scale: 'default' },
+    { name: 'Ichilov Well', href: 'https://ichilov-well.co.il/' }
   ];
 
   /**
@@ -646,6 +651,35 @@ export class AppComponent implements AfterViewInit, OnDestroy {
 
   constructor(private zone: NgZone, private cdr: ChangeDetectorRef) {}
 
+  ngOnInit(): void {
+    const clalit = this.brandLogos.find((b) => b.name === 'Clalit Active+');
+    if (clalit) clalit.href = this.getClalitAppUrl();
+  }
+
+  /**
+   * Clalit Active+ is the mobile app, not the clinic's website, so this picks
+   * the real store for whichever platform the visitor is actually on. iOS and
+   * iPadOS both report as "MacIntel" in modern Safari, hence the touch-point
+   * check alongside the UA test. No custom URL scheme is guessed at and no
+   * installed-app probe is attempted - the user-agent can say what platform
+   * this is; it cannot reliably say whether the app is installed, so the
+   * verified store listing is the answer for every case, desktop included.
+   */
+  private getClalitAppUrl(): string {
+    const APP_STORE = 'https://apps.apple.com/il/app/id6748306307';
+    const PLAY_STORE = 'https://play.google.com/store/apps/details?id=co.il.move_club.app1';
+    if (typeof navigator === 'undefined') return PLAY_STORE;
+    const ua = navigator.userAgent || '';
+    const isIOS =
+      /iPad|iPhone|iPod/.test(ua) ||
+      (navigator.platform === 'MacIntel' && (navigator.maxTouchPoints || 0) > 1);
+    if (isIOS) return APP_STORE;
+    if (/Android/.test(ua)) return PLAY_STORE;
+    // Desktop or an unrecognised UA: the Play listing renders as a full page
+    // in any browser, so it is the safer neutral landing point of the two.
+    return PLAY_STORE;
+  }
+
   /**
    * Tap-to-play, one clip at a time. Video stays poster-only until the visitor
    * asks for it, so nothing downloads a media file on page load.
@@ -655,6 +689,7 @@ export class AppComponent implements AfterViewInit, OnDestroy {
       el.pause();
       this.playingVideoId = null;
       this.clearReelFocus();
+      this.cdr.markForCheck();
       return;
     }
 
@@ -675,11 +710,17 @@ export class AppComponent implements AfterViewInit, OnDestroy {
     // If a browser refuses anyway the promise rejects, and rather than leave her
     // with nothing we retry muted - so the reel always plays, and it plays with
     // sound wherever sound is permitted.
+    // The two .then() callbacks below run inside a resolved Promise, which
+    // zone.js does schedule a tick for - but on this Angular version that tick
+    // was landing without the `is-playing` class ever reaching the DOM, which
+    // left the play icon sitting over a video that was actually running.
+    // markForCheck() closes that gap explicitly rather than relying on it.
     el.muted = false;
     void el.play().then(
       () => {
         this.playingVideoId = video.id;
         this.focusReel(el);
+        this.cdr.markForCheck();
       },
       () => {
         el.muted = true;
@@ -687,8 +728,12 @@ export class AppComponent implements AfterViewInit, OnDestroy {
           () => {
             this.playingVideoId = video.id;
             this.focusReel(el);
+            this.cdr.markForCheck();
           },
-          () => (this.playingVideoId = null)
+          () => {
+            this.playingVideoId = null;
+            this.cdr.markForCheck();
+          }
         );
       }
     );
@@ -740,16 +785,38 @@ export class AppComponent implements AfterViewInit, OnDestroy {
         this.cdr.markForCheck();
       }
     };
+    // A TAP ANYWHERE THAT IS NOT THIS FRAME CLOSES IT.
+    //
+    // Registered on `document` in the bubble phase (the default), which is
+    // what makes this safe by construction rather than by a guard flag: a tap
+    // ON the active frame runs this same video's own (click) handler first,
+    // and that handler already calls clearReelFocus() - synchronously, for
+    // the "tap to pause" path - before the event ever reaches document, which
+    // removes this exact listener. So the one case that must never
+    // self-trigger (a tap inside the active video) never reaches this
+    // function at all; only a tap that lands outside the frame does.
+    this.reelOutsideClose = (e: Event) => {
+      const frame = card.querySelector('.social-frame');
+      if (frame && e.target instanceof Node && !frame.contains(e.target)) {
+        el.pause();
+        this.playingVideoId = null;
+        this.clearReelFocus();
+        this.cdr.markForCheck();
+      }
+    };
     const startY = window.scrollY;
     window.addEventListener('resize', this.reelResize, { passive: true });
     window.addEventListener('scroll', this.reelScrollOut, { passive: true });
+    document.addEventListener('click', this.reelOutsideClose);
   }
 
   private clearReelFocus(): void {
     if (this.reelResize) window.removeEventListener('resize', this.reelResize);
     if (this.reelScrollOut) window.removeEventListener('scroll', this.reelScrollOut);
+    if (this.reelOutsideClose) document.removeEventListener('click', this.reelOutsideClose);
     this.reelResize = undefined;
     this.reelScrollOut = undefined;
+    this.reelOutsideClose = undefined;
     if (this.focusedReel) {
       this.focusedReel.classList.remove('is-focused');
       this.focusedReel.style.removeProperty('--reel-fx');
@@ -758,6 +825,28 @@ export class AppComponent implements AfterViewInit, OnDestroy {
       this.focusedReel = undefined;
     }
     document.querySelector('.section-social')?.classList.remove('has-focus');
+  }
+
+  /**
+   * Native fullscreen only - no custom overlay to keep in sync with the
+   * video's own state, and nothing here to unwind on exit because the
+   * browser owns that transition. iOS Safari has no element-level Fullscreen
+   * API for arbitrary elements, only the video-specific
+   * webkitEnterFullscreen(), which is why that is tried first.
+   */
+  requestVideoFullscreen(el: HTMLVideoElement, e: Event): void {
+    e.stopPropagation();
+    const anyEl = el as HTMLVideoElement & {
+      webkitEnterFullscreen?: () => void;
+      webkitRequestFullscreen?: () => void;
+    };
+    if (typeof anyEl.webkitEnterFullscreen === 'function') {
+      anyEl.webkitEnterFullscreen();
+    } else if (typeof el.requestFullscreen === 'function') {
+      void el.requestFullscreen();
+    } else if (typeof anyEl.webkitRequestFullscreen === 'function') {
+      anyEl.webkitRequestFullscreen();
+    }
   }
 
   toggleFaq(i: number): void {
@@ -774,6 +863,7 @@ export class AppComponent implements AfterViewInit, OnDestroy {
     this.initHeaderTheme();
     this.initCursorGlow();
     this.initReelPlayback();
+    this.initReelDrag();
     // THE TWO SCROLL CINEMATICS RUN AT EVERY WIDTH. The studio photograph
     // (the phone that opens into the WORK chapter) and the laptop bridge are
     // one implementation with one camera; their stylesheet rules apply at
@@ -1181,20 +1271,28 @@ export class AppComponent implements AfterViewInit, OnDestroy {
   //    animation is continuous, works on mobile, needs no JS, and cannot render
   //    an empty state. No querySelector in this file may target .brand-track*.
   //
-  // 2. PORTFOLIO REEL  — rAF marquee. Owns ONLY .portfolio-reel-outer/-track.
-  // 3. RESULTS REEL    — rAF marquee. Owns ONLY .results-outer/.results-rail.
-  // 4. REVIEWS ROW     — native scrollLeft drag. Owns ONLY .reviews-outer.
+  // 2. PORTFOLIO REEL  — CSS marquee. Owns ONLY .portfolio-reel-outer/-track.
+  // 3. RESULTS REEL    — CSS marquee + drag (initReelDrag). Owns ONLY
+  //                      .results-outer/.results-rail.
+  // 4. REVIEWS ROW     — CSS marquee + drag (initReelDrag). Owns ONLY
+  //                      .reviews-outer/.reviews-rail.
   //
-  // 2/3/4 have disjoint selector scopes and disjoint rAF loops; none observes or
-  // mutates another's DOM. Keep it that way — widen a selector and two loops will
-  // fight over the same transform.
+  // 2/3/4 have disjoint selector scopes; none observes or mutates another's
+  // DOM. initReelDrag (3/4 only) writes the standalone `translate` property,
+  // never `transform` or `scrollLeft`, specifically so it cannot collide with
+  // the CSS animation each of these already owns. Keep it that way — widen a
+  // selector or move a drag onto `transform` and two mechanisms will fight
+  // over the same pixels.
   // ═══════════════════════════════════════════════════════════════════════════
 
-  // ─── Carousel drag was removed ────────────────────────────────────────────
-  // It owned .reviews-outer alone, dragging it by scrollLeft. That container is
-  // now overflow:hidden with a CSS-animated reel inside, so there is nothing to
-  // scroll and nothing to drag: the two mechanisms would have written to the
-  // same element from different loops.
+  // ─── Carousel drag, take two ───────────────────────────────────────────────
+  // A first attempt owned .reviews-outer alone and dragged it by scrollLeft.
+  // That container is overflow:hidden with a CSS-animated reel inside, so
+  // there was nothing to scroll and the two mechanisms fought over the same
+  // element. initReelDrag() (below) does not repeat that mistake: it drives
+  // the standalone `translate` property, never `scrollLeft` or `transform`,
+  // so it cannot collide with the animation that owns `transform`. See
+  // initReelDrag for the current implementation.
 
 
   // ─── Laptop reveal into the process chapter (mobile only) ────────────────────
@@ -2133,6 +2231,128 @@ export class AppComponent implements AfterViewInit, OnDestroy {
     });
   }
 
+
+  // ─── Reel drag: a fast manual nudge layered on top of autoplay ──────────────
+  //
+  // The reviews and results reels are pure CSS marquees (see reelScroll) and
+  // stay exactly that - this never touches their `animation` or the transform
+  // it drives. A drag instead writes to the standalone `translate` property,
+  // which composes with an element's own animated `transform` instead of
+  // fighting it, so the two can move the same element without either one
+  // overwriting the other.
+  //
+  // The offset is bounded rather than infinite: a previous drag implementation
+  // on this exact rail conflicted with its CSS-driven position (see the
+  // "Carousel drag was removed" note below `initReelPlayback`), and an
+  // unbounded offset would need the same set-boundary math the CSS animation
+  // already owns. Clamping it to a fraction of the viewport keeps a fast flick
+  // genuinely fast - it moves the cards a real distance immediately - without
+  // ever needing to know where the reel's own loop currently is.
+  private initReelDrag(): void {
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    const rails = Array.from(document.querySelectorAll<HTMLElement>('.reviews-rail, .results-rail'));
+    this.zone.runOutsideAngular(() => {
+      rails.forEach((rail) => this.bindReelDrag(rail));
+    });
+  }
+
+  private bindReelDrag(rail: HTMLElement): void {
+    const outer = rail.parentElement;
+    if (!outer) return;
+
+    let dragging = false;
+    let lastX = 0;
+    let velocity = 0; // px per ms
+    let offset = 0; // current translate, px
+    let raf = 0;
+    let resumeTimer = 0;
+
+    const maxOffset = () => outer.clientWidth * 0.42;
+
+    const setOffset = (v: number) => {
+      offset = v;
+      rail.style.translate = `${v}px 0`;
+    };
+
+    const settle = () => {
+      const step = () => {
+        velocity *= 0.94;
+        offset += velocity * 16;
+        const max = maxOffset();
+        if (Math.abs(offset) > max) {
+          offset = Math.sign(offset) * max;
+          velocity = 0;
+        }
+        setOffset(offset);
+        if (Math.abs(velocity) > 0.02) {
+          raf = requestAnimationFrame(step);
+        } else {
+          finish();
+        }
+      };
+      if (Math.abs(velocity) > 0.02) {
+        raf = requestAnimationFrame(step);
+      } else {
+        finish();
+      }
+    };
+
+    // AUTOPLAY RESUMES GRACEFULLY, NOT INSTANTLY.
+    //
+    // A short pause after the finger lifts before the offset eases back to
+    // zero and the paused keyframe animation is allowed to continue - long
+    // enough to read as "your gesture is what just happened here", short
+    // enough that the reel is not visibly sitting idle.
+    const finish = () => {
+      resumeTimer = window.setTimeout(() => {
+        rail.style.transition = 'translate 520ms cubic-bezier(0.16, 1, 0.3, 1)';
+        setOffset(0);
+        rail.classList.remove('is-dragging');
+        window.setTimeout(() => {
+          rail.style.transition = '';
+        }, 560);
+      }, 260);
+    };
+
+    const onDown = (e: PointerEvent) => {
+      if (e.pointerType === 'mouse' && e.button !== 0) return;
+      dragging = true;
+      lastX = e.clientX;
+      velocity = 0;
+      window.clearTimeout(resumeTimer);
+      if (raf) cancelAnimationFrame(raf);
+      rail.style.transition = '';
+      rail.classList.add('is-dragging');
+    };
+
+    const onMove = (e: PointerEvent) => {
+      if (!dragging) return;
+      const dx = e.clientX - lastX;
+      velocity = dx * 0.85;
+      let next = offset + dx * 1.35; // amplified: a small finger move covers real ground
+      const max = maxOffset();
+      if (Math.abs(next) > max) {
+        const over = Math.abs(next) - max;
+        next = Math.sign(next) * (max + over * 0.28); // rubber-band past the bound
+      }
+      setOffset(next);
+      lastX = e.clientX;
+    };
+
+    const onUp = () => {
+      if (!dragging) return;
+      dragging = false;
+      settle();
+    };
+
+    outer.addEventListener('pointerdown', onDown, { passive: true });
+    outer.addEventListener('pointermove', onMove, { passive: true });
+    outer.addEventListener('pointerup', onUp, { passive: true });
+    outer.addEventListener('pointercancel', onUp, { passive: true });
+    outer.addEventListener('pointerleave', () => {
+      if (dragging) onUp();
+    }, { passive: true });
+  }
 
   // ─── Section ambient indicator ────────────────────────────────────────────
 
