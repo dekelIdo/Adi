@@ -551,9 +551,9 @@ export class AppComponent implements AfterViewInit, OnDestroy {
 
   brandLogos: BrandLogo[] = [
     { name: 'Clalit Active+', href: 'https://www.clalit.co.il' },
-    { name: 'Allen Carr', logo: 'assets/lovable-uploads/client-allen-carr.png', href: '#', scale: 'default' },
-    { name: 'Movement', logo: 'assets/lovable-uploads/client-movement.png', href: '#', scale: 'large' },
-    { name: 'Moon Productions', logo: 'assets/lovable-uploads/client-moon-productions.png', href: '#', scale: 'default' },
+    { name: 'Allen Carr', logo: 'assets/lovable-uploads/client-allen-carr.png', href: 'https://www.allencarr.co.il/', scale: 'default' },
+    { name: 'Movement', logo: 'assets/lovable-uploads/client-movement.png', href: 'https://movement-group.com/en/', scale: 'large' },
+    { name: 'Moon Productions', logo: 'assets/lovable-uploads/client-moon-productions.png', href: 'https://moonproduction.co.il/', scale: 'default' },
     { name: 'Ichilov Well', href: 'https://www.ichilov.org.il' }
   ];
 
