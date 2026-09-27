@@ -7098,8 +7098,11 @@ div[id] {
   //
   // The list's accent rule closes the chapter; the plate follows on a short
   // breath rather than a full tier.
+  // The diagnosis closes on its consequence and the dark plate is the answer:
+  // one breath between them - shorter than the pause before the consequence,
+  // so the plate reads as its reply and not as the next chapter.
   .section-problem {
-    padding-block: var(--sec-tight) var(--space-md);
+    padding-block: var(--sec-tight) clamp(18px, 2.6vh, 26px);
   }
 
   // The plate is the loudest object on the page and needs the least air
@@ -7420,15 +7423,18 @@ div[id] {
   }
 
   @media (max-width: 767.98px) {
-    // ONE JOURNEY. The four stages are a real sequence, so the section is
-    // built on a single hairline axis at the reading edge with a small
-    // station at each title - and nothing else: no numbers, no rules between
-    // stages. The axis runs from the first station to the last and stops
-    // there. As the visitor scrolls, a second, blue length of the same line
-    // grows down it (initProcessJourney), and each station turns blue as it
-    // is passed; under reduced motion the whole line is simply blue. The
-    // stations are 9px and quiet, set 17px clear of the text, so they read
-    // as anchors on the line rather than as bullets in front of the copy.
+    // ONE JOURNEY, ONE AXIS. The four stages are a real sequence, so the
+    // section is built on a single hairline axis at the reading edge with a
+    // small station at each title - and nothing else: no numbers, no rules
+    // between stages. Two layers share the one axis: the base track, a very
+    // thin warm neutral hairline from the centre of the first station to the
+    // centre of the last (it does not extend past either), and over it the
+    // live line - the same 1px geometry in the brand blue, grown from the top
+    // by one value written per frame (initProcessJourney). That value is
+    // where an invisible reading line, 62% of the way down the viewport, lies
+    // between the first station and the last, so each station turns blue at
+    // the exact moment the reading line crosses it, and retracts the same way
+    // on the way back up. Under reduced motion the axis is simply complete.
     .process-editorial {
       position: relative;
       gap: clamp(26px, 4vh, 34px);
@@ -7442,22 +7448,23 @@ div[id] {
         inset-inline-start: 4px;
         top: var(--axis-top, 12px);
         width: 1px;
+        height: var(--axis-len, calc(100% - 24px));
         pointer-events: none;
       }
 
+      // The base track.
       &::before {
-        height: var(--axis-len, calc(100% - 24px));
         background: var(--rule-strong);
       }
 
-      // The progress is the same length as the axis, scaled from its top by
-      // one value written per frame (initProcessJourney) - a transform, so
-      // nothing is laid out again as it grows.
+      // The live line: a transform, so nothing is laid out again as it grows.
+      // The small smoothing lives in the driver, not here - no transition, so
+      // the line can never trail the scroll.
       &::after {
-        height: var(--axis-len, calc(100% - 24px));
         background: var(--brand-accent-dim);
         transform: scaleY(var(--process-progress, 0));
         transform-origin: top center;
+        will-change: transform;
       }
     }
 
@@ -7475,6 +7482,8 @@ div[id] {
       display: block;
     }
 
+    // All four titles are peers: one size, one weight, and nothing about
+    // them changes as the axis passes.
     .process-row-title {
       position: relative;
       display: block;
@@ -7486,8 +7495,10 @@ div[id] {
       letter-spacing: -0.016em;
       color: var(--text);
 
-      // The station: centred on the axis (container edge + 4.5px), level with
-      // the title's own x-height.
+      // The station: a 9px registration mark centred on the axis (container
+      // edge + 4.5px), level with the title's own x-height. At rest a fine
+      // neutral ring on the page; reached, the same ring in blue with a blue
+      // micro-centre - one idea, drawn by the inset shadow closing in.
       &::before {
         content: "";
         position: absolute;
@@ -7497,17 +7508,20 @@ div[id] {
         height: 9px;
         margin-top: -4.5px;
         border-radius: 50%;
-        background: var(--bg);
+        background: var(--brand-accent-dim);
         border: 1px solid var(--rule-strong);
-        transition: background-color 420ms var(--ease-smooth), border-color 420ms var(--ease-smooth);
+        box-shadow: inset 0 0 0 4px var(--bg);
+        transition: box-shadow 360ms var(--ease-smooth), border-color 360ms var(--ease-smooth);
       }
     }
 
     .process-row.is-reached .process-row-title::before {
-      background: var(--brand-accent-dim);
       border-color: var(--brand-accent-dim);
+      box-shadow: inset 0 0 0 1.5px var(--bg);
     }
 
+    // The descriptions are the stable text of the section: never faded,
+    // never collapsed, the same before and after the line passes.
     .process-row-desc {
       display: block;
       max-width: 30ch;
@@ -7516,9 +7530,7 @@ div[id] {
       color: color-mix(in srgb, var(--text) 74%, var(--text-muted));
     }
 
-    // Rhythm without cloning - and without rank: all four titles are set the
-    // same, because these are four peers of one process and the axis, not
-    // type size, says where the visitor is. The second and fourth
+    // Rhythm without cloning - and without rank. The second and fourth
     // descriptions hold a shorter measure; the third stage takes a touch
     // more air above it.
     .process-row:nth-child(2) .process-row-desc,
@@ -7532,6 +7544,12 @@ div[id] {
 
     #process .section-close-note {
       padding-inline-start: 26px;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .process-row-title::before {
+        transition: none;
+      }
     }
   }
 
@@ -7609,14 +7627,18 @@ div[id] {
   }
 
   @media (max-width: 767.98px) {
-    // ─── PAIN POINTS: ONE ACCUMULATING THOUGHT ────────────────────────────────
-    // These are not six steps, so the numbers and the rules between them are
-    // gone. The six sentences are set as one build-up in the display face:
-    // two opening recognitions, then the pivot ("you don't really know what
-    // to post") a size up and stepped in, then the two shortages as a quiet
-    // close pair, and the consequence at the end at almost twice the scale,
-    // with the word it all comes down to in the brand blue - the only blue
-    // in the composition. The dark plate answers it directly below.
+    // ─── PAIN POINTS: ONE EDITORIAL DIAGNOSIS ────────────────────────────────
+    // Six sentences, one composition, three sizes - read the way a diagnosis
+    // is written. The opening pair (what you did) is set close, as one
+    // thought. A pause, then the pivot (what you don't actually know) a size
+    // up on the reading edge, with the room around it doing the work. Hanging
+    // off the pivot, stepped in together as one block, the two things that are
+    // missing - a pair by alignment and proximity, nothing drawn around them.
+    // The longest pause, and the consequence: the largest line, and the one
+    // word it all comes down to in the brand blue, the only blue here. The
+    // dark plate directly below is the answer. The one indent in the
+    // composition belongs to the pair that depends on the pivot, which is
+    // the reason it is the only thing indented.
     .problem-list {
       display: block;
       max-width: none;
@@ -7632,69 +7654,58 @@ div[id] {
       display: none;
     }
 
+    // Level one: the narrative size, shared by the opening pair and the pair
+    // of shortages. Everything not the pivot or the consequence is this.
     .problem-item p {
       max-width: none;
       font-family: var(--font-display);
+      font-size: clamp(1.32rem, 4.8vw, 1.58rem);
       font-weight: 400;
-      color: var(--text);
+      line-height: 1.26;
+      letter-spacing: -0.014em;
+      color: color-mix(in srgb, var(--text) 86%, var(--text-muted));
       text-wrap: balance;
     }
 
-    .problem-item:nth-child(1) p,
-    .problem-item:nth-child(2) p {
-      font-size: clamp(1.26rem, 4.5vw, 1.48rem);
-      line-height: 1.24;
-      letter-spacing: -0.014em;
+    .problem-item--opening + .problem-item--opening {
+      margin-top: 6px;
     }
 
-    .problem-item:nth-child(2) {
-      margin-top: 10px;
-      padding-inline-start: clamp(18px, 6.5vw, 30px);
+    // Level two: the pivot. A size up, on the reading edge, balanced into
+    // two lines, with a pause above it.
+    .problem-item--pivot {
+      margin-top: clamp(22px, 3.2vh, 30px);
     }
 
-    .problem-item:nth-child(2) p {
-      color: var(--text-muted);
-    }
-
-    .problem-item:nth-child(3) {
-      margin-top: clamp(22px, 3.4vh, 30px);
-    }
-
-    .problem-item:nth-child(3) p {
-      font-size: clamp(1.64rem, 6.6vw, 2rem);
-      line-height: 1.1;
+    .problem-item--pivot p {
+      font-size: clamp(1.72rem, 6.7vw, 2.06rem);
+      line-height: 1.12;
       letter-spacing: -0.022em;
+      color: var(--text);
     }
 
-    .problem-item:nth-child(4) {
-      margin-top: clamp(20px, 3vh, 26px);
+    // The two shortages hang off the pivot: one step in, close together.
+    .problem-item--lack {
+      padding-inline-start: clamp(20px, 7vw, 32px);
     }
 
-    .problem-item:nth-child(4),
-    .problem-item:nth-child(5) {
-      padding-inline-start: clamp(18px, 6.5vw, 30px);
+    .problem-item--pivot + .problem-item--lack {
+      margin-top: clamp(12px, 1.8vh, 16px);
     }
 
-    .problem-item:nth-child(5) {
+    .problem-item--lack + .problem-item--lack {
       margin-top: 4px;
     }
 
-    .problem-item:nth-child(4) p,
-    .problem-item:nth-child(5) p {
-      font-family: var(--font-body);
-      font-size: clamp(1.06rem, 3.2vw, 1.14rem);
-      line-height: 1.5;
-      color: color-mix(in srgb, var(--text) 78%, var(--text-muted));
-    }
-
+    // Level three: the consequence, after the longest pause.
     .problem-item--final {
-      margin-top: clamp(28px, 4.4vh, 38px);
+      margin-top: clamp(26px, 3.8vh, 34px);
       border: 0;
     }
 
     .problem-item--final p {
-      font-size: clamp(2.05rem, 8.8vw, 2.55rem);
-      line-height: 1.04;
+      font-size: clamp(2.02rem, 8.2vw, 2.45rem);
+      line-height: 1.06;
       letter-spacing: -0.03em;
       color: var(--text);
     }
@@ -7915,6 +7926,136 @@ div[id] {
 // ═══════════════════════════════════════════════════════════════════════════════
 // ULTRA-MOBILE (< 375px) ADDITIONAL TIGHTENING
 // ═══════════════════════════════════════════════════════════════════════════════
+
+// ─────── FAQ ON THE PHONE: A PRIVATE CONVERSATION ─────────────────────────────
+//
+// On a phone the numbered index read as 01/02/03 labels, a question, and a
+// full-width rule under every row: a component, not this brand. Here the six
+// questions are set as one quiet conversation - each question at a reading
+// size at the reading edge, a small editorial mark of two hairlines at its
+// end, and nothing between one question and the next but space. The one blue
+// gesture is the open question's mark. The counter, the numerals and the
+// rules are gone; not a character of the copy moves, and the button, its
+// aria-expanded, its focus ring and the zero-height closed state are exactly
+// what they were. The collapsing element still carries no vertical padding -
+// the space lives in the paragraph inside it.
+@media (max-width: 767.98px) {
+  .faq-list {
+    max-width: none;
+    margin: 0;
+    padding-top: clamp(2px, 0.6vh, 6px);
+    border-top: 0;
+    counter-reset: none;
+  }
+
+  .faq-item {
+    border-bottom: 0;
+  }
+
+  .faq-item + .faq-item {
+    margin-top: clamp(4px, 0.8vh, 8px);
+  }
+
+  .faq-q {
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: start;
+    column-gap: clamp(16px, 4vw, 24px);
+    padding: clamp(12px, 1.7vh, 15px) 0;
+    font-size: clamp(1.08rem, 4.3vw, 1.2rem);
+    font-weight: 500;
+    line-height: 1.42;
+    letter-spacing: -0.004em;
+    color: color-mix(in srgb, var(--text) 84%, var(--text-muted));
+
+    &::before {
+      content: none;
+      counter-increment: none;
+    }
+
+    &:focus-visible {
+      outline-offset: 4px;
+    }
+  }
+
+  // Open, the question comes fully forward - slightly stronger, no more.
+  .faq-item--open .faq-q {
+    color: var(--text);
+    font-weight: 600;
+  }
+
+  // THE MARK. Two 9px hairlines meeting at a corner - a shallow chevron drawn
+  // the way an editor marks a line, not a browser's disclosure arrow. Open,
+  // the two arms level into one hairline and turn blue: a 40-degree turn
+  // each, 260ms, no spring. Set on the first line of the question.
+  .faq-icon {
+    width: 18px;
+    height: 16px;
+    align-self: start;
+    margin-top: calc((1.42em - 16px) / 2);
+
+    &::before,
+    &::after {
+      inset-block-start: 62%;
+      width: 9px;
+      height: 1px;
+      background: color-mix(in srgb, var(--text) 68%, transparent);
+      transition: transform 260ms var(--ease-smooth), background-color 260ms var(--ease-smooth);
+    }
+
+    &::before {
+      inset-inline-start: 0;
+      transform-origin: 100% 50%;
+      transform: rotate(40deg);
+    }
+
+    &::after {
+      inset-inline-start: 9px;
+      transform-origin: 0 50%;
+      transform: rotate(-40deg);
+    }
+  }
+
+  .faq-item--open .faq-icon::before,
+  .faq-item--open .faq-icon::after {
+    background: var(--brand-accent-dim);
+    transform: rotate(0deg);
+  }
+
+  // The answer breathes open: the row grows to the answer's real height while
+  // the paragraph itself settles down 6px into place. The collapsing element
+  // keeps zero block padding; the paragraph carries the space.
+  .faq-body {
+    transition: grid-template-rows 380ms var(--ease-expo);
+
+    > div {
+      padding-block: 0;
+      padding-inline: 0 clamp(22px, 7vw, 34px);
+    }
+
+    p {
+      max-width: none;
+      padding-block: 2px clamp(18px, 2.6vh, 24px);
+      font-size: clamp(1.02rem, 3.3vw, 1.1rem);
+      line-height: 1.62;
+      color: color-mix(in srgb, var(--text) 80%, var(--text-muted));
+      opacity: 0;
+      transform: translateY(-6px);
+      transition: opacity 320ms var(--ease-smooth), transform 360ms var(--ease-expo);
+    }
+  }
+
+  .faq-item--open .faq-body p {
+    opacity: 1;
+    transform: none;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .faq-body p {
+      transition: none;
+      transform: none;
+    }
+  }
+}
 
 @media (max-width: 374px) {
   :host {

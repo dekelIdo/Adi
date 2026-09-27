@@ -2465,48 +2465,100 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy {
     if (!wrap || rows.length < 2 || !pipeline) return;
     const reduced = this.reducedMotion;
 
+    // THE READING LINE. One invisible horizontal line, 62% of the way down
+    // the viewport - where the eye sits while reading on a phone. Progress is
+    // exactly where that line lies between the centre of the first station
+    // and the centre of the last: 0 as it meets station 1, 1 as it meets
+    // station 4, and every station between turns blue at the moment the
+    // reading line crosses it. It is a function of position, never of
+    // history, so reverse scroll retracts it and a fast scroll lands on the
+    // right value at once.
+    const READING_LINE = 0.62;
+    // THE ENTRANCE. While the process is on screen but the reading line has
+    // not yet reached the first station, the first station and a first short
+    // length of the line are already lit - a floor of 3% - so the axis
+    // arrives alive. The floor is position-based too (it holds only while
+    // station 1 is inside the lower viewport), and the true mapping
+    // overtakes it without a seam.
+    const ENTRANCE_AT = 0.92;
+    const FLOOR = 0.03;
+
     let offsets: number[] = []; // each station's distance down the axis, px
-    let axisTopDoc = 0; // document y of the first station
-    let axisTop = 0; // first station, relative to the wrap
-    let axisLen = 0;
-    let lastP = -1;
+    let axisTop = 0; // the first station's centre, relative to the wrap
+    let axisLen = 0; // first centre to last centre
+    let wrapVp = 0; // the wrap's live viewport top, read each frame
+    let shown = -1; // what is on screen (the smoothed value)
+    let written = -1;
     const reached = rows.map(() => false);
 
+    const apply = (p: number) => {
+      if (Math.abs(p - written) > 0.0008 || (written !== p && (p === 0 || p === 1))) {
+        written = p;
+        wrap.style.setProperty('--process-progress', p.toFixed(4));
+      }
+      const front = p * axisLen;
+      rows.forEach((row, i) => {
+        const on = p > 0 && front >= offsets[i] - 0.5;
+        if (on !== reached[i]) {
+          reached[i] = on;
+          row.classList.toggle('is-reached', on);
+        }
+      });
+    };
+
     pipeline.add({
-      measure: (f) => {
-        const wrapTop = wrap.getBoundingClientRect().top + f.y;
+      // The stations relative to the wrap: layout, so it only changes with
+      // layout. (This chapter is carried up by the bridge's hand-off
+      // transform, which moves the whole of it together, so these offsets
+      // hold while its position on screen does not.)
+      measure: () => {
+        const wrapTop = wrap.getBoundingClientRect().top;
         const ys = rows.map((row) => {
           const title = row.querySelector<HTMLElement>('.process-row-title');
           if (!title) return wrapTop;
           const r = title.getBoundingClientRect();
-          return r.top + f.y + parseFloat(getComputedStyle(title).fontSize) * 0.65;
+          return r.top + parseFloat(getComputedStyle(title).fontSize) * 0.65;
         });
-        axisTopDoc = ys[0];
         axisTop = ys[0] - wrapTop;
         axisLen = ys[ys.length - 1] - ys[0];
         offsets = ys.map((y) => y - ys[0]);
       },
+      // Where the chapter actually is on screen this frame, hand-off included.
+      read: () => {
+        wrapVp = wrap.getBoundingClientRect().top;
+      },
       write: (f) => {
         wrap.style.setProperty('--axis-top', `${axisTop.toFixed(1)}px`);
         wrap.style.setProperty('--axis-len', `${axisLen.toFixed(1)}px`);
-        let p = 1;
-        if (!reduced && axisLen > 0) {
-          const start = axisTopDoc - f.vh * 0.84; // scroll position where the fill begins
-          const end = axisTopDoc + axisLen - f.vh * 0.46; // ...and where it is complete
-          p = Math.max(0, Math.min(1, (f.y - start) / Math.max(1, end - start)));
+        if (reduced || axisLen <= 0) {
+          apply(1);
+          return;
         }
-        if (Math.abs(p - lastP) > 0.0015) {
-          lastP = p;
-          wrap.style.setProperty('--process-progress', p.toFixed(4));
+        const station1 = wrapVp + axisTop; // viewport y of the first station's centre
+        let target = Math.max(0, Math.min(1, (f.vh * READING_LINE - station1) / axisLen));
+        if (target < FLOOR && station1 < f.vh * ENTRANCE_AT) target = FLOOR;
+        if (shown < 0) {
+          shown = target;
+          apply(shown);
+          return;
         }
-        const front = p * axisLen;
-        rows.forEach((row, i) => {
-          const on = p > 0 && front >= offsets[i] - 0.5;
-          if (on !== reached[i]) {
-            reached[i] = on;
-            row.classList.toggle('is-reached', on);
+        const gap = target - shown;
+        if (Math.abs(gap) < 0.0005) {
+          if (shown !== target) {
+            shown = target;
+            apply(shown);
           }
-        });
+          return;
+        }
+        // Silky, not floaty: the visible value closes half the remaining gap
+        // every frame, so it settles within ~100ms of the scroll stopping and
+        // never trails the true value by more than one frame's movement. The
+        // entrance alone is slower (~450ms), so the first station arrives
+        // rather than snaps.
+        const entering = target === FLOOR && shown < target;
+        shown += gap * (entering ? 0.12 : 0.5);
+        apply(shown);
+        pipeline.request();
       },
     });
   }
