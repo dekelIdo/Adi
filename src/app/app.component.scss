@@ -7627,30 +7627,34 @@ div[id] {
   }
 
   @media (max-width: 767.98px) {
-    // ─── PAIN POINTS: TENSION → RELEASE ──────────────────────────────────────
-    // One typographic stage - the central 86% of the content width - and every
-    // line set on its reading edge inside it. The composition tightens as the
-    // problems accumulate and releases into the consequence. A calm opening
-    // pair in the text face, 7px apart. A breath, then the pivot: the display
-    // face, a third larger. Pressed under it, the two shortages as one object:
-    // a single powder-blue hairline at their reading edge and nothing else -
-    // not a timeline, a quotation mark drawn as a line. Then the release: the
-    // consequence at one and two-thirds the narrative size, "לקוחות" the only
-    // blue word, one breath above the dark plate that answers it. The three
-    // sizes derive from one value, so the hierarchy is a ratio, not guesses.
+    // ─── PAIN POINTS: THE SOCIAL MIRROR ──────────────────────────────────────
+    // One composed diagnostic object under the heading, in three zones on the
+    // page's own surface - nothing boxed. THE SETUP: the two things she did,
+    // one compact block on the reading edge at four-fifths of the width. THE
+    // MIRROR: an open frame - two thin powder-blue strokes, a short one along
+    // the top-right and a longer one down the left edge, never meeting - and
+    // inside it the pivot in the display face with the two shortages beneath
+    // it as a two-column pair, each balanced onto two lines, equal in size and
+    // weight. THE VERDICT: outside the frame, after a breath, the consequence
+    // at its largest with "לקוחות" the only blue word, landing one breath
+    // above the dark plate. The list is a two-column grid: every line spans
+    // both columns except the pair, which takes one each - so the pair is a
+    // pair by geometry, and nothing is drawn between them.
     .problem-header {
       margin-bottom: clamp(18px, 2.6vh, 24px);
     }
 
     .problem-list {
-      --dx: clamp(1.1rem, 4.6vw, 1.25rem);
-      display: block;
-      width: 86%;
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      column-gap: clamp(18px, 6vw, 28px);
+      row-gap: 0;
       max-width: none;
-      margin-inline: auto;
+      margin: 0;
     }
 
     .problem-item {
+      grid-column: 1 / -1;
       display: block;
       padding: 0;
       border: 0;
@@ -7660,65 +7664,107 @@ div[id] {
       display: none;
     }
 
-    // Narrative size (1.0): the opening pair and the two shortages.
     .problem-item p {
       max-width: none;
-      font-family: var(--font-body);
-      font-size: var(--dx);
-      font-weight: 500;
-      line-height: 1.4;
-      letter-spacing: 0;
-      color: color-mix(in srgb, var(--text) 88%, var(--text-muted));
       text-wrap: balance;
     }
 
-    .problem-item--opening + .problem-item--opening {
-      margin-top: 7px;
+    // ZONE A - THE SETUP. One thought in two calm sentences.
+    .problem-item--opening {
+      justify-self: start;
+      max-width: 80%;
     }
 
-    // The pivot (1.32): the interruption, after a breath.
+    .problem-item--opening p {
+      font-family: var(--font-body);
+      font-size: clamp(1.03rem, 4.4vw, 1.1rem);
+      font-weight: 480;
+      line-height: 1.55;
+      letter-spacing: 0;
+      color: color-mix(in srgb, var(--text) 88%, var(--text-muted));
+    }
+
+    .problem-item--opening + .problem-item--opening {
+      margin-top: 5px;
+    }
+
+    // ZONE B - THE MIRROR. The open frame is drawn on the pivot: the short
+    // stroke across the top at the reading edge, the long one down the left
+    // edge from the same top line. Neither reaches the other.
     .problem-item--pivot {
+      position: relative;
       margin-top: clamp(20px, 3vh, 26px);
+      padding-top: 12px;
+
+      &::before,
+      &::after {
+        content: "";
+        position: absolute;
+        top: 0;
+        background: var(--brand-accent-dim);
+        pointer-events: none;
+      }
+
+      &::before {
+        inset-inline-start: 0;
+        width: 48px;
+        height: 1px;
+      }
+
+      &::after {
+        inset-inline-end: 0;
+        width: 1px;
+        height: 70px;
+      }
     }
 
     .problem-item--pivot p {
       font-family: var(--font-display);
-      font-size: calc(var(--dx) * 1.32);
+      font-size: clamp(1.5rem, 6.7vw, 1.7rem);
       font-weight: 400;
-      line-height: 1.16;
+      line-height: 1.2;
       letter-spacing: -0.018em;
       color: var(--text);
     }
 
-    // The two shortages: one hairline, one object. The pair's own gap lives
-    // inside the first item, so the two borders meet as one unbroken line
-    // that runs exactly the height of the pair.
+    // The two shortages: one column each, the same measure, each balanced
+    // onto two lines - a pair by geometry.
     .problem-item--lack {
-      border-inline-start: 1px solid var(--brand-accent-dim);
-      padding-inline-start: clamp(12px, 3.6vw, 16px);
+      grid-column: auto;
+      margin-top: 14px;
     }
 
-    .problem-item--pivot + .problem-item--lack {
-      margin-top: clamp(14px, 2vh, 18px);
-      padding-bottom: 6px;
-    }
-
+    .problem-item--lack:last-of-type,
     .problem-item--lack + .problem-item--lack {
-      margin-top: 0;
+      padding-inline-end: 12px;
     }
 
-    // The consequence (1.65): the release.
+    .problem-item--lack p {
+      max-width: 14ch;
+      font-family: var(--font-body);
+      font-size: clamp(0.94rem, 3.9vw, 0.98rem);
+      font-weight: 500;
+      line-height: 1.45;
+      letter-spacing: 0;
+      color: color-mix(in srgb, var(--text) 80%, var(--text-muted));
+    }
+
+    // ZONE C - THE VERDICT. Outside the frame, after a breath.
     .problem-item--final {
-      margin-top: clamp(24px, 3.6vh, 32px);
+      margin-top: clamp(22px, 3.2vh, 28px);
       border: 0;
     }
 
+    // Held to a measure that breaks it as two balanced lines - "והעמוד פשוט
+    // לא" over "מביא לקוחות." - at every phone width, not one long line where
+    // the width happens to allow it.
     .problem-item--final p {
+      max-width: 16ch;
       font-family: var(--font-display);
-      font-size: calc(var(--dx) * 1.65);
+      font-size: clamp(1.75rem, 7.7vw, 1.95rem);
       font-weight: 400;
-      line-height: 1.08;
-      letter-spacing: -0.026em;
+      line-height: 1.15;
+      letter-spacing: -0.024em;
       color: var(--text);
     }
 
@@ -7966,42 +8012,59 @@ div[id] {
     font-weight: 600;
   }
 
-  // THE MARK. Two 9px hairlines meeting at a corner - a shallow chevron drawn
-  // the way an editor marks a line, not a browser's disclosure arrow. Open,
-  // the two arms level into one hairline and turn blue: a 40-degree turn
-  // each, 260ms, no spring. Set on the first line of the question.
+  // THE MARK. A chevron of two 10px hairlines that meet at an apex: closed,
+  // the apex is at the bottom - a downward V, "there is more below" - and
+  // open, each arm turns 96 degrees about its own centre so the apex is at
+  // the top. 13.4 x 7.4px, 1px strokes, warm charcoal at rest and the brand
+  // blue when open; 250ms, one ease-out, no spring. (What was here before
+  // rotated each arm about its OUTER end, which lifted the inner ends and
+  // drew an upward mark on a closed question - the wrong way round.) Set
+  // against the first line of the question. The direction comes from the
+  // item's open class - the same expression that drives aria-expanded and
+  // the answer - so the mark can never disagree with the content.
   .faq-icon {
-    width: 18px;
-    height: 16px;
+    position: relative;
+    width: 14px;
+    height: 8px;
     align-self: start;
-    margin-top: calc((1.42em - 16px) / 2);
+    margin-top: calc((1.42em - 8px) / 2);
 
     &::before,
     &::after {
-      inset-block-start: 62%;
-      width: 9px;
+      inset-block-start: 50%;
+      inset-inline-start: auto;
+      left: 50%;
+      width: 10px;
       height: 1px;
-      background: color-mix(in srgb, var(--text) 68%, transparent);
-      transition: transform 260ms var(--ease-smooth), background-color 260ms var(--ease-smooth);
+      margin-top: -0.5px;
+      background: color-mix(in srgb, var(--text) 84%, transparent);
+      transform-origin: 50% 50%;
+      transition: transform 250ms cubic-bezier(0.22, 0.61, 0.36, 1), background-color 250ms var(--ease-smooth);
     }
 
+    // Centres 3.35px either side of the middle: the inner ends meet.
     &::before {
-      inset-inline-start: 0;
-      transform-origin: 100% 50%;
-      transform: rotate(40deg);
+      margin-left: -8.35px;
+      transform: rotate(48deg);
     }
 
     &::after {
-      inset-inline-start: 9px;
-      transform-origin: 0 50%;
-      transform: rotate(-40deg);
+      margin-left: -1.65px;
+      transform: rotate(-48deg);
     }
   }
 
   .faq-item--open .faq-icon::before,
   .faq-item--open .faq-icon::after {
     background: var(--brand-accent-dim);
-    transform: rotate(0deg);
+  }
+
+  .faq-item--open .faq-icon::before {
+    transform: rotate(-48deg);
+  }
+
+  .faq-item--open .faq-icon::after {
+    transform: rotate(48deg);
   }
 
   // The answer breathes open: the row grows to the answer's real height while
