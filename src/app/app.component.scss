@@ -593,6 +593,7 @@ select {
   }
 
   .header-menu__inner {
+    position: relative;
     overflow: hidden;
     min-height: 0;
     padding-inline: 20px;
@@ -632,15 +633,9 @@ select {
   .header-menu__link {
     display: flex;
     align-items: center;
-    // Packed at the reading edge with the mark below, not pushed to the row's
-    // far end: a mark that sits away from its own word reads as unrelated to
-    // it no matter how visible it is, which is what "space-between" was
-    // doing. The gap is reserved on every row, mark or none, so the word
-    // never shifts when a row becomes the current one.
+    // Packed at the reading edge; the current-row mark is a single element
+    // that travels between rows (.header-menu__cursor), not part of the row.
     justify-content: flex-start;
-    // Enough air that the mark reads as a marker set beside the label, not
-    // a hyphen stuck to it - and still near enough to belong to that row.
-    gap: 22px;
     min-height: 54px;
     padding: 0 2px;
     font-family: var(--font-display);
@@ -665,31 +660,38 @@ select {
       border-radius: 2px;
     }
 
-    // A short accent dash beside its own word - sized to actually read at
-    // arm's length, which a 5px dot pushed to the far edge of the row did
-    // not. Still one small mark, still secondary to the label: no fill
-    // behind it, no change to the word's own type.
-    &::after {
-      content: "";
-      flex: none;
-      width: 20px;
-      height: 2px;
-      border-radius: 1px;
-      background: var(--brand-accent-dim);
-      opacity: 0;
-      transform: scaleX(0.3);
-      transform-origin: right center;
-      transition: opacity 220ms var(--ease-smooth), transform 220ms var(--ease-expo);
-    }
-
     &.is-current {
       opacity: 1;
       font-weight: 500;
+    }
+  }
 
-      &::after {
-        opacity: 1;
-        transform: scaleX(1);
-      }
+  // THE CURSOR. One short accent stroke for the whole index, 22px clear of
+  // the current label's last letter. It is moved by transform only, so a
+  // change of section while the list is open is a retargeted transition
+  // from wherever the stroke is - nothing is destroyed, re-created, queued
+  // or faded between rows. On open it arrives from a hair further out and
+  // settles beside the word; closed, it simply fades with the panel.
+  .header-menu__cursor {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 20px;
+    height: 2px;
+    border-radius: 1px;
+    background: var(--brand-accent-dim);
+    opacity: 0;
+    pointer-events: none;
+    transform: translate3d(0, 0, 0);
+    will-change: transform;
+    transition: transform 340ms cubic-bezier(0.16, 1, 0.3, 1), opacity 220ms var(--ease-smooth);
+
+    &.is-placed {
+      opacity: 1;
+    }
+
+    &.is-jumping {
+      transition: none;
     }
   }
 }
@@ -698,7 +700,8 @@ select {
   .header-menu,
   .header-menu__inner,
   .header-menu-toggle__line,
-  .header-menu__link {
+  .header-menu__link,
+  .header-menu__cursor {
     transition: none;
   }
 }
@@ -7447,9 +7450,14 @@ div[id] {
         background: var(--rule-strong);
       }
 
+      // The progress is the same length as the axis, scaled from its top by
+      // one value written per frame (initProcessJourney) - a transform, so
+      // nothing is laid out again as it grows.
       &::after {
-        height: var(--journey, 0px);
+        height: var(--axis-len, calc(100% - 24px));
         background: var(--brand-accent-dim);
+        transform: scaleY(var(--process-progress, 0));
+        transform-origin: top center;
       }
     }
 
@@ -7508,13 +7516,11 @@ div[id] {
       color: color-mix(in srgb, var(--text) 74%, var(--text-muted));
     }
 
-    // Rhythm without cloning: the opening title is set a size up, the second
-    // and fourth descriptions hold a shorter measure, the third stage takes
-    // a touch more air above it.
-    .process-row:first-child .process-row-title {
-      font-size: clamp(1.62rem, 6.4vw, 1.92rem);
-    }
-
+    // Rhythm without cloning - and without rank: all four titles are set the
+    // same, because these are four peers of one process and the axis, not
+    // type size, says where the visitor is. The second and fourth
+    // descriptions hold a shorter measure; the third stage takes a touch
+    // more air above it.
     .process-row:nth-child(2) .process-row-desc,
     .process-row:nth-child(4) .process-row-desc {
       max-width: 26ch;
@@ -7697,29 +7703,57 @@ div[id] {
       color: var(--brand-accent-dim);
     }
 
-    // ─── SERVICES: AN INDEX OF CAPABILITIES, NOT FOUR NUMBERED ROWS ───────────
-    // The four are what she does, not an order to do it in, so the numerals
-    // and the rules go. Each title stands in the display face at the reading
-    // edge; its description hangs in a shorter measure beneath it, indented,
-    // the way an index entry carries its detail. The set is held together by
-    // that one repeated relationship and by air - the section's blue is
-    // already spent on the headline above.
-    // THE DEVICE IS THE INDENT. Every title stands at the reading edge in the
-    // display face; every description hangs one deep, consistent step in
-    // from it - the same relationship four times, which is what makes the
-    // four read as one index rather than four paragraphs. The closing CTA
-    // sits on that same hanging edge under a single hairline, so it is the
-    // index's last entry and not a button left after the text ran out. The
-    // section's blue is the headline's "Social-Li" and the CTA itself.
+    // ─── SERVICES: ONE EDITORIAL FIELD, FOUR ANCHORS ─────────────────────────
+    // Not four paragraphs in a column. The four titles are the anchors of one
+    // spread and the descriptions its depth; what holds the spread together is
+    // a single gesture - two powder-blue corner marks, top-right and
+    // bottom-left, set just outside the field's text - and a rhythm that keeps
+    // the four from sitting in one line: the first at the edge with its
+    // detail hung in, the second stepped in on a shorter measure, the third
+    // back at the edge on a fuller one, the fourth half a step in, resolving
+    // toward the closing mark and the CTA beneath it. No numbers, no rules
+    // between anything, no icons; the titles are peers.
+    .services-header {
+      margin-bottom: clamp(30px, 4.6vh, 40px);
+    }
+
     .services-matrix {
-      --index-indent: clamp(26px, 8.5vw, 38px);
-      gap: clamp(24px, 3.8vh, 32px);
+      position: relative;
+      gap: 0;
+      padding-block: 4px 8px;
+
+      &::before,
+      &::after {
+        content: "";
+        position: absolute;
+        width: 26px;
+        height: 26px;
+        pointer-events: none;
+      }
+
+      &::before {
+        top: -10px;
+        inset-inline-start: -14px;
+        border-top: 2px solid var(--brand-accent);
+        border-inline-start: 2px solid var(--brand-accent);
+      }
+
+      &::after {
+        bottom: -10px;
+        inset-inline-end: -14px;
+        border-bottom: 2px solid var(--brand-accent);
+        border-inline-end: 2px solid var(--brand-accent);
+      }
     }
 
     .services-row {
       display: block;
       padding: 0;
       border-top: 0;
+    }
+
+    .services-row + .services-row {
+      margin-top: clamp(26px, 4vh, 34px);
     }
 
     .services-row-num {
@@ -7729,26 +7763,57 @@ div[id] {
     .services-row-title {
       margin-bottom: 8px;
       font-family: var(--font-display);
-      font-size: clamp(1.56rem, 6vw, 1.86rem);
+      font-size: clamp(1.66rem, 6.4vw, 1.96rem);
       font-weight: 400;
-      line-height: 1.1;
-      letter-spacing: -0.02em;
+      line-height: 1.08;
+      letter-spacing: -0.022em;
+      color: var(--text);
     }
 
     .services-row-tags {
-      max-width: 32ch;
-      padding-inline-start: var(--index-indent);
       font-size: clamp(1.04rem, 3.1vw, 1.12rem);
       line-height: 1.58;
       color: color-mix(in srgb, var(--text) 78%, var(--text-muted));
     }
 
+    .services-row:nth-child(1) .services-row-tags {
+      padding-inline-start: clamp(20px, 6.5vw, 30px);
+      max-width: 32ch;
+    }
+
+    .services-row:nth-child(2) {
+      padding-inline-start: clamp(30px, 10vw, 46px);
+    }
+
+    .services-row:nth-child(2) .services-row-tags {
+      max-width: 26ch;
+    }
+
+    .services-row:nth-child(3) {
+      margin-top: clamp(32px, 5vh, 42px);
+    }
+
+    .services-row:nth-child(3) .services-row-tags {
+      max-width: 36ch;
+    }
+
+    .services-row:nth-child(4) {
+      padding-inline-start: clamp(14px, 4.8vw, 22px);
+    }
+
+    .services-row:nth-child(4) .services-row-tags {
+      padding-inline-start: clamp(20px, 6.5vw, 30px);
+      max-width: 30ch;
+    }
+
+    // The CTA resolves the field: at the reading edge, a short breath below
+    // the closing mark - the last move of the spread, not a button left over
+    // after the text.
     .services-footer {
-      margin-top: clamp(26px, 4vh, 34px);
+      margin-top: clamp(30px, 4.6vh, 40px);
       margin-inline-start: 0;
-      padding-top: clamp(20px, 3vh, 26px);
-      padding-inline-start: clamp(26px, 8.5vw, 38px);
-      border-top: 1px solid var(--rule-strong);
+      padding: 0;
+      border-top: 0;
     }
   }
 

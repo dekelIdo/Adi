@@ -461,10 +461,54 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy {
   menuOpen = false;
   /** The chapter under the reader now, for the quiet mark in the phone menu. */
   activeSection: string | null = null;
+  private readonly reducedMotion =
+    typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   private sectionObserver?: IntersectionObserver;
 
   toggleMenu(): void {
     this.menuOpen = !this.menuOpen;
+    // The cursor is placed from the CURRENT section the moment the list
+    // opens, and arrives into that row; closed, it fades with the panel.
+    if (this.menuOpen) this.placeMenuCursor(true);
+  }
+
+  /**
+   * The one indicator in the phone menu. Positioned from the same
+   * activeSection the labels read, relative to the list's own box, and moved
+   * by transform: a section change while the list is open retargets the
+   * running CSS transition from wherever the stroke is, so rapid A -> B -> C
+   * ends on C without finishing A -> B first, and nothing is queued.
+   */
+  private placeMenuCursor(arrive: boolean): void {
+    const inner = document.querySelector<HTMLElement>('.header-menu__inner');
+    const cursor = document.querySelector<HTMLElement>('.header-menu__cursor');
+    if (!inner || !cursor) return;
+    const id = this.activeSection;
+    const link = id ? inner.querySelector<HTMLElement>(`.header-menu__link[href="#${id}"]`) : null;
+    if (!link) {
+      cursor.classList.remove('is-placed');
+      return;
+    }
+    const ir = inner.getBoundingClientRect();
+    const lr = link.getBoundingClientRect();
+    const range = document.createRange();
+    range.selectNodeContents(link);
+    const tr = range.getBoundingClientRect();
+    // 22px clear of the label's last letter (its left edge, this being RTL),
+    // then the stroke's own 20px.
+    const x = Math.max(0, tr.left - ir.left - 22 - 20);
+    const y = lr.top - ir.top + lr.height / 2 - 1;
+    if (arrive && !this.reducedMotion) {
+      // Start a hair further out, without transition, then let the transition
+      // carry it in - a short, controlled horizontal arrival, not a fade.
+      cursor.classList.add('is-jumping');
+      cursor.classList.remove('is-placed');
+      cursor.style.transform = `translate3d(${(x - 14).toFixed(1)}px, ${y.toFixed(1)}px, 0)`;
+      void cursor.offsetWidth;
+      cursor.classList.remove('is-jumping');
+    }
+    cursor.style.transform = `translate3d(${x.toFixed(1)}px, ${y.toFixed(1)}px, 0)`;
+    cursor.classList.add('is-placed');
   }
 
   closeMenu(): void {
@@ -534,6 +578,8 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy {
         if (next === this.activeSection) return;
         this.activeSection = next;
         this.cdr.markForCheck();
+        // Same state, same moment: the open list's cursor follows the reader.
+        if (this.menuOpen) this.placeMenuCursor(false);
       },
       { rootMargin: '-40% 0px -50% 0px', threshold: 0 }
     );
@@ -2402,51 +2448,60 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy {
   // ─── Process journey axis (phone) ────────────────────────────────────────────
   //
   // The four stages sit on one hairline at the reading edge (see the phone
-  // rules under .process-editorial). This measures where the first and last
-  // stations are, so the line runs exactly between them, and then lets a blue
-  // length of it grow down the line as the visitor scrolls, marking each
-  // station as it is passed. Everything is a custom property or a class on
-  // elements that are already laid out, so nothing here moves the page.
-  // Under reduced motion the line is simply complete.
+  // rules under .process-editorial). This measures where the stations are so
+  // the line runs exactly between the first and the last, then drives ONE
+  // number, --process-progress (0..1), from the section's own position in the
+  // viewport: 0 as the first station clears the lower part of the screen, 1
+  // once the last station has risen to just above the middle. The blue length
+  // of the axis is scaleY(progress) - continuous, immediate, a transform - and
+  // each station turns blue the moment the fill reaches it. Under reduced
+  // motion the fill is simply complete. Nothing here scrolls the page or
+  // touches layout per frame.
   private initProcessJourney(): void {
     if (!window.matchMedia('(max-width: 767.98px)').matches) return;
     const wrap = document.querySelector<HTMLElement>('.process-editorial');
     const rows = Array.from(document.querySelectorAll<HTMLElement>('.process-row'));
     const pipeline = this.pipeline;
     if (!wrap || rows.length < 2 || !pipeline) return;
-    const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const reduced = this.reducedMotion;
 
-    let stations: number[] = []; // document y of each station
-    let axisTop = 0;
+    let offsets: number[] = []; // each station's distance down the axis, px
+    let axisTopDoc = 0; // document y of the first station
+    let axisTop = 0; // first station, relative to the wrap
     let axisLen = 0;
-    let lastJourney = -1;
+    let lastP = -1;
     const reached = rows.map(() => false);
 
     pipeline.add({
       measure: (f) => {
         const wrapTop = wrap.getBoundingClientRect().top + f.y;
-        stations = rows.map((row) => {
+        const ys = rows.map((row) => {
           const title = row.querySelector<HTMLElement>('.process-row-title');
           if (!title) return wrapTop;
           const r = title.getBoundingClientRect();
           return r.top + f.y + parseFloat(getComputedStyle(title).fontSize) * 0.65;
         });
-        axisTop = stations[0] - wrapTop;
-        axisLen = stations[stations.length - 1] - stations[0];
+        axisTopDoc = ys[0];
+        axisTop = ys[0] - wrapTop;
+        axisLen = ys[ys.length - 1] - ys[0];
+        offsets = ys.map((y) => y - ys[0]);
       },
       write: (f) => {
         wrap.style.setProperty('--axis-top', `${axisTop.toFixed(1)}px`);
         wrap.style.setProperty('--axis-len', `${axisLen.toFixed(1)}px`);
-        // The reading line: a little below the middle of the screen, where a
-        // title is when it is being read rather than when it first appears.
-        const ref = reduced ? Infinity : f.y + f.vh * 0.58;
-        const journey = Math.max(0, Math.min(axisLen, ref - stations[0]));
-        if (Math.abs(journey - lastJourney) > 0.5) {
-          lastJourney = journey;
-          wrap.style.setProperty('--journey', `${journey.toFixed(1)}px`);
+        let p = 1;
+        if (!reduced && axisLen > 0) {
+          const start = axisTopDoc - f.vh * 0.84; // scroll position where the fill begins
+          const end = axisTopDoc + axisLen - f.vh * 0.46; // ...and where it is complete
+          p = Math.max(0, Math.min(1, (f.y - start) / Math.max(1, end - start)));
         }
+        if (Math.abs(p - lastP) > 0.0015) {
+          lastP = p;
+          wrap.style.setProperty('--process-progress', p.toFixed(4));
+        }
+        const front = p * axisLen;
         rows.forEach((row, i) => {
-          const on = stations[i] <= ref;
+          const on = p > 0 && front >= offsets[i] - 0.5;
           if (on !== reached[i]) {
             reached[i] = on;
             row.classList.toggle('is-reached', on);
