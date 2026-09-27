@@ -2260,98 +2260,163 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy {
     const outer = rail.parentElement;
     if (!outer) return;
 
-    let dragging = false;
+    // STATE MACHINE: idle -> pending -> either dragging or ignored.
+    //
+    // The previous version committed to "this is a drag" on pointerdown,
+    // before the gesture had a direction at all - so an ordinary vertical
+    // scroll that happened to start over the reel paused its autoplay and
+    // nudged it sideways on the first few pixels of natural finger jitter,
+    // which is the "fighting the component" feeling that was reported.
+    // Nothing here pauses the animation or moves the rail until enough
+    // horizontal-over-vertical movement has actually happened to call it a
+    // swipe; until then every event is left alone and the page scrolls
+    // exactly as it would with no listener attached at all.
+    type Phase = 'idle' | 'pending' | 'dragging' | 'ignored';
+    let phase: Phase = 'idle';
+    let startX = 0;
+    let startY = 0;
     let lastX = 0;
+    let lastT = 0;
     let velocity = 0; // px per ms
-    let offset = 0; // current translate, px
+    let offset = 0; // persistent translate, px - not reset between gestures
+    let setWidth = 0; // half the rendered track: one full loop of real content
     let raf = 0;
     let resumeTimer = 0;
+    let pointerId: number | null = null;
 
-    const maxOffset = () => outer.clientWidth * 0.42;
+    const measure = () => {
+      setWidth = rail.scrollWidth / 2 || outer.clientWidth;
+    };
+    measure();
+    window.addEventListener('resize', measure, { passive: true });
+
+    // Wrapping by exactly one rendered set is what the CSS loop itself relies
+    // on for its own -50%/0 reset: both halves of the track are identical, so
+    // landing on the same offset modulo setWidth is the same pixels. Applying
+    // it to the drag offset too means a long or repeated swipe can travel as
+    // far as it likes without ever running past the two rendered sets.
+    const wrap = (v: number): number => {
+      if (!setWidth) return v;
+      let r = v % setWidth;
+      if (r > setWidth / 2) r -= setWidth;
+      if (r < -setWidth / 2) r += setWidth;
+      return r;
+    };
 
     const setOffset = (v: number) => {
-      offset = v;
-      rail.style.translate = `${v}px 0`;
+      offset = wrap(v);
+      rail.style.translate = `${offset}px 0`;
     };
 
     const settle = () => {
+      // A hard cap on top of the velocity clamp: whatever the input, the
+      // reel is never left "still settling" for more than about a second,
+      // so a value this decay math has not been tested against cannot leave
+      // autoplay paused indefinitely.
+      const deadline = performance.now() + 1000;
       const step = () => {
-        velocity *= 0.94;
-        offset += velocity * 16;
-        const max = maxOffset();
-        if (Math.abs(offset) > max) {
-          offset = Math.sign(offset) * max;
-          velocity = 0;
-        }
-        setOffset(offset);
-        if (Math.abs(velocity) > 0.02) {
+        velocity *= 0.92;
+        setOffset(offset + velocity * 16);
+        if (Math.abs(velocity) > 0.03 && performance.now() < deadline) {
           raf = requestAnimationFrame(step);
         } else {
-          finish();
+          resume();
         }
       };
-      if (Math.abs(velocity) > 0.02) {
+      if (Math.abs(velocity) > 0.03) {
         raf = requestAnimationFrame(step);
       } else {
-        finish();
+        resume();
       }
     };
 
-    // AUTOPLAY RESUMES GRACEFULLY, NOT INSTANTLY.
+    // AUTOPLAY RESUMES AFTER A SENSIBLE PAUSE, NOT A SNAP.
     //
-    // A short pause after the finger lifts before the offset eases back to
-    // zero and the paused keyframe animation is allowed to continue - long
-    // enough to read as "your gesture is what just happened here", short
-    // enough that the reel is not visibly sitting idle.
-    const finish = () => {
+    // The offset is never eased back to zero - there is nothing to undo. The
+    // swipe is real navigation: it stays exactly where the visitor left it,
+    // the paused keyframe animation continues moving from wherever it was
+    // when it paused, and the two simply add together going forward. That is
+    // what makes this "no rewind, no teleport" rather than "no motion at all".
+    const resume = () => {
       resumeTimer = window.setTimeout(() => {
-        rail.style.transition = 'translate 520ms cubic-bezier(0.16, 1, 0.3, 1)';
-        setOffset(0);
         rail.classList.remove('is-dragging');
-        window.setTimeout(() => {
-          rail.style.transition = '';
-        }, 560);
-      }, 260);
+      }, 420);
+    };
+
+    const reset = () => {
+      phase = 'idle';
+      pointerId = null;
     };
 
     const onDown = (e: PointerEvent) => {
       if (e.pointerType === 'mouse' && e.button !== 0) return;
-      dragging = true;
-      lastX = e.clientX;
+      if (phase === 'pending' || phase === 'dragging') return;
+      phase = 'pending';
+      pointerId = e.pointerId;
+      startX = lastX = e.clientX;
+      startY = e.clientY;
+      lastT = performance.now();
       velocity = 0;
       window.clearTimeout(resumeTimer);
       if (raf) cancelAnimationFrame(raf);
-      rail.style.transition = '';
+    };
+
+    const commitDrag = () => {
+      phase = 'dragging';
+      measure();
       rail.classList.add('is-dragging');
     };
 
     const onMove = (e: PointerEvent) => {
-      if (!dragging) return;
-      const dx = e.clientX - lastX;
-      velocity = dx * 0.85;
-      let next = offset + dx * 1.35; // amplified: a small finger move covers real ground
-      const max = maxOffset();
-      if (Math.abs(next) > max) {
-        const over = Math.abs(next) - max;
-        next = Math.sign(next) * (max + over * 0.28); // rubber-band past the bound
+      if (pointerId !== null && e.pointerId !== pointerId) return;
+      if (phase === 'idle') return;
+
+      if (phase === 'pending') {
+        const dx = e.clientX - startX;
+        const dy = e.clientY - startY;
+        const adx = Math.abs(dx);
+        const ady = Math.abs(dy);
+        // Clearly horizontal: commit and apply the movement already made so
+        // the first confirmed frame does not feel like it skipped a step.
+        if (adx > 8 && adx > ady * 1.3) {
+          commitDrag();
+        } else if (ady > 8 && ady >= adx) {
+          // Clearly vertical (or ambiguous leaning vertical): this is a page
+          // scroll, not a swipe. Stop looking at this gesture entirely and
+          // let the browser's own pan-y handling do the rest, untouched.
+          phase = 'ignored';
+          return;
+        } else {
+          return; // still inside the noise threshold - keep waiting
+        }
       }
-      setOffset(next);
+
+      if (phase !== 'dragging') return;
+      const now = performance.now();
+      const dx = e.clientX - lastX;
+      const dt = Math.max(1, now - lastT);
+      // Clamped: an unrealistically small dt between two move samples (which
+      // happens on some devices during a very fast flick) would otherwise
+      // produce a velocity so large that the decay below never fell under
+      // its stop threshold within a sensible time, leaving the reel "stuck"
+      // mid-settle and autoplay never resuming.
+      velocity = Math.max(-42, Math.min(42, (dx / dt) * 16 * 0.9));
+      setOffset(offset + dx * 1.4); // amplified: manual travel reads faster than autoplay
       lastX = e.clientX;
+      lastT = now;
     };
 
-    const onUp = () => {
-      if (!dragging) return;
-      dragging = false;
-      settle();
+    const onUp = (e: PointerEvent) => {
+      if (pointerId !== null && e.pointerId !== pointerId) return;
+      const wasDragging = phase === 'dragging';
+      reset();
+      if (wasDragging) settle();
     };
 
     outer.addEventListener('pointerdown', onDown, { passive: true });
     outer.addEventListener('pointermove', onMove, { passive: true });
     outer.addEventListener('pointerup', onUp, { passive: true });
     outer.addEventListener('pointercancel', onUp, { passive: true });
-    outer.addEventListener('pointerleave', () => {
-      if (dragging) onUp();
-    }, { passive: true });
   }
 
   // ─── Section ambient indicator ────────────────────────────────────────────
