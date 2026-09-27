@@ -2664,21 +2664,128 @@ div[id] {
 
 // ─────── THE COMPARISON ON A PHONE ───────────────────────────────────────────
 //
-// A PAIRED CONTRAST, HELD TOGETHER BY SPACE, NOT BY LINES. Each positive line
-// sits beside its negative counterpart in one row - right, the approach she
-// stands for; left, the pattern it is measured against. What makes that read
-// is hierarchy, not a grid: the right column speaks in the display face at
-// full charcoal under a heading with the one brand-blue stroke in the
-// section; the left is set in the body face, smaller and softer, under a
-// heading of equal size but visibly less conviction. No centre rule, no row
-// rules - the pairs are made by their shared baseline and the air between
-// them. The fourth positive line has no counterpart and closes the argument
-// at a larger size, on its own, before the photograph.
+// TWO VOICES, SIDE BY SIDE. Right: what the businesses that understand do,
+// in the display face at full charcoal, under a heading carrying the one
+// brand-blue stroke in the section. Left: what the others do, set in the body
+// face, lighter, smaller and faded back - and its heading struck through, the
+// oldest editorial way of saying "not this" without an icon. Pairs share a
+// baseline; nothing else joins them - no centre line, no row rules. The
+// fourth positive line has no counterpart and ends the argument alone at the
+// largest size, followed by air, then the photograph.
 //
-// Markup untouched: `display: contents` on the two .duo-card wrappers and
-// their lists (this breakpoint only) makes every <h3>/<li> a direct item of
-// .duo-cards' grid, placed by hand. Desktop's side-by-side grid is untouched.
-@media (max-width: 1023.98px) {
+// Markup untouched: `display: contents` (this breakpoint only) flattens the
+// two .duo-card wrappers and lists so every <h3>/<li> is placed on
+// .duo-cards' grid directly. Desktop's own side-by-side grid is unaffected.
+// Phone only; the 768-1023 band keeps its own composition further down.
+@media (max-width: 767.98px) {
+  .duo-cards {
+    display: grid;
+    grid-template-columns: minmax(0, 1.15fr) minmax(0, 0.85fr);
+    column-gap: clamp(18px, 6vw, 30px);
+    align-items: baseline;
+    margin-top: clamp(24px, 3.6vh, 32px);
+    border-top: 0;
+    border-bottom: 0;
+  }
+
+  .duo-card,
+  .duo-card ul {
+    display: contents;
+  }
+
+  .duo-card--positive li::before,
+  .duo-card--muted li::before {
+    content: none;
+  }
+
+  .duo-card--positive h3,
+  .duo-card--muted h3 {
+    grid-row: 1;
+    align-self: end;
+    margin-bottom: 16px;
+    font-family: var(--font-display);
+    font-weight: 400;
+    line-height: 1.12;
+    letter-spacing: -0.02em;
+  }
+
+  .duo-card--positive h3 {
+    grid-column: 1;
+    position: relative;
+    padding-bottom: 12px;
+    font-size: clamp(1.42rem, 5.6vw, 1.7rem);
+    color: var(--text);
+
+    &::after {
+      content: "";
+      position: absolute;
+      inset-inline-start: 0;
+      bottom: 0;
+      width: 34px;
+      height: 3px;
+      background: var(--brand-accent);
+    }
+  }
+
+  .duo-card--muted h3 {
+    grid-column: 2;
+    padding-bottom: 12px;
+    font-size: clamp(1.1rem, 4.2vw, 1.3rem);
+    color: var(--text-light);
+    text-decoration: line-through;
+    text-decoration-thickness: 1px;
+    text-decoration-color: color-mix(in srgb, var(--text-light) 70%, transparent);
+  }
+
+  .duo-card--positive li,
+  .duo-card--muted li {
+    padding: 9px 0;
+    padding-inline-start: 0;
+    border-top: 0;
+  }
+
+  @for $i from 1 through 3 {
+    .duo-card--positive li:nth-of-type(#{$i}) {
+      grid-row: #{$i + 1};
+      grid-column: 1;
+    }
+
+    .duo-card--muted li:nth-of-type(#{$i}) {
+      grid-row: #{$i + 1};
+      grid-column: 2;
+    }
+  }
+
+  .duo-card--positive li {
+    font-family: var(--font-display);
+    font-size: clamp(1.08rem, 3.7vw, 1.22rem);
+    line-height: 1.28;
+    letter-spacing: -0.012em;
+    color: var(--text);
+  }
+
+  .duo-card--muted li {
+    font-family: var(--font-body);
+    font-size: clamp(0.84rem, 2.7vw, 0.92rem);
+    line-height: 1.42;
+    color: var(--text-muted);
+    opacity: 0.66;
+  }
+
+  .duo-card--positive li:nth-of-type(4) {
+    grid-row: 5;
+    grid-column: 1 / -1;
+    margin-top: clamp(22px, 3.4vh, 30px);
+    padding: 0;
+    font-size: clamp(1.7rem, 7vw, 2.1rem);
+    line-height: 1.12;
+    letter-spacing: -0.024em;
+  }
+}
+
+// TABLET (768-1023): the comparison as the previous release set it - this
+// pass redesigns the phone only.
+@media (min-width: 768px) and (max-width: 1023.98px) {
   .duo-cards {
     display: grid;
     grid-template-columns: minmax(0, 1.08fr) minmax(0, 1fr);
@@ -4406,12 +4513,19 @@ div[id] {
   padding: var(--space-md) 0;
 }
 
+// Phone: a real scroll container (see initReelDrag). The browser owns the
+// finger; the mask above still softens both edges. No scrollbar, no rubber
+// band into the browser's back-swipe, and the page keeps its vertical pan.
 .results-outer {
-  touch-action: pan-y;
-  cursor: grab;
+  overflow-x: auto;
+  overflow-y: hidden;
+  touch-action: pan-x pan-y;
+  overscroll-behavior-x: contain;
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
 
-  &:active {
-    cursor: grabbing;
+  &::-webkit-scrollbar {
+    display: none;
   }
 }
 
@@ -4429,8 +4543,8 @@ div[id] {
     animation-play-state: paused;
   }
 
-  // Phone: the reel's position is driven by initReelDrag instead, from one
-  // number that autoplay, the finger and momentum all share.
+  // Phone: the reel is a scroll container (initReelDrag); the keyframe stands
+  // down and scrollLeft is the only position.
   &.is-driven {
     animation: none;
   }
@@ -4702,26 +4816,28 @@ div[id] {
 }
 
 @media (max-width: 699.98px) {
-  // ONE COMPOSED ANSWER. The heading asks the question; the intro bridges;
-  // then the three ideas are set as a single typographic cascade instead of
-  // three equal rows - attention, story, conversion - quiet to strong, each
-  // line a little more present than the last, and the path ends on the one
-  // word the whole chain exists for, in the brand blue. The only structural
-  // gesture is the cascade itself: the middle beat steps in from the reading
-  // edge and the payoff returns to it at a larger size. No rules, no marks.
+  // THREE WORDS, ONE IDEA. The chain the section is about - attention, story,
+  // customers - is carried by one word in each of the three existing
+  // sentences: לעצור, סיפור, ללקוחות. Each of those is pulled out at poster
+  // scale on its own line, with the rest of its sentence set small above it
+  // as a kicker, so the three big words read as the whole argument in the
+  // time it takes to glance at them. Scale rises down the page and the last
+  // word - the one the chain exists for - is the section's single accent, in
+  // the brand blue. The middle word steps in from the reading edge, which
+  // gives the three a path to follow. No rules, no marks, no rows.
   .why-merged-grid {
     gap: 0;
   }
 
   .why-sub {
-    margin-bottom: clamp(18px, 2.8vh, 24px);
+    margin-bottom: clamp(22px, 3.4vh, 30px);
     font-size: var(--text-base);
     line-height: 1.6;
     color: var(--text-muted);
   }
 
   .why-statements {
-    gap: 2px;
+    gap: clamp(14px, 2.4vh, 20px);
   }
 
   .why-statement {
@@ -4731,54 +4847,61 @@ div[id] {
 
   .why-statement-text {
     display: block;
-    font-family: var(--font-display);
-    font-weight: 400;
-    letter-spacing: -0.018em;
-    line-height: 1.18;
-    text-wrap: balance;
-  }
-
-  .why-statement:nth-child(1) .why-statement-text {
-    font-size: clamp(1.32rem, 5.2vw, 1.55rem);
+    font-family: var(--font-body);
+    font-size: clamp(0.84rem, 2.5vw, 0.92rem);
+    font-weight: 500;
+    letter-spacing: 0.02em;
+    line-height: 1.4;
     color: var(--text-light);
   }
 
-  .why-statement:nth-child(2) .why-statement-text {
-    padding-inline-start: clamp(22px, 8vw, 36px);
-    font-size: clamp(1.32rem, 5.2vw, 1.55rem);
-    color: var(--text-muted);
-  }
-
-  .why-statement:nth-child(3) .why-statement-text {
-    margin-top: 8px;
-    font-size: clamp(1.72rem, 7vw, 2.1rem);
-    line-height: 1.1;
+  .why-key {
+    display: block;
+    margin-top: 2px;
+    font-family: var(--font-display);
+    font-weight: 400;
+    letter-spacing: -0.03em;
+    line-height: 0.98;
     color: var(--text);
   }
 
-  .why-dest {
+  .why-statement:nth-child(1) .why-key {
+    font-size: clamp(2.7rem, 12.5vw, 3.4rem);
+  }
+
+  .why-statement:nth-child(2) {
+    padding-inline-start: clamp(34px, 13vw, 56px);
+  }
+
+  .why-statement:nth-child(2) .why-key {
+    font-size: clamp(3rem, 14vw, 3.8rem);
+  }
+
+  .why-statement:nth-child(3) .why-key {
+    font-size: clamp(3.4rem, 16vw, 4.4rem);
     color: var(--brand-accent-dim);
   }
 
-  // WHO IT IS FOR, as the conclusion of the same answer: a small lead-in,
-  // three quiet lines set close together, and the fourth - the business that
-  // already understands what marketing is for - carried at display size as
-  // the line the section ends on. Whitespace separates it from the cascade.
+  // WHO IT IS FOR: the conclusion, set as a short column in the section's
+  // quiet voice - three lines close together and the fourth carried up to
+  // display size as the line the section ends on. Set in from the reading
+  // edge so it sits under the middle of the composition, not flush with it.
   .audience-col {
-    margin-top: clamp(30px, 4.6vh, 40px);
+    margin-top: clamp(30px, 4.8vh, 42px);
+    padding-inline-start: clamp(34px, 13vw, 56px);
   }
 
   .audience-eyebrow {
     display: block;
-    margin-bottom: 10px;
-    font-size: 0.72rem;
+    margin-bottom: 8px;
+    font-size: 0.7rem;
     font-weight: 600;
-    letter-spacing: 0.12em;
-    color: var(--text-light);
+    letter-spacing: 0.14em;
+    color: var(--brand-accent-dim);
   }
 
   .audience-statements {
-    gap: 3px;
+    gap: 2px;
   }
 
   .audience-statement {
@@ -4792,17 +4915,17 @@ div[id] {
   }
 
   .audience-statement p {
-    font-size: clamp(0.94rem, 2.7vw, 1.02rem);
+    font-size: clamp(0.92rem, 2.7vw, 1rem);
     line-height: 1.5;
     color: var(--text-muted);
   }
 
   .audience-statement:last-child p {
-    margin-top: 10px;
+    margin-top: 8px;
     font-family: var(--font-display);
-    font-size: clamp(1.14rem, 4.2vw, 1.3rem);
-    line-height: 1.3;
-    letter-spacing: -0.01em;
+    font-size: clamp(1.18rem, 4.4vw, 1.36rem);
+    line-height: 1.26;
+    letter-spacing: -0.012em;
     color: var(--text);
   }
 }
@@ -4923,13 +5046,16 @@ div[id] {
 }
 
 .reviews-outer {
-  overflow: hidden;
+  overflow-x: auto;
+  overflow-y: hidden;
   padding: var(--space-sm) 0;
-  touch-action: pan-y;
-  cursor: grab;
+  touch-action: pan-x pan-y;
+  overscroll-behavior-x: contain;
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
 
-  &:active {
-    cursor: grabbing;
+  &::-webkit-scrollbar {
+    display: none;
   }
 }
 
@@ -4960,7 +5086,7 @@ div[id] {
     animation-play-state: paused;
   }
 
-  // Phone: driven from one JS position (initReelDrag); the keyframe stands down.
+  // Phone: a scroll container (initReelDrag); the keyframe stands down.
   &.is-driven {
     animation: none;
   }
@@ -7258,6 +7384,91 @@ div[id] {
     padding: 17px 0;
   }
 
+  @media (max-width: 767.98px) {
+  // ONE DESCENT, NOT FOUR BLOCKS. Each moment is a single run-in paragraph:
+  // its title in the display face leads straight into its description on the
+  // same line, so there is no title/description/title/description stack to
+  // read as four copies of a component. The four paragraphs step in from the
+  // reading edge one after another - the whole section is one diagonal, read
+  // top-right to bottom-left, and the closing line lands at the foot of it.
+  // The first title enters at nearly twice the size of the others. No
+  // numbers, no rules, no marks.
+  .process-editorial {
+    gap: clamp(20px, 3.2vh, 28px);
+    margin-bottom: clamp(26px, 4vh, 34px);
+  }
+
+  .process-row {
+    display: block;
+    border-top: none;
+    padding: 0;
+  }
+
+  .process-row-num {
+    display: none;
+  }
+
+  .process-row-content {
+    display: block;
+  }
+
+  .process-row-title,
+  .process-row-desc {
+    display: inline;
+  }
+
+  .process-row-title {
+    margin: 0;
+    font-family: var(--font-display);
+    font-size: clamp(1.34rem, 5.2vw, 1.6rem);
+    font-weight: 400;
+    line-height: 1.3;
+    letter-spacing: -0.016em;
+    color: var(--text);
+
+    &::after {
+      content: " ";
+    }
+  }
+
+  .process-row-desc {
+    font-size: clamp(0.98rem, 2.9vw, 1.06rem);
+    line-height: 1.62;
+    color: var(--text-muted);
+  }
+
+  .process-row:nth-child(1) .process-row-title {
+    display: block;
+    margin-bottom: 4px;
+    font-size: clamp(2.3rem, 9.6vw, 2.8rem);
+    line-height: 1;
+    letter-spacing: -0.028em;
+
+    &::after {
+      content: none;
+    }
+  }
+
+  .process-row:nth-child(2) {
+    padding-inline-start: clamp(18px, 6.5vw, 30px);
+  }
+
+  .process-row:nth-child(3) {
+    padding-inline-start: clamp(34px, 13vw, 60px);
+  }
+
+  .process-row:nth-child(4) {
+    padding-inline-start: clamp(52px, 20vw, 90px);
+  }
+
+  #process .section-close-note {
+    padding-inline-start: clamp(52px, 20vw, 90px);
+  }
+  }
+
+  // TABLET (768-1023): unchanged from the previous release, on purpose - this
+  // pass redesigns the phone only.
+  @media (min-width: 768px) {
   // FOUR BEATS OF ONE STORY, NOT FOUR STEPS. Nothing here is a process
   // widget: no numbers (reading order already says which comes first), no
   // rules, no line joining them. The idea is a single typographic one - each
@@ -7325,6 +7536,7 @@ div[id] {
 
   .process-row:nth-child(4) .process-row-desc {
     max-width: 27ch;
+  }
   }
 
   // Portfolio reel mobile

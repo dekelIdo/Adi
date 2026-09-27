@@ -1272,14 +1272,14 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy {
   //    an empty state. No querySelector in this file may target .brand-track*.
   //
   // 2. PORTFOLIO REEL  — CSS marquee. Owns ONLY .portfolio-reel-outer/-track.
-  // 3. RESULTS REEL    — phone: one JS position (initReelDrag), CSS keyframe
-  //                      switched off via .is-driven. Owns ONLY .results-rail.
-  // 4. REVIEWS ROW     — same driver. Owns ONLY .reviews-outer/.reviews-rail.
+  // 3. RESULTS REEL    — phone: native horizontal scroll + scrollLeft autoplay
+  //                      (initReelDrag); keyframe off via .is-driven. Desktop:
+  //                      grid. Owns ONLY .results-outer/.results-rail.
+  // 4. REVIEWS ROW     — same mechanism. Owns ONLY .reviews-outer/.reviews-rail.
   //
   // 2/3/4 have disjoint selector scopes; none observes or mutates another's
-  // DOM. For 3/4 the keyframe and the driver never run together: .is-driven
-  // turns the animation off before the driver writes `transform`, so there is
-  // only ever one source of position. Keep it that way.
+  // DOM. For 3/4 on a phone there is exactly one position: scrollLeft. No
+  // script writes a transform to those rails. Keep it that way.
   // ═══════════════════════════════════════════════════════════════════════════
 
 
@@ -2220,149 +2220,163 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
 
-  // ─── Reels (reviews, results): one position, three sources of motion ────────
+  // ─── Reels (reviews, results): native scroll + autoplay, phone only ─────────
   //
-  // ONE SOURCE OF TRUTH. On a phone these two reels used to move by a CSS
-  // keyframe (which owned `transform`) while a drag moved them by a second,
-  // independent `translate`. Two coordinate systems cannot hand over to each
-  // other: when the finger lifted, the keyframe carried on from its own clock
-  // and the reel appeared to rewind to wherever the animation "was".
+  // THE BROWSER OWNS THE FINGER. On a phone these two reels are plain
+  // horizontal scroll containers: the drag, the momentum, the release, and the
+  // vertical-vs-horizontal decision are all native, which is the one mechanism
+  // that behaves the same under every thumb. Nothing here listens to pointer
+  // events. Two earlier attempts drove the drag by hand (a `translate` on top
+  // of a keyframe, then a rAF position model); the second one ended a touch
+  // drag on its first frame, because taking pointer capture on a touch pointer
+  // fires lostpointercapture from the element that held it implicitly.
   //
-  // Here each reel has a single number, `pos`, and everything writes to it:
-  // autoplay adds a slow constant velocity while idle, the finger adds its
-  // movement 1:1 while dragging, and a short momentum carries on after release.
-  // Autoplay then eases back in from the exact pixel the hand left it at. The
-  // CSS keyframe is switched off for the rail (`.is-driven`) the moment this
-  // takes over, starting from the keyframe's current offset so the handover on
-  // load is invisible too.
+  // Autoplay is the only thing script does: while nobody is touching or
+  // flinging the reel, scrollLeft advances a little every frame at the pace the
+  // old keyframe had. It pauses on touch, waits for the native momentum to end
+  // (no scroll events for a moment), holds briefly, then continues from
+  // wherever the reel is - it never knows or cares where the finger left it.
   //
-  // Infinite by the same contract the keyframe used: the track holds two
-  // identical sets, so `pos` is normalised into one set-width and the wrap
-  // lands on identical pixels.
+  // Infinite by the track's two identical sets: the scroll offset is kept
+  // inside the middle of the doubled track and wrapped by exactly one set
+  // width when it nears either end. Same pixels on both sides of the wrap.
   //
-  // Phone only. From 768px these rails are grids (transform: none !important)
-  // and nothing here runs; under reduced motion the CSS stop stands.
+  // Phone only (under 768px the rails are grids, and the CSS keyframe is
+  // switched off for a scrolled rail via .is-driven). Under reduced motion the
+  // scroll still works; only the autoplay stays off.
   private initReelDrag(): void {
-    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
     const phone = window.matchMedia('(max-width: 767.98px)');
+    const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     const rails = Array.from(document.querySelectorAll<HTMLElement>('.reviews-rail, .results-rail'));
     this.zone.runOutsideAngular(() => {
-      rails.forEach((rail) => this.bindReel(rail, phone));
+      rails.forEach((rail) => this.bindReelScroll(rail, phone, reduced));
     });
   }
 
-  private bindReel(rail: HTMLElement, phone: MediaQueryList): void {
+  private bindReelScroll(rail: HTMLElement, phone: MediaQueryList, reduced: boolean): void {
     const outer = rail.parentElement;
     if (!outer) return;
 
-    const canHover = window.matchMedia('(hover: hover)').matches;
-    let active = false; // driving the rail at all (phone width)
+    let active = false;
     let visible = false;
     let raf = 0;
-    let last = 0;
-
-    let pos = 0; // px, the reel's one position
-    let setWidth = 0; // one rendered set = half the track
-    let dir = 1; // travel sign, from --reel-travel (RTL: +)
-    let autoV = 0; // autoplay px per ms
-    let ramp = 1; // 0..1, autoplay easing back in after a hand-off
-    let holdUntil = 0; // autoplay waits until this time after a gesture
-    let momentum = 0; // px per ms, after release
-
-    // Gesture: idle -> pending -> dragging | ignored. Nothing moves until the
-    // gesture is clearly horizontal; a vertical one is left to the page.
-    let phase: 'idle' | 'pending' | 'dragging' | 'ignored' = 'idle';
-    let pointerId: number | null = null;
-    let startX = 0;
-    let startY = 0;
-    let lastX = 0;
     let lastT = 0;
-    let velocity = 0; // px per ms, smoothed
+    let setWidth = 0; // one set = half the track
+    let autoV = 0; // px per ms
+    let pos = 0; // logical offset: 0 at the start (right edge in RTL), grows as the reel advances
+    let rtlNegative = true; // modern engines report RTL scrollLeft as 0..-max
+    let touching = false;
+    let quietSince = 0; // last time a scroll event arrived that we did not write
+    let holdUntil = 0;
+    let expected: number | null = null; // scrollLeft we wrote last, to tell our scrolls from the finger's
+    let ramp = 0;
 
-    const normalise = (v: number): number => {
-      if (!setWidth) return v;
-      if (dir > 0) return ((v % setWidth) + setWidth) % setWidth;
-      return -(((-v % setWidth) + setWidth) % setWidth);
-    };
-
-    const apply = () => {
-      pos = normalise(pos);
-      rail.style.transform = `translate3d(${pos.toFixed(2)}px, 0, 0)`;
+    const read = () => (rtlNegative ? -outer.scrollLeft : outer.scrollLeft);
+    const write = (v: number) => {
+      expected = rtlNegative ? -v : v;
+      outer.scrollLeft = expected;
     };
 
     const measure = () => {
-      setWidth = rail.offsetWidth / 2;
-      const cs = getComputedStyle(rail);
-      dir = cs.getPropertyValue('--reel-travel').trim().startsWith('-') ? -1 : 1;
-      // The same pace the keyframe had: one set per animation-duration.
+      setWidth = rail.scrollWidth / 2;
       const durS = parseFloat(rail.dataset['reelDuration'] || '0');
-      autoV = durS > 0 && setWidth > 0 ? (dir * setWidth) / (durS * 1000) : 0;
+      autoV = durS > 0 && setWidth > 0 ? setWidth / (durS * 1000) : 0;
+    };
+
+    // Keep the offset in the middle of the doubled track. A wrap moves it by
+    // exactly one set, which lands on identical pixels, so it is never seen.
+    const wrap = () => {
+      if (!setWidth) return;
+      const w = outer.clientWidth;
+      const max = outer.scrollWidth - w;
+      if (setWidth < w * 1.5 || max <= setWidth) return; // not enough track to wrap safely
+      // `pos` is the float accumulator; scrollLeft may round it to whole
+      // pixels, so it is never read back here - only the finger (onScroll)
+      // replaces it. Otherwise a sub-pixel autoplay step would be rounded
+      // away every frame and the reel would never move.
+      if (pos > max - w * 0.5) {
+        pos -= setWidth;
+        write(pos);
+      } else if (pos < w * 0.5) {
+        pos += setWidth;
+        write(pos);
+      }
     };
 
     const tick = (now: number) => {
-      const dt = last ? Math.min(64, now - last) : 16;
-      last = now;
-      if (phase !== 'dragging') {
-        if (momentum !== 0) {
-          pos += momentum * dt;
-          momentum *= Math.pow(0.925, dt / 16);
-          if (Math.abs(momentum) < 0.02) {
-            momentum = 0;
-            holdUntil = now + 650;
-            ramp = 0;
-          }
-        } else if (now >= holdUntil && !(canHover && outer.matches(':hover'))) {
-          ramp = Math.min(1, ramp + dt / 900);
-          const eased = ramp * ramp * (3 - 2 * ramp);
-          pos += autoV * eased * dt;
-        }
+      const dt = lastT ? Math.min(64, now - lastT) : 16;
+      lastT = now;
+      const settled = !touching && now - quietSince > 160 && now >= holdUntil;
+      if (settled && autoV > 0) {
+        ramp = Math.min(1, ramp + dt / 700);
+        pos += autoV * ramp * ramp * dt;
+        write(pos);
+      } else {
+        ramp = 0;
       }
-      apply();
+      wrap();
       raf = requestAnimationFrame(tick);
     };
 
     const run = () => {
       if (raf || !active || !visible) return;
-      last = 0;
+      lastT = 0;
       raf = requestAnimationFrame(tick);
     };
-
     const stop = () => {
       if (raf) cancelAnimationFrame(raf);
       raf = 0;
     };
 
+    const onScroll = () => {
+      if (!active) return;
+      const sl = outer.scrollLeft;
+      if (expected !== null && Math.abs(sl - expected) < 1) return; // our own write
+      // The finger, or its momentum: note the time and let it be.
+      quietSince = performance.now();
+      holdUntil = quietSince + 700;
+      pos = read();
+    };
+    const onTouchStart = () => {
+      touching = true;
+      ramp = 0;
+    };
+    const onTouchEnd = () => {
+      touching = false;
+      quietSince = performance.now();
+      holdUntil = quietSince + 700;
+    };
+
     const start = () => {
       if (active) return;
       const cs = getComputedStyle(rail);
-      // Read the keyframe's pace and its current offset before switching it
-      // off, so the reel continues from the exact frame it was showing.
       rail.dataset['reelDuration'] = String(parseFloat(cs.animationDuration) || 0);
-      const m = cs.transform && cs.transform !== 'none' ? new DOMMatrixReadOnly(cs.transform) : null;
-      pos = m ? m.m41 : 0;
       rail.classList.add('is-driven');
       active = true;
+      // Detect how this engine reports RTL scroll offsets: in the modern
+      // model a negative write sticks; in a left-anchored one it clamps to 0.
+      // (A positive probe is not safe - sub-pixel track widths let a +1 stick
+      // even in the negative model.)
+      outer.scrollLeft = -10;
+      rtlNegative = outer.scrollLeft < 0;
       measure();
-      apply();
-      run();
+      // Begin one set in, so the reel can be pulled back as well as forward.
+      pos = setWidth;
+      write(pos);
+      if (!reduced) run();
     };
-
     const release = () => {
       if (!active) return;
       stop();
       active = false;
-      phase = 'idle';
       rail.classList.remove('is-driven');
-      rail.style.removeProperty('transform');
+      outer.scrollLeft = 0;
     };
 
-    const onPhoneChange = () => (phone.matches ? start() : release());
-    phone.addEventListener('change', onPhoneChange);
-
+    phone.addEventListener('change', () => (phone.matches ? start() : release()));
     new ResizeObserver(() => {
       if (active) measure();
     }).observe(rail);
-
     new IntersectionObserver(
       (entries) => {
         visible = entries.some((e) => e.isIntersecting);
@@ -2372,75 +2386,13 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy {
       { rootMargin: '120px 0px' }
     ).observe(outer);
 
-    const onDown = (e: PointerEvent) => {
-      if (!active) return;
-      if (e.pointerType === 'mouse' && e.button !== 0) return;
-      if (phase === 'pending' || phase === 'dragging') return;
-      phase = 'pending';
-      pointerId = e.pointerId;
-      startX = lastX = e.clientX;
-      startY = e.clientY;
-      lastT = performance.now();
-      velocity = 0;
-    };
-
-    const onMove = (e: PointerEvent) => {
-      if (e.pointerId !== pointerId) return;
-      if (phase === 'pending') {
-        const adx = Math.abs(e.clientX - startX);
-        const ady = Math.abs(e.clientY - startY);
-        if (adx > 8 && adx > ady * 1.3) {
-          // Taken: autoplay and any running momentum stop where they are.
-          phase = 'dragging';
-          momentum = 0;
-          ramp = 0;
-          lastX = e.clientX;
-          lastT = performance.now();
-          // Keep receiving this pointer even after it leaves the reel, so a
-          // release outside it still hands the reel back to autoplay.
-          try {
-            outer.setPointerCapture(e.pointerId);
-          } catch {
-            /* capture unavailable - the window listener below covers it */
-          }
-        } else if (ady > 8 && ady >= adx) {
-          phase = 'ignored';
-        }
-        return;
-      }
-      if (phase !== 'dragging') return;
-      const now = performance.now();
-      const dx = e.clientX - lastX;
-      const dt = Math.max(8, now - lastT);
-      pos += dx; // 1:1 - the reel follows the finger
-      velocity = velocity * 0.6 + (dx / dt) * 0.4;
-      lastX = e.clientX;
-      lastT = now;
-      apply();
-    };
-
-    const onUp = (e: PointerEvent) => {
-      if (e.pointerId !== pointerId) return;
-      const wasDragging = phase === 'dragging';
-      phase = 'idle';
-      pointerId = null;
-      if (!wasDragging) return;
-      // A finger that stopped before lifting carries nothing.
-      const stale = performance.now() - lastT > 90;
-      momentum = stale ? 0 : Math.max(-2.2, Math.min(2.2, velocity));
-      ramp = 0;
-      if (momentum === 0) holdUntil = performance.now() + 650;
-    };
-
-    outer.addEventListener('pointerdown', onDown, { passive: true });
-    outer.addEventListener('pointermove', onMove, { passive: true });
-    outer.addEventListener('pointerup', onUp, { passive: true });
-    outer.addEventListener('pointercancel', onUp, { passive: true });
-    outer.addEventListener('lostpointercapture', onUp, { passive: true });
-    window.addEventListener('pointerup', onUp, { passive: true });
-    // The cards are <img>s, which the browser will start dragging natively on
-    // a mouse drag - and that fires pointercancel on the first move, ending
-    // the gesture before it begins.
+    outer.addEventListener('scroll', onScroll, { passive: true });
+    outer.addEventListener('touchstart', onTouchStart, { passive: true });
+    outer.addEventListener('touchend', onTouchEnd, { passive: true });
+    outer.addEventListener('touchcancel', onTouchEnd, { passive: true });
+    outer.addEventListener('pointerdown', (e) => { if (e.pointerType === 'mouse') onTouchStart(); }, { passive: true });
+    outer.addEventListener('pointerup', (e) => { if (e.pointerType === 'mouse') onTouchEnd(); }, { passive: true });
+    // Images inside would otherwise start a native drag-and-drop under a mouse.
     outer.addEventListener('dragstart', (e) => e.preventDefault());
 
     if (phone.matches) start();
