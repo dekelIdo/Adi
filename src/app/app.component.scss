@@ -2680,7 +2680,7 @@ div[id] {
 @media (max-width: 767.98px) {
   .duo-cards {
     display: grid;
-    grid-template-columns: minmax(0, 1.15fr) minmax(0, 0.85fr);
+    grid-template-columns: minmax(0, 1.18fr) minmax(0, 0.82fr);
     column-gap: clamp(18px, 6vw, 30px);
     align-items: baseline;
     margin-top: clamp(24px, 3.6vh, 32px);
@@ -2698,22 +2698,28 @@ div[id] {
     content: none;
   }
 
+  // THE POLARITY IS IN THE TYPE, NOT IN A MARK. Right: the display face, full
+  // charcoal, the section's one blue stroke under its heading. Left: the
+  // body face, lighter, smaller, tracked slightly tighter and faded - the
+  // voice of something said without conviction. No strike: crossed-out text
+  // reads as deleted text, and these lines are true of the businesses they
+  // describe.
   .duo-card--positive h3,
   .duo-card--muted h3 {
     grid-row: 1;
     align-self: end;
     margin-bottom: 16px;
-    font-family: var(--font-display);
-    font-weight: 400;
     line-height: 1.12;
-    letter-spacing: -0.02em;
   }
 
   .duo-card--positive h3 {
     grid-column: 1;
     position: relative;
     padding-bottom: 12px;
+    font-family: var(--font-display);
     font-size: clamp(1.42rem, 5.6vw, 1.7rem);
+    font-weight: 400;
+    letter-spacing: -0.02em;
     color: var(--text);
 
     &::after {
@@ -2730,11 +2736,11 @@ div[id] {
   .duo-card--muted h3 {
     grid-column: 2;
     padding-bottom: 12px;
-    font-size: clamp(1.1rem, 4.2vw, 1.3rem);
+    font-family: var(--font-body);
+    font-size: clamp(1rem, 3.6vw, 1.14rem);
+    font-weight: 400;
+    letter-spacing: -0.01em;
     color: var(--text-light);
-    text-decoration: line-through;
-    text-decoration-thickness: 1px;
-    text-decoration-color: color-mix(in srgb, var(--text-light) 70%, transparent);
   }
 
   .duo-card--positive li,
@@ -2768,18 +2774,33 @@ div[id] {
     font-family: var(--font-body);
     font-size: clamp(0.84rem, 2.7vw, 0.92rem);
     line-height: 1.42;
+    letter-spacing: -0.01em;
     color: var(--text-muted);
-    opacity: 0.66;
+    opacity: 0.62;
   }
 
+  // THE PAYOFF. The line with no counterpart, set largest and given the
+  // right column's own stroke, so it reads as where the right side arrives
+  // rather than as a fourth row.
   .duo-card--positive li:nth-of-type(4) {
     grid-row: 5;
     grid-column: 1 / -1;
-    margin-top: clamp(22px, 3.4vh, 30px);
-    padding: 0;
+    position: relative;
+    margin-top: clamp(24px, 3.8vh, 34px);
+    padding: 14px 0 0;
     font-size: clamp(1.7rem, 7vw, 2.1rem);
     line-height: 1.12;
     letter-spacing: -0.024em;
+
+    &::before {
+      content: "";
+      position: absolute;
+      inset-inline-start: 0;
+      top: 0;
+      width: 34px;
+      height: 3px;
+      background: var(--brand-accent);
+    }
   }
 }
 
@@ -4816,28 +4837,28 @@ div[id] {
 }
 
 @media (max-width: 699.98px) {
-  // THREE WORDS, ONE IDEA. The chain the section is about - attention, story,
-  // customers - is carried by one word in each of the three existing
-  // sentences: לעצור, סיפור, ללקוחות. Each of those is pulled out at poster
-  // scale on its own line, with the rest of its sentence set small above it
-  // as a kicker, so the three big words read as the whole argument in the
-  // time it takes to glance at them. Scale rises down the page and the last
-  // word - the one the chain exists for - is the section's single accent, in
-  // the brand blue. The middle word steps in from the reading edge, which
-  // gives the three a path to follow. No rules, no marks, no rows.
+  // ONE CHAIN, READ AS THREE SENTENCES. Each of the three ideas stays a whole
+  // sentence, and the word that carries it - לעצור, סיפור, ללקוחות - is set
+  // large inside that sentence rather than lifted out of it, so nothing has
+  // to be matched back to a caption: the explanation is the line the word
+  // sits in. The three are not a staircase of sizes. The first states the
+  // start of the chain; the second steps in from the reading edge and its
+  // word is the biggest, because the story is the middle of the argument
+  // and the part that is hers; the third returns to the edge and resolves
+  // on the one blue word, the end the chain exists for. No rules, no marks.
   .why-merged-grid {
     gap: 0;
   }
 
   .why-sub {
-    margin-bottom: clamp(22px, 3.4vh, 30px);
+    margin-bottom: clamp(20px, 3.2vh, 28px);
     font-size: var(--text-base);
     line-height: 1.6;
     color: var(--text-muted);
   }
 
   .why-statements {
-    gap: clamp(14px, 2.4vh, 20px);
+    gap: clamp(12px, 2vh, 18px);
   }
 
   .why-statement {
@@ -4847,48 +4868,41 @@ div[id] {
 
   .why-statement-text {
     display: block;
-    font-family: var(--font-body);
-    font-size: clamp(0.84rem, 2.5vw, 0.92rem);
-    font-weight: 500;
-    letter-spacing: 0.02em;
-    line-height: 1.4;
-    color: var(--text-light);
+    font-family: var(--font-display);
+    font-size: clamp(1.12rem, 3.7vw, 1.28rem);
+    font-weight: 400;
+    letter-spacing: -0.012em;
+    line-height: 1.22;
+    color: var(--text-muted);
+    text-wrap: balance;
   }
 
   .why-key {
-    display: block;
-    margin-top: 2px;
-    font-family: var(--font-display);
-    font-weight: 400;
-    letter-spacing: -0.03em;
-    line-height: 0.98;
+    font-size: clamp(1.9rem, 7.2vw, 2.25rem);
+    line-height: 1;
+    letter-spacing: -0.024em;
     color: var(--text);
   }
 
-  .why-statement:nth-child(1) .why-key {
-    font-size: clamp(2.7rem, 12.5vw, 3.4rem);
-  }
-
   .why-statement:nth-child(2) {
-    padding-inline-start: clamp(34px, 13vw, 56px);
+    padding-inline-start: clamp(26px, 10vw, 44px);
   }
 
   .why-statement:nth-child(2) .why-key {
-    font-size: clamp(3rem, 14vw, 3.8rem);
+    font-size: clamp(2.3rem, 9vw, 2.8rem);
   }
 
   .why-statement:nth-child(3) .why-key {
-    font-size: clamp(3.4rem, 16vw, 4.4rem);
     color: var(--brand-accent-dim);
   }
 
-  // WHO IT IS FOR: the conclusion, set as a short column in the section's
-  // quiet voice - three lines close together and the fourth carried up to
-  // display size as the line the section ends on. Set in from the reading
-  // edge so it sits under the middle of the composition, not flush with it.
+  // WHO IT IS FOR, as one closing statement: a small lead-in, the three
+  // shorter lines run together as a single quiet sentence, and the line
+  // that actually says what these businesses have in common - that
+  // marketing is their growth engine - set alone at display size as the
+  // last thing the section says.
   .audience-col {
-    margin-top: clamp(30px, 4.8vh, 42px);
-    padding-inline-start: clamp(34px, 13vw, 56px);
+    margin-top: clamp(28px, 4.4vh, 38px);
   }
 
   .audience-eyebrow {
@@ -4901,13 +4915,17 @@ div[id] {
   }
 
   .audience-statements {
-    gap: 2px;
+    display: block;
   }
 
   .audience-statement {
-    display: block;
     padding: 0;
     border-top: none;
+  }
+
+  .audience-statement:not(:last-child),
+  .audience-statement:not(:last-child) p {
+    display: inline;
   }
 
   .audience-mark {
@@ -4916,17 +4934,29 @@ div[id] {
 
   .audience-statement p {
     font-size: clamp(0.92rem, 2.7vw, 1rem);
-    line-height: 1.5;
+    line-height: 1.6;
     color: var(--text-muted);
   }
 
+  .audience-statement:nth-child(2) p::before,
+  .audience-statement:nth-child(3) p::before {
+    content: " · ";
+    color: var(--text-light);
+  }
+
+  .audience-statement:last-child {
+    display: block;
+  }
+
   .audience-statement:last-child p {
-    margin-top: 8px;
+    display: block;
+    margin-top: 12px;
     font-family: var(--font-display);
-    font-size: clamp(1.18rem, 4.4vw, 1.36rem);
-    line-height: 1.26;
-    letter-spacing: -0.012em;
+    font-size: clamp(1.3rem, 4.9vw, 1.52rem);
+    line-height: 1.22;
+    letter-spacing: -0.016em;
     color: var(--text);
+    text-wrap: balance;
   }
 }
 
@@ -7385,85 +7415,116 @@ div[id] {
   }
 
   @media (max-width: 767.98px) {
-  // ONE DESCENT, NOT FOUR BLOCKS. Each moment is a single run-in paragraph:
-  // its title in the display face leads straight into its description on the
-  // same line, so there is no title/description/title/description stack to
-  // read as four copies of a component. The four paragraphs step in from the
-  // reading edge one after another - the whole section is one diagonal, read
-  // top-right to bottom-left, and the closing line lands at the foot of it.
-  // The first title enters at nearly twice the size of the others. No
-  // numbers, no rules, no marks.
-  .process-editorial {
-    gap: clamp(20px, 3.2vh, 28px);
-    margin-bottom: clamp(26px, 4vh, 34px);
-  }
+    // ONE JOURNEY. The four stages are a real sequence, so the section is
+    // built on a single hairline axis at the reading edge with a small
+    // station at each title - and nothing else: no numbers, no rules between
+    // stages. The axis runs from the first station to the last and stops
+    // there. As the visitor scrolls, a second, blue length of the same line
+    // grows down it (initProcessJourney), and each station turns blue as it
+    // is passed; under reduced motion the whole line is simply blue. The
+    // stations are 9px and quiet, set 17px clear of the text, so they read
+    // as anchors on the line rather than as bullets in front of the copy.
+    .process-editorial {
+      position: relative;
+      gap: clamp(26px, 4vh, 34px);
+      padding-inline-start: 26px;
+      margin-bottom: clamp(26px, 4vh, 34px);
 
-  .process-row {
-    display: block;
-    border-top: none;
-    padding: 0;
-  }
+      &::before,
+      &::after {
+        content: "";
+        position: absolute;
+        inset-inline-start: 4px;
+        top: var(--axis-top, 12px);
+        width: 1px;
+        pointer-events: none;
+      }
 
-  .process-row-num {
-    display: none;
-  }
+      &::before {
+        height: var(--axis-len, calc(100% - 24px));
+        background: var(--rule-strong);
+      }
 
-  .process-row-content {
-    display: block;
-  }
-
-  .process-row-title,
-  .process-row-desc {
-    display: inline;
-  }
-
-  .process-row-title {
-    margin: 0;
-    font-family: var(--font-display);
-    font-size: clamp(1.34rem, 5.2vw, 1.6rem);
-    font-weight: 400;
-    line-height: 1.3;
-    letter-spacing: -0.016em;
-    color: var(--text);
-
-    &::after {
-      content: " ";
+      &::after {
+        height: var(--journey, 0px);
+        background: var(--brand-accent-dim);
+      }
     }
-  }
 
-  .process-row-desc {
-    font-size: clamp(0.98rem, 2.9vw, 1.06rem);
-    line-height: 1.62;
-    color: var(--text-muted);
-  }
-
-  .process-row:nth-child(1) .process-row-title {
-    display: block;
-    margin-bottom: 4px;
-    font-size: clamp(2.3rem, 9.6vw, 2.8rem);
-    line-height: 1;
-    letter-spacing: -0.028em;
-
-    &::after {
-      content: none;
+    .process-row {
+      display: block;
+      border-top: none;
+      padding: 0;
     }
-  }
 
-  .process-row:nth-child(2) {
-    padding-inline-start: clamp(18px, 6.5vw, 30px);
-  }
+    .process-row-num {
+      display: none;
+    }
 
-  .process-row:nth-child(3) {
-    padding-inline-start: clamp(34px, 13vw, 60px);
-  }
+    .process-row-content {
+      display: block;
+    }
 
-  .process-row:nth-child(4) {
-    padding-inline-start: clamp(52px, 20vw, 90px);
-  }
+    .process-row-title {
+      position: relative;
+      display: block;
+      margin: 0 0 6px;
+      font-family: var(--font-display);
+      font-size: clamp(1.34rem, 5.2vw, 1.6rem);
+      font-weight: 400;
+      line-height: 1.3;
+      letter-spacing: -0.016em;
+      color: var(--text);
 
-  #process .section-close-note {
-    padding-inline-start: clamp(52px, 20vw, 90px);
-  }
+      // The station: centred on the axis (container edge + 4.5px), level with
+      // the title's own x-height.
+      &::before {
+        content: "";
+        position: absolute;
+        inset-inline-start: -26px;
+        top: 0.65em;
+        width: 9px;
+        height: 9px;
+        margin-top: -4.5px;
+        border-radius: 50%;
+        background: var(--bg);
+        border: 1px solid var(--rule-strong);
+        transition: background-color 420ms var(--ease-smooth), border-color 420ms var(--ease-smooth);
+      }
+    }
+
+    .process-row.is-reached .process-row-title::before {
+      background: var(--brand-accent-dim);
+      border-color: var(--brand-accent-dim);
+    }
+
+    .process-row-desc {
+      display: block;
+      max-width: 30ch;
+      font-size: clamp(0.98rem, 2.9vw, 1.06rem);
+      line-height: 1.6;
+      color: var(--text-muted);
+    }
+
+    // Rhythm without cloning: the opening title is set a size up, the second
+    // and fourth descriptions hold a shorter measure, the third stage takes
+    // a touch more air above it.
+    .process-row:first-child .process-row-title {
+      font-size: clamp(1.62rem, 6.4vw, 1.92rem);
+    }
+
+    .process-row:nth-child(2) .process-row-desc,
+    .process-row:nth-child(4) .process-row-desc {
+      max-width: 26ch;
+    }
+
+    .process-row:nth-child(3) {
+      padding-top: 6px;
+    }
+
+    #process .section-close-note {
+      padding-inline-start: 26px;
+    }
   }
 
   // TABLET (768-1023): unchanged from the previous release, on purpose - this
@@ -7537,6 +7598,139 @@ div[id] {
   .process-row:nth-child(4) .process-row-desc {
     max-width: 27ch;
   }
+  }
+
+  @media (max-width: 767.98px) {
+    // ─── PAIN POINTS: ONE ACCUMULATING THOUGHT ────────────────────────────────
+    // These are not six steps, so the numbers and the rules between them are
+    // gone. The six sentences are set as one build-up in the display face:
+    // two opening recognitions, then the pivot ("you don't really know what
+    // to post") a size up and stepped in, then the two shortages as a quiet
+    // close pair, and the consequence at the end at almost twice the scale,
+    // with the word it all comes down to in the brand blue - the only blue
+    // in the composition. The dark plate answers it directly below.
+    .problem-list {
+      display: block;
+      max-width: none;
+    }
+
+    .problem-item {
+      display: block;
+      padding: 0;
+      border: 0;
+    }
+
+    .problem-num {
+      display: none;
+    }
+
+    .problem-item p {
+      max-width: none;
+      font-family: var(--font-display);
+      font-weight: 400;
+      color: var(--text);
+      text-wrap: balance;
+    }
+
+    .problem-item:nth-child(1) p,
+    .problem-item:nth-child(2) p {
+      font-size: clamp(1.26rem, 4.5vw, 1.48rem);
+      line-height: 1.24;
+      letter-spacing: -0.014em;
+    }
+
+    .problem-item:nth-child(2) {
+      margin-top: 10px;
+      padding-inline-start: clamp(18px, 6.5vw, 30px);
+    }
+
+    .problem-item:nth-child(2) p {
+      color: var(--text-muted);
+    }
+
+    .problem-item:nth-child(3) {
+      margin-top: clamp(22px, 3.4vh, 30px);
+    }
+
+    .problem-item:nth-child(3) p {
+      font-size: clamp(1.64rem, 6.6vw, 2rem);
+      line-height: 1.1;
+      letter-spacing: -0.022em;
+    }
+
+    .problem-item:nth-child(4) {
+      margin-top: clamp(20px, 3vh, 26px);
+    }
+
+    .problem-item:nth-child(4),
+    .problem-item:nth-child(5) {
+      padding-inline-start: clamp(18px, 6.5vw, 30px);
+    }
+
+    .problem-item:nth-child(5) {
+      margin-top: 4px;
+    }
+
+    .problem-item:nth-child(4) p,
+    .problem-item:nth-child(5) p {
+      font-family: var(--font-body);
+      font-size: clamp(0.98rem, 2.9vw, 1.06rem);
+      line-height: 1.5;
+      color: var(--text-muted);
+    }
+
+    .problem-item--final {
+      margin-top: clamp(28px, 4.4vh, 38px);
+      border: 0;
+    }
+
+    .problem-item--final p {
+      font-size: clamp(2.05rem, 8.8vw, 2.55rem);
+      line-height: 1.04;
+      letter-spacing: -0.03em;
+      color: var(--text);
+    }
+
+    .problem-key {
+      color: var(--brand-accent-dim);
+    }
+
+    // ─── SERVICES: AN INDEX OF CAPABILITIES, NOT FOUR NUMBERED ROWS ───────────
+    // The four are what she does, not an order to do it in, so the numerals
+    // and the rules go. Each title stands in the display face at the reading
+    // edge; its description hangs in a shorter measure beneath it, indented,
+    // the way an index entry carries its detail. The set is held together by
+    // that one repeated relationship and by air - the section's blue is
+    // already spent on the headline above.
+    .services-matrix {
+      gap: clamp(22px, 3.6vh, 30px);
+    }
+
+    .services-row {
+      display: block;
+      padding: 0;
+      border-top: 0;
+    }
+
+    .services-row-num {
+      display: none;
+    }
+
+    .services-row-title {
+      margin-bottom: 6px;
+      font-family: var(--font-display);
+      font-size: clamp(1.5rem, 5.8vw, 1.8rem);
+      font-weight: 400;
+      line-height: 1.1;
+      letter-spacing: -0.02em;
+    }
+
+    .services-row-tags {
+      max-width: 34ch;
+      padding-inline-start: clamp(14px, 4.6vw, 20px);
+      font-size: clamp(0.92rem, 2.7vw, 1rem);
+      line-height: 1.55;
+    }
   }
 
   // Portfolio reel mobile

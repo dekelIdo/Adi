@@ -864,6 +864,7 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy {
     this.initCursorGlow();
     this.initReelPlayback();
     this.initReelDrag();
+    this.initProcessJourney();
     // THE TWO SCROLL CINEMATICS RUN AT EVERY WIDTH. The studio photograph
     // (the phone that opens into the WORK chapter) and the laptop bridge are
     // one implementation with one camera; their stylesheet rules apply at
@@ -2396,6 +2397,63 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy {
     outer.addEventListener('dragstart', (e) => e.preventDefault());
 
     if (phone.matches) start();
+  }
+
+  // ─── Process journey axis (phone) ────────────────────────────────────────────
+  //
+  // The four stages sit on one hairline at the reading edge (see the phone
+  // rules under .process-editorial). This measures where the first and last
+  // stations are, so the line runs exactly between them, and then lets a blue
+  // length of it grow down the line as the visitor scrolls, marking each
+  // station as it is passed. Everything is a custom property or a class on
+  // elements that are already laid out, so nothing here moves the page.
+  // Under reduced motion the line is simply complete.
+  private initProcessJourney(): void {
+    if (!window.matchMedia('(max-width: 767.98px)').matches) return;
+    const wrap = document.querySelector<HTMLElement>('.process-editorial');
+    const rows = Array.from(document.querySelectorAll<HTMLElement>('.process-row'));
+    const pipeline = this.pipeline;
+    if (!wrap || rows.length < 2 || !pipeline) return;
+    const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    let stations: number[] = []; // document y of each station
+    let axisTop = 0;
+    let axisLen = 0;
+    let lastJourney = -1;
+    const reached = rows.map(() => false);
+
+    pipeline.add({
+      measure: (f) => {
+        const wrapTop = wrap.getBoundingClientRect().top + f.y;
+        stations = rows.map((row) => {
+          const title = row.querySelector<HTMLElement>('.process-row-title');
+          if (!title) return wrapTop;
+          const r = title.getBoundingClientRect();
+          return r.top + f.y + parseFloat(getComputedStyle(title).fontSize) * 0.65;
+        });
+        axisTop = stations[0] - wrapTop;
+        axisLen = stations[stations.length - 1] - stations[0];
+      },
+      write: (f) => {
+        wrap.style.setProperty('--axis-top', `${axisTop.toFixed(1)}px`);
+        wrap.style.setProperty('--axis-len', `${axisLen.toFixed(1)}px`);
+        // The reading line: a little below the middle of the screen, where a
+        // title is when it is being read rather than when it first appears.
+        const ref = reduced ? Infinity : f.y + f.vh * 0.58;
+        const journey = Math.max(0, Math.min(axisLen, ref - stations[0]));
+        if (Math.abs(journey - lastJourney) > 0.5) {
+          lastJourney = journey;
+          wrap.style.setProperty('--journey', `${journey.toFixed(1)}px`);
+        }
+        rows.forEach((row, i) => {
+          const on = stations[i] <= ref;
+          if (on !== reached[i]) {
+            reached[i] = on;
+            row.classList.toggle('is-reached', on);
+          }
+        });
+      },
+    });
   }
 
   // ─── Section ambient indicator ────────────────────────────────────────────
