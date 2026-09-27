@@ -7629,32 +7629,27 @@ div[id] {
   @media (max-width: 767.98px) {
     // ─── PAIN POINTS: THE SOCIAL MIRROR ──────────────────────────────────────
     // One composed diagnostic object under the heading, in three zones on the
-    // page's own surface - nothing boxed. THE SETUP: the two things she did,
-    // one compact block on the reading edge at four-fifths of the width. THE
-    // MIRROR: an open frame - two thin powder-blue strokes, a short one along
-    // the top-right and a longer one down the left edge, never meeting - and
-    // inside it the pivot in the display face with the two shortages beneath
-    // it as a two-column pair, each balanced onto two lines, equal in size and
-    // weight. THE VERDICT: outside the frame, after a breath, the consequence
-    // at its largest with "לקוחות" the only blue word, landing one breath
-    // above the dark plate. The list is a two-column grid: every line spans
-    // both columns except the pair, which takes one each - so the pair is a
-    // pair by geometry, and nothing is drawn between them.
+    // page's own surface - nothing boxed, nothing framed. THE SETUP: the two
+    // things she did, one compact block on the reading edge at four-fifths of
+    // the width. THE MIRROR: the pivot in the display face, and directly
+    // under it the two shortages as one supporting block - the same size,
+    // weight, colour and width, on the reading edge, held together by the one
+    // blue gesture in the zone: a single powder-blue hairline on their reading
+    // edge that runs exactly from the top of the first to the bottom of the
+    // second, like an editor's annotation mark. THE VERDICT: after a breath,
+    // the consequence at its largest with "לקוחות" the only blue word,
+    // landing one breath above the dark plate.
     .problem-header {
       margin-bottom: clamp(18px, 2.6vh, 24px);
     }
 
     .problem-list {
-      display: grid;
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-      column-gap: clamp(18px, 6vw, 28px);
-      row-gap: 0;
+      display: block;
       max-width: none;
       margin: 0;
     }
 
     .problem-item {
-      grid-column: 1 / -1;
       display: block;
       padding: 0;
       border: 0;
@@ -7671,7 +7666,6 @@ div[id] {
 
     // ZONE A - THE SETUP. One thought in two calm sentences.
     .problem-item--opening {
-      justify-self: start;
       max-width: 80%;
     }
 
@@ -7688,34 +7682,9 @@ div[id] {
       margin-top: 5px;
     }
 
-    // ZONE B - THE MIRROR. The open frame is drawn on the pivot: the short
-    // stroke across the top at the reading edge, the long one down the left
-    // edge from the same top line. Neither reaches the other.
+    // ZONE B - THE MIRROR. The pivot, dominant.
     .problem-item--pivot {
-      position: relative;
       margin-top: clamp(20px, 3vh, 26px);
-      padding-top: 12px;
-
-      &::before,
-      &::after {
-        content: "";
-        position: absolute;
-        top: 0;
-        background: var(--brand-accent-dim);
-        pointer-events: none;
-      }
-
-      &::before {
-        inset-inline-start: 0;
-        width: 48px;
-        height: 1px;
-      }
-
-      &::after {
-        inset-inline-end: 0;
-        width: 1px;
-        height: 70px;
-      }
     }
 
     .problem-item--pivot p {
@@ -7727,29 +7696,31 @@ div[id] {
       color: var(--text);
     }
 
-    // The two shortages: one column each, the same measure, each balanced
-    // onto two lines - a pair by geometry.
+    // The two shortages: one supporting block at three-quarters of the
+    // width, one hairline on its reading edge. The pair's own 5px gap lives
+    // inside the first item, so the two borders meet as one unbroken line
+    // that runs exactly the height of the pair.
     .problem-item--lack {
-      grid-column: auto;
-      margin-top: 14px;
+      width: 75%;
+      border-inline-start: 1px solid var(--brand-accent-dim);
+      padding-inline-start: 14px;
     }
 
-    .problem-item--lack:last-of-type,
-    .problem-item--lack + .problem-item--lack {
-      padding-inline-end: 12px;
+    .problem-item--pivot + .problem-item--lack {
+      margin-top: 16px;
+      padding-bottom: 5px;
     }
 
     .problem-item--lack p {
-      max-width: 14ch;
       font-family: var(--font-body);
-      font-size: clamp(0.94rem, 3.9vw, 0.98rem);
+      font-size: clamp(0.95rem, 3.9vw, 1rem);
       font-weight: 500;
-      line-height: 1.45;
+      line-height: 1.5;
       letter-spacing: 0;
       color: color-mix(in srgb, var(--text) 80%, var(--text-muted));
     }
 
-    // ZONE C - THE VERDICT. Outside the frame, after a breath.
+    // ZONE C - THE VERDICT. After a breath.
     .problem-item--final {
       margin-top: clamp(22px, 3.2vh, 28px);
       border: 0;
