@@ -7627,21 +7627,27 @@ div[id] {
   }
 
   @media (max-width: 767.98px) {
-    // ─── PAIN POINTS: ONE EDITORIAL DIAGNOSIS ────────────────────────────────
-    // Six sentences, one composition, three sizes - read the way a diagnosis
-    // is written. The opening pair (what you did) is set close, as one
-    // thought. A pause, then the pivot (what you don't actually know) a size
-    // up on the reading edge, with the room around it doing the work. Hanging
-    // off the pivot, stepped in together as one block, the two things that are
-    // missing - a pair by alignment and proximity, nothing drawn around them.
-    // The longest pause, and the consequence: the largest line, and the one
-    // word it all comes down to in the brand blue, the only blue here. The
-    // dark plate directly below is the answer. The one indent in the
-    // composition belongs to the pair that depends on the pivot, which is
-    // the reason it is the only thing indented.
+    // ─── PAIN POINTS: TENSION → RELEASE ──────────────────────────────────────
+    // One typographic stage - the central 86% of the content width - and every
+    // line set on its reading edge inside it. The composition tightens as the
+    // problems accumulate and releases into the consequence. A calm opening
+    // pair in the text face, 7px apart. A breath, then the pivot: the display
+    // face, a third larger. Pressed under it, the two shortages as one object:
+    // a single powder-blue hairline at their reading edge and nothing else -
+    // not a timeline, a quotation mark drawn as a line. Then the release: the
+    // consequence at one and two-thirds the narrative size, "לקוחות" the only
+    // blue word, one breath above the dark plate that answers it. The three
+    // sizes derive from one value, so the hierarchy is a ratio, not guesses.
+    .problem-header {
+      margin-bottom: clamp(18px, 2.6vh, 24px);
+    }
+
     .problem-list {
+      --dx: clamp(1.1rem, 4.6vw, 1.25rem);
       display: block;
+      width: 86%;
       max-width: none;
+      margin-inline: auto;
     }
 
     .problem-item {
@@ -7654,59 +7660,65 @@ div[id] {
       display: none;
     }
 
-    // Level one: the narrative size, shared by the opening pair and the pair
-    // of shortages. Everything not the pivot or the consequence is this.
+    // Narrative size (1.0): the opening pair and the two shortages.
     .problem-item p {
       max-width: none;
-      font-family: var(--font-display);
-      font-size: clamp(1.32rem, 4.8vw, 1.58rem);
-      font-weight: 400;
-      line-height: 1.26;
-      letter-spacing: -0.014em;
-      color: color-mix(in srgb, var(--text) 86%, var(--text-muted));
+      font-family: var(--font-body);
+      font-size: var(--dx);
+      font-weight: 500;
+      line-height: 1.4;
+      letter-spacing: 0;
+      color: color-mix(in srgb, var(--text) 88%, var(--text-muted));
       text-wrap: balance;
     }
 
     .problem-item--opening + .problem-item--opening {
-      margin-top: 6px;
+      margin-top: 7px;
     }
 
-    // Level two: the pivot. A size up, on the reading edge, balanced into
-    // two lines, with a pause above it.
+    // The pivot (1.32): the interruption, after a breath.
     .problem-item--pivot {
-      margin-top: clamp(22px, 3.2vh, 30px);
+      margin-top: clamp(20px, 3vh, 26px);
     }
 
     .problem-item--pivot p {
-      font-size: clamp(1.72rem, 6.7vw, 2.06rem);
-      line-height: 1.12;
-      letter-spacing: -0.022em;
+      font-family: var(--font-display);
+      font-size: calc(var(--dx) * 1.32);
+      font-weight: 400;
+      line-height: 1.16;
+      letter-spacing: -0.018em;
       color: var(--text);
     }
 
-    // The two shortages hang off the pivot: one step in, close together.
+    // The two shortages: one hairline, one object. The pair's own gap lives
+    // inside the first item, so the two borders meet as one unbroken line
+    // that runs exactly the height of the pair.
     .problem-item--lack {
-      padding-inline-start: clamp(20px, 7vw, 32px);
+      border-inline-start: 1px solid var(--brand-accent-dim);
+      padding-inline-start: clamp(12px, 3.6vw, 16px);
     }
 
     .problem-item--pivot + .problem-item--lack {
-      margin-top: clamp(12px, 1.8vh, 16px);
+      margin-top: clamp(14px, 2vh, 18px);
+      padding-bottom: 6px;
     }
 
     .problem-item--lack + .problem-item--lack {
-      margin-top: 4px;
+      margin-top: 0;
     }
 
-    // Level three: the consequence, after the longest pause.
+    // The consequence (1.65): the release.
     .problem-item--final {
-      margin-top: clamp(26px, 3.8vh, 34px);
+      margin-top: clamp(24px, 3.6vh, 32px);
       border: 0;
     }
 
     .problem-item--final p {
-      font-size: clamp(2.02rem, 8.2vw, 2.45rem);
-      line-height: 1.06;
-      letter-spacing: -0.03em;
+      font-family: var(--font-display);
+      font-size: calc(var(--dx) * 1.65);
+      font-weight: 400;
+      line-height: 1.08;
+      letter-spacing: -0.026em;
       color: var(--text);
     }
 
@@ -7714,114 +7726,85 @@ div[id] {
       color: var(--brand-accent-dim);
     }
 
-    // ─── SERVICES: ONE EDITORIAL FIELD, FOUR ANCHORS ─────────────────────────
-    // Not four paragraphs in a column. The four titles are the anchors of one
-    // spread and the descriptions its depth; what holds the spread together is
-    // a single gesture - two powder-blue corner marks, top-right and
-    // bottom-left, set just outside the field's text - and a rhythm that keeps
-    // the four from sitting in one line: the first at the edge with its
-    // detail hung in, the second stepped in on a shorter measure, the third
-    // back at the edge on a fuller one, the fourth half a step in, resolving
-    // toward the closing mark and the CTA beneath it. No numbers, no rules
-    // between anything, no icons; the titles are peers.
+    // ─── SERVICES: ONE TYPOGRAPHIC SERVICE MAP ──────────────────────────────
+    // Four parts of one system, not four steps - so on the phone they are one
+    // 2 × 2 field: strategy top-right, content top-left, management
+    // bottom-right, data bottom-left, in reading order. Nothing is drawn: no
+    // cells, no borders, no backgrounds - two columns of type and the gutters
+    // between them are the grid. The one gesture belongs to the whole field:
+    // a small powder-blue corner mark at the point where the four quadrants
+    // meet, a registration mark for the composition, short enough that it can
+    // never read as a divider. The titles are peers: one face, one size, one
+    // weight, wrapping as they need to.
     .services-header {
-      margin-bottom: clamp(30px, 4.6vh, 40px);
+      margin-bottom: clamp(24px, 3.6vh, 32px);
     }
 
     .services-matrix {
+      --sv-col: clamp(22px, 7vw, 32px);
+      --sv-row: clamp(26px, 4vh, 36px);
       position: relative;
-      gap: 0;
-      padding-block: 4px 8px;
-
-      &::before,
-      &::after {
-        content: "";
-        position: absolute;
-        width: 26px;
-        height: 26px;
-        pointer-events: none;
-      }
-
-      &::before {
-        top: -10px;
-        inset-inline-start: -14px;
-        border-top: 2px solid var(--brand-accent);
-        border-inline-start: 2px solid var(--brand-accent);
-      }
-
-      &::after {
-        bottom: -10px;
-        inset-inline-end: -14px;
-        border-bottom: 2px solid var(--brand-accent);
-        border-inline-end: 2px solid var(--brand-accent);
-      }
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      column-gap: var(--sv-col);
+      row-gap: var(--sv-row);
+      padding: 0;
     }
 
     .services-row {
       display: block;
+      min-width: 0;
       padding: 0;
       border-top: 0;
-    }
-
-    .services-row + .services-row {
-      margin-top: clamp(26px, 4vh, 34px);
     }
 
     .services-row-num {
       display: none;
     }
 
+    .services-row-body {
+      display: block;
+    }
+
     .services-row-title {
       margin-bottom: 8px;
       font-family: var(--font-display);
-      font-size: clamp(1.66rem, 6.4vw, 1.96rem);
+      font-size: clamp(1.2rem, 5.1vw, 1.42rem);
       font-weight: 400;
-      line-height: 1.08;
-      letter-spacing: -0.022em;
+      line-height: 1.12;
+      letter-spacing: -0.018em;
       color: var(--text);
+      text-wrap: balance;
     }
 
     .services-row-tags {
-      font-size: clamp(1.04rem, 3.1vw, 1.12rem);
-      line-height: 1.58;
-      color: color-mix(in srgb, var(--text) 78%, var(--text-muted));
+      font-size: clamp(1rem, 4.1vw, 1.08rem);
+      line-height: 1.5;
+      color: color-mix(in srgb, var(--text) 80%, var(--text-muted));
+      text-wrap: pretty;
     }
 
-    .services-row:nth-child(1) .services-row-tags {
-      padding-inline-start: clamp(20px, 6.5vw, 30px);
-      max-width: 32ch;
+    // The registration mark: its corner exactly at the meeting point of the
+    // two gutters, its two 10px arms turned toward the reading edge and down.
+    .services-row:first-child {
+      position: relative;
+
+      &::after {
+        content: "";
+        position: absolute;
+        top: calc(100% + var(--sv-row) / 2);
+        inset-inline-end: calc(var(--sv-col) / -2);
+        width: 10px;
+        height: 10px;
+        border-top: 1px solid var(--brand-accent-dim);
+        border-inline-end: 1px solid var(--brand-accent-dim);
+        pointer-events: none;
+      }
     }
 
-    .services-row:nth-child(2) {
-      padding-inline-start: clamp(30px, 10vw, 46px);
-    }
-
-    .services-row:nth-child(2) .services-row-tags {
-      max-width: 26ch;
-    }
-
-    .services-row:nth-child(3) {
-      margin-top: clamp(32px, 5vh, 42px);
-    }
-
-    .services-row:nth-child(3) .services-row-tags {
-      max-width: 36ch;
-    }
-
-    .services-row:nth-child(4) {
-      padding-inline-start: clamp(14px, 4.8vw, 22px);
-    }
-
-    .services-row:nth-child(4) .services-row-tags {
-      padding-inline-start: clamp(20px, 6.5vw, 30px);
-      max-width: 30ch;
-    }
-
-    // The CTA resolves the field: at the reading edge, a short breath below
-    // the closing mark - the last move of the spread, not a button left over
-    // after the text.
+    // The CTA resolves the field at its reading edge, one clear step below it.
     .services-footer {
-      margin-top: clamp(30px, 4.6vh, 40px);
+      margin-top: clamp(28px, 4.2vh, 36px);
       margin-inline-start: 0;
       padding: 0;
       border-top: 0;
