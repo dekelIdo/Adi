@@ -2165,6 +2165,13 @@ select {
   padding: var(--space-lg) 0;
 }
 
+// The phone chapter's closing photograph. Tablet and desktop keep their own
+// composition and never show it.
+.problem-photo {
+  display: none;
+  margin: 0;
+}
+
 .problem-header {
   text-align: start;
   max-width: 800px;
@@ -7627,26 +7634,32 @@ div[id] {
   }
 
   @media (max-width: 767.98px) {
-    // ─── PAIN POINTS: THE SOCIAL MIRROR ──────────────────────────────────────
-    // One composed diagnostic object under the heading, in three zones on the
-    // page's own surface - nothing boxed, nothing framed. THE SETUP: the two
-    // things she did, one compact block on the reading edge at four-fifths of
-    // the width. THE MIRROR: the pivot in the display face, and directly
-    // under it the two shortages as one supporting block - the same size,
-    // weight, colour and width, on the reading edge, held together by the one
-    // blue gesture in the zone: a single powder-blue hairline on their reading
-    // edge that runs exactly from the top of the first to the bottom of the
-    // second, like an editor's annotation mark. THE VERDICT: after a breath,
-    // the consequence at its largest with "לקוחות" the only blue word,
-    // landing one breath above the dark plate.
+    // ─── PAIN POINTS: THE DEEP-BLUE PANEL ────────────────────────────────────
+    // Under the heading, one branded object: a deep-blue panel carrying the
+    // six sentences as four vertical beats - the setup (two quiet lines), the
+    // pivot (display face, a step inward), the compressed pair of shortages,
+    // and the conclusion at its strongest with "לקוחות" the one blue word -
+    // then, almost immediately, a real photograph of Adi whose top edge
+    // dissolves out of the page as the eye travels down. No numbers, no
+    // rows, no cells: negative space and one short hairline before the
+    // conclusion are the only structure. The panel and the photograph share
+    // one edge, 16px in from the viewport, so they read as one chapter. The
+    // blue is the panel's own (no such dark exists in the tokens), scoped
+    // here and nowhere else.
     .problem-header {
       margin-bottom: clamp(18px, 2.6vh, 24px);
     }
 
     .problem-list {
+      --panel-ink: #12314a;
+      --panel-text: #f6f3ef;
       display: block;
       max-width: none;
-      margin: 0;
+      margin: 0 calc(16px - var(--container-padding));
+      padding: clamp(26px, 3.6vh, 32px) clamp(24px, 6.6vw, 28px);
+      border-radius: 24px;
+      background: var(--panel-ink);
+      color: var(--panel-text);
     }
 
     .problem-item {
@@ -7661,86 +7674,125 @@ div[id] {
 
     .problem-item p {
       max-width: none;
-      text-wrap: balance;
+      color: inherit;
     }
 
-    // ZONE A - THE SETUP. One thought in two calm sentences.
-    .problem-item--opening {
-      max-width: 80%;
-    }
-
+    // BEAT A - the setup: two quiet lines on the reading edge.
     .problem-item--opening p {
       font-family: var(--font-body);
-      font-size: clamp(1.03rem, 4.4vw, 1.1rem);
-      font-weight: 480;
-      line-height: 1.55;
+      font-size: clamp(1rem, 4.2vw, 1.06rem);
+      font-weight: 450;
+      line-height: 1.5;
       letter-spacing: 0;
-      color: color-mix(in srgb, var(--text) 88%, var(--text-muted));
+      color: color-mix(in srgb, var(--panel-text) 84%, transparent);
     }
 
     .problem-item--opening + .problem-item--opening {
-      margin-top: 5px;
+      margin-top: 4px;
     }
 
-    // ZONE B - THE MIRROR. The pivot, dominant.
+    // BEAT B - the pivot: the display face, one step inward.
     .problem-item--pivot {
-      margin-top: clamp(20px, 3vh, 26px);
+      margin-top: clamp(18px, 2.6vh, 22px);
+      padding-inline-start: 14px;
     }
 
     .problem-item--pivot p {
       font-family: var(--font-display);
-      font-size: clamp(1.5rem, 6.7vw, 1.7rem);
+      font-size: clamp(1.3rem, 5.6vw, 1.45rem);
       font-weight: 400;
-      line-height: 1.2;
-      letter-spacing: -0.018em;
-      color: var(--text);
+      line-height: 1.22;
+      letter-spacing: -0.016em;
+      text-wrap: balance;
     }
 
-    // The two shortages: one supporting block at three-quarters of the
-    // width, one hairline on its reading edge. The pair's own 5px gap lives
-    // inside the first item, so the two borders meet as one unbroken line
-    // that runs exactly the height of the pair.
-    .problem-item--lack {
-      width: 75%;
-      border-inline-start: 1px solid var(--brand-accent-dim);
-      padding-inline-start: 14px;
+    // BEAT C - the two shortages, compressed, back on the reading edge.
+    .problem-item--lack p {
+      font-family: var(--font-body);
+      font-size: clamp(0.98rem, 4.1vw, 1.03rem);
+      font-weight: 500;
+      line-height: 1.45;
+      letter-spacing: 0;
+      color: color-mix(in srgb, var(--panel-text) 90%, transparent);
     }
 
     .problem-item--pivot + .problem-item--lack {
       margin-top: 16px;
-      padding-bottom: 5px;
     }
 
-    .problem-item--lack p {
-      font-family: var(--font-body);
-      font-size: clamp(0.95rem, 3.9vw, 1rem);
-      font-weight: 500;
-      line-height: 1.5;
-      letter-spacing: 0;
-      color: color-mix(in srgb, var(--text) 80%, var(--text-muted));
+    .problem-item--lack + .problem-item--lack {
+      margin-top: 4px;
     }
 
-    // ZONE C - THE VERDICT. After a breath.
+    // BEAT D - the conclusion, after the panel's one hairline: 32px of
+    // powder blue at the reading edge, the "therefore" without a word.
     .problem-item--final {
-      margin-top: clamp(22px, 3.2vh, 28px);
+      margin-top: 18px;
       border: 0;
+
+      &::before {
+        content: "";
+        display: block;
+        width: 32px;
+        height: 1px;
+        margin-bottom: 14px;
+        background: color-mix(in srgb, var(--brand-accent) 48%, transparent);
+      }
     }
 
-    // Held to a measure that breaks it as two balanced lines - "והעמוד פשוט
-    // לא" over "מביא לקוחות." - at every phone width, not one long line where
-    // the width happens to allow it.
     .problem-item--final p {
-      max-width: 16ch;
       font-family: var(--font-display);
-      font-size: clamp(1.75rem, 7.7vw, 1.95rem);
+      font-size: clamp(1.4rem, 6.2vw, 1.6rem);
       font-weight: 400;
-      line-height: 1.15;
-      letter-spacing: -0.024em;
-      color: var(--text);
+      line-height: 1.18;
+      letter-spacing: -0.02em;
+      text-wrap: balance;
     }
 
     .problem-key {
-      color: var(--brand-accent-dim);
+      color: var(--brand-accent);
+    }
+
+    // THE PHOTOGRAPH. Same edges as the panel, 8px below it, a 4:5 portrait
+    // crop positioned so her face and hands sit in the clear. Its top edge is
+    // dissolved by a mask that runs from fully transparent at the top to
+    // fully opaque by 30% of the height, so the picture emerges out of the
+    // page rather than starting as a hard rectangle; WebKit gets the same
+    // mask through its prefixed property.
+    .problem-photo {
+      display: block;
+      margin: 8px calc(16px - var(--container-padding)) 0;
+      border-radius: 18px;
+      overflow: hidden;
+      -webkit-mask-image: linear-gradient(
+        to bottom,
+        transparent 0%,
+        rgba(0, 0, 0, 0.35) 12%,
+        rgba(0, 0, 0, 0.85) 22%,
+        #000 30%,
+        #000 100%
+      );
+      mask-image: linear-gradient(
+        to bottom,
+        transparent 0%,
+        rgba(0, 0, 0, 0.35) 12%,
+        rgba(0, 0, 0, 0.85) 22%,
+        #000 30%,
+        #000 100%
+      );
+
+      picture,
+      img {
+        display: block;
+        width: 100%;
+      }
+
+      img {
+        aspect-ratio: 4 / 5;
+        height: auto;
+        object-fit: cover;
+        object-position: 50% 12%;
+      }
     }
 
     // ─── SERVICES: ONE TYPOGRAPHIC SERVICE MAP ──────────────────────────────
