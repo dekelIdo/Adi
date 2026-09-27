@@ -1380,6 +1380,12 @@ select {
   text-shadow: 0 2px 10px rgba(0, 0, 0, 0.18);
 }
 
+// The turn of the sentence in the brand blue - the one emphasis the dark
+// plate used to give this line, now living where the line lives.
+.hero-essence-turn {
+  color: var(--brand-accent);
+}
+
 // ────── Entrance: the hero composes itself once, slowly ──────
 
 @keyframes heroSettle {
@@ -2298,26 +2304,19 @@ div[id] {
   z-index: 1;
 }
 
-.brand-break-line-1 {
+// A CHAPTER BREAK, NOT A SECOND HERO. The plate used to repeat the hero's
+// proposition; the hero owns that line now, and this dark moment is the turn
+// from the pain above to her approach below, carried by the brand mark alone.
+// Latin, so the body face on purpose (Yarden has no Latin alphabet).
+.brand-break-mark {
   display: block;
-  font-family: var(--font-display);
-  font-size: clamp(3rem, 8vw, 6rem);
-  font-weight: 400;
-  line-height: 1.1;
-  color: rgba(255, 255, 255, 0.92);
-  letter-spacing: -0.04em;
-}
-
-.brand-break-line-2 {
-  display: block;
-  font-family: var(--font-display);
-  font-size: clamp(3rem, 8vw, 6rem);
-  font-weight: 400;
-  font-style: normal;
-  line-height: 1.1;
-  color: var(--brand-accent);
-  letter-spacing: -0.04em;
-  margin-bottom: var(--space-sm);
+  font-family: var(--font-body);
+  font-size: clamp(2.4rem, 10.5vw, 4rem);
+  font-weight: 600;
+  line-height: 1;
+  letter-spacing: 0.02em;
+  color: rgba(255, 255, 255, 0.94);
+  margin-bottom: clamp(10px, 1.6vh, 14px);
 }
 
 .brand-break-line-sub {
@@ -2737,7 +2736,7 @@ div[id] {
     grid-column: 2;
     padding-bottom: 12px;
     font-family: var(--font-body);
-    font-size: clamp(1rem, 3.6vw, 1.14rem);
+    font-size: clamp(1.06rem, 3.8vw, 1.2rem);
     font-weight: 400;
     letter-spacing: -0.01em;
     color: var(--text-light);
@@ -2772,11 +2771,11 @@ div[id] {
 
   .duo-card--muted li {
     font-family: var(--font-body);
-    font-size: clamp(0.84rem, 2.7vw, 0.92rem);
+    font-size: clamp(0.94rem, 3vw, 1.02rem);
     line-height: 1.42;
     letter-spacing: -0.01em;
     color: var(--text-muted);
-    opacity: 0.62;
+    opacity: 0.72;
   }
 
   // THE PAYOFF. The line with no counterpart, set largest and given the
@@ -4866,30 +4865,33 @@ div[id] {
     border-top: none;
   }
 
+  // The sentence is set in the display face at a real reading size and its
+  // carrying word is only about half again as large - enough to lead the
+  // eye, not so much that the rest of the line turns into a caption.
   .why-statement-text {
     display: block;
     font-family: var(--font-display);
-    font-size: clamp(1.12rem, 3.7vw, 1.28rem);
+    font-size: clamp(1.3rem, 4.4vw, 1.5rem);
     font-weight: 400;
     letter-spacing: -0.012em;
-    line-height: 1.22;
-    color: var(--text-muted);
+    line-height: 1.24;
+    color: color-mix(in srgb, var(--text) 82%, var(--text-muted));
     text-wrap: balance;
   }
 
   .why-key {
-    font-size: clamp(1.9rem, 7.2vw, 2.25rem);
+    font-size: clamp(1.85rem, 6.6vw, 2.15rem);
     line-height: 1;
-    letter-spacing: -0.024em;
+    letter-spacing: -0.022em;
     color: var(--text);
   }
 
   .why-statement:nth-child(2) {
-    padding-inline-start: clamp(26px, 10vw, 44px);
+    padding-inline-start: clamp(22px, 8vw, 36px);
   }
 
   .why-statement:nth-child(2) .why-key {
-    font-size: clamp(2.3rem, 9vw, 2.8rem);
+    font-size: clamp(2.1rem, 7.8vw, 2.5rem);
   }
 
   .why-statement:nth-child(3) .why-key {
@@ -4933,9 +4935,9 @@ div[id] {
   }
 
   .audience-statement p {
-    font-size: clamp(0.92rem, 2.7vw, 1rem);
+    font-size: clamp(1.04rem, 3.1vw, 1.12rem);
     line-height: 1.6;
-    color: var(--text-muted);
+    color: color-mix(in srgb, var(--text) 78%, var(--text-muted));
   }
 
   .audience-statement:nth-child(2) p::before,
@@ -4950,9 +4952,9 @@ div[id] {
 
   .audience-statement:last-child p {
     display: block;
-    margin-top: 12px;
+    margin-top: 14px;
     font-family: var(--font-display);
-    font-size: clamp(1.3rem, 4.9vw, 1.52rem);
+    font-size: clamp(1.42rem, 5.3vw, 1.66rem);
     line-height: 1.22;
     letter-spacing: -0.016em;
     color: var(--text);
@@ -7250,9 +7252,9 @@ div[id] {
   }
 
   .hero-signature {
-    font-size: clamp(0.7rem, 1.9vw, 0.76rem);
-    margin-bottom: 7px;
-    letter-spacing: 0.09em;
+    font-size: clamp(0.8rem, 2.3vw, 0.88rem);
+    margin-bottom: 8px;
+    letter-spacing: 0.1em;
   }
 
   .hero-essence {
@@ -7501,9 +7503,9 @@ div[id] {
     .process-row-desc {
       display: block;
       max-width: 30ch;
-      font-size: clamp(0.98rem, 2.9vw, 1.06rem);
-      line-height: 1.6;
-      color: var(--text-muted);
+      font-size: clamp(1.04rem, 3.1vw, 1.12rem);
+      line-height: 1.58;
+      color: color-mix(in srgb, var(--text) 74%, var(--text-muted));
     }
 
     // Rhythm without cloning: the opening title is set a size up, the second
@@ -7674,9 +7676,9 @@ div[id] {
     .problem-item:nth-child(4) p,
     .problem-item:nth-child(5) p {
       font-family: var(--font-body);
-      font-size: clamp(0.98rem, 2.9vw, 1.06rem);
+      font-size: clamp(1.06rem, 3.2vw, 1.14rem);
       line-height: 1.5;
-      color: var(--text-muted);
+      color: color-mix(in srgb, var(--text) 78%, var(--text-muted));
     }
 
     .problem-item--final {
@@ -7702,8 +7704,16 @@ div[id] {
     // the way an index entry carries its detail. The set is held together by
     // that one repeated relationship and by air - the section's blue is
     // already spent on the headline above.
+    // THE DEVICE IS THE INDENT. Every title stands at the reading edge in the
+    // display face; every description hangs one deep, consistent step in
+    // from it - the same relationship four times, which is what makes the
+    // four read as one index rather than four paragraphs. The closing CTA
+    // sits on that same hanging edge under a single hairline, so it is the
+    // index's last entry and not a button left after the text ran out. The
+    // section's blue is the headline's "Social-Li" and the CTA itself.
     .services-matrix {
-      gap: clamp(22px, 3.6vh, 30px);
+      --index-indent: clamp(26px, 8.5vw, 38px);
+      gap: clamp(24px, 3.8vh, 32px);
     }
 
     .services-row {
@@ -7717,19 +7727,28 @@ div[id] {
     }
 
     .services-row-title {
-      margin-bottom: 6px;
+      margin-bottom: 8px;
       font-family: var(--font-display);
-      font-size: clamp(1.5rem, 5.8vw, 1.8rem);
+      font-size: clamp(1.56rem, 6vw, 1.86rem);
       font-weight: 400;
       line-height: 1.1;
       letter-spacing: -0.02em;
     }
 
     .services-row-tags {
-      max-width: 34ch;
-      padding-inline-start: clamp(14px, 4.6vw, 20px);
-      font-size: clamp(0.92rem, 2.7vw, 1rem);
-      line-height: 1.55;
+      max-width: 32ch;
+      padding-inline-start: var(--index-indent);
+      font-size: clamp(1.04rem, 3.1vw, 1.12rem);
+      line-height: 1.58;
+      color: color-mix(in srgb, var(--text) 78%, var(--text-muted));
+    }
+
+    .services-footer {
+      margin-top: clamp(26px, 4vh, 34px);
+      margin-inline-start: 0;
+      padding-top: clamp(20px, 3vh, 26px);
+      padding-inline-start: clamp(26px, 8.5vw, 38px);
+      border-top: 1px solid var(--rule-strong);
     }
   }
 
@@ -8755,20 +8774,14 @@ div[id] {
     padding-block: clamp(56px, 5.4vw, 84px);
   }
 
-  .brand-break-line-1,
-  .brand-break-line-2 {
-    display: inline;
-    font-size: clamp(2.6rem, 3.6vw, 4.2rem);
-    line-height: 1.15;
-  }
-
-  .brand-break-line-2 {
-    margin-inline-start: 0.3em;
+  .brand-break-mark {
+    font-size: clamp(2.8rem, 3.8vw, 4.6rem);
+    margin-bottom: 0;
   }
 
   .brand-break-line-sub {
     display: block;
-    margin-top: clamp(16px, 1.5vw, 24px);
+    margin-top: clamp(14px, 1.3vw, 20px);
   }
 
   // ── INSIGHT: quote and lists on six, one controlled photograph on six ──────
