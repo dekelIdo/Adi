@@ -638,7 +638,9 @@ select {
     // doing. The gap is reserved on every row, mark or none, so the word
     // never shifts when a row becomes the current one.
     justify-content: flex-start;
-    gap: 10px;
+    // Enough air that the mark reads as a marker set beside the label, not
+    // a hyphen stuck to it - and still near enough to belong to that row.
+    gap: 22px;
     min-height: 54px;
     padding: 0 2px;
     font-family: var(--font-display);
@@ -670,9 +672,9 @@ select {
     &::after {
       content: "";
       flex: none;
-      width: 18px;
-      height: 3px;
-      border-radius: 2px;
+      width: 20px;
+      height: 2px;
+      border-radius: 1px;
       background: var(--brand-accent-dim);
       opacity: 0;
       transform: scaleX(0.3);
@@ -2662,48 +2664,29 @@ div[id] {
 
 // ─────── THE COMPARISON ON A PHONE ───────────────────────────────────────────
 //
-// A PAIRED COMPARISON, NOT A LIST THEN A FOOTNOTE. The previous mobile
-// treatment ran the full positive list first and the negative list well
-// after it, so by the time a visitor reached "עסקים שלא" they had already
-// lost the specific claim it was answering - a comparison with only one
-// side visible at a time is not a comparison.
+// A PAIRED CONTRAST, HELD TOGETHER BY SPACE, NOT BY LINES. Each positive line
+// sits beside its negative counterpart in one row - right, the approach she
+// stands for; left, the pattern it is measured against. What makes that read
+// is hierarchy, not a grid: the right column speaks in the display face at
+// full charcoal under a heading with the one brand-blue stroke in the
+// section; the left is set in the body face, smaller and softer, under a
+// heading of equal size but visibly less conviction. No centre rule, no row
+// rules - the pairs are made by their shared baseline and the air between
+// them. The fourth positive line has no counterpart and closes the argument
+// at a larger size, on its own, before the photograph.
 //
-// The markup is untouched: two <ul>s inside .duo-card--positive/--muted,
-// exactly as the desktop split composition already uses them. On this one
-// breakpoint those two wrapper levels are taken out of the box tree with
-// `display: contents`, which does not move a single element in the DOM -
-// it only stops them generating a box - so every <li> (and each card's own
-// <h3>) becomes a direct item of .duo-cards' own grid and can be placed by
-// hand: the matching pair from each list shares one row, right column
-// strong, left column quiet, with one continuous rule between them standing
-// in for the accent divider the desktop composition draws with a border.
-// Card counts differ by one; the fourth positive line has no opposite
-// number and becomes the section's own close instead of a stray leftover.
-//
-// Desktop's own grid (min-width: 1024px, further down this file) targets
-// the same class names and is completely unaffected: `display: contents`
-// only exists inside this max-width query.
+// Markup untouched: `display: contents` on the two .duo-card wrappers and
+// their lists (this breakpoint only) makes every <h3>/<li> a direct item of
+// .duo-cards' grid, placed by hand. Desktop's side-by-side grid is untouched.
 @media (max-width: 1023.98px) {
   .duo-cards {
-    position: relative;
     display: grid;
-    grid-template-columns: 1fr 1fr;
-    column-gap: clamp(14px, 4vw, 22px);
-    margin-top: var(--flow-tight);
+    grid-template-columns: minmax(0, 1.08fr) minmax(0, 1fr);
+    column-gap: clamp(20px, 6.4vw, 32px);
+    align-items: baseline;
+    margin-top: clamp(22px, 3.4vh, 30px);
     border-top: 0;
     border-bottom: 0;
-  }
-
-  // The central relationship axis: one line for the whole composition,
-  // not a border repeated on every row.
-  .duo-cards::before {
-    content: "";
-    position: absolute;
-    top: 2px;
-    bottom: 34px;
-    inset-inline-start: 50%;
-    width: 1px;
-    background: var(--rule-strong);
   }
 
   .duo-card,
@@ -2716,42 +2699,47 @@ div[id] {
     content: none;
   }
 
-  // THE HEADINGS. Small and paired, sitting over their own column - the
-  // comparison's caption, not its loudest object.
+  // The polarity, stated once.
   .duo-card--positive h3,
   .duo-card--muted h3 {
     grid-row: 1;
-    margin-bottom: 10px;
-    font-size: clamp(0.92rem, 2.6vw, 1rem);
-    font-weight: 600;
-    letter-spacing: 0.01em;
-    line-height: 1.2;
+    align-self: end;
+    margin-bottom: 14px;
+    font-family: var(--font-display);
+    font-size: clamp(1.18rem, 4.6vw, 1.4rem);
+    font-weight: 400;
+    line-height: 1.15;
+    letter-spacing: -0.015em;
   }
 
   .duo-card--positive h3 {
     grid-column: 1;
+    position: relative;
+    padding-bottom: 10px;
     color: var(--text);
+
+    &::after {
+      content: "";
+      position: absolute;
+      inset-inline-start: 0;
+      bottom: 0;
+      width: 26px;
+      height: 2px;
+      background: var(--brand-accent-dim);
+    }
   }
 
   .duo-card--muted h3 {
     grid-column: 2;
+    padding-bottom: 10px;
     color: var(--text-light);
   }
 
-  // THE THREE PAIRED ROWS. Right stronger, left quieter - both set at the
-  // same size, so the negative side reads as the other half of one thought
-  // rather than a smaller afterthought.
   .duo-card--positive li,
   .duo-card--muted li {
-    padding: 10px 0;
+    padding: 8px 0;
     padding-inline-start: 0;
-    font-size: clamp(0.9rem, 2.5vw, 0.98rem);
-    line-height: 1.38;
-  }
-
-  .duo-card--positive li:nth-of-type(n + 2),
-  .duo-card--muted li:nth-of-type(n + 2) {
-    border-top: 1px solid var(--rule);
+    border-top: 0;
   }
 
   @for $i from 1 through 3 {
@@ -2768,27 +2756,29 @@ div[id] {
 
   .duo-card--positive li {
     font-family: var(--font-display);
-    font-weight: 400;
-    letter-spacing: -0.008em;
+    font-size: clamp(1rem, 3.3vw, 1.1rem);
+    line-height: 1.32;
+    letter-spacing: -0.01em;
     color: var(--text);
   }
 
   .duo-card--muted li {
+    font-family: var(--font-body);
+    font-size: clamp(0.88rem, 2.8vw, 0.95rem);
+    line-height: 1.4;
     color: var(--text-muted);
   }
 
-  // THE CLOSE. The fourth positive line has no opposite number - rather than
-  // strand it in the right column it becomes the section's resolution,
-  // spanning both, full strength, the one line the argument leaves you with
-  // before the page moves on.
+  // The close: the one line with no opposite number, given room and scale
+  // instead of a rule - where the comparison lands before the page moves on.
   .duo-card--positive li:nth-of-type(4) {
     grid-row: 5;
     grid-column: 1 / -1;
-    margin-top: 4px;
-    padding-top: 16px;
-    border-top: 1px solid var(--brand-accent-dim);
-    font-size: clamp(1.08rem, 3.2vw, 1.22rem);
-    line-height: 1.3;
+    margin-top: clamp(18px, 2.8vh, 24px);
+    padding: 0;
+    font-size: clamp(1.3rem, 5.2vw, 1.55rem);
+    line-height: 1.2;
+    letter-spacing: -0.018em;
   }
 }
 
@@ -4435,9 +4425,14 @@ div[id] {
   // Per item, so a fourth result does not speed the reel up.
   animation: reelScroll calc(var(--reel-count, 3) * 14.5s) linear infinite;
 
-  &.is-idle,
-  &.is-dragging {
+  &.is-idle {
     animation-play-state: paused;
+  }
+
+  // Phone: the reel's position is driven by initReelDrag instead, from one
+  // number that autoplay, the finger and momentum all share.
+  &.is-driven {
+    animation: none;
   }
 }
 
@@ -4652,110 +4647,12 @@ div[id] {
   color: var(--text-muted);
 }
 
-// WHEN THE TWO COLUMNS STACK, THE SECOND LIST LOSES ITS MEANING.
-//
-// This section is two different ideas side by side: what she thinks about, and
-// who the work is for. On a wide screen the horizontal split says that on its
-// own. Stacked on a phone the only thing between them was 15px - the exact gap
-// used BETWEEN ROWS OF THE SAME LIST - so seven rows ran together as one
-// undifferentiated column and the change of subject simply disappeared. The
-// second list also carries no heading, because on desktop its position was the
-// heading.
-//
-// It is given a real break instead: the section's own hairline and enough air
-// that the eye reads a new group. No label is invented and no decoration is
-// added - the rule is the one already used throughout this page.
-@media (max-width: 699.98px) {
-  // ONE EDITORIAL ANSWER, NOT TWO LISTS. The heading asks "למה עסקים עובדים
-  // איתי?"; what follows is built as that answer unfolding, in three tiers
-  // of one continuous voice rather than a claim-list stacked over a
-  // checklist: the anchor sentence carries the actual argument at real
-  // size, three short reasons support it at a plainly smaller scale, and
-  // the audience lines close the thought as a quiet run of phrases instead
-  // of a second bulleted list.
-  .why-merged-grid {
-    gap: 0;
-    border-top: 1px solid var(--rule-strong);
-  }
-
-  .why-col {
-    padding-block: clamp(16px, 2.6vh, 22px) clamp(8px, 1.4vh, 12px);
-  }
-
-  // THE ANCHOR. This is the section's one real claim - it is why-sub, moved
-  // up to display weight so it reads before anything else, the way a pull
-  // quote leads an article rather than trailing under its own heading.
-  .why-sub {
-    margin-bottom: clamp(14px, 2.2vh, 18px);
-    font-family: var(--font-display);
-    font-size: clamp(1.28rem, 4.4vw, 1.56rem);
-    font-weight: 400;
-    line-height: 1.28;
-    letter-spacing: -0.012em;
-    color: var(--text);
-  }
-
-  // THE SUPPORTING REASONS. Plainly quieter than the anchor and compact
-  // enough to read as one breath - the connecting word of each carries the
-  // one branded accent this tier gets, rather than an icon or a rule
-  // repeated in front of every line.
-  .why-statement {
-    padding: 7px 0;
-    border-top: none;
-  }
-
-  .why-statement-text {
-    font-size: clamp(0.94rem, 2.7vw, 1.01rem);
-    line-height: 1.5;
-    color: var(--text-muted);
-  }
-
-  .why-lead {
-    color: var(--brand-accent-dim);
-    font-weight: 600;
-  }
-
-  // THE CLOSE. Who it is for, read as a quiet run of phrases rather than a
-  // second checklist - the same device the page already uses for a set of
-  // short keywords (the pillar row), here doing that job again for a
-  // different set of short phrases. No mark, no icon: a middot between
-  // phrases is the only punctuation.
-  .audience-col {
-    margin-top: clamp(14px, 2.2vh, 18px);
-    padding-top: clamp(12px, 1.8vh, 16px);
-    padding-bottom: clamp(16px, 2.4vh, 22px);
-    border-top: 1px solid var(--rule);
-  }
-
-  .audience-statements {
-    flex-direction: row;
-    flex-wrap: wrap;
-    align-items: baseline;
-    row-gap: 6px;
-  }
-
-  .audience-statement {
-    display: contents;
-  }
-
-  .audience-mark {
-    display: none;
-  }
-
-  .audience-statement p {
-    font-size: var(--text-xs);
-    line-height: 1.5;
-    letter-spacing: 0.01em;
-    color: var(--text-light);
-  }
-
-  .audience-statement + .audience-statement p::before {
-    content: "·";
-    margin-inline-end: 7px;
-    color: var(--text-light);
-    opacity: 0.55;
-  }
+// Phone-only lead-in; the desktop split carries that meaning by position.
+.audience-eyebrow {
+  display: none;
 }
+
+
 
 .why-statements,
 .audience-statements {
@@ -4802,6 +4699,112 @@ div[id] {
   font-weight: 700;
   color: var(--brand-accent);
   line-height: 1;
+}
+
+@media (max-width: 699.98px) {
+  // ONE COMPOSED ANSWER. The heading asks the question; the intro bridges;
+  // then the three ideas are set as a single typographic cascade instead of
+  // three equal rows - attention, story, conversion - quiet to strong, each
+  // line a little more present than the last, and the path ends on the one
+  // word the whole chain exists for, in the brand blue. The only structural
+  // gesture is the cascade itself: the middle beat steps in from the reading
+  // edge and the payoff returns to it at a larger size. No rules, no marks.
+  .why-merged-grid {
+    gap: 0;
+  }
+
+  .why-sub {
+    margin-bottom: clamp(18px, 2.8vh, 24px);
+    font-size: var(--text-base);
+    line-height: 1.6;
+    color: var(--text-muted);
+  }
+
+  .why-statements {
+    gap: 2px;
+  }
+
+  .why-statement {
+    padding: 0;
+    border-top: none;
+  }
+
+  .why-statement-text {
+    display: block;
+    font-family: var(--font-display);
+    font-weight: 400;
+    letter-spacing: -0.018em;
+    line-height: 1.18;
+    text-wrap: balance;
+  }
+
+  .why-statement:nth-child(1) .why-statement-text {
+    font-size: clamp(1.32rem, 5.2vw, 1.55rem);
+    color: var(--text-light);
+  }
+
+  .why-statement:nth-child(2) .why-statement-text {
+    padding-inline-start: clamp(22px, 8vw, 36px);
+    font-size: clamp(1.32rem, 5.2vw, 1.55rem);
+    color: var(--text-muted);
+  }
+
+  .why-statement:nth-child(3) .why-statement-text {
+    margin-top: 8px;
+    font-size: clamp(1.72rem, 7vw, 2.1rem);
+    line-height: 1.1;
+    color: var(--text);
+  }
+
+  .why-dest {
+    color: var(--brand-accent-dim);
+  }
+
+  // WHO IT IS FOR, as the conclusion of the same answer: a small lead-in,
+  // three quiet lines set close together, and the fourth - the business that
+  // already understands what marketing is for - carried at display size as
+  // the line the section ends on. Whitespace separates it from the cascade.
+  .audience-col {
+    margin-top: clamp(30px, 4.6vh, 40px);
+  }
+
+  .audience-eyebrow {
+    display: block;
+    margin-bottom: 10px;
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    color: var(--text-light);
+  }
+
+  .audience-statements {
+    gap: 3px;
+  }
+
+  .audience-statement {
+    display: block;
+    padding: 0;
+    border-top: none;
+  }
+
+  .audience-mark {
+    display: none;
+  }
+
+  .audience-statement p {
+    font-size: clamp(0.94rem, 2.7vw, 1.02rem);
+    line-height: 1.5;
+    color: var(--text-muted);
+  }
+
+  .audience-statement:last-child p {
+    margin-top: 10px;
+    font-family: var(--font-display);
+    font-size: clamp(1.14rem, 4.2vw, 1.3rem);
+    line-height: 1.3;
+    letter-spacing: -0.01em;
+    color: var(--text);
+  }
 }
 
 // ─────── HONESTY SECTION ───────────────────────────────────────────────────────
@@ -4912,6 +4915,13 @@ div[id] {
 // reel that carries two sets and translates -50% has no end to reach - it hands
 // back to its own beginning at the set boundary, and the seam is invisible
 // because both halves are identical.
+.reviews-outer img,
+.results-outer img {
+  -webkit-user-drag: none;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
 .reviews-outer {
   overflow: hidden;
   padding: var(--space-sm) 0;
@@ -4945,11 +4955,14 @@ div[id] {
 
   // Same fail-safe direction as the other two reels: running by default, paused
   // only when the observer says it is off screen. If the observer never attaches
-  // the reel still moves rather than sitting dead. A drag pauses it the same
-  // way, so a dragged reel never fights the autoplay for the same pixels.
-  &.is-idle,
-  &.is-dragging {
+  // the reel still moves rather than sitting dead.
+  &.is-idle {
     animation-play-state: paused;
+  }
+
+  // Phone: driven from one JS position (initReelDrag); the keyframe stands down.
+  &.is-driven {
+    animation: none;
   }
 
   &:hover {
@@ -7245,18 +7258,19 @@ div[id] {
     padding: 17px 0;
   }
 
-  // FOUR EDITORIAL CHAPTERS, NOT A TIMELINE. No numeral column, no
-  // connecting rule of any kind - this page already uses a hairline to
-  // separate the comparison's rows and the why section's two tiers, and a
-  // third instance of the same device here would make all three read as one
-  // trick repeated. Progression instead comes from generous chapter-to-
-  // chapter air and a small, controlled indentation that alternates from one
-  // stage to the next, so four stages in a row never look like four copies
-  // of one component. The title is what carries each chapter; the stage
-  // number drops to a small caption above it, in the "N / total" shorthand
-  // rather than a standalone digit.
+  // FOUR BEATS OF ONE STORY, NOT FOUR STEPS. Nothing here is a process
+  // widget: no numbers (reading order already says which comes first), no
+  // rules, no line joining them. The idea is a single typographic one - each
+  // title is set as a short sentence and closes on a full stop in the brand
+  // blue, so the chapter reads like four lines of a story told at display
+  // size. The first beat enters largest; the second steps in from the
+  // reading edge once, which is the only asymmetry; the intervals between
+  // beats vary slightly so the four never settle into one repeated block.
+  // The closing line gets the same interval a beat does, so it lands as the
+  // story's last sentence rather than a caption stuck to the fourth beat.
   .process-editorial {
-    gap: clamp(30px, 5vh, 44px);
+    gap: 0;
+    margin-bottom: clamp(34px, 5.4vh, 46px);
   }
 
   .process-row {
@@ -7265,44 +7279,51 @@ div[id] {
     padding: 0;
   }
 
-  .process-row-num {
-    display: block;
-    margin-bottom: 6px;
-    font-family: var(--font-body);
-    font-size: 0.7rem;
-    font-weight: 600;
-    letter-spacing: 0.14em;
-    line-height: 1;
-    color: color-mix(in srgb, var(--brand-accent) 68%, var(--text-light));
+  .process-row + .process-row {
+    margin-top: clamp(34px, 5.4vh, 46px);
+  }
 
-    &::after {
-      content: " / 04";
-      color: var(--text-light);
-      opacity: 0.6;
-      letter-spacing: 0.06em;
-    }
+  .process-row:nth-child(3) {
+    margin-top: clamp(26px, 4vh, 34px);
+  }
+
+  .process-row-num {
+    display: none;
   }
 
   .process-row-title {
+    margin-bottom: 8px;
     font-family: var(--font-display);
-    font-size: clamp(1.3rem, 4.4vw, 1.5rem);
+    font-size: clamp(1.5rem, 5.9vw, 1.8rem);
     font-weight: 400;
-    letter-spacing: -0.012em;
+    line-height: 1.08;
+    letter-spacing: -0.02em;
+    color: var(--text);
+
+    &::after {
+      content: ".";
+      color: var(--brand-accent-dim);
+    }
+  }
+
+  .process-row:first-child .process-row-title {
+    font-size: clamp(2rem, 8.4vw, 2.5rem);
   }
 
   .process-row-desc {
-    max-width: 32ch;
+    max-width: 30ch;
+    line-height: 1.6;
   }
 
-  // The alternation: every second chapter steps in from the reading edge
-  // and carries a slightly narrower measure, which is enough to say "this
-  // one sits differently" without turning into a zig-zag - Hebrew still
-  // reads from the same edge every time.
-  .process-row:nth-child(even) {
-    padding-inline-start: clamp(20px, 7vw, 34px);
+  .process-row:nth-child(2) {
+    padding-inline-start: clamp(30px, 11vw, 48px);
   }
 
-  .process-row:nth-child(even) .process-row-desc {
+  .process-row:nth-child(2) .process-row-desc {
+    max-width: 25ch;
+  }
+
+  .process-row:nth-child(4) .process-row-desc {
     max-width: 27ch;
   }
 

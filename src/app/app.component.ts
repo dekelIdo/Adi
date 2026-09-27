@@ -1272,27 +1272,15 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy {
   //    an empty state. No querySelector in this file may target .brand-track*.
   //
   // 2. PORTFOLIO REEL  — CSS marquee. Owns ONLY .portfolio-reel-outer/-track.
-  // 3. RESULTS REEL    — CSS marquee + drag (initReelDrag). Owns ONLY
-  //                      .results-outer/.results-rail.
-  // 4. REVIEWS ROW     — CSS marquee + drag (initReelDrag). Owns ONLY
-  //                      .reviews-outer/.reviews-rail.
+  // 3. RESULTS REEL    — phone: one JS position (initReelDrag), CSS keyframe
+  //                      switched off via .is-driven. Owns ONLY .results-rail.
+  // 4. REVIEWS ROW     — same driver. Owns ONLY .reviews-outer/.reviews-rail.
   //
   // 2/3/4 have disjoint selector scopes; none observes or mutates another's
-  // DOM. initReelDrag (3/4 only) writes the standalone `translate` property,
-  // never `transform` or `scrollLeft`, specifically so it cannot collide with
-  // the CSS animation each of these already owns. Keep it that way — widen a
-  // selector or move a drag onto `transform` and two mechanisms will fight
-  // over the same pixels.
+  // DOM. For 3/4 the keyframe and the driver never run together: .is-driven
+  // turns the animation off before the driver writes `transform`, so there is
+  // only ever one source of position. Keep it that way.
   // ═══════════════════════════════════════════════════════════════════════════
-
-  // ─── Carousel drag, take two ───────────────────────────────────────────────
-  // A first attempt owned .reviews-outer alone and dragged it by scrollLeft.
-  // That container is overflow:hidden with a CSS-animated reel inside, so
-  // there was nothing to scroll and the two mechanisms fought over the same
-  // element. initReelDrag() (below) does not repeat that mistake: it drives
-  // the standalone `translate` property, never `scrollLeft` or `transform`,
-  // so it cannot collide with the animation that owns `transform`. See
-  // initReelDrag for the current implementation.
 
 
   // ─── Laptop reveal into the process chapter (mobile only) ────────────────────
@@ -2232,123 +2220,160 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
 
-  // ─── Reel drag: a fast manual nudge layered on top of autoplay ──────────────
+  // ─── Reels (reviews, results): one position, three sources of motion ────────
   //
-  // The reviews and results reels are pure CSS marquees (see reelScroll) and
-  // stay exactly that - this never touches their `animation` or the transform
-  // it drives. A drag instead writes to the standalone `translate` property,
-  // which composes with an element's own animated `transform` instead of
-  // fighting it, so the two can move the same element without either one
-  // overwriting the other.
+  // ONE SOURCE OF TRUTH. On a phone these two reels used to move by a CSS
+  // keyframe (which owned `transform`) while a drag moved them by a second,
+  // independent `translate`. Two coordinate systems cannot hand over to each
+  // other: when the finger lifted, the keyframe carried on from its own clock
+  // and the reel appeared to rewind to wherever the animation "was".
   //
-  // The offset is bounded rather than infinite: a previous drag implementation
-  // on this exact rail conflicted with its CSS-driven position (see the
-  // "Carousel drag was removed" note below `initReelPlayback`), and an
-  // unbounded offset would need the same set-boundary math the CSS animation
-  // already owns. Clamping it to a fraction of the viewport keeps a fast flick
-  // genuinely fast - it moves the cards a real distance immediately - without
-  // ever needing to know where the reel's own loop currently is.
+  // Here each reel has a single number, `pos`, and everything writes to it:
+  // autoplay adds a slow constant velocity while idle, the finger adds its
+  // movement 1:1 while dragging, and a short momentum carries on after release.
+  // Autoplay then eases back in from the exact pixel the hand left it at. The
+  // CSS keyframe is switched off for the rail (`.is-driven`) the moment this
+  // takes over, starting from the keyframe's current offset so the handover on
+  // load is invisible too.
+  //
+  // Infinite by the same contract the keyframe used: the track holds two
+  // identical sets, so `pos` is normalised into one set-width and the wrap
+  // lands on identical pixels.
+  //
+  // Phone only. From 768px these rails are grids (transform: none !important)
+  // and nothing here runs; under reduced motion the CSS stop stands.
   private initReelDrag(): void {
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    const phone = window.matchMedia('(max-width: 767.98px)');
     const rails = Array.from(document.querySelectorAll<HTMLElement>('.reviews-rail, .results-rail'));
     this.zone.runOutsideAngular(() => {
-      rails.forEach((rail) => this.bindReelDrag(rail));
+      rails.forEach((rail) => this.bindReel(rail, phone));
     });
   }
 
-  private bindReelDrag(rail: HTMLElement): void {
+  private bindReel(rail: HTMLElement, phone: MediaQueryList): void {
     const outer = rail.parentElement;
     if (!outer) return;
 
-    // STATE MACHINE: idle -> pending -> either dragging or ignored.
-    //
-    // The previous version committed to "this is a drag" on pointerdown,
-    // before the gesture had a direction at all - so an ordinary vertical
-    // scroll that happened to start over the reel paused its autoplay and
-    // nudged it sideways on the first few pixels of natural finger jitter,
-    // which is the "fighting the component" feeling that was reported.
-    // Nothing here pauses the animation or moves the rail until enough
-    // horizontal-over-vertical movement has actually happened to call it a
-    // swipe; until then every event is left alone and the page scrolls
-    // exactly as it would with no listener attached at all.
-    type Phase = 'idle' | 'pending' | 'dragging' | 'ignored';
-    let phase: Phase = 'idle';
+    const canHover = window.matchMedia('(hover: hover)').matches;
+    let active = false; // driving the rail at all (phone width)
+    let visible = false;
+    let raf = 0;
+    let last = 0;
+
+    let pos = 0; // px, the reel's one position
+    let setWidth = 0; // one rendered set = half the track
+    let dir = 1; // travel sign, from --reel-travel (RTL: +)
+    let autoV = 0; // autoplay px per ms
+    let ramp = 1; // 0..1, autoplay easing back in after a hand-off
+    let holdUntil = 0; // autoplay waits until this time after a gesture
+    let momentum = 0; // px per ms, after release
+
+    // Gesture: idle -> pending -> dragging | ignored. Nothing moves until the
+    // gesture is clearly horizontal; a vertical one is left to the page.
+    let phase: 'idle' | 'pending' | 'dragging' | 'ignored' = 'idle';
+    let pointerId: number | null = null;
     let startX = 0;
     let startY = 0;
     let lastX = 0;
     let lastT = 0;
-    let velocity = 0; // px per ms
-    let offset = 0; // persistent translate, px - not reset between gestures
-    let setWidth = 0; // half the rendered track: one full loop of real content
-    let raf = 0;
-    let resumeTimer = 0;
-    let pointerId: number | null = null;
+    let velocity = 0; // px per ms, smoothed
+
+    const normalise = (v: number): number => {
+      if (!setWidth) return v;
+      if (dir > 0) return ((v % setWidth) + setWidth) % setWidth;
+      return -(((-v % setWidth) + setWidth) % setWidth);
+    };
+
+    const apply = () => {
+      pos = normalise(pos);
+      rail.style.transform = `translate3d(${pos.toFixed(2)}px, 0, 0)`;
+    };
 
     const measure = () => {
-      setWidth = rail.scrollWidth / 2 || outer.clientWidth;
-    };
-    measure();
-    window.addEventListener('resize', measure, { passive: true });
-
-    // Wrapping by exactly one rendered set is what the CSS loop itself relies
-    // on for its own -50%/0 reset: both halves of the track are identical, so
-    // landing on the same offset modulo setWidth is the same pixels. Applying
-    // it to the drag offset too means a long or repeated swipe can travel as
-    // far as it likes without ever running past the two rendered sets.
-    const wrap = (v: number): number => {
-      if (!setWidth) return v;
-      let r = v % setWidth;
-      if (r > setWidth / 2) r -= setWidth;
-      if (r < -setWidth / 2) r += setWidth;
-      return r;
+      setWidth = rail.offsetWidth / 2;
+      const cs = getComputedStyle(rail);
+      dir = cs.getPropertyValue('--reel-travel').trim().startsWith('-') ? -1 : 1;
+      // The same pace the keyframe had: one set per animation-duration.
+      const durS = parseFloat(rail.dataset['reelDuration'] || '0');
+      autoV = durS > 0 && setWidth > 0 ? (dir * setWidth) / (durS * 1000) : 0;
     };
 
-    const setOffset = (v: number) => {
-      offset = wrap(v);
-      rail.style.translate = `${offset}px 0`;
-    };
-
-    const settle = () => {
-      // A hard cap on top of the velocity clamp: whatever the input, the
-      // reel is never left "still settling" for more than about a second,
-      // so a value this decay math has not been tested against cannot leave
-      // autoplay paused indefinitely.
-      const deadline = performance.now() + 1000;
-      const step = () => {
-        velocity *= 0.92;
-        setOffset(offset + velocity * 16);
-        if (Math.abs(velocity) > 0.03 && performance.now() < deadline) {
-          raf = requestAnimationFrame(step);
-        } else {
-          resume();
+    const tick = (now: number) => {
+      const dt = last ? Math.min(64, now - last) : 16;
+      last = now;
+      if (phase !== 'dragging') {
+        if (momentum !== 0) {
+          pos += momentum * dt;
+          momentum *= Math.pow(0.925, dt / 16);
+          if (Math.abs(momentum) < 0.02) {
+            momentum = 0;
+            holdUntil = now + 650;
+            ramp = 0;
+          }
+        } else if (now >= holdUntil && !(canHover && outer.matches(':hover'))) {
+          ramp = Math.min(1, ramp + dt / 900);
+          const eased = ramp * ramp * (3 - 2 * ramp);
+          pos += autoV * eased * dt;
         }
-      };
-      if (Math.abs(velocity) > 0.03) {
-        raf = requestAnimationFrame(step);
-      } else {
-        resume();
       }
+      apply();
+      raf = requestAnimationFrame(tick);
     };
 
-    // AUTOPLAY RESUMES AFTER A SENSIBLE PAUSE, NOT A SNAP.
-    //
-    // The offset is never eased back to zero - there is nothing to undo. The
-    // swipe is real navigation: it stays exactly where the visitor left it,
-    // the paused keyframe animation continues moving from wherever it was
-    // when it paused, and the two simply add together going forward. That is
-    // what makes this "no rewind, no teleport" rather than "no motion at all".
-    const resume = () => {
-      resumeTimer = window.setTimeout(() => {
-        rail.classList.remove('is-dragging');
-      }, 420);
+    const run = () => {
+      if (raf || !active || !visible) return;
+      last = 0;
+      raf = requestAnimationFrame(tick);
     };
 
-    const reset = () => {
+    const stop = () => {
+      if (raf) cancelAnimationFrame(raf);
+      raf = 0;
+    };
+
+    const start = () => {
+      if (active) return;
+      const cs = getComputedStyle(rail);
+      // Read the keyframe's pace and its current offset before switching it
+      // off, so the reel continues from the exact frame it was showing.
+      rail.dataset['reelDuration'] = String(parseFloat(cs.animationDuration) || 0);
+      const m = cs.transform && cs.transform !== 'none' ? new DOMMatrixReadOnly(cs.transform) : null;
+      pos = m ? m.m41 : 0;
+      rail.classList.add('is-driven');
+      active = true;
+      measure();
+      apply();
+      run();
+    };
+
+    const release = () => {
+      if (!active) return;
+      stop();
+      active = false;
       phase = 'idle';
-      pointerId = null;
+      rail.classList.remove('is-driven');
+      rail.style.removeProperty('transform');
     };
+
+    const onPhoneChange = () => (phone.matches ? start() : release());
+    phone.addEventListener('change', onPhoneChange);
+
+    new ResizeObserver(() => {
+      if (active) measure();
+    }).observe(rail);
+
+    new IntersectionObserver(
+      (entries) => {
+        visible = entries.some((e) => e.isIntersecting);
+        if (visible) run();
+        else stop();
+      },
+      { rootMargin: '120px 0px' }
+    ).observe(outer);
 
     const onDown = (e: PointerEvent) => {
+      if (!active) return;
       if (e.pointerType === 'mouse' && e.button !== 0) return;
       if (phase === 'pending' || phase === 'dragging') return;
       phase = 'pending';
@@ -2357,66 +2382,68 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy {
       startY = e.clientY;
       lastT = performance.now();
       velocity = 0;
-      window.clearTimeout(resumeTimer);
-      if (raf) cancelAnimationFrame(raf);
-    };
-
-    const commitDrag = () => {
-      phase = 'dragging';
-      measure();
-      rail.classList.add('is-dragging');
     };
 
     const onMove = (e: PointerEvent) => {
-      if (pointerId !== null && e.pointerId !== pointerId) return;
-      if (phase === 'idle') return;
-
+      if (e.pointerId !== pointerId) return;
       if (phase === 'pending') {
-        const dx = e.clientX - startX;
-        const dy = e.clientY - startY;
-        const adx = Math.abs(dx);
-        const ady = Math.abs(dy);
-        // Clearly horizontal: commit and apply the movement already made so
-        // the first confirmed frame does not feel like it skipped a step.
+        const adx = Math.abs(e.clientX - startX);
+        const ady = Math.abs(e.clientY - startY);
         if (adx > 8 && adx > ady * 1.3) {
-          commitDrag();
+          // Taken: autoplay and any running momentum stop where they are.
+          phase = 'dragging';
+          momentum = 0;
+          ramp = 0;
+          lastX = e.clientX;
+          lastT = performance.now();
+          // Keep receiving this pointer even after it leaves the reel, so a
+          // release outside it still hands the reel back to autoplay.
+          try {
+            outer.setPointerCapture(e.pointerId);
+          } catch {
+            /* capture unavailable - the window listener below covers it */
+          }
         } else if (ady > 8 && ady >= adx) {
-          // Clearly vertical (or ambiguous leaning vertical): this is a page
-          // scroll, not a swipe. Stop looking at this gesture entirely and
-          // let the browser's own pan-y handling do the rest, untouched.
           phase = 'ignored';
-          return;
-        } else {
-          return; // still inside the noise threshold - keep waiting
         }
+        return;
       }
-
       if (phase !== 'dragging') return;
       const now = performance.now();
       const dx = e.clientX - lastX;
-      const dt = Math.max(1, now - lastT);
-      // Clamped: an unrealistically small dt between two move samples (which
-      // happens on some devices during a very fast flick) would otherwise
-      // produce a velocity so large that the decay below never fell under
-      // its stop threshold within a sensible time, leaving the reel "stuck"
-      // mid-settle and autoplay never resuming.
-      velocity = Math.max(-42, Math.min(42, (dx / dt) * 16 * 0.9));
-      setOffset(offset + dx * 1.4); // amplified: manual travel reads faster than autoplay
+      const dt = Math.max(8, now - lastT);
+      pos += dx; // 1:1 - the reel follows the finger
+      velocity = velocity * 0.6 + (dx / dt) * 0.4;
       lastX = e.clientX;
       lastT = now;
+      apply();
     };
 
     const onUp = (e: PointerEvent) => {
-      if (pointerId !== null && e.pointerId !== pointerId) return;
+      if (e.pointerId !== pointerId) return;
       const wasDragging = phase === 'dragging';
-      reset();
-      if (wasDragging) settle();
+      phase = 'idle';
+      pointerId = null;
+      if (!wasDragging) return;
+      // A finger that stopped before lifting carries nothing.
+      const stale = performance.now() - lastT > 90;
+      momentum = stale ? 0 : Math.max(-2.2, Math.min(2.2, velocity));
+      ramp = 0;
+      if (momentum === 0) holdUntil = performance.now() + 650;
     };
 
     outer.addEventListener('pointerdown', onDown, { passive: true });
     outer.addEventListener('pointermove', onMove, { passive: true });
     outer.addEventListener('pointerup', onUp, { passive: true });
     outer.addEventListener('pointercancel', onUp, { passive: true });
+    outer.addEventListener('lostpointercapture', onUp, { passive: true });
+    window.addEventListener('pointerup', onUp, { passive: true });
+    // The cards are <img>s, which the browser will start dragging natively on
+    // a mouse drag - and that fires pointercancel on the first move, ending
+    // the gesture before it begins.
+    outer.addEventListener('dragstart', (e) => e.preventDefault());
+
+    if (phone.matches) start();
   }
 
   // ─── Section ambient indicator ────────────────────────────────────────────
