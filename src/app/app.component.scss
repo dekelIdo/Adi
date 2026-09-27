@@ -7634,31 +7634,32 @@ div[id] {
   }
 
   @media (max-width: 767.98px) {
-    // ─── PAIN POINTS: THE DEEP-BLUE PANEL ────────────────────────────────────
-    // Under the heading, one branded object: a deep-blue panel carrying the
-    // six sentences as four vertical beats - the setup (two quiet lines), the
-    // pivot (display face, a step inward), the compressed pair of shortages,
-    // and the conclusion at its strongest with "לקוחות" the one blue word -
-    // then, almost immediately, a real photograph of Adi whose top edge
-    // dissolves out of the page as the eye travels down. No numbers, no
-    // rows, no cells: negative space and one short hairline before the
-    // conclusion are the only structure. The panel and the photograph share
-    // one edge, 16px in from the viewport, so they read as one chapter. The
-    // blue is the panel's own (no such dark exists in the tokens), scoped
-    // here and nowhere else.
+    // ─── PAIN POINTS: THE CHARCOAL PLATE ─────────────────────────────────────
+    // Under the heading, one branded object: a plate of the site's own dark -
+    // a luxury charcoal with a cool undertone, in the family of the black
+    // plates, not a blue card - carrying the six sentences as four vertical
+    // beats: the quiet setup, the pivot broken onto two lines with room around
+    // it, the compressed pair of shortages, and the conclusion at its
+    // strongest with "לקוחות" the one blue word. The only structure is
+    // negative space and one short powder-blue hairline before the
+    // conclusion; the only material is a 1px inner highlight along the top
+    // edge. Then, two pixels below, a real photograph of Adi whose top edge
+    // dissolves out of the page - square where it meets the plate, so the
+    // two read as one chapter. The dark is scoped here and nowhere else.
     .problem-header {
       margin-bottom: clamp(18px, 2.6vh, 24px);
     }
 
     .problem-list {
-      --panel-ink: #12314a;
+      --panel-ink: #172128;
       --panel-text: #f6f3ef;
       display: block;
       max-width: none;
-      margin: 0 calc(16px - var(--container-padding));
-      padding: clamp(26px, 3.6vh, 32px) clamp(24px, 6.6vw, 28px);
-      border-radius: 24px;
+      margin: 0 -4px;
+      padding: clamp(26px, 3.4vh, 30px) clamp(22px, 6.2vw, 26px) clamp(28px, 3.6vh, 32px);
+      border-radius: 12px;
       background: var(--panel-ink);
+      box-shadow: inset 0 1px 0 0 color-mix(in srgb, var(--panel-text) 7%, transparent);
       color: var(--panel-text);
     }
 
@@ -7677,57 +7678,60 @@ div[id] {
       color: inherit;
     }
 
-    // BEAT A - the setup: two quiet lines on the reading edge.
+    // BEAT A - the setup: quiet and compact, on the reading edge.
     .problem-item--opening p {
       font-family: var(--font-body);
-      font-size: clamp(1rem, 4.2vw, 1.06rem);
+      font-size: clamp(0.96rem, 4vw, 1.02rem);
       font-weight: 450;
-      line-height: 1.5;
+      line-height: 1.45;
       letter-spacing: 0;
-      color: color-mix(in srgb, var(--panel-text) 84%, transparent);
+      color: color-mix(in srgb, var(--panel-text) 74%, transparent);
     }
 
     .problem-item--opening + .problem-item--opening {
-      margin-top: 4px;
+      margin-top: 3px;
     }
 
-    // BEAT B - the pivot: the display face, one step inward.
+    // BEAT B - the pivot, the emotional centre: the display face on a short
+    // measure so it breaks as two lines, a step in from the edge, and more
+    // air above it than any other beat.
     .problem-item--pivot {
-      margin-top: clamp(18px, 2.6vh, 22px);
-      padding-inline-start: 14px;
+      margin-top: clamp(22px, 3.2vh, 28px);
+      padding-inline-start: 12px;
     }
 
     .problem-item--pivot p {
+      max-width: 82%;
       font-family: var(--font-display);
-      font-size: clamp(1.3rem, 5.6vw, 1.45rem);
+      font-size: clamp(1.32rem, 5.8vw, 1.5rem);
       font-weight: 400;
-      line-height: 1.22;
+      line-height: 1.2;
       letter-spacing: -0.016em;
       text-wrap: balance;
     }
 
-    // BEAT C - the two shortages, compressed, back on the reading edge.
+    // BEAT C - the two shortages, together and quieter, back on the edge.
     .problem-item--lack p {
       font-family: var(--font-body);
-      font-size: clamp(0.98rem, 4.1vw, 1.03rem);
+      font-size: clamp(0.95rem, 3.9vw, 1rem);
       font-weight: 500;
       line-height: 1.45;
       letter-spacing: 0;
-      color: color-mix(in srgb, var(--panel-text) 90%, transparent);
+      color: color-mix(in srgb, var(--panel-text) 80%, transparent);
     }
 
     .problem-item--pivot + .problem-item--lack {
-      margin-top: 16px;
+      margin-top: 18px;
     }
 
     .problem-item--lack + .problem-item--lack {
-      margin-top: 4px;
+      margin-top: 3px;
     }
 
-    // BEAT D - the conclusion, after the panel's one hairline: 32px of
+    // BEAT D - the conclusion, after the plate's one hairline: 32px of
     // powder blue at the reading edge, the "therefore" without a word.
     .problem-item--final {
-      margin-top: 18px;
+      margin-top: 20px;
       border: 0;
 
       &::before {
@@ -7741,10 +7745,11 @@ div[id] {
     }
 
     .problem-item--final p {
+      max-width: 16ch;
       font-family: var(--font-display);
-      font-size: clamp(1.4rem, 6.2vw, 1.6rem);
+      font-size: clamp(1.45rem, 6.4vw, 1.65rem);
       font-weight: 400;
-      line-height: 1.18;
+      line-height: 1.16;
       letter-spacing: -0.02em;
       text-wrap: balance;
     }
@@ -7753,31 +7758,34 @@ div[id] {
       color: var(--brand-accent);
     }
 
-    // THE PHOTOGRAPH. Same edges as the panel, 8px below it, a 4:5 portrait
-    // crop positioned so her face and hands sit in the clear. Its top edge is
-    // dissolved by a mask that runs from fully transparent at the top to
-    // fully opaque by 30% of the height, so the picture emerges out of the
-    // page rather than starting as a hard rectangle; WebKit gets the same
-    // mask through its prefixed property.
+    // THE PHOTOGRAPH. The plate's own edges, two pixels below it, square at
+    // the top where it meets the plate and 12px at the foot: a 4:5 portrait
+    // crop positioned so her face and hands sit in the clear. The mask
+    // dissolves its top edge - transparent at the top, a fifth visible at
+    // 8%, three fifths at 18%, nine tenths at 28%, whole from 34% - so the
+    // picture comes up out of the plate's shadow rather than starting as a
+    // rectangle; WebKit gets the same mask through its prefixed property.
     .problem-photo {
       display: block;
-      margin: 8px calc(16px - var(--container-padding)) 0;
-      border-radius: 18px;
+      margin: 2px -4px 0;
+      border-radius: 0 0 12px 12px;
       overflow: hidden;
       -webkit-mask-image: linear-gradient(
         to bottom,
         transparent 0%,
-        rgba(0, 0, 0, 0.35) 12%,
-        rgba(0, 0, 0, 0.85) 22%,
-        #000 30%,
+        rgba(0, 0, 0, 0.2) 8%,
+        rgba(0, 0, 0, 0.6) 18%,
+        rgba(0, 0, 0, 0.9) 28%,
+        #000 34%,
         #000 100%
       );
       mask-image: linear-gradient(
         to bottom,
         transparent 0%,
-        rgba(0, 0, 0, 0.35) 12%,
-        rgba(0, 0, 0, 0.85) 22%,
-        #000 30%,
+        rgba(0, 0, 0, 0.2) 8%,
+        rgba(0, 0, 0, 0.6) 18%,
+        rgba(0, 0, 0, 0.9) 28%,
+        #000 34%,
         #000 100%
       );
 
@@ -7795,36 +7803,59 @@ div[id] {
       }
     }
 
-    // ─── SERVICES: ONE TYPOGRAPHIC SERVICE MAP ──────────────────────────────
-    // Four parts of one system, not four steps - so on the phone they are one
-    // 2 × 2 field: strategy top-right, content top-left, management
-    // bottom-right, data bottom-left, in reading order. Nothing is drawn: no
-    // cells, no borders, no backgrounds - two columns of type and the gutters
-    // between them are the grid. The one gesture belongs to the whole field:
-    // a small powder-blue corner mark at the point where the four quadrants
-    // meet, a registration mark for the composition, short enough that it can
-    // never read as a divider. The titles are peers: one face, one size, one
-    // weight, wrapping as they need to.
+    // ─── SERVICES: THE PACKAGE ───────────────────────────────────────────────
+    // The answer to the diagnosis, in the same dark family and not the same
+    // shape. The heading and its line stay on the warm page; beneath them one
+    // continuous charcoal field enters from the far edge of the screen - it
+    // bleeds off the left, square - and stops 14px short of the reading edge,
+    // rounded, so a strip of the page runs down its open side. The four
+    // services stand on it in sequence, titles in the display face and
+    // descriptions quieter, with one rhythm: the first on the field's reading
+    // edge, the second a step in on a shorter measure, the third back on the
+    // edge, the fourth the fullest. The field carries the one blue gesture -
+    // a powder-blue line along its top edge from the reading corner - and
+    // the same 1px inner highlight as the plate. No numbers, no rules
+    // between services, no cells. The CTA closes it on the page's own edge.
     .services-header {
-      margin-bottom: clamp(24px, 3.6vh, 32px);
+      margin-bottom: clamp(22px, 3.2vh, 28px);
     }
 
     .services-matrix {
-      --sv-col: clamp(22px, 7vw, 32px);
-      --sv-row: clamp(26px, 4vh, 36px);
+      --field-ink: #172128;
+      --field-text: #f6f3ef;
       position: relative;
-      display: grid;
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-      column-gap: var(--sv-col);
-      row-gap: var(--sv-row);
-      padding: 0;
+      display: block;
+      max-width: none;
+      margin-inline: 14px calc(-1 * var(--container-padding));
+      padding-block: clamp(28px, 3.8vh, 34px) clamp(30px, 4vh, 36px);
+      padding-inline: clamp(22px, 6vw, 26px) calc(var(--container-padding) + 2px);
+      border-start-start-radius: 12px;
+      border-end-start-radius: 12px;
+      background: var(--field-ink);
+      box-shadow: inset 0 1px 0 0 color-mix(in srgb, var(--field-text) 7%, transparent);
+      color: var(--field-text);
+
+      // The one blue gesture of the field.
+      &::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        inset-inline-start: 12px;
+        width: 42%;
+        height: 1px;
+        background: color-mix(in srgb, var(--brand-accent) 70%, transparent);
+        pointer-events: none;
+      }
     }
 
     .services-row {
       display: block;
-      min-width: 0;
       padding: 0;
       border-top: 0;
+    }
+
+    .services-row + .services-row {
+      margin-top: clamp(24px, 3.4vh, 30px);
     }
 
     .services-row-num {
@@ -7836,44 +7867,41 @@ div[id] {
     }
 
     .services-row-title {
-      margin-bottom: 8px;
+      margin-bottom: 7px;
       font-family: var(--font-display);
-      font-size: clamp(1.2rem, 5.1vw, 1.42rem);
+      font-size: clamp(1.25rem, 5.4vw, 1.4rem);
       font-weight: 400;
-      line-height: 1.12;
-      letter-spacing: -0.018em;
-      color: var(--text);
+      line-height: 1.15;
+      letter-spacing: -0.016em;
+      color: var(--field-text);
       text-wrap: balance;
     }
 
     .services-row-tags {
-      font-size: clamp(1rem, 4.1vw, 1.08rem);
+      font-size: clamp(1rem, 4.1vw, 1.05rem);
       line-height: 1.5;
-      color: color-mix(in srgb, var(--text) 80%, var(--text-muted));
+      color: color-mix(in srgb, var(--field-text) 76%, transparent);
       text-wrap: pretty;
     }
 
-    // The registration mark: its corner exactly at the meeting point of the
-    // two gutters, its two 10px arms turned toward the reading edge and down.
-    .services-row:first-child {
-      position: relative;
-
-      &::after {
-        content: "";
-        position: absolute;
-        top: calc(100% + var(--sv-row) / 2);
-        inset-inline-end: calc(var(--sv-col) / -2);
-        width: 10px;
-        height: 10px;
-        border-top: 1px solid var(--brand-accent-dim);
-        border-inline-end: 1px solid var(--brand-accent-dim);
-        pointer-events: none;
-      }
+    // The rhythm: the second service a step in on a shorter measure; the
+    // fourth, the close, at full measure and a shade fuller in tone.
+    .services-row--inset {
+      padding-inline-start: 14px;
     }
 
-    // The CTA resolves the field at its reading edge, one clear step below it.
+    .services-row--inset .services-row-tags {
+      max-width: 88%;
+    }
+
+    .services-row--close .services-row-tags {
+      color: color-mix(in srgb, var(--field-text) 84%, transparent);
+    }
+
+    // The CTA resolves the field on the page's own reading edge, one breath
+    // below it.
     .services-footer {
-      margin-top: clamp(28px, 4.2vh, 36px);
+      margin-top: clamp(24px, 3.4vh, 30px);
       margin-inline-start: 0;
       padding: 0;
       border-top: 0;
