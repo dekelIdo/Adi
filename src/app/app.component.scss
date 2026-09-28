@@ -2673,14 +2673,14 @@ div[id] {
 
 // ─────── THE COMPARISON ON A PHONE ───────────────────────────────────────────
 //
-// TWO VOICES, SIDE BY SIDE. Right: what the businesses that understand do,
-// in the display face at full charcoal, under a heading carrying the one
-// brand-blue stroke in the section. Left: what the others do, set in the body
-// face, lighter, smaller and faded back - and its heading struck through, the
-// oldest editorial way of saying "not this" without an icon. Pairs share a
-// baseline; nothing else joins them - no centre line, no row rules. The
-// fourth positive line has no counterpart and ends the argument alone at the
-// largest size, followed by air, then the photograph.
+// ONE VOICE, TWO STATES, SIDE BY SIDE. Right: what the businesses that
+// understand do, in the display face at full charcoal, under a heading
+// carrying the one brand-blue stroke in the section. Left: what the others
+// do, in the SAME face at the same size and leading - only faded back to a
+// muted warm grey, so the two sides differ in state and not in typography.
+// Pairs share a baseline; nothing else joins them - no centre line, no row
+// rules. The fourth positive line has no counterpart and ends the argument
+// alone at the largest size, followed by air, then the photograph.
 //
 // Markup untouched: `display: contents` (this breakpoint only) flattens the
 // two .duo-card wrappers and lists so every <h3>/<li> is placed on
@@ -2707,12 +2707,12 @@ div[id] {
     content: none;
   }
 
-  // THE POLARITY IS IN THE TYPE, NOT IN A MARK. Right: the display face, full
-  // charcoal, the section's one blue stroke under its heading. Left: the
-  // body face, lighter, smaller, tracked slightly tighter and faded - the
-  // voice of something said without conviction. No strike: crossed-out text
-  // reads as deleted text, and these lines are true of the businesses they
-  // describe.
+  // THE POLARITY IS IN THE TONE, NOT IN A MARK AND NOT IN THE TYPE. Right:
+  // full charcoal, with the section's one blue stroke under its heading.
+  // Left: the same face, size, leading and tracking, faded to the muted
+  // warm grey - the same voice, said without conviction. No strike:
+  // crossed-out text reads as deleted text, and these lines are true of the
+  // businesses they describe.
   .duo-card--positive h3,
   .duo-card--muted h3 {
     grid-row: 1;
@@ -2745,10 +2745,10 @@ div[id] {
   .duo-card--muted h3 {
     grid-column: 2;
     padding-bottom: 12px;
-    font-family: var(--font-body);
-    font-size: clamp(1.06rem, 3.8vw, 1.2rem);
+    font-family: var(--font-display);
+    font-size: clamp(1.42rem, 5.6vw, 1.7rem);
     font-weight: 400;
-    letter-spacing: -0.01em;
+    letter-spacing: -0.02em;
     color: var(--text-light);
   }
 
@@ -2780,10 +2780,10 @@ div[id] {
   }
 
   .duo-card--muted li {
-    font-family: var(--font-body);
-    font-size: clamp(0.94rem, 3vw, 1.02rem);
-    line-height: 1.42;
-    letter-spacing: -0.01em;
+    font-family: var(--font-display);
+    font-size: clamp(1.08rem, 3.7vw, 1.22rem);
+    line-height: 1.28;
+    letter-spacing: -0.012em;
     color: var(--text-muted);
     opacity: 0.72;
   }
@@ -7638,15 +7638,16 @@ div[id] {
     // Under the heading, one branded object: a plate of deep smoky blue - a
     // single quiet gradient from a slate blue at the top-right to a deeper
     // blue-charcoal at the bottom-left, never black, never bright - carrying
-    // the six sentences as four vertical beats in ONE typography: the brand
-    // display face at one size for every sentence. The hierarchy is made
-    // without a second size: the setup and the two shortages sit back in
-    // opacity, the pivot and the conclusion come fully forward, the pivot
-    // stands a step in on a short measure with the most air above it, and
-    // "לקוחות" is the one blue word. The only structure is negative space and
-    // one short powder-blue hairline before the conclusion; the only material
-    // is a 1px inner highlight along the top edge. Then, two pixels below, a
-    // real photograph of Adi whose top edge dissolves out of the page.
+    // the six sentences in ONE typography, the brand display face at one
+    // size, composed as four groups a reader sees before reading a word:
+    // the SETUP, two lines close together and a little back; the CORE
+    // PROBLEM, one sentence alone on a short measure, a step in from the
+    // edge, with the most air around it; the two BARRIERS, one pair held by
+    // the plate's only mark - a powder-blue hairline on their reading edge,
+    // exactly their height; and the OUTCOME, back on the full edge on a wider
+    // measure after a breath, with "לקוחות" the one blue word. Then, two
+    // pixels below, a real photograph of Adi whose top edge dissolves out of
+    // the page.
     .problem-header {
       margin-bottom: clamp(18px, 2.6vh, 24px);
     }
@@ -7658,7 +7659,7 @@ div[id] {
       margin: 0 -4px;
       padding: clamp(26px, 3.4vh, 30px) clamp(22px, 6.2vw, 26px) clamp(28px, 3.6vh, 32px);
       border-radius: 12px;
-      background: linear-gradient(225deg, #2a4353 0%, #233846 52%, #1d303b 100%);
+      background: linear-gradient(225deg, #304c5e 0%, #294353 48%, #223743 100%);
       box-shadow: inset 0 1px 0 0 color-mix(in srgb, var(--panel-text) 8%, transparent);
       color: var(--panel-text);
     }
@@ -7685,58 +7686,56 @@ div[id] {
       text-wrap: balance;
     }
 
-    // BEAT A - the setup: back in opacity, on the reading edge.
+    // GROUP 1 - THE SETUP: one compact thought, a little back.
     .problem-item--opening p {
-      color: color-mix(in srgb, var(--panel-text) 78%, transparent);
+      color: color-mix(in srgb, var(--panel-text) 80%, transparent);
     }
 
     .problem-item--opening + .problem-item--opening {
-      margin-top: 3px;
+      margin-top: 4px;
     }
 
-    // BEAT B - the pivot, the emotional centre: fully forward, a step in
-    // from the edge on a short measure, with more air above it than any
-    // other beat.
+    // GROUP 2 - THE CORE PROBLEM: alone, a step in, on a short measure, with
+    // the most air around it.
     .problem-item--pivot {
-      margin-top: clamp(22px, 3.2vh, 28px);
-      padding-inline-start: 12px;
+      margin-top: 26px;
+      padding-inline-start: 16px;
     }
 
     .problem-item--pivot p {
-      max-width: 82%;
+      max-width: 78%;
     }
 
-    // BEAT C - the two shortages, together and a little back, on the edge.
+    // GROUP 3 - THE BARRIERS: one pair on one hairline. The pair's own gap
+    // lives inside the first item, so the two borders meet as one unbroken
+    // powder-blue line exactly the height of the pair.
+    .problem-item--lack {
+      border-inline-start: 1px solid color-mix(in srgb, var(--brand-accent) 72%, transparent);
+      padding-inline-start: 13px;
+    }
+
     .problem-item--lack p {
-      color: color-mix(in srgb, var(--panel-text) 85%, transparent);
+      color: color-mix(in srgb, var(--panel-text) 86%, transparent);
     }
 
     .problem-item--pivot + .problem-item--lack {
-      margin-top: 18px;
+      margin-top: 22px;
+      padding-bottom: 4px;
     }
 
     .problem-item--lack + .problem-item--lack {
-      margin-top: 3px;
+      margin-top: 0;
     }
 
-    // BEAT D - the conclusion, fully forward, after the plate's one
-    // hairline: 32px of powder blue at the reading edge.
+    // GROUP 4 - THE OUTCOME: back on the full edge, a wider measure than the
+    // problem, after a breath.
     .problem-item--final {
-      margin-top: 20px;
+      margin-top: 26px;
       border: 0;
-
-      &::before {
-        content: "";
-        display: block;
-        width: 32px;
-        height: 1px;
-        margin-bottom: 14px;
-        background: color-mix(in srgb, var(--brand-accent) 48%, transparent);
-      }
     }
 
     .problem-item--final p {
-      max-width: 16ch;
+      max-width: 88%;
     }
 
     .problem-key {
