@@ -2172,12 +2172,6 @@ select {
   margin: 0;
 }
 
-// The two phone chapters' editorial hairlines. Never shown at 768 and up.
-.plate-curve,
-.field-curve {
-  display: none;
-}
-
 .problem-header {
   text-align: start;
   max-width: 800px;
@@ -2829,9 +2823,9 @@ div[id] {
   // Intro, then the columns, then the photograph: the order the reference
   // reads in. The photograph and the columns share one flex stack, so its
   // order alone does it - the markup does not move.
-  // The columns' 30px margin is the one owner of the intro-to-columns
-  // distance; the split grid's own row gap (set later, for every split) is
-  // zeroed here at a higher specificity so the two never stack.
+  // The columns' margin is the one owner of the intro-to-columns distance;
+  // the split grid's own row gap (set later, for every split) is zeroed here
+  // at a higher specificity so the two never stack.
   .split-grid.split-grid--insight {
     gap: 0;
   }
@@ -2846,12 +2840,12 @@ div[id] {
 
   .split-grid--insight .editorial-img {
     order: 2;
-    margin-top: 30px;
+    margin-top: var(--m-space-md);
   }
 
   .split-grid--insight .quote {
-    padding-bottom: 16px;
-    margin-bottom: 29px;
+    padding-bottom: var(--m-space-sm);
+    margin-bottom: var(--m-space-md);
     font-size: clamp(2.3rem, 10.2vw, 2.6rem);
     line-height: 1.02;
     letter-spacing: -0.024em;
@@ -2870,7 +2864,7 @@ div[id] {
   .duo-cards {
     --cmp-gap: 24px;
     column-gap: var(--cmp-gap);
-    margin-top: 36px;
+    margin-top: var(--m-space-xl);
     margin-inline: -8px;
 
     // The one hairline between the columns: centred in the gutter, from
@@ -2902,7 +2896,7 @@ div[id] {
   // The payoff: the chapter's conclusion, at a campaign size, with its own
   // air and its mark close above it.
   .duo-card--positive li:nth-of-type(4) {
-    margin-top: 18px;
+    margin-top: 10px;
     padding-top: 14px;
     font-size: clamp(1.8rem, 7.7vw, 2.1rem);
     line-height: 1.08;
@@ -7730,6 +7724,24 @@ div[id] {
   }
 
   @media (max-width: 767.98px) {
+    // ─── THE PHONE SPACING SCALE ─────────────────────────────────────────────
+    // One scale for the phone chapters' vertical relationships, tuned at
+    // 390: the pair (two lines of one thought), tight (title to its
+    // description), the headline to its rule, the rule to what follows, a
+    // beat inside a composition, a group to the next group or a field's own
+    // padding, a major visual's breath, and a chapter boundary. Every gap in
+    // the chapters below is owned by exactly one of these, on one element.
+    :host {
+      --m-pair: 4px;
+      --m-space-xs: 8px;
+      --m-space-sm: 16px;
+      --m-space-md: 24px;
+      --m-space-lg: 28px;
+      --m-space-xl: 36px;
+      --m-space-2xl: 48px;
+      --m-space-section: 64px;
+    }
+
     // ─── PAIN POINTS: THE EDITORIAL PLATE, TO THE REFERENCE ─────────────────
     // The chapter as one composition: the heading large on the warm page with
     // its second line in the brand blue and a 32px rule beneath; then one
@@ -7739,12 +7751,26 @@ div[id] {
     // step in on a short measure, with the most air around it; the two
     // barriers as one pair on a single powder-blue hairline exactly their
     // height; the outcome on the full edge after a breath, "לקוחות" the one
-    // blue word. Down the plate's outer side runs one hairline curve, the
-    // brand's registration line. The real photograph is tucked under the
-    // plate's foot so it emerges out of the dark rather than starting as a
-    // rectangle beneath it.
+    // blue word. Nothing else is drawn on the plate. The real photograph is
+    // tucked under the plate's foot so it emerges out of the dark rather
+    // than starting as a rectangle beneath it.
+    // The chapter boundary after the logo strip: the strip keeps its own 24px
+    // and this padding makes the distance a full boundary.
+    .section-problem {
+      padding-top: 40px;
+    }
+
+    // The comparison chapter's boundaries (its seam rule sits earlier in
+    // this tier at the same specificity, so the owner is declared here):
+    // 40px from the dark plate's edge to the headline, and a full boundary
+    // after the photograph, which bleeds 6px past the section, before the
+    // next chapter's picture.
+    #insight {
+      padding-block: 40px var(--m-space-2xl);
+    }
+
     .problem-header {
-      margin-bottom: 20px;
+      margin-bottom: var(--m-space-md);
     }
 
     .problem-header .section-title {
@@ -7760,7 +7786,7 @@ div[id] {
     }
 
     .problem-header .underline-accent {
-      margin-top: 16px;
+      margin-top: var(--m-space-sm);
       height: 1px;
 
       &.is-visible {
@@ -7775,32 +7801,10 @@ div[id] {
       display: block;
       max-width: none;
       margin: 0 calc(15px - var(--container-padding));
-      padding: 40px clamp(24px, 6.6vw, 28px) 42px;
+      padding: var(--m-space-xl) clamp(24px, 6.6vw, 28px);
       border-radius: 12px;
-      background: linear-gradient(225deg, #33505f 0%, #2a4454 48%, #223743 100%);
+      background: linear-gradient(225deg, #33505f 0%, #294353 48%, #223743 100%);
       color: var(--panel-text);
-      overflow: hidden;
-    }
-
-    // The one curve: a 1px powder-blue line at a third of its strength,
-    // entering at the top of the outer edge, bowing in and back, and leaving
-    // at the foot. It affects nothing; it is drawn behind the words.
-    .plate-curve {
-      display: block;
-      position: absolute;
-      top: 0;
-      bottom: 0;
-      inset-inline-end: 0;
-      width: 130px;
-      height: 100%;
-      pointer-events: none;
-
-      path {
-        fill: none;
-        stroke: var(--brand-accent);
-        stroke-opacity: 0.28;
-        stroke-width: 1;
-      }
     }
 
     .problem-item {
@@ -7832,12 +7836,12 @@ div[id] {
     }
 
     .problem-item--opening + .problem-item--opening {
-      margin-top: 5px;
+      margin-top: var(--m-pair);
     }
 
     // GROUP 2 - THE CORE PROBLEM.
     .problem-item--pivot {
-      margin-top: 44px;
+      margin-top: var(--m-space-xl);
       padding-inline-start: 14px;
     }
 
@@ -7858,8 +7862,8 @@ div[id] {
     }
 
     .problem-item--pivot + .problem-item--lack {
-      margin-top: 32px;
-      padding-bottom: 5px;
+      margin-top: var(--m-space-lg);
+      padding-bottom: var(--m-pair);
     }
 
     .problem-item--lack + .problem-item--lack {
@@ -7868,7 +7872,7 @@ div[id] {
 
     // GROUP 4 - THE OUTCOME.
     .problem-item--final {
-      margin-top: 44px;
+      margin-top: var(--m-space-xl);
       border: 0;
     }
 
@@ -7933,17 +7937,19 @@ div[id] {
     // edge of the screen, carrying the four services in sequence - each a
     // title in the display face over a quieter description, each title
     // registered by one 18px powder-blue mark at the field's reading edge -
-    // with one hairline curve down its outer side, of the same family as the
-    // plate's and not the same line. The CTA resolves the field: centred,
-    // wide, and set 22px up over the field's foot so the field ends in the
+    // and nothing else drawn on it. The CTA resolves the field: centred,
+    // wide, and set 26px up over the field's foot so the field ends in the
     // action.
+    // The chapter's boundaries: 24px after the results' own close, and 36px
+    // after the CTA, so the CTA can always be scrolled clear of the floating
+    // dock before the next heading arrives.
     .section-services-editorial {
-      padding-block: var(--sec-base) clamp(40px, 5.6vh, 52px);
+      padding-block: var(--m-space-md) var(--m-space-xl);
     }
 
     .services-header {
-      gap: 22px;
-      margin-bottom: 22px;
+      gap: var(--m-space-md);
+      margin-bottom: var(--m-space-md);
     }
 
     .services-headline {
@@ -7952,7 +7958,7 @@ div[id] {
       line-height: 1.04;
 
       &::after {
-        margin-top: 16px;
+        margin-top: var(--m-space-sm);
       }
     }
 
@@ -7961,6 +7967,7 @@ div[id] {
     }
 
     .services-header-lead {
+      max-width: 86%;
       font-size: clamp(0.97rem, 4vw, 1rem);
       line-height: 1.55;
       color: var(--text-muted);
@@ -7972,30 +7979,13 @@ div[id] {
       display: block;
       max-width: none;
       margin-inline: calc(12px - var(--container-padding));
-      padding-block: 36px 70px;
+      // The foot carries 40px of breathing room behind the CTA plus the
+      // 26px the CTA sits over it.
+      padding-block: var(--m-space-xl) 66px;
       padding-inline: 31px 28px;
       border-radius: 12px;
       background: linear-gradient(215deg, #1f3541 0%, #172a33 55%, #111f26 100%);
       color: var(--field-text);
-      overflow: hidden;
-    }
-
-    .field-curve {
-      display: block;
-      position: absolute;
-      top: 0;
-      bottom: 0;
-      inset-inline-end: 0;
-      width: 130px;
-      height: 100%;
-      pointer-events: none;
-
-      path {
-        fill: none;
-        stroke: var(--brand-accent);
-        stroke-opacity: 0.28;
-        stroke-width: 1;
-      }
     }
 
     .services-row {
@@ -8007,7 +7997,7 @@ div[id] {
     }
 
     .services-row + .services-row {
-      margin-top: 42px;
+      margin-top: var(--m-space-xl);
     }
 
     .services-row-num {
@@ -8022,7 +8012,7 @@ div[id] {
     // the field's reading edge: 18px of powder blue level with its x-height.
     .services-row-title {
       position: relative;
-      margin-bottom: 9px;
+      margin-bottom: var(--m-space-xs);
       font-family: var(--font-display);
       font-size: clamp(1.3rem, 5.65vw, 1.45rem);
       font-weight: 400;
@@ -8031,17 +8021,17 @@ div[id] {
       color: var(--field-text);
       text-wrap: balance;
 
-      // The registration mark: 26px of powder blue at three fifths, level
-      // with the title's x-height, in the 36px the title is set in from the
-      // field's reading edge.
+      // The registration mark: 24px of powder blue at 58%, level with the
+      // title's x-height, in the 36px the title is set in from the field's
+      // reading edge. The same on all four.
       &::before {
         content: "";
         position: absolute;
         inset-inline-start: -36px;
         top: 0.58em;
-        width: 26px;
+        width: 24px;
         height: 1px;
-        background: color-mix(in srgb, var(--brand-accent) 60%, transparent);
+        background: color-mix(in srgb, var(--brand-accent) 58%, transparent);
       }
     }
 
@@ -8056,7 +8046,7 @@ div[id] {
     .services-footer {
       position: relative;
       z-index: 1;
-      margin-top: -28px;
+      margin-top: -26px;
       margin-inline-start: 0;
       padding: 0;
       border-top: 0;
@@ -8067,9 +8057,9 @@ div[id] {
     // end: the field resolves into the action.
     .services-footer .btn {
       width: min(80vw, 340px);
-      min-height: 57px;
+      min-height: 56px;
       padding: 14px 26px;
-      border-radius: 13px;
+      border-radius: 12px;
       justify-content: space-between;
       font-size: 1.05rem;
 
