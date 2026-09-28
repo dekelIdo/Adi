@@ -2172,6 +2172,11 @@ select {
   margin: 0;
 }
 
+// The package's service glyphs. Tablet and desktop keep their numerals.
+.services-row-glyph {
+  display: none;
+}
+
 .problem-header {
   text-align: start;
   max-width: 800px;
@@ -7931,15 +7936,17 @@ div[id] {
       }
     }
 
-    // ─── SERVICES: THE PACKAGE FIELD, TO THE REFERENCE ──────────────────────
+    // ─── SERVICES: THE PACKAGE FIELD ────────────────────────────────────────
     // The heading and its rule and the intro stay on the warm page; beneath
     // them one immersive field of the deeper smoky blue, 12px in from each
-    // edge of the screen, carrying the four services in sequence - each a
-    // title in the display face over a quieter description, each title
-    // registered by one 18px powder-blue mark at the field's reading edge -
-    // and nothing else drawn on it. The CTA resolves the field: centred,
-    // wide, and set 26px up over the field's foot so the field ends in the
-    // action.
+    // edge of the screen, carrying the four services in sequence, each a
+    // composition of its own: a small authored glyph on the reading side -
+    // a faceted prism, a four-point aperture, a centre with one orbit, four
+    // rising signals - drawn in one thin powder-blue stroke language, beside
+    // a title in the display face over a quieter description. Nothing else
+    // is drawn on the field; its height is its content's. The CTA resolves
+    // it: centred, wide, and set 24px up over the field's foot so the field
+    // ends in the action.
     // The chapter's boundaries: 24px after the results' own close, and 36px
     // after the CTA, so the CTA can always be scrolled clear of the floating
     // dock before the next heading arrives.
@@ -7979,21 +7986,38 @@ div[id] {
       display: block;
       max-width: none;
       margin-inline: calc(12px - var(--container-padding));
-      // The foot carries 40px of breathing room behind the CTA plus the
-      // 26px the CTA sits over it.
-      padding-block: var(--m-space-xl) 66px;
+      // The foot carries 36px of breathing room behind the CTA plus the
+      // 24px the CTA sits over it.
+      padding-block: var(--m-space-xl) 60px;
       padding-inline: 31px 28px;
       border-radius: 12px;
       background: linear-gradient(215deg, #1f3541 0%, #172a33 55%, #111f26 100%);
       color: var(--field-text);
     }
 
+    // Glyph on the reading side, the words beside it, aligned at the top.
     .services-row {
       position: relative;
-      display: block;
+      display: grid;
+      grid-template-columns: 30px minmax(0, 1fr);
+      column-gap: 18px;
+      align-items: start;
       padding: 0;
-      padding-inline-start: 36px;
       border-top: 0;
+    }
+
+    .services-row-glyph {
+      display: block;
+      width: 30px;
+      height: 30px;
+      margin-top: -2px;
+      color: var(--brand-accent);
+
+      svg {
+        display: block;
+        width: 100%;
+        height: 100%;
+      }
     }
 
     .services-row + .services-row {
@@ -8020,19 +8044,6 @@ div[id] {
       letter-spacing: -0.016em;
       color: var(--field-text);
       text-wrap: balance;
-
-      // The registration mark: 24px of powder blue at 58%, level with the
-      // title's x-height, in the 36px the title is set in from the field's
-      // reading edge. The same on all four.
-      &::before {
-        content: "";
-        position: absolute;
-        inset-inline-start: -36px;
-        top: 0.58em;
-        width: 24px;
-        height: 1px;
-        background: color-mix(in srgb, var(--brand-accent) 58%, transparent);
-      }
     }
 
     .services-row-tags {
@@ -8046,7 +8057,7 @@ div[id] {
     .services-footer {
       position: relative;
       z-index: 1;
-      margin-top: -26px;
+      margin-top: -24px;
       margin-inline-start: 0;
       padding: 0;
       border-top: 0;
@@ -8072,6 +8083,189 @@ div[id] {
         line-height: 1;
         opacity: 0.72;
       }
+    }
+
+    // ─── CONTACT: ONE INVITATION, ONE ACTION ────────────────────────────────
+    // The chapter used to ask three times - a headline, then a card headline
+    // "בואו נדבר", then a black button. Now it reads once: the invitation at
+    // the chapter size with its rule; the supporting copy as one short note
+    // (the sentence, the three things we will look at as one run, the
+    // sign-off); the real photograph of Adi in the armchair with her phone as
+    // the anchor; and the form beginning 20px over the photograph's foot, its
+    // card headline demoted to an eyebrow, its fields compact, its one submit
+    // in the site's own powder blue. Every word stays. The copy, the
+    // photograph and the form are laid on the chapter grid directly (the
+    // wrapper is flattened) so their order and single-owner gaps are set here.
+    // Boundaries: 40px after the social chapter's own close, and 32px from
+    // the form's foot to the questions.
+    .section-contact {
+      padding-block: 40px 32px;
+    }
+
+    .contact-layout {
+      gap: 0;
+    }
+
+    .contact-main {
+      display: contents;
+    }
+
+    .contact-copy {
+      order: 1;
+    }
+
+    .contact-copy .section-title {
+      max-width: none;
+      margin-bottom: 0;
+      font-size: clamp(2.3rem, 10.2vw, 2.6rem);
+      line-height: 1.02;
+      letter-spacing: -0.024em;
+
+      &::after {
+        margin-top: var(--m-space-sm);
+      }
+    }
+
+    .contact-copy .section-title.reveal.is-visible::after {
+      width: 32px;
+    }
+
+    .contact-copy .section-body {
+      max-width: 86%;
+      margin: var(--m-space-md) 0 0;
+      font-size: clamp(0.97rem, 4vw, 1rem);
+      line-height: 1.55;
+      color: var(--text-muted);
+    }
+
+    .contact-lead {
+      margin-top: var(--m-space-sm);
+      font-size: 0.7rem;
+      letter-spacing: 0.1em;
+    }
+
+    // The three things, as one run of a line or two.
+    .contact-checklist {
+      display: flex;
+      flex-direction: row;
+      flex-wrap: wrap;
+      column-gap: 0;
+      row-gap: 2px;
+      margin: var(--m-pair) 0 0;
+
+      li {
+        font-size: clamp(0.95rem, 3.9vw, 0.98rem);
+        line-height: 1.5;
+        color: var(--text-muted);
+      }
+
+      li + li::before {
+        content: "\00B7";
+        margin-inline: 8px;
+        color: var(--brand-accent-dim);
+      }
+    }
+
+    .contact-sign {
+      margin-top: var(--m-space-sm);
+      font-size: clamp(1.05rem, 4.2vw, 1.15rem);
+    }
+
+    // The photograph: full width, a strong editorial crop that keeps her
+    // face, the phone, the chair and her feet.
+    .contact-img {
+      order: 2;
+      margin: var(--m-space-md) 0 0;
+      border-radius: 12px;
+      overflow: hidden;
+
+      img {
+        height: clamp(300px, 80vw, 340px);
+        object-fit: cover;
+        object-position: 40% 50%;
+        border-radius: 12px;
+      }
+    }
+
+    // The form, 20px over the photograph's foot and 16px in from its sides.
+    .contact-form {
+      order: 3;
+      z-index: 1;
+      gap: 12px;
+      margin: -20px 16px 0;
+      width: auto;
+      padding: 20px 18px 18px;
+      border-radius: 14px;
+      box-shadow: 0 8px 24px rgba(26, 24, 22, 0.06);
+
+      &::before {
+        content: none;
+      }
+
+      .contact-card-intro {
+        gap: 2px;
+        margin-bottom: 2px;
+      }
+
+      // The card's "בואו נדבר", demoted from a headline to an eyebrow.
+      .contact-card-label {
+        font-family: var(--font-body);
+        font-size: 0.7rem;
+        font-weight: 600;
+        letter-spacing: 0.1em;
+        line-height: 1.4;
+        color: var(--text-light);
+      }
+
+      .contact-card-lead {
+        font-size: 0.9rem;
+        line-height: 1.5;
+      }
+
+      label {
+        gap: 4px;
+
+        span {
+          font-size: 0.7rem;
+        }
+      }
+
+      // (label input: the tier's own 54px rule is written later, at one
+      // class less.)
+      label input {
+        min-height: 48px;
+        padding: 10px 14px;
+        border-radius: 11px;
+        font-size: 1rem;
+      }
+    }
+
+    // The one action, in the site's own button language.
+    .contact-form .btn-submit {
+      min-height: 52px;
+      margin-top: 4px;
+      border-radius: 12px;
+      background: var(--brand-accent);
+      border-color: var(--brand-accent);
+      color: var(--text);
+      box-shadow: none;
+
+      &::after {
+        border-color: color-mix(in srgb, var(--text) 70%, transparent);
+      }
+
+      &:hover,
+      &:focus-visible {
+        background: var(--brand-accent-dim);
+        border-color: var(--brand-accent-dim);
+      }
+    }
+
+    .contact-consent,
+    .contact-trust {
+      margin: 0;
+      font-size: 0.7rem;
+      line-height: 1.45;
     }
   }
 
