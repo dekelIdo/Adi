@@ -2172,6 +2172,12 @@ select {
   margin: 0;
 }
 
+// The two phone chapters' editorial hairlines. Never shown at 768 and up.
+.plate-curve,
+.field-curve {
+  display: none;
+}
+
 .problem-header {
   text-align: start;
   max-width: 800px;
@@ -2810,6 +2816,80 @@ div[id] {
       height: 3px;
       background: var(--brand-accent);
     }
+  }
+}
+
+// THE COMPARISON CHAPTER ON A PHONE, TO THE REFERENCE. The heading at the
+// display size the other chapter headings carry, its short powder-blue rule
+// drawn as a background line (the quote marks own its pseudo-elements); the
+// intro quiet; the two columns joined by one neutral hairline down the
+// gutter - a grid item drawn by the grid's own ::before, so nothing in the
+// markup moves; the negative side the same type, only set back.
+@media (max-width: 767.98px) {
+  // Intro, then the columns, then the photograph: the order the reference
+  // reads in. The photograph and the columns share one flex stack, so its
+  // order alone does it - the markup does not move.
+  // The columns' 30px margin is the one owner of the intro-to-columns
+  // distance; the split grid's own row gap (set later, for every split) is
+  // zeroed here at a higher specificity so the two never stack.
+  .split-grid.split-grid--insight {
+    gap: 0;
+  }
+
+  .split-grid--insight .split-copy {
+    margin-bottom: 0;
+  }
+
+  .split-grid--insight .duo-cards {
+    order: 1;
+  }
+
+  .split-grid--insight .editorial-img {
+    order: 2;
+    margin-top: clamp(30px, 4.4vh, 40px);
+  }
+
+  .split-grid--insight .quote {
+    padding-bottom: 16px;
+    margin-bottom: 26px;
+    font-size: clamp(2.3rem, 10.2vw, 2.6rem);
+    line-height: 1.02;
+    letter-spacing: -0.024em;
+    background: linear-gradient(var(--brand-accent-dim), var(--brand-accent-dim)) right bottom / 32px 1px no-repeat;
+  }
+
+  .split-grid--insight .section-body {
+    font-size: clamp(0.97rem, 4vw, 1rem);
+    line-height: 1.6;
+    color: var(--text-muted);
+  }
+
+  .duo-cards {
+    --cmp-gap: clamp(18px, 6vw, 30px);
+    column-gap: var(--cmp-gap);
+    margin-top: 30px;
+
+    // The one hairline between the columns: centred in the gutter, the
+    // height of the headings and the three pairs.
+    &::before {
+      content: "";
+      grid-row: 1 / 5;
+      grid-column: 1;
+      justify-self: end;
+      align-self: stretch;
+      width: 1px;
+      margin-inline-end: calc(var(--cmp-gap) / -2);
+      background: color-mix(in srgb, var(--text) 14%, transparent);
+      pointer-events: none;
+    }
+  }
+
+  .duo-card--muted li {
+    opacity: 0.66;
+  }
+
+  .duo-card--positive li:nth-of-type(4) {
+    margin-top: 20px;
   }
 }
 
@@ -7634,37 +7714,81 @@ div[id] {
   }
 
   @media (max-width: 767.98px) {
-    // ─── PAIN POINTS: THE SLATE PLATE ────────────────────────────────────────
-    // Under the heading, one branded object: a plate of deep smoky blue - a
-    // single quiet gradient from a slate blue at the top-right to a deeper
-    // blue-charcoal at the bottom-left, never black, never bright - carrying
-    // the six sentences in ONE typography, the brand display face at one
-    // size, composed as four groups a reader sees before reading a word:
-    // the SETUP, two lines close together and a little back; the CORE
-    // PROBLEM, one sentence alone on a short measure, a step in from the
-    // edge, with the most air around it; the two BARRIERS, one pair held by
-    // the plate's only mark - a powder-blue hairline on their reading edge,
-    // exactly their height; and the OUTCOME, back on the full edge on a wider
-    // measure after a breath, with "לקוחות" the one blue word. Then, two
-    // pixels below, a real photograph of Adi whose top edge dissolves out of
-    // the page.
+    // ─── PAIN POINTS: THE EDITORIAL PLATE, TO THE REFERENCE ─────────────────
+    // The chapter as one composition: the heading large on the warm page with
+    // its second line in the brand blue and a 32px rule beneath; then one
+    // large plate of deep smoky blue - a single quiet gradient, no border, no
+    // shadow - carrying the six sentences in ONE face at ONE size as four
+    // groups: the setup close and a little back; the core problem alone, a
+    // step in on a short measure, with the most air around it; the two
+    // barriers as one pair on a single powder-blue hairline exactly their
+    // height; the outcome on the full edge after a breath, "לקוחות" the one
+    // blue word. Down the plate's outer side runs one hairline curve, the
+    // brand's registration line. The real photograph is tucked under the
+    // plate's foot so it emerges out of the dark rather than starting as a
+    // rectangle beneath it.
     .problem-header {
-      margin-bottom: clamp(18px, 2.6vh, 24px);
+      margin-bottom: 20px;
+    }
+
+    .problem-header .section-title {
+      max-width: none;
+      margin-bottom: 0;
+      font-size: clamp(2.3rem, 10.2vw, 2.6rem);
+      line-height: 1.02;
+      letter-spacing: -0.024em;
+    }
+
+    .problem-title-turn {
+      color: var(--brand-accent-dim);
+    }
+
+    .problem-header .underline-accent {
+      margin-top: 16px;
+      height: 1px;
+
+      &.is-visible {
+        width: 32px;
+      }
     }
 
     .problem-list {
       --panel-text: #f6f3ef;
+      position: relative;
+      z-index: 1;
       display: block;
       max-width: none;
-      margin: 0 -4px;
-      padding: clamp(26px, 3.4vh, 30px) clamp(22px, 6.2vw, 26px) clamp(28px, 3.6vh, 32px);
+      margin: 0 calc(15px - var(--container-padding));
+      padding: 34px clamp(24px, 6.6vw, 28px) 36px;
       border-radius: 12px;
       background: linear-gradient(225deg, #304c5e 0%, #294353 48%, #223743 100%);
-      box-shadow: inset 0 1px 0 0 color-mix(in srgb, var(--panel-text) 8%, transparent);
       color: var(--panel-text);
+      overflow: hidden;
+    }
+
+    // The one curve: a 1px powder-blue line at a third of its strength,
+    // entering at the top of the outer edge, bowing in and back, and leaving
+    // at the foot. It affects nothing; it is drawn behind the words.
+    .plate-curve {
+      display: block;
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      inset-inline-end: 0;
+      width: 96px;
+      height: 100%;
+      pointer-events: none;
+
+      path {
+        fill: none;
+        stroke: var(--brand-accent);
+        stroke-opacity: 0.35;
+        stroke-width: 1;
+      }
     }
 
     .problem-item {
+      position: relative;
       display: block;
       padding: 0;
       border: 0;
@@ -7680,13 +7804,13 @@ div[id] {
       font-family: var(--font-display);
       font-size: clamp(1.2rem, 5.2vw, 1.34rem);
       font-weight: 400;
-      line-height: 1.26;
+      line-height: 1.32;
       letter-spacing: -0.014em;
       color: inherit;
       text-wrap: balance;
     }
 
-    // GROUP 1 - THE SETUP: one compact thought, a little back.
+    // GROUP 1 - THE SETUP.
     .problem-item--opening p {
       color: color-mix(in srgb, var(--panel-text) 80%, transparent);
     }
@@ -7695,20 +7819,19 @@ div[id] {
       margin-top: 4px;
     }
 
-    // GROUP 2 - THE CORE PROBLEM: alone, a step in, on a short measure, with
-    // the most air around it.
+    // GROUP 2 - THE CORE PROBLEM.
     .problem-item--pivot {
-      margin-top: 26px;
-      padding-inline-start: 16px;
+      margin-top: 34px;
+      padding-inline-start: 14px;
     }
 
     .problem-item--pivot p {
       max-width: 78%;
     }
 
-    // GROUP 3 - THE BARRIERS: one pair on one hairline. The pair's own gap
+    // GROUP 3 - THE BARRIERS, one pair on one hairline. The pair's own gap
     // lives inside the first item, so the two borders meet as one unbroken
-    // powder-blue line exactly the height of the pair.
+    // line exactly the height of the pair.
     .problem-item--lack {
       border-inline-start: 1px solid color-mix(in srgb, var(--brand-accent) 72%, transparent);
       padding-inline-start: 13px;
@@ -7719,7 +7842,7 @@ div[id] {
     }
 
     .problem-item--pivot + .problem-item--lack {
-      margin-top: 22px;
+      margin-top: 28px;
       padding-bottom: 4px;
     }
 
@@ -7727,48 +7850,49 @@ div[id] {
       margin-top: 0;
     }
 
-    // GROUP 4 - THE OUTCOME: back on the full edge, a wider measure than the
-    // problem, after a breath.
+    // GROUP 4 - THE OUTCOME.
     .problem-item--final {
-      margin-top: 26px;
+      margin-top: 34px;
       border: 0;
     }
 
     .problem-item--final p {
-      max-width: 88%;
+      max-width: 16ch;
     }
 
     .problem-key {
       color: var(--brand-accent);
     }
 
-    // THE PHOTOGRAPH. The plate's own edges, two pixels below it, square at
-    // the top where it meets the plate and 12px at the foot: a 4:5 portrait
-    // crop positioned so her face and hands sit in the clear. The mask
-    // dissolves its top edge - transparent at the top, a fifth visible at
-    // 8%, three fifths at 18%, nine tenths at 28%, whole from 34% - so the
-    // picture comes up out of the plate's shadow rather than starting as a
-    // rectangle; WebKit gets the same mask through its prefixed property.
+    // THE PHOTOGRAPH. The plate's own width, tucked 36px under its foot and
+    // drawn beneath it, so the first thing seen below the dark edge is the
+    // picture already emerging; square where it meets the plate, 12px at the
+    // foot; a 4:5 crop positioned so her face and hands sit in the clear.
+    // The mask runs transparent at the top, a fifth at 8%, over half at 18%,
+    // nine tenths at 28%, whole from 34%; WebKit gets it through its
+    // prefixed property.
     .problem-photo {
       display: block;
-      margin: 2px -4px 0;
+      position: relative;
+      z-index: 0;
+      margin: -36px calc(15px - var(--container-padding)) 0;
       border-radius: 0 0 12px 12px;
       overflow: hidden;
       -webkit-mask-image: linear-gradient(
         to bottom,
         transparent 0%,
-        rgba(0, 0, 0, 0.2) 8%,
-        rgba(0, 0, 0, 0.6) 18%,
-        rgba(0, 0, 0, 0.9) 28%,
+        rgba(0, 0, 0, 0.18) 8%,
+        rgba(0, 0, 0, 0.55) 18%,
+        rgba(0, 0, 0, 0.88) 28%,
         #000 34%,
         #000 100%
       );
       mask-image: linear-gradient(
         to bottom,
         transparent 0%,
-        rgba(0, 0, 0, 0.2) 8%,
-        rgba(0, 0, 0, 0.6) 18%,
-        rgba(0, 0, 0, 0.9) 28%,
+        rgba(0, 0, 0, 0.18) 8%,
+        rgba(0, 0, 0, 0.55) 18%,
+        rgba(0, 0, 0, 0.88) 28%,
         #000 34%,
         #000 100%
       );
@@ -7787,59 +7911,86 @@ div[id] {
       }
     }
 
-    // ─── SERVICES: THE PACKAGE ───────────────────────────────────────────────
-    // The answer to the diagnosis, in the same dark family and not the same
-    // shape. The heading and its line stay on the warm page; beneath them one
-    // continuous charcoal field enters from the far edge of the screen - it
-    // bleeds off the left, square - and stops 14px short of the reading edge,
-    // rounded, so a strip of the page runs down its open side. The four
-    // services stand on it in sequence, titles in the display face and
-    // descriptions quieter, with one rhythm: the first on the field's reading
-    // edge, the second a step in on a shorter measure, the third back on the
-    // edge, the fourth the fullest. The field carries the one blue gesture -
-    // a powder-blue line along its top edge from the reading corner - and
-    // the same 1px inner highlight as the plate. No numbers, no rules
-    // between services, no cells. The CTA closes it on the page's own edge.
+    // ─── SERVICES: THE PACKAGE FIELD, TO THE REFERENCE ──────────────────────
+    // The heading and its rule and the intro stay on the warm page; beneath
+    // them one immersive field of the deeper smoky blue, 12px in from each
+    // edge of the screen, carrying the four services in sequence - each a
+    // title in the display face over a quieter description, each title
+    // registered by one 18px powder-blue mark at the field's reading edge -
+    // with one hairline curve down its outer side, of the same family as the
+    // plate's and not the same line. The CTA resolves the field: centred,
+    // wide, and set 22px up over the field's foot so the field ends in the
+    // action.
+    .section-services-editorial {
+      padding-block: var(--sec-base) clamp(40px, 5.6vh, 52px);
+    }
+
     .services-header {
-      margin-bottom: clamp(22px, 3.2vh, 28px);
+      gap: 22px;
+      margin-bottom: 22px;
+    }
+
+    .services-headline {
+      margin-bottom: 0;
+      font-size: clamp(2.1rem, 9.2vw, 2.35rem);
+      line-height: 1.04;
+
+      &::after {
+        margin-top: 16px;
+      }
+    }
+
+    .services-headline.reveal.is-visible::after {
+      width: 32px;
+    }
+
+    .services-header-lead {
+      font-size: clamp(0.97rem, 4vw, 1rem);
+      line-height: 1.55;
+      color: var(--text-muted);
     }
 
     .services-matrix {
-      --field-ink: #172128;
       --field-text: #f6f3ef;
       position: relative;
       display: block;
       max-width: none;
-      margin-inline: 14px calc(-1 * var(--container-padding));
-      padding-block: clamp(28px, 3.8vh, 34px) clamp(30px, 4vh, 36px);
-      padding-inline: clamp(22px, 6vw, 26px) calc(var(--container-padding) + 2px);
-      border-start-start-radius: 12px;
-      border-end-start-radius: 12px;
-      background: var(--field-ink);
-      box-shadow: inset 0 1px 0 0 color-mix(in srgb, var(--field-text) 7%, transparent);
+      margin-inline: calc(12px - var(--container-padding));
+      padding: 34px clamp(26px, 7vw, 30px) 58px;
+      border-radius: 12px;
+      background: linear-gradient(215deg, #1f3541 0%, #172a33 55%, #111f26 100%);
       color: var(--field-text);
+      overflow: hidden;
+    }
 
-      // The one blue gesture of the field.
-      &::before {
-        content: "";
-        position: absolute;
-        top: 0;
-        inset-inline-start: 12px;
-        width: 42%;
-        height: 1px;
-        background: color-mix(in srgb, var(--brand-accent) 70%, transparent);
-        pointer-events: none;
+    .field-curve {
+      display: block;
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      inset-inline-end: 0;
+      width: 100px;
+      height: 100%;
+      pointer-events: none;
+
+      path {
+        fill: none;
+        stroke: var(--brand-accent);
+        stroke-opacity: 0.4;
+        stroke-width: 1;
       }
     }
 
     .services-row {
+      position: relative;
       display: block;
       padding: 0;
+      padding-inline-start: 28px;
       border-top: 0;
     }
 
     .services-row + .services-row {
-      margin-top: clamp(24px, 3.4vh, 30px);
+      margin-top: 32px;
     }
 
     .services-row-num {
@@ -7850,45 +8001,63 @@ div[id] {
       display: block;
     }
 
+    // The title, and its registration mark in the 28px it is set in from
+    // the field's reading edge: 18px of powder blue level with its x-height.
     .services-row-title {
-      margin-bottom: 7px;
+      position: relative;
+      margin-bottom: 8px;
       font-family: var(--font-display);
-      font-size: clamp(1.25rem, 5.4vw, 1.4rem);
+      font-size: clamp(1.28rem, 5.5vw, 1.4rem);
       font-weight: 400;
       line-height: 1.15;
       letter-spacing: -0.016em;
       color: var(--field-text);
       text-wrap: balance;
+
+      &::before {
+        content: "";
+        position: absolute;
+        inset-inline-start: -28px;
+        top: 0.6em;
+        width: 18px;
+        height: 1px;
+        background: color-mix(in srgb, var(--brand-accent) 70%, transparent);
+      }
     }
 
     .services-row-tags {
-      font-size: clamp(1rem, 4.1vw, 1.05rem);
+      font-size: clamp(0.97rem, 4vw, 1rem);
       line-height: 1.5;
-      color: color-mix(in srgb, var(--field-text) 76%, transparent);
+      color: color-mix(in srgb, var(--field-text) 75%, transparent);
       text-wrap: pretty;
     }
 
-    // The rhythm: the second service a step in on a shorter measure; the
-    // fourth, the close, at full measure and a shade fuller in tone.
-    .services-row--inset {
-      padding-inline-start: 14px;
-    }
-
-    .services-row--inset .services-row-tags {
-      max-width: 88%;
-    }
-
-    .services-row--close .services-row-tags {
-      color: color-mix(in srgb, var(--field-text) 84%, transparent);
-    }
-
-    // The CTA resolves the field on the page's own reading edge, one breath
-    // below it.
+    // The CTA over the field's foot.
     .services-footer {
-      margin-top: clamp(24px, 3.4vh, 30px);
+      position: relative;
+      z-index: 1;
+      margin-top: -22px;
       margin-inline-start: 0;
       padding: 0;
       border-top: 0;
+      text-align: center;
+    }
+
+    .services-footer .btn {
+      width: min(82vw, 340px);
+      min-height: 56px;
+      padding-block: 14px;
+      border-radius: 13px;
+      justify-content: center;
+      font-size: 1.05rem;
+
+      // The reference's arrow, drawn by CSS: the wording is untouched.
+      &::after {
+        content: "\2190";
+        margin-inline-start: 14px;
+        font-size: 1.15em;
+        line-height: 1;
+      }
     }
   }
 
