@@ -2846,12 +2846,12 @@ div[id] {
 
   .split-grid--insight .editorial-img {
     order: 2;
-    margin-top: clamp(30px, 4.4vh, 40px);
+    margin-top: 30px;
   }
 
   .split-grid--insight .quote {
     padding-bottom: 16px;
-    margin-bottom: 26px;
+    margin-bottom: 29px;
     font-size: clamp(2.3rem, 10.2vw, 2.6rem);
     line-height: 1.02;
     letter-spacing: -0.024em;
@@ -2859,37 +2859,53 @@ div[id] {
   }
 
   .split-grid--insight .section-body {
+    max-width: 84%;
     font-size: clamp(0.97rem, 4vw, 1rem);
-    line-height: 1.6;
+    line-height: 1.55;
     color: var(--text-muted);
   }
 
+  // The comparison broader than the copy above it - 8px past the content
+  // edge each side - with a 24px gutter.
   .duo-cards {
-    --cmp-gap: clamp(18px, 6vw, 30px);
+    --cmp-gap: 24px;
     column-gap: var(--cmp-gap);
-    margin-top: 30px;
+    margin-top: 36px;
+    margin-inline: -8px;
 
-    // The one hairline between the columns: centred in the gutter, the
-    // height of the headings and the three pairs.
+    // The one hairline between the columns: centred in the gutter, from
+    // just below the headings' baseline to the foot of the last pair.
     &::before {
       content: "";
-      grid-row: 1 / 5;
+      grid-row: 2 / 5;
       grid-column: 1;
       justify-self: end;
       align-self: stretch;
       width: 1px;
+      margin-top: -10px;
       margin-inline-end: calc(var(--cmp-gap) / -2);
-      background: color-mix(in srgb, var(--text) 14%, transparent);
+      background: color-mix(in srgb, var(--text) 18%, transparent);
       pointer-events: none;
     }
+  }
+
+  .duo-card--positive li,
+  .duo-card--muted li {
+    padding: 8px 0;
+    line-height: 1.35;
   }
 
   .duo-card--muted li {
     opacity: 0.66;
   }
 
+  // The payoff: the chapter's conclusion, at a campaign size, with its own
+  // air and its mark close above it.
   .duo-card--positive li:nth-of-type(4) {
-    margin-top: 20px;
+    margin-top: 18px;
+    padding-top: 14px;
+    font-size: clamp(1.8rem, 7.7vw, 2.1rem);
+    line-height: 1.08;
   }
 }
 
@@ -7759,9 +7775,9 @@ div[id] {
       display: block;
       max-width: none;
       margin: 0 calc(15px - var(--container-padding));
-      padding: 34px clamp(24px, 6.6vw, 28px) 36px;
+      padding: 40px clamp(24px, 6.6vw, 28px) 42px;
       border-radius: 12px;
-      background: linear-gradient(225deg, #304c5e 0%, #294353 48%, #223743 100%);
+      background: linear-gradient(225deg, #33505f 0%, #2a4454 48%, #223743 100%);
       color: var(--panel-text);
       overflow: hidden;
     }
@@ -7775,14 +7791,14 @@ div[id] {
       top: 0;
       bottom: 0;
       inset-inline-end: 0;
-      width: 96px;
+      width: 130px;
       height: 100%;
       pointer-events: none;
 
       path {
         fill: none;
         stroke: var(--brand-accent);
-        stroke-opacity: 0.35;
+        stroke-opacity: 0.28;
         stroke-width: 1;
       }
     }
@@ -7804,7 +7820,7 @@ div[id] {
       font-family: var(--font-display);
       font-size: clamp(1.2rem, 5.2vw, 1.34rem);
       font-weight: 400;
-      line-height: 1.32;
+      line-height: 1.34;
       letter-spacing: -0.014em;
       color: inherit;
       text-wrap: balance;
@@ -7816,12 +7832,12 @@ div[id] {
     }
 
     .problem-item--opening + .problem-item--opening {
-      margin-top: 4px;
+      margin-top: 5px;
     }
 
     // GROUP 2 - THE CORE PROBLEM.
     .problem-item--pivot {
-      margin-top: 34px;
+      margin-top: 44px;
       padding-inline-start: 14px;
     }
 
@@ -7842,8 +7858,8 @@ div[id] {
     }
 
     .problem-item--pivot + .problem-item--lack {
-      margin-top: 28px;
-      padding-bottom: 4px;
+      margin-top: 32px;
+      padding-bottom: 5px;
     }
 
     .problem-item--lack + .problem-item--lack {
@@ -7852,12 +7868,12 @@ div[id] {
 
     // GROUP 4 - THE OUTCOME.
     .problem-item--final {
-      margin-top: 34px;
+      margin-top: 44px;
       border: 0;
     }
 
     .problem-item--final p {
-      max-width: 16ch;
+      max-width: 17ch;
     }
 
     .problem-key {
@@ -7956,7 +7972,8 @@ div[id] {
       display: block;
       max-width: none;
       margin-inline: calc(12px - var(--container-padding));
-      padding: 34px clamp(26px, 7vw, 30px) 58px;
+      padding-block: 36px 70px;
+      padding-inline: 31px 28px;
       border-radius: 12px;
       background: linear-gradient(215deg, #1f3541 0%, #172a33 55%, #111f26 100%);
       color: var(--field-text);
@@ -7969,14 +7986,14 @@ div[id] {
       top: 0;
       bottom: 0;
       inset-inline-end: 0;
-      width: 100px;
+      width: 130px;
       height: 100%;
       pointer-events: none;
 
       path {
         fill: none;
         stroke: var(--brand-accent);
-        stroke-opacity: 0.4;
+        stroke-opacity: 0.28;
         stroke-width: 1;
       }
     }
@@ -7985,12 +8002,12 @@ div[id] {
       position: relative;
       display: block;
       padding: 0;
-      padding-inline-start: 28px;
+      padding-inline-start: 36px;
       border-top: 0;
     }
 
     .services-row + .services-row {
-      margin-top: 32px;
+      margin-top: 42px;
     }
 
     .services-row-num {
@@ -8005,29 +8022,32 @@ div[id] {
     // the field's reading edge: 18px of powder blue level with its x-height.
     .services-row-title {
       position: relative;
-      margin-bottom: 8px;
+      margin-bottom: 9px;
       font-family: var(--font-display);
-      font-size: clamp(1.28rem, 5.5vw, 1.4rem);
+      font-size: clamp(1.3rem, 5.65vw, 1.45rem);
       font-weight: 400;
       line-height: 1.15;
       letter-spacing: -0.016em;
       color: var(--field-text);
       text-wrap: balance;
 
+      // The registration mark: 26px of powder blue at three fifths, level
+      // with the title's x-height, in the 36px the title is set in from the
+      // field's reading edge.
       &::before {
         content: "";
         position: absolute;
-        inset-inline-start: -28px;
-        top: 0.6em;
-        width: 18px;
+        inset-inline-start: -36px;
+        top: 0.58em;
+        width: 26px;
         height: 1px;
-        background: color-mix(in srgb, var(--brand-accent) 70%, transparent);
+        background: color-mix(in srgb, var(--brand-accent) 60%, transparent);
       }
     }
 
     .services-row-tags {
       font-size: clamp(0.97rem, 4vw, 1rem);
-      line-height: 1.5;
+      line-height: 1.52;
       color: color-mix(in srgb, var(--field-text) 75%, transparent);
       text-wrap: pretty;
     }
@@ -8036,27 +8056,31 @@ div[id] {
     .services-footer {
       position: relative;
       z-index: 1;
-      margin-top: -22px;
+      margin-top: -28px;
       margin-inline-start: 0;
       padding: 0;
       border-top: 0;
       text-align: center;
     }
 
+    // The label on the reading side, the arrow small and light at the far
+    // end: the field resolves into the action.
     .services-footer .btn {
-      width: min(82vw, 340px);
-      min-height: 56px;
-      padding-block: 14px;
+      width: min(80vw, 340px);
+      min-height: 57px;
+      padding: 14px 26px;
       border-radius: 13px;
-      justify-content: center;
+      justify-content: space-between;
       font-size: 1.05rem;
 
       // The reference's arrow, drawn by CSS: the wording is untouched.
       &::after {
         content: "\2190";
-        margin-inline-start: 14px;
-        font-size: 1.15em;
+        margin-inline-start: 18px;
+        font-size: 0.95em;
+        font-weight: 300;
         line-height: 1;
+        opacity: 0.72;
       }
     }
   }
