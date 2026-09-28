@@ -7634,32 +7634,32 @@ div[id] {
   }
 
   @media (max-width: 767.98px) {
-    // ─── PAIN POINTS: THE CHARCOAL PLATE ─────────────────────────────────────
-    // Under the heading, one branded object: a plate of the site's own dark -
-    // a luxury charcoal with a cool undertone, in the family of the black
-    // plates, not a blue card - carrying the six sentences as four vertical
-    // beats: the quiet setup, the pivot broken onto two lines with room around
-    // it, the compressed pair of shortages, and the conclusion at its
-    // strongest with "לקוחות" the one blue word. The only structure is
-    // negative space and one short powder-blue hairline before the
-    // conclusion; the only material is a 1px inner highlight along the top
-    // edge. Then, two pixels below, a real photograph of Adi whose top edge
-    // dissolves out of the page - square where it meets the plate, so the
-    // two read as one chapter. The dark is scoped here and nowhere else.
+    // ─── PAIN POINTS: THE SLATE PLATE ────────────────────────────────────────
+    // Under the heading, one branded object: a plate of deep smoky blue - a
+    // single quiet gradient from a slate blue at the top-right to a deeper
+    // blue-charcoal at the bottom-left, never black, never bright - carrying
+    // the six sentences as four vertical beats in ONE typography: the brand
+    // display face at one size for every sentence. The hierarchy is made
+    // without a second size: the setup and the two shortages sit back in
+    // opacity, the pivot and the conclusion come fully forward, the pivot
+    // stands a step in on a short measure with the most air above it, and
+    // "לקוחות" is the one blue word. The only structure is negative space and
+    // one short powder-blue hairline before the conclusion; the only material
+    // is a 1px inner highlight along the top edge. Then, two pixels below, a
+    // real photograph of Adi whose top edge dissolves out of the page.
     .problem-header {
       margin-bottom: clamp(18px, 2.6vh, 24px);
     }
 
     .problem-list {
-      --panel-ink: #172128;
       --panel-text: #f6f3ef;
       display: block;
       max-width: none;
       margin: 0 -4px;
       padding: clamp(26px, 3.4vh, 30px) clamp(22px, 6.2vw, 26px) clamp(28px, 3.6vh, 32px);
       border-radius: 12px;
-      background: var(--panel-ink);
-      box-shadow: inset 0 1px 0 0 color-mix(in srgb, var(--panel-text) 7%, transparent);
+      background: linear-gradient(225deg, #2a4353 0%, #233846 52%, #1d303b 100%);
+      box-shadow: inset 0 1px 0 0 color-mix(in srgb, var(--panel-text) 8%, transparent);
       color: var(--panel-text);
     }
 
@@ -7673,28 +7673,30 @@ div[id] {
       display: none;
     }
 
+    // ONE FACE, ONE SIZE, for all six sentences.
     .problem-item p {
       max-width: none;
+      font-family: var(--font-display);
+      font-size: clamp(1.2rem, 5.2vw, 1.34rem);
+      font-weight: 400;
+      line-height: 1.26;
+      letter-spacing: -0.014em;
       color: inherit;
+      text-wrap: balance;
     }
 
-    // BEAT A - the setup: quiet and compact, on the reading edge.
+    // BEAT A - the setup: back in opacity, on the reading edge.
     .problem-item--opening p {
-      font-family: var(--font-body);
-      font-size: clamp(0.96rem, 4vw, 1.02rem);
-      font-weight: 450;
-      line-height: 1.45;
-      letter-spacing: 0;
-      color: color-mix(in srgb, var(--panel-text) 74%, transparent);
+      color: color-mix(in srgb, var(--panel-text) 78%, transparent);
     }
 
     .problem-item--opening + .problem-item--opening {
       margin-top: 3px;
     }
 
-    // BEAT B - the pivot, the emotional centre: the display face on a short
-    // measure so it breaks as two lines, a step in from the edge, and more
-    // air above it than any other beat.
+    // BEAT B - the pivot, the emotional centre: fully forward, a step in
+    // from the edge on a short measure, with more air above it than any
+    // other beat.
     .problem-item--pivot {
       margin-top: clamp(22px, 3.2vh, 28px);
       padding-inline-start: 12px;
@@ -7702,22 +7704,11 @@ div[id] {
 
     .problem-item--pivot p {
       max-width: 82%;
-      font-family: var(--font-display);
-      font-size: clamp(1.32rem, 5.8vw, 1.5rem);
-      font-weight: 400;
-      line-height: 1.2;
-      letter-spacing: -0.016em;
-      text-wrap: balance;
     }
 
-    // BEAT C - the two shortages, together and quieter, back on the edge.
+    // BEAT C - the two shortages, together and a little back, on the edge.
     .problem-item--lack p {
-      font-family: var(--font-body);
-      font-size: clamp(0.95rem, 3.9vw, 1rem);
-      font-weight: 500;
-      line-height: 1.45;
-      letter-spacing: 0;
-      color: color-mix(in srgb, var(--panel-text) 80%, transparent);
+      color: color-mix(in srgb, var(--panel-text) 85%, transparent);
     }
 
     .problem-item--pivot + .problem-item--lack {
@@ -7728,8 +7719,8 @@ div[id] {
       margin-top: 3px;
     }
 
-    // BEAT D - the conclusion, after the plate's one hairline: 32px of
-    // powder blue at the reading edge, the "therefore" without a word.
+    // BEAT D - the conclusion, fully forward, after the plate's one
+    // hairline: 32px of powder blue at the reading edge.
     .problem-item--final {
       margin-top: 20px;
       border: 0;
@@ -7746,12 +7737,6 @@ div[id] {
 
     .problem-item--final p {
       max-width: 16ch;
-      font-family: var(--font-display);
-      font-size: clamp(1.45rem, 6.4vw, 1.65rem);
-      font-weight: 400;
-      line-height: 1.16;
-      letter-spacing: -0.02em;
-      text-wrap: balance;
     }
 
     .problem-key {
