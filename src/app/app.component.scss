@@ -7747,6 +7747,50 @@ div[id] {
       --m-space-section: 64px;
     }
 
+    // ─── THE OPENING: HERO → WORD STRIP → TRUST LINE → DIAGNOSIS ────────────
+    // The hand-off from the hero, as one sequence.
+    //
+    // The word strip is the hero's own last line - a dark band, edge to
+    // edge. The shared rail mask was dissolving the BAND at both ends, which
+    // let the paper through as two white wedges directly under the hero.
+    // Here the mask is off and the words fade into the band's own dark.
+    .statement-strip {
+      -webkit-mask-image: none;
+      mask-image: none;
+
+      &::before,
+      &::after {
+        content: "";
+        position: absolute;
+        inset-block: 0;
+        z-index: 1;
+        width: 16%;
+        pointer-events: none;
+      }
+
+      &::before {
+        left: 0;
+        background: linear-gradient(to right, #0a0806 0%, rgba(10, 8, 6, 0) 100%);
+      }
+
+      &::after {
+        right: 0;
+        background: linear-gradient(to left, #0a0806 0%, rgba(10, 8, 6, 0) 100%);
+      }
+    }
+
+    // The hero's dark then releases into the paper in a short dissolve with
+    // nothing set on it. The trust line used to sit ON that dissolve - dark
+    // type on a grey smear; it now begins on clean paper, 48px below the
+    // band, and the logos close 24px above the chapter boundary.
+    .brand-marquee-section {
+      padding-block: 48px var(--m-space-md);
+
+      &::before {
+        height: 40px;
+      }
+    }
+
     // ─── PAIN POINTS: THE EDITORIAL PLATE, TO THE REFERENCE ─────────────────
     // The chapter as one composition: the heading large on the warm page with
     // its second line in the brand blue and a 32px rule beneath; then one
