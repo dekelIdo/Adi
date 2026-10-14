@@ -2139,6 +2139,26 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy {
   //
   // Driven straight from scroll position, so the visitor controls it in both
   // directions with no easing, no snapping and no autoplay.
+  // The cinematic photographs are lazy, so on a phone they could still be
+  // decoding when the stage pins - a stall in the first frames of the move.
+  // A stage within a viewport and a half starts its images loading and
+  // decoding ahead of time, then asks the pipeline to re-measure.
+  private primeCinematic(stage: HTMLElement): void {
+    if (!('IntersectionObserver' in window)) return;
+    const io = new IntersectionObserver(
+      (entries) => {
+        if (!entries.some((e) => e.isIntersecting)) return;
+        io.disconnect();
+        stage.querySelectorAll('img').forEach((img) => {
+          if (img.loading === 'lazy') img.loading = 'eager';
+          img.decode?.().then(() => this.pipeline?.invalidate()).catch(() => {});
+        });
+      },
+      { rootMargin: '150% 0px 150% 0px' }
+    );
+    io.observe(stage);
+  }
+
   private initLivingPhotograph(): void {
     const stage = document.querySelector<HTMLElement>('.action-stage');
     const frame = document.querySelector<HTMLElement>('.action-frame');
@@ -2173,9 +2193,22 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy {
     let oy = 0;
     let p0x = 0;
     let p0y = 0;
+    // The pinned pane's own height. Progress is the share of the PINNED
+    // travel that has been scrolled, so it has to be the pane (100vh in CSS),
+    // not window.innerHeight: on a phone the two differ by the browser's
+    // toolbar, and the sequence ran out of step with the pin - finishing after
+    // the pane had already released, and jumping whenever the toolbar moved.
+    // On a desktop the two are the same number.
+    let pinH = 0;
+    // Set when the geometry changes, so the next frame writes even if the
+    // progress itself did not move.
+    let stale = true;
+    let lastP = -1;
     const measure = () => {
       const sticky = portal.parentElement as HTMLElement;
       const sr = sticky.getBoundingClientRect();
+      pinH = sr.height;
+      stale = true;
       const fr = frame.getBoundingClientRect();
       const ir = img.getBoundingClientRect();
       const m = getComputedStyle(frame).transform;
@@ -2231,9 +2264,15 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy {
       let rect: DOMRect | null = null;
       const update = (f: Frame) => {
         if (!rect) return;
-        const travel = rect.height - f.vh;
+        const pin = pinH || f.vh;
+        const travel = rect.height - pin;
         if (travel <= 0) return;
         const p = clamp01(-rect.top / travel);
+        // Nothing moved (the page is scrolling somewhere else, or the frame
+        // repeated): write nothing, so no style is invalidated for nothing.
+        if (!stale && p === lastP) return;
+        stale = false;
+        lastP = p;
         const k = parseFloat((1 + 0.05 * track(p, 0.04, 1)).toFixed(4));
         frame.style.transform = `scale(${k.toFixed(4)})`;
         portal.style.setProperty('--portal-x', `${(ox + k * (p0x - ox)).toFixed(1)}px`);
@@ -2259,7 +2298,9 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy {
         // renormalised against that base, so the phone is the same number of
         // pixels wide at every point in the move as it was before: it starts at exactly the width her own phone occupies in the
         // photograph and finishes covering the viewport 2.4 times over.
-        const need = (Math.max(window.innerWidth, window.innerHeight) * 2.4) / 119;
+        // (The frame's own viewport size - reading window.innerWidth here, after
+        // the other drivers had written their styles, forced a layout.)
+        const need = (Math.max(f.vw, f.vh) * 2.4) / 119;
         // It has to arrive at HER phone's size, not at a size of its own. Hers
         // is about 60px across in a 4201px source, which is roughly 12px on a
         // 390 screen; starting at 26 put a slab in front of her hand instead of
@@ -2336,10 +2377,14 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy {
         // same scroll. So by the time the portal has filled the screen the
         // chapter it opens onto is already there to read, and the visitor never
         // scrolls through a black frame waiting for something to arrive.
+        // Written as the section's own transform rather than through an
+        // inherited custom property, which restyled every element inside the
+        // chapter on every frame. The distance is in the pane's units, the same
+        // vh the section's negative margin is set in.
         if (next) {
           const reveal = track(p, 0.40, 0.88);
           const eased = reveal * reveal * (3 - 2 * reveal);
-          next.style.setProperty('--handoff-y', `${((1 - eased) * HANDOFF_VH * f.vh / 100).toFixed(1)}px`);
+          next.style.transform = `translate3d(0, ${((1 - eased) * HANDOFF_VH * pin / 100).toFixed(1)}px, 0)`;
         }
       };
 
@@ -2351,6 +2396,7 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy {
         write: update,
       });
       if (!img.complete) img.addEventListener('load', () => pipeline.invalidate(), { once: true });
+      this.primeCinematic(stage);
     });
   }
 

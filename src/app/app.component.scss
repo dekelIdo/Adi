@@ -4149,7 +4149,8 @@ div[id] {
     content: "";
     position: absolute;
     inset: -8%;
-    background-image: url("/assets/lovable-uploads/MyAssets/AdiArieli/action-adi.webp");
+    // Blurred by 46px, so the smallest derivative carries every detail it shows.
+    background-image: url("/assets/lovable-uploads/MyAssets/AdiArieli/action-adi-1200w.webp");
     background-size: cover;
     background-position: 50% 40%;
     filter: blur(46px) saturate(1.08) brightness(1.04);
