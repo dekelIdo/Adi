@@ -7802,7 +7802,8 @@ div[id] {
     // height; the outcome on the full edge after a breath, "לקוחות" the one
     // blue word. Nothing else is drawn on the plate. The real photograph is
     // tucked under the plate's foot so it emerges out of the dark rather
-    // than starting as a rectangle beneath it.
+    // than starting as a rectangle beneath it. Plate and photograph sit 12px
+    // from the screen edges - the axis of the header bar and the package field.
     // The chapter boundary after the logo strip: the strip keeps its own 24px
     // and this padding makes the distance a full boundary.
     .section-problem {
@@ -7849,7 +7850,7 @@ div[id] {
       z-index: 1;
       display: block;
       max-width: none;
-      margin: 0 calc(15px - var(--container-padding));
+      margin: 0 calc(12px - var(--container-padding));
       padding: var(--m-space-xl) clamp(24px, 6.6vw, 28px);
       border-radius: 12px;
       background: linear-gradient(225deg, #33505f 0%, #294353 48%, #223743 100%);
@@ -7944,7 +7945,7 @@ div[id] {
       display: block;
       position: relative;
       z-index: 0;
-      margin: -36px calc(15px - var(--container-padding)) 0;
+      margin: -36px calc(12px - var(--container-padding)) 0;
       border-radius: 0 0 12px 12px;
       overflow: hidden;
       -webkit-mask-image: linear-gradient(
@@ -8635,7 +8636,9 @@ div[id] {
   .contact-img {
     margin-inline-start: 0;
     margin-inline-end: 0;
-    border-radius: var(--r-media);
+    // The image keeps the phone tier's 12px; the figure follows it, or the
+    // two corners part.
+    border-radius: 12px;
   }
 }
 
@@ -9700,6 +9703,99 @@ div[id] {
   :host {
     --container-max: 1520px;
     --split-photo: clamp(600px, 38vw, 760px);
+  }
+}
+
+// ─────── THE PHONE FRAME LANGUAGE ──────────────────────────────────────────────
+//
+// On a phone every frame is in one of two states, and nothing sits between
+// them: chapter photography runs edge to edge with square corners (the hero,
+// the chapter plates, the shoot lead, both cinematics, and now the three
+// portraits below), and the surfaces you read on or act on sit 12px in from
+// the screen with 12px corners (the header bar, the diagnosis plate, the
+// package field, the contact photograph and form). The desktop "escaping
+// frame" - a photograph breaking out of the grid on one side - is a large,
+// deliberate gesture at 1440px; at 390px it shrank to a 21px overhang on one
+// side, alternating left and right from one photograph to the next, which
+// read as misalignment. And one rule for every heading line: 1px, 32px, 16px
+// below the heading, following its alignment.
+
+@media (max-width: 539.98px) {
+  // The portraits: edge to edge, square. The About portrait also loses the
+  // inset that pushed it 25px past the left edge (clipped, with its rounded
+  // corner on the clipped side).
+  .about-layout .about-photo-wrap,
+  .editorial-img.editorial-img--bleed-start,
+  .editorial-img.editorial-img--bleed-end {
+    width: auto;
+    max-width: none;
+    margin-inline: calc(-1 * var(--container-padding));
+    border-radius: 0;
+
+    img {
+      border-radius: 0;
+    }
+  }
+}
+
+// The shoot lead already runs edge to edge: the scene has no side padding
+// below 900px, so the container-style negative margins only made the frame
+// wider than the screen and cropped ~21px of the picture on each side.
+@media (max-width: 899.98px) {
+  .shoot-scene .shoot-frame {
+    margin-inline: 0;
+  }
+}
+
+@media (max-width: 767.98px) {
+  // One heading line.
+  .section-title,
+  .why-headline,
+  .services-headline,
+  .portfolio-headline,
+  .honesty-headline {
+    &::after {
+      margin-top: 16px;
+    }
+  }
+
+  .reveal.is-visible .section-title::after,
+  .section-title.reveal.is-visible::after,
+  .why-headline.reveal.is-visible::after,
+  .services-headline.reveal.is-visible::after,
+  .portfolio-headline.reveal.is-visible::after,
+  .honesty-headline.reveal.is-visible::after {
+    width: 32px;
+  }
+
+  // A centred heading carries a centred line.
+  .honesty-headline::after {
+    margin-inline: auto;
+  }
+
+  // The comparison's 3px strokes and the portfolio's 2px gradient bar were a
+  // second and a third line language; they take the one rule.
+  .duo-card--positive h3::after,
+  .duo-card--positive li:nth-of-type(4)::before {
+    width: 32px;
+    height: 1px;
+    background: var(--brand-accent-dim);
+  }
+
+  .portfolio-header-right .portfolio-header-line {
+    width: 32px;
+    height: 1px;
+    border-radius: 0;
+    background: var(--brand-accent);
+    opacity: 0.75;
+  }
+
+  // The phone submit had no visible focus: its shadow was removed and the
+  // base rule sets no outline. A dark ring on a paper gap reads on the
+  // powder blue.
+  .contact-form .btn-submit:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 2px #fffdfa, 0 0 0 4px var(--text);
   }
 }
 
