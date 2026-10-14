@@ -42,7 +42,7 @@
           <span class="header-menu-toggle__line"></span>
         </span>
       </button>
-      <a class="btn btn-primary header-cta" href="#contact">השאירו פרטים</a>
+      <a class="btn btn-primary header-cta" href="#contact" (click)="goToContactForm($event)">השאירו פרטים</a>
     </div>
     <!-- THE CHAPTER LIST. The same five destinations as the desktop bar, set
          as a list inside the header: five lines of the page's own type on
@@ -117,7 +117,7 @@
           </div>
 
           <div class="hero-quiet-cta">
-            <a href="#contact" class="hero-link">בואו נדבר</a>
+            <a href="#contact" class="hero-link" (click)="goToContactForm($event)">בואו נדבר</a>
           </div>
         </div>
 
@@ -738,7 +738,7 @@
           </div>
         </div>
         <div class="services-footer">
-          <a class="btn btn-primary" href="#contact">בואו נדבר</a>
+          <a class="btn btn-primary" href="#contact" (click)="goToContactForm($event)">בואו נדבר</a>
         </div>
       </div>
     </section>
@@ -809,7 +809,7 @@
           </p>
           <p class="honesty-sign reveal delay-3">וזה בדיוק מה שאנחנו הולכים לעשות.</p>
           <div class="honesty-cta reveal delay-4">
-            <a class="cta-link" href="#contact">בואו נתחיל</a>
+            <a class="cta-link" href="#contact" (click)="goToContactForm($event)">בואו נתחיל</a>
           </div>
         </div>
       </div>
@@ -1155,9 +1155,9 @@
                  to Supabase (contact_leads) and the visitor is told what
                  happened, in a live region that also receives focus. The
                  fourth, hidden field is a honeypot: no person ever fills it. -->
-            <form class="contact-form reveal delay-2" (submit)="submitLead($event)" novalidate>
+            <form class="contact-form reveal delay-2" (submit)="submitLead($event)" novalidate tabindex="-1" aria-labelledby="contact-form-title">
               <div class="contact-card-intro">
-                <p class="contact-card-label">בואו נדבר</p>
+                <p class="contact-card-label" id="contact-form-title">בואו נדבר</p>
                 <p class="contact-card-lead">משאירים פרטים ואני חוזרת אליכם אישית.</p>
               </div>
               <label>
@@ -1183,6 +1183,7 @@
                   autocomplete="tel"
                   inputmode="tel"
                   maxlength="20"
+                  dir="ltr"
                   [disabled]="leadState === 'sending'"
                   [attr.aria-invalid]="leadErrors.phone ? 'true' : null"
                   [attr.aria-describedby]="leadErrors.phone ? 'lead-err-phone' : null"
@@ -1194,19 +1195,34 @@
               <label>
                 <span>מייל</span>
                 <input
+                  #leadEmail
                   type="email"
                   name="email"
                   autocomplete="email"
                   inputmode="email"
                   maxlength="254"
+                  autocapitalize="off"
+                  autocorrect="off"
+                  spellcheck="false"
+                  dir="ltr"
                   [disabled]="leadState === 'sending'"
                   [attr.aria-invalid]="leadErrors.email ? 'true' : null"
                   [attr.aria-describedby]="leadErrors.email ? 'lead-err-email' : null"
+                  (input)="onEmailInput(leadEmail.value)"
+                  (blur)="onEmailBlur(leadEmail.value)"
                 />
                 @if (leadErrors.email) {
                   <small id="lead-err-email" class="contact-error">{{ leadErrors.email }}</small>
                 }
               </label>
+              <!-- A tappable completion, offered only while the domain is being
+                   typed as gmail.com or after a common gmail.com typo. The value
+                   changes only when it is tapped. -->
+              <p class="contact-suggest" aria-live="polite">
+                @if (emailSuggestion) {
+                  <button type="button" class="contact-suggest__btn" (click)="acceptEmailSuggestion(leadEmail)">התכוונת ל־<bdi dir="ltr">{{ emailSuggestion }}</bdi>?</button>
+                }
+              </p>
               <label class="contact-hp" aria-hidden="true">
                 <span>אתר</span>
                 <input type="text" name="website" tabindex="-1" autocomplete="off" />
@@ -1335,7 +1351,7 @@
          and none should be. -->
     <section class="section-final" data-header-theme="dark">
       <div class="container">
-        <a href="#contact" class="final-cta reveal">בואו נדבר</a>
+        <a href="#contact" class="final-cta reveal" (click)="goToContactForm($event)">בואו נדבר</a>
       </div>
     </section>
 

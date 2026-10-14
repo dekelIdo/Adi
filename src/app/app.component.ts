@@ -219,6 +219,8 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy {
   // ─── The contact form ──────────────────────────────────────────────────────
   leadState: 'idle' | 'sending' | 'sent' | 'error' = 'idle';
   leadErrors: { fullName?: string; phone?: string; email?: string } = {};
+  // A one-tap completion for the email domain; never applied without a tap.
+  emailSuggestion: string | null = null;
   @ViewChild('leadResult') private leadResultRef?: ElementRef<HTMLElement>;
   private leadCooldownUntil = 0;
 
@@ -256,8 +258,14 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy {
     this.leadErrors = errors;
     if (Object.keys(errors).length) {
       this.leadState = 'idle';
-      this.cdr.markForCheck();
-      const first = form.querySelector<HTMLInputElement>('[aria-invalid="true"]');
+      // Render the errors first, so the field that receives focus already
+      // carries its aria-invalid and its description; then focus the first
+      // invalid field in form order (not whichever field the previous attempt
+      // left marked).
+      this.cdr.detectChanges();
+      const order = ['fullName', 'phone', 'email'] as const;
+      const firstKey = order.find((k) => errors[k]);
+      const first = firstKey ? form.querySelector<HTMLInputElement>(`input[name="${firstKey}"]`) : null;
       first?.focus();
       return;
     }
@@ -275,6 +283,7 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy {
         source_path: window.location.pathname || '/'
       });
       form.reset();
+      this.emailSuggestion = null;
       this.leadState = 'sent';
       this.leadCooldownUntil = Date.now() + 10_000;
     } catch {
@@ -538,6 +547,125 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy {
     const top = Math.max(0, Math.round(el.getBoundingClientRect().top - shift + window.scrollY - margin));
     history.pushState(null, '', `#${id}`);
     window.scrollTo({ top, behavior: 'auto' });
+  }
+
+  // ─── Contact: every "contact me" action lands on the form ──────────────────
+  //
+  // The five CTAs that mean "I want to get in touch" used to jump to the
+  // section's top, which on a phone is the heading, the copy and the
+  // photograph - the first field was ~760px further down, the submit
+  // off-screen everywhere. They now land on the form itself, 16px below the
+  // header bar, and focus follows the visitor there once the scroll has
+  // settled: the name field for a keyboard or a mouse, the form itself for a
+  // finger (so screen readers and Tab continue from the form, and an iPhone
+  // never opens its keyboard over the fields uninvited). The links stay real
+  // anchors: without script, or with a modifier key, they behave natively.
+  goToContactForm(event: MouseEvent): void {
+    if (event.defaultPrevented || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+    const form = document.querySelector<HTMLFormElement>('.contact-form');
+    if (!form) return;
+    event.preventDefault();
+    this.closeMenu();
+    // Never land on a field that has not faded in yet.
+    form.classList.add('reveal-instant', 'is-visible');
+    // Keyboard activation (Enter) arrives as a click with no pointer detail.
+    const keyboard = event.detail === 0;
+    if (location.hash !== '#contact') history.pushState(null, '', '#contact');
+    window.scrollTo({ top: this.contactLandingTop(form), behavior: this.reducedMotion ? 'auto' : 'smooth' });
+    this.whenScrollSettles(() => {
+      // Anything that changed height on the way (a late image, the reviews)
+      // is corrected here without a second animation.
+      const top = this.contactLandingTop(form);
+      if (Math.abs(window.scrollY - top) > 4) window.scrollTo({ top, behavior: 'auto' });
+      const fine = window.matchMedia('(hover: hover) and (pointer: fine)').matches;
+      const name = form.querySelector<HTMLInputElement>('input[name="fullName"]');
+      if ((fine || keyboard) && name && !name.disabled) name.focus({ preventScroll: true });
+      else form.focus({ preventScroll: true });
+    });
+  }
+
+  // Where the page has to be for the form's top to sit 16px under the header
+  // bar. The form's own transform (the reveal offset) is taken out, so the
+  // landing is its resting position.
+  private contactLandingTop(form: HTMLElement): number {
+    const bar = document.querySelector<HTMLElement>('.site-header .header-inner');
+    const headerBottom = bar ? bar.getBoundingClientRect().bottom : 0;
+    const style = getComputedStyle(form);
+    const shift = style.transform && style.transform !== 'none' ? new DOMMatrix(style.transform).m42 : 0;
+    const formTop = form.getBoundingClientRect().top - shift + window.scrollY;
+    return Math.max(0, Math.round(formTop - headerBottom - 16));
+  }
+
+  // Runs once the page has stopped scrolling: on scrollend where the browser
+  // has it, otherwise when the position has held for eight frames after it
+  // moved (or after 250ms if it never had to move), with a 1.6s ceiling.
+  private whenScrollSettles(done: () => void): void {
+    let finished = false;
+    const finish = () => {
+      if (finished) return;
+      finished = true;
+      window.removeEventListener('scrollend', finish);
+      window.clearTimeout(ceiling);
+      done();
+    };
+    if ('onscrollend' in window) window.addEventListener('scrollend', finish);
+    const start = performance.now();
+    let last = window.scrollY;
+    let moved = false;
+    let still = 0;
+    const tick = () => {
+      if (finished) return;
+      const y = window.scrollY;
+      if (Math.abs(y - last) >= 0.5) { moved = true; still = 0; } else still++;
+      last = y;
+      if (still >= 8 && (moved || performance.now() - start > 250)) finish();
+      else requestAnimationFrame(tick);
+    };
+    requestAnimationFrame(tick);
+    const ceiling = window.setTimeout(finish, 1600);
+  }
+
+  // ─── Email: a one-tap gmail.com completion, never an assumption ────────────
+  //
+  // Offered while the part after "@" is still being typed as gmail.com, and
+  // after leaving the field with one of the common gmail.com typos. Any other
+  // domain, a full address, or a browser autofill never shows it, and the
+  // value only changes when the suggestion is tapped.
+  private static readonly GMAIL_TYPO = /^(?:gmial|gmai|gamil|gmal|gmil|gnail|gmaill|gmali)\.com$|^gmail\.(?:co|con|cm|om|comm|cmo|c)$/i;
+
+  private emailParts(value: string): { local: string; domain: string } | null {
+    const v = value.trim();
+    const at = v.indexOf('@');
+    if (at < 1 || v.indexOf('@', at + 1) !== -1 || /\s/.test(v)) return null;
+    return { local: v.slice(0, at), domain: v.slice(at + 1).toLowerCase() };
+  }
+
+  onEmailInput(value: string): void {
+    const parts = this.emailParts(value);
+    const next = parts && parts.domain && parts.domain !== 'gmail.com' && 'gmail.com'.startsWith(parts.domain) ? `${parts.local}@gmail.com` : null;
+    if (next !== this.emailSuggestion) {
+      this.emailSuggestion = next;
+      this.cdr.markForCheck();
+    }
+  }
+
+  // Leaving the field never hides a suggestion that is showing - the tap on
+  // it is what blurs the field - it only adds the typo case.
+  onEmailBlur(value: string): void {
+    const parts = this.emailParts(value);
+    if (parts && AppComponent.GMAIL_TYPO.test(parts.domain)) {
+      this.emailSuggestion = `${parts.local}@gmail.com`;
+      this.cdr.markForCheck();
+    }
+  }
+
+  acceptEmailSuggestion(input: HTMLInputElement): void {
+    if (!this.emailSuggestion) return;
+    input.value = this.emailSuggestion;
+    this.emailSuggestion = null;
+    if (this.leadErrors.email) this.leadErrors = { ...this.leadErrors, email: undefined };
+    this.cdr.markForCheck();
+    input.focus();
   }
 
   @HostListener('document:keydown.escape')

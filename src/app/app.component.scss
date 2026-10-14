@@ -6220,6 +6220,51 @@ div[id] {
   }
 }
 
+// The email and phone fields hold left-to-right text in a right-to-left form:
+// the characters run in their own direction, aligned to the form's edge.
+.contact-form input[dir="ltr"] {
+  text-align: right;
+}
+
+// The form is a focus target for a CTA landing (never a Tab stop).
+.contact-form:focus {
+  outline: none;
+}
+
+// The gmail.com completion: one quiet line of type under the email field,
+// in the form's own label face - present only while it has something to say.
+.contact-suggest {
+  margin: -6px 0 0;
+
+  &:empty {
+    display: none;
+  }
+}
+
+.contact-suggest__btn {
+  display: inline-block;
+  min-height: 32px;
+  padding: 7px 2px 5px;
+  border: 0;
+  border-bottom: 1px solid var(--brand-accent-dim);
+  border-radius: 0;
+  background: none;
+  font-family: var(--font-body);
+  font-size: var(--text-xs);
+  line-height: 1.4;
+  color: var(--text);
+  cursor: pointer;
+
+  bdi {
+    font-weight: 600;
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--text);
+    outline-offset: 2px;
+  }
+}
+
 .contact-error {
   display: block;
   margin-top: 2px;
