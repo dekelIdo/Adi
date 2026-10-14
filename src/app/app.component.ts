@@ -384,18 +384,27 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy {
    * The list is the source now and the template renders it twice, so the
    * contract holds for any number of items without anyone maintaining it.
    */
-  resultCards: { image: string; value: string; desc?: string }[] = [
+  // w/h are the files' own pixel sizes: they reserve each card's space before
+  // the image arrives, so nothing above the contact form moves while a
+  // visitor is being scrolled to it.
+  resultCards: { image: string; w: number; h: number; value: string; desc?: string }[] = [
     {
       image: 'assets/lovable-uploads/MyAssets/Results/IMG_7629.PNG',
+      w: 670,
+      h: 293,
       value: '10K+',
       desc: 'צפיות לסרטון',
     },
     {
       image: 'assets/lovable-uploads/MyAssets/Results/IMG_7323.PNG',
+      w: 1320,
+      h: 345,
       value: 'מעורבות גבוהה',
     },
     {
       image: 'assets/lovable-uploads/MyAssets/Results/IMG_3572.PNG',
+      w: 1170,
+      h: 342,
       value: 'צמיחה חודשית',
       desc: 'עוקבים חדשים',
     },
@@ -1830,11 +1839,34 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy {
     if (!pipeline) return;
     this.zone.runOutsideAngular(() => {
       let rect: DOMRect | null = null;
+      // The pinned pane's own height (see initLivingPhotograph): progress is
+      // the share of the pinned travel, so it cannot run out of step with the
+      // pin when a phone's toolbar shows or hides.
+      let pinH = 0;
+      let stale = true;
+      let lastP = -1;
+      // Values that only change with the viewport (the camera, the plate's
+      // clip) are written only when they change.
+      const written = new Map<HTMLElement, Map<string, string>>();
+      const put = (el: HTMLElement, name: string, value: string) => {
+        let mine = written.get(el);
+        if (!mine) written.set(el, (mine = new Map()));
+        if (mine.get(name) === value) return;
+        mine.set(name, value);
+        el.style.setProperty(name, value);
+      };
       const update = (f: Frame) => {
         if (!rect) return;
-        const travel = rect.height - f.vh;
+        const pin = pinH || f.vh;
+        const travel = rect.height - pin;
         if (travel <= 0) return;
         const p = clamp01(-rect.top / travel);
+        // Nothing moved: write nothing. (A resize re-measures, which marks the
+        // next frame stale, and a cleared cache rewrites every value.)
+        if (!stale && p === lastP) return;
+        if (stale) written.clear();
+        stale = false;
+        lastP = p;
         const w = f.vw;
         const h = f.vh;
 
@@ -1926,9 +1958,9 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy {
         cy = clamp(ANCHOR.y - HOLD.y * ch, 0, 1 - ch);
         const padX = (w - cw * BASE * s) / 2;
         const padY = (h - ch * BASE * IMG_R * s) / 2;
-        scene.style.setProperty('--cam-s', s.toFixed(5));
-        scene.style.setProperty('--cam-x', `${(padX - cx * BASE * s).toFixed(1)}px`);
-        scene.style.setProperty('--cam-y', `${(padY - cy * BASE * IMG_R * s).toFixed(1)}px`);
+        put(scene, '--cam-s', s.toFixed(5));
+        put(scene, '--cam-x', `${(padX - cx * BASE * s).toFixed(1)}px`);
+        put(scene, '--cam-y', `${(padY - cy * BASE * IMG_R * s).toFixed(1)}px`);
 
         // THE FRAME IS THE WINDOW, AND ONLY THE PLATE OBEYS IT.
         //
@@ -1945,7 +1977,8 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy {
         // free to cross that edge - which is the entire point of the chapter.
         const PW = BASE;
         const PH = BASE * IMG_R;
-        base.style.setProperty(
+        put(
+          base,
           '--plate-clip',
           `inset(${(cy * PH).toFixed(1)}px ${((1 - cx - cw) * PW).toFixed(1)}px ` +
             `${((1 - cy - ch) * PH).toFixed(1)}px ${(cx * PW).toFixed(1)}px)`
@@ -2045,10 +2078,15 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy {
           portal.style.setProperty('--pt-lid', (1 - track(p, 0.52, 0.60)).toFixed(3));
         }
 
-        // The photograph finishes as the screen becomes the page.
-        base.style.opacity = (1 - track(p, 0.86, 1)).toFixed(3);
+        // The photograph finishes as the screen becomes the page - and the
+        // cut-out laptop lying over it (phones) finishes with it. It used to
+        // stay at full strength, so at the end a wedge of the lid hung in the
+        // empty frame above the screen.
+        const plateO = (1 - track(p, 0.86, 1)).toFixed(3);
+        base.style.opacity = plateO;
+        if (frameB) frameB.style.opacity = plateO;
 
-        veil.style.setProperty('--bridge-veil', '0');
+        put(veil, '--bridge-veil', '0');
 
         // THE PHOTOGRAPH HANDS OVER TO THE SCREEN.
         //
@@ -2072,19 +2110,26 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy {
         // already there to read while the laptop is still filling the frame.
         // The shot is not cut away from; it is covered, the way the phone
         // chapter is covered by the work chapter.
+        // Written as the section's own transform, not an inherited custom
+        // property that restyled the whole process chapter every frame.
         if (next) {
           const reveal = track(p, 0.52, 0.94);
-          next.style.setProperty('--handoff-y', `${((1 - ease(reveal)) * HANDOFF_VH * h / 100).toFixed(1)}px`);
+          next.style.transform = `translate3d(0, ${((1 - ease(reveal)) * HANDOFF_VH * pin / 100).toFixed(1)}px, 0)`;
         }
       };
 
       pipeline.add({
+        measure: () => {
+          pinH = sticky.getBoundingClientRect().height;
+          stale = true;
+        },
         read: () => {
           rect = stage.getBoundingClientRect();
         },
         write: update,
       });
       if (!baseImg.complete) baseImg.addEventListener('load', () => pipeline.invalidate(), { once: true });
+      this.primeCinematic(stage);
     });
   }
 

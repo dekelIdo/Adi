@@ -3873,8 +3873,6 @@ div[id] {
     height: auto;
     display: block;
     transform: none;
-    // Rack focus, and nothing else.
-    filter: blur(var(--base-blur, 0px)) brightness(var(--base-bright, 1));
 
     img {
       width: 100%;

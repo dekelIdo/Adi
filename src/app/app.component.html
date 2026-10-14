@@ -265,6 +265,8 @@
             <img
               src="assets/lovable-uploads/IMG_1707 (2).jpg"
               alt=""
+              width="2806"
+              height="4201"
               loading="lazy"
             />
             <span class="margin-mark" aria-hidden="true">Social-Li</span>
@@ -302,6 +304,8 @@
           <img
             src="assets/lovable-uploads/avivozeri 820 (1).jpg"
             alt=""
+            width="4201"
+            height="2806"
             loading="lazy"
           />
           <figcaption class="visual-caption">עדי אריאלי, Social-Li</figcaption>
@@ -410,7 +414,7 @@
                  middle of the shot was empty wall. Full frame keeps about 70%,
                  and the camera closes on the laptop from there. -->
             <picture class="bridge-base bridge-frame bridge-frame--a">
-              <source srcset="assets/lovable-uploads/MyAssets/AdiArieli/laptop-adi-bridge.webp" type="image/webp" />
+              <source srcset="assets/lovable-uploads/MyAssets/AdiArieli/laptop-adi-bridge-1200w.webp 1200w, assets/lovable-uploads/MyAssets/AdiArieli/laptop-adi-bridge-1800w.webp 1800w, assets/lovable-uploads/MyAssets/AdiArieli/laptop-adi-bridge.webp 2600w" sizes="(max-width: 767.98px) 580px, (max-width: 1023.98px) 1000px, 1160px" type="image/webp" />
               <img
                 src="assets/lovable-uploads/MyAssets/AdiArieli/laptop-adi-bridge.jpg"
                 alt=""
@@ -677,7 +681,7 @@
             @for (card of resultCards; track card.image) {
               <div class="result-card" [attr.aria-hidden]="set === 1 ? 'true' : null">
                 <figure class="result-frame">
-                  <img [src]="card.image" [alt]="set === 1 ? '' : 'תוצאות'" loading="lazy" />
+                  <img [src]="card.image" [alt]="set === 1 ? '' : 'תוצאות'" [attr.width]="card.w" [attr.height]="card.h" loading="lazy" />
                   <div class="result-overlay">
                     <span class="result-value">{{ card.value }}</span>
                     @if (card.desc) {
