@@ -75,6 +75,28 @@
   --text-4xl: clamp(2.6rem, 7.2vw, 4.2rem);
   --text-hero: clamp(4rem, 11vw, 8rem);
 
+  // ─── TYPE ROLES. One scale for the whole page. Every chapter heading and
+  // every paragraph takes one of these; the tiers below change the scale, never
+  // the classes. (The dark statement scenes - portfolio, honesty - keep their
+  // own larger headline on purpose, and the hero is its own moment.)
+  //   --t-chapter   the headline that opens a chapter: 40px on a phone
+  //   --t-statement a line in the display face - step and service titles,
+  //                 closing notes, sub-headings: 22px (a little less below
+  //                 390, so a line that fits at 390 still fits at 320)
+  //   --t-read      reading text, leads and paragraphs alike: 16px
+  //   --t-kicker    a lead-in phrase above a headline: 14px
+  --t-chapter: clamp(2.05rem, 10.26vw, 2.5rem);
+  --t-statement: clamp(1.2rem, 5.64vw, 1.375rem);
+  --t-read: 1rem;
+  --t-kicker: 0.875rem;
+
+  // ACCENT WORDS ON PAPER. Raw powder blue on the paper is 1.7:1 and the old
+  // charcoal mix 2.3:1 - a turn in a headline that half the readers could not
+  // see. Deepened toward the ink field instead of toward charcoal, it stays the
+  // brand's blue and reads at 3.15:1. Powder blue itself stays for marks, rules
+  // and type on dark grounds.
+  --accent-ink: color-mix(in srgb, var(--brand-accent) 55%, #223743);
+
   // ─── Container System with PROPER MOBILE GUTTERS
   --container-max: 1240px;
   --container-padding: clamp(24px, 5vw, 52px);
@@ -125,6 +147,33 @@
 
   // ─── Scroll progress (for header)
   --scrolled: 0;
+}
+
+// The type scale by tier (the phone values are above).
+@media (min-width: 768px) {
+  :host {
+    --t-chapter: var(--text-4xl);
+    --t-statement: 1.5rem;
+    --t-read: var(--text-base);
+    --t-kicker: 0.92rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  :host {
+    // The phone tokens top out at 67px, which on a five-column heading at 1024
+    // set "אולי גם אצלך זה מרגיש ככה" as four lines; one step down until 1440.
+    --t-chapter: clamp(3.2rem, 5vw, 4.2rem);
+    --t-statement: clamp(1.5rem, 1.95vw, 1.75rem);
+  }
+}
+
+@media (min-width: 1440px) {
+  :host {
+    --t-chapter: 4.6rem;
+    --t-statement: 1.75rem;
+    --t-kicker: 0.95rem;
+  }
 }
 
 // ─────── RESET & BASE ──────────────────────────────────────────────────────────
@@ -885,19 +934,20 @@ select {
 .signing-bridge {
   margin: 0;
   font-family: var(--font-body);
-  font-size: clamp(0.86rem, 2.2vw, 0.95rem);
+  font-size: var(--t-kicker);
   font-weight: 500;
   letter-spacing: 0.04em;
   color: var(--text-light);
 }
 
+// The chapter's headline, so it is set as one.
 .signing-establish {
   margin: 0;
   font-family: var(--font-display);
-  font-size: clamp(1.6rem, 5.2vw, 2.4rem);
+  font-size: var(--t-chapter);
   font-weight: 400;
-  line-height: 1.12;
-  letter-spacing: -0.022em;
+  line-height: 1.05;
+  letter-spacing: -0.024em;
   color: var(--text);
   text-wrap: balance;
 }
@@ -910,9 +960,10 @@ select {
   display: flex;
   flex-wrap: wrap;
   gap: 0 0.5em;
-  font-family: var(--font-body);
-  font-size: clamp(1.02rem, 2.9vw, 1.2rem);
-  font-weight: 600;
+  font-family: var(--font-display);
+  font-size: var(--t-statement);
+  font-weight: 400;
+  letter-spacing: -0.016em;
   color: var(--text);
 
   span {
@@ -933,7 +984,7 @@ select {
 .signing-resolve {
   margin: 0;
   font-family: var(--font-body);
-  font-size: clamp(0.92rem, 2.4vw, 1rem);
+  font-size: var(--t-read);
   line-height: 1.7;
   color: var(--text-muted);
 
@@ -1875,7 +1926,7 @@ select {
 .section-title {
   text-wrap: balance;
   font-family: var(--font-display);
-  font-size: var(--text-4xl);
+  font-size: var(--t-chapter);
   font-weight: 400;
   line-height: 1.05;
   letter-spacing: -0.024em;
@@ -1895,7 +1946,7 @@ select {
     // emphasis reads through weight and brand colour, never a synthetic slant.
     font-style: normal;
     font-weight: 400;
-    color: color-mix(in srgb, var(--brand-accent) 72%, var(--text));
+    color: var(--accent-ink);
   }
 }
 
@@ -1905,7 +1956,7 @@ select {
 
 .section-body,
 .section-lead {
-  font-size: var(--text-base);
+  font-size: var(--t-read);
   line-height: 1.62;
   color: color-mix(in srgb, var(--text-muted) 86%, var(--text));
   max-width: 64ch;
@@ -1923,7 +1974,6 @@ select {
 }
 
 .section-lead {
-  font-size: var(--text-lg);
   line-height: 1.56;
   color: var(--text-muted);
   margin-bottom: var(--space-xs);
@@ -2058,7 +2108,6 @@ select {
 .section-body,
 .section-lead,
 .honesty-body,
-.why-sub,
 .story-card p {
   margin-bottom: var(--flow-tight);
 
@@ -2373,7 +2422,7 @@ div[id] {
   text-wrap: balance;
   font-family: var(--font-display);
   letter-spacing: -0.014em;
-  font-size: var(--text-3xl);
+  font-size: var(--t-chapter);
   font-weight: 400;
   font-style: normal;
   line-height: 1.16;
@@ -2456,6 +2505,12 @@ div[id] {
 .portfolio-headline::after {
   background: var(--brand-accent);
   opacity: 0.75;
+}
+
+// A centred heading carries a centred line - at every width, not only on
+// phones (on desktop it hung off the headline's right edge).
+.honesty-headline::after {
+  margin-inline: auto;
 }
 
 // ── 1. THE ESCAPING FRAME ──────────────────────────────────────────────────────
@@ -2851,7 +2906,6 @@ div[id] {
   .split-grid--insight .quote {
     padding-bottom: var(--m-space-sm);
     margin-bottom: var(--m-space-md);
-    font-size: clamp(2.3rem, 10.2vw, 2.6rem);
     line-height: 1.02;
     letter-spacing: -0.024em;
     background: linear-gradient(var(--brand-accent-dim), var(--brand-accent-dim)) right bottom / 32px 1px no-repeat;
@@ -2859,7 +2913,6 @@ div[id] {
 
   .split-grid--insight .section-body {
     max-width: 84%;
-    font-size: clamp(0.97rem, 4vw, 1rem);
     line-height: 1.55;
     color: var(--text-muted);
   }
@@ -3229,7 +3282,7 @@ div[id] {
   text-wrap: balance;
   font-family: var(--font-display);
   letter-spacing: -0.022em;
-  font-size: var(--text-3xl);
+  font-size: var(--t-chapter);
   font-weight: 400;
   line-height: 1.08;
   color: var(--text);
@@ -3239,7 +3292,7 @@ div[id] {
     // emphasis reads through weight and brand colour, never a synthetic slant.
     font-style: normal;
     font-weight: 400;
-    color: color-mix(in srgb, var(--brand-accent) 70%, var(--text));
+    color: var(--accent-ink);
   }
 }
 // THE ROLE SETS ITSELF, INSTEAD OF BEING BROKEN BY HAND.
@@ -3285,7 +3338,7 @@ div[id] {
 
   h3 {
     font-family: var(--font-display);
-    font-size: clamp(1.22rem, 3.6vw, 1.5rem);
+    font-size: var(--t-statement);
     font-weight: 400;
     letter-spacing: -0.02em;
     line-height: 1.15;
@@ -3293,7 +3346,7 @@ div[id] {
   }
 
   p {
-    font-size: var(--text-base);
+    font-size: var(--t-read);
     line-height: 1.62;
     color: var(--text-muted);
 
@@ -4063,14 +4116,16 @@ div[id] {
 }
 
 .process-row-title {
-  font-size: var(--text-xl);
-  font-weight: 500;
+  font-family: var(--font-display);
+  font-size: var(--t-statement);
+  font-weight: 400;
+  letter-spacing: -0.016em;
   color: var(--text);
   margin-bottom: 6px;
 }
 
 .process-row-desc {
-  font-size: var(--text-base);
+  font-size: var(--t-read);
   line-height: 1.7;
   color: var(--text-muted);
 }
@@ -4078,7 +4133,7 @@ div[id] {
 .section-close-note {
   text-align: start;
   font-family: var(--font-display);
-  font-size: clamp(1.18rem, 3.4vw, 1.5rem);
+  font-size: var(--t-statement);
   font-weight: 400;
   line-height: 1.3;
   letter-spacing: -0.018em;
@@ -4463,7 +4518,7 @@ div[id] {
 }
 
 .portfolio-header-desc {
-  font-size: var(--text-base);
+  font-size: var(--t-read);
   line-height: 1.68;
   color: rgba(255, 255, 255, 0.72);
   max-width: 34ch;
@@ -4755,7 +4810,7 @@ div[id] {
 .services-headline {
   text-wrap: balance;
   font-family: var(--font-display);
-  font-size: var(--text-4xl);
+  font-size: var(--t-chapter);
   font-weight: 400;
   line-height: 1.04;
   letter-spacing: -0.024em;
@@ -4766,12 +4821,12 @@ div[id] {
     white-space: nowrap;
     font-style: normal;
     font-weight: 400;
-    color: color-mix(in srgb, var(--brand-accent) 72%, var(--text));
+    color: var(--accent-ink);
   }
 }
 
 .services-header-lead {
-  font-size: var(--text-base);
+  font-size: var(--t-read);
   line-height: 1.68;
   color: var(--text-muted);
 }
@@ -4830,14 +4885,15 @@ div[id] {
 }
 
 .services-row-title {
-  font-size: var(--text-xl);
-  font-weight: 700;
+  font-family: var(--font-display);
+  font-size: var(--t-statement);
+  font-weight: 400;
   color: var(--text);
   margin-bottom: 8px;
 }
 
 .services-row-tags {
-  font-size: var(--text-base);
+  font-size: var(--t-read);
   line-height: 1.68;
   color: var(--text-muted);
 }
@@ -4847,222 +4903,167 @@ div[id] {
   margin-top: var(--space-lg);
 }
 
-// ─────── WHY + AUDIENCE MERGED SECTION ─────────────────────────────────────────
+// ─────── WHY: A QUESTION AND ITS ANSWER ────────────────────────────────────────
+// The section is a question and its answer, so it is set with the brand's own
+// signature - the headline turn, charcoal setup and blue answer, as in the hero
+// and the honesty chapter - stretched across the whole section:
+//   the question   the chapter headline, with its rule
+//   the answer     the setup in reading grey, then "זה להבין." on its own line
+//                  at headline size in the accent ink: the only blue here
+//   the meaning    three lines of equal weight in the display face that
+//                  explain what understanding means
+//   who it is for  a statement-size sub-heading over four reading lines
+// One reading edge throughout. No marks, no rows, no word set larger than its
+// line. On desktop the question and answer hold the reading column and the
+// rest opens beside the blue word, so the eye goes question, answer, meaning.
+// Every distance below has this one owner.
 
 .section-why-merged {
   padding: var(--space-lg) 0;
 }
 
 .why-merged-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: var(--space-xl);
-}
-
-// No row gap: the heading and the paragraph inside carry --flow-open and
-// --flow-tight themselves, and a gap here was added on top of both - which put
-// this section's heading-to-body at 36px against the 26px it measures
-// everywhere else.
-.why-col,
-.audience-col {
-  display: flex;
-  flex-direction: column;
+  display: block;
 }
 
 .why-headline {
   text-wrap: balance;
   font-family: var(--font-display);
   letter-spacing: -0.024em;
-  font-size: var(--text-3xl);
+  font-size: var(--t-chapter);
   font-weight: 400;
   line-height: 1.04;
   color: var(--text);
+  margin-bottom: 24px;
 }
 
-.why-sub {
-  font-size: var(--text-base);
-  line-height: 1.68;
+.why-answer {
+  margin: 0;
+}
+
+.why-answer-setup,
+.why-answer-turn {
+  display: block;
+}
+
+.why-answer-setup {
+  font-size: var(--t-read);
+  line-height: 1.6;
   color: var(--text-muted);
+  text-wrap: balance;
 }
 
-// Phone-only lead-in; the desktop split carries that meaning by position.
-.audience-eyebrow {
-  display: none;
+.why-answer-turn {
+  margin-top: 6px;
+  font-family: var(--font-display);
+  font-size: var(--t-chapter);
+  font-weight: 400;
+  line-height: 1.04;
+  letter-spacing: -0.024em;
+  color: var(--accent-ink);
 }
 
+.why-detail {
+  margin-top: 28px;
+}
 
-
-.why-statements,
-.audience-statements {
+.why-understanding,
+.why-audience {
+  list-style: none;
+  margin: 0;
+  padding: 0;
   display: flex;
   flex-direction: column;
-  gap: 0;
 }
 
-.why-statement,
-.audience-statement {
-  padding: 11px 0;
-  border-radius: 0;
-  background: none;
-  border: none;
-  border-top: 1px solid var(--rule);
-  box-shadow: none;
+.why-understanding {
+  gap: 8px;
 
-  &:first-child {
-    border-top: none;
-  }
-}
-
-.why-statement-text,
-.audience-statement p {
-  font-size: var(--text-base);
-  line-height: 1.7;
-  color: var(--text);
-}
-
-.audience-statement {
-  display: flex;
-  align-items: flex-start;
-  gap: 16px;
-}
-
-.audience-mark {
-  flex-shrink: 0;
-  width: 20px;
-  height: 20px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: var(--text-sm);
-  font-weight: 700;
-  color: var(--brand-accent);
-  line-height: 1;
-}
-
-@media (max-width: 699.98px) {
-  // ONE CHAIN, READ AS THREE SENTENCES. Each of the three ideas stays a whole
-  // sentence, and the word that carries it - לעצור, סיפור, ללקוחות - is set
-  // large inside that sentence rather than lifted out of it, so nothing has
-  // to be matched back to a caption: the explanation is the line the word
-  // sits in. The three are not a staircase of sizes. The first states the
-  // start of the chain; the second steps in from the reading edge and its
-  // word is the biggest, because the story is the middle of the argument
-  // and the part that is hers; the third returns to the edge and resolves
-  // on the one blue word, the end the chain exists for. No rules, no marks.
-  .why-merged-grid {
-    gap: 0;
-  }
-
-  .why-sub {
-    margin-bottom: clamp(20px, 3.2vh, 28px);
-    font-size: var(--text-base);
-    line-height: 1.6;
-    color: var(--text-muted);
-  }
-
-  .why-statements {
-    gap: clamp(12px, 2vh, 18px);
-  }
-
-  .why-statement {
-    padding: 0;
-    border-top: none;
-  }
-
-  // The sentence is set in the display face at a real reading size and its
-  // carrying word is only about half again as large - enough to lead the
-  // eye, not so much that the rest of the line turns into a caption.
-  .why-statement-text {
-    display: block;
+  li {
     font-family: var(--font-display);
-    font-size: clamp(1.3rem, 4.4vw, 1.5rem);
+    font-size: var(--t-statement);
     font-weight: 400;
-    letter-spacing: -0.012em;
-    line-height: 1.24;
-    color: color-mix(in srgb, var(--text) 82%, var(--text-muted));
-    text-wrap: balance;
-  }
-
-  .why-key {
-    font-size: clamp(1.85rem, 6.6vw, 2.15rem);
-    line-height: 1;
-    letter-spacing: -0.022em;
-    color: var(--text);
-  }
-
-  .why-statement:nth-child(2) {
-    padding-inline-start: clamp(22px, 8vw, 36px);
-  }
-
-  .why-statement:nth-child(2) .why-key {
-    font-size: clamp(2.1rem, 7.8vw, 2.5rem);
-  }
-
-  .why-statement:nth-child(3) .why-key {
-    color: var(--brand-accent-dim);
-  }
-
-  // WHO IT IS FOR, as one closing statement: a small lead-in, the three
-  // shorter lines run together as a single quiet sentence, and the line
-  // that actually says what these businesses have in common - that
-  // marketing is their growth engine - set alone at display size as the
-  // last thing the section says.
-  .audience-col {
-    margin-top: clamp(28px, 4.4vh, 38px);
-  }
-
-  .audience-eyebrow {
-    display: block;
-    margin-bottom: 8px;
-    font-size: 0.7rem;
-    font-weight: 600;
-    letter-spacing: 0.14em;
-    color: var(--brand-accent-dim);
-  }
-
-  .audience-statements {
-    display: block;
-  }
-
-  .audience-statement {
-    padding: 0;
-    border-top: none;
-  }
-
-  .audience-statement:not(:last-child),
-  .audience-statement:not(:last-child) p {
-    display: inline;
-  }
-
-  .audience-mark {
-    display: none;
-  }
-
-  .audience-statement p {
-    font-size: clamp(1.04rem, 3.1vw, 1.12rem);
-    line-height: 1.6;
-    color: color-mix(in srgb, var(--text) 78%, var(--text-muted));
-  }
-
-  .audience-statement:nth-child(2) p::before,
-  .audience-statement:nth-child(3) p::before {
-    content: " · ";
-    color: var(--text-light);
-  }
-
-  .audience-statement:last-child {
-    display: block;
-  }
-
-  .audience-statement:last-child p {
-    display: block;
-    margin-top: 14px;
-    font-family: var(--font-display);
-    font-size: clamp(1.42rem, 5.3vw, 1.66rem);
-    line-height: 1.22;
+    line-height: 1.25;
     letter-spacing: -0.016em;
     color: var(--text);
     text-wrap: balance;
+  }
+}
+
+.why-audience-title {
+  margin: 48px 0 0;
+  font-family: var(--font-display);
+  font-size: var(--t-statement);
+  font-weight: 400;
+  line-height: 1.25;
+  letter-spacing: -0.016em;
+  color: var(--text);
+}
+
+.why-audience {
+  margin-top: 16px;
+  gap: 10px;
+
+  li {
+    font-size: var(--t-read);
+    line-height: 1.5;
+    color: color-mix(in srgb, var(--text) 85%, var(--text-muted));
+    text-wrap: balance;
+  }
+}
+
+@media (min-width: 1024px) {
+  // Headline five columns, the rest seven. The answer's two lines are placed
+  // on the grid themselves so the meaning can start on the blue word's line.
+  .why-merged-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
+    column-gap: var(--split-gap);
+    align-items: start;
+  }
+
+  .why-headline {
+    grid-column: 1;
+    grid-row: 1;
+    margin-bottom: 32px;
+  }
+
+  .why-answer {
+    display: contents;
+  }
+
+  .why-answer-setup {
+    grid-column: 1;
+    grid-row: 2;
+  }
+
+  // The meaning's first line stands on the blue word's baseline, so the
+  // answer visibly runs on into what it means.
+  .why-answer-turn {
+    grid-column: 1;
+    grid-row: 3;
+    margin-top: 8px;
+    align-self: baseline;
+  }
+
+  .why-detail {
+    grid-column: 2;
+    grid-row: 3 / span 2;
+    margin-top: 0;
+    align-self: baseline;
+  }
+
+  .why-understanding {
+    gap: 12px;
+  }
+
+  .why-audience-title {
+    margin-top: 56px;
+  }
+
+  .why-audience {
+    margin-top: 20px;
+    gap: 12px;
   }
 }
 
@@ -5145,15 +5146,21 @@ div[id] {
 }
 
 .honesty-body {
-  font-size: var(--text-lg);
+  font-size: var(--t-read);
   line-height: 1.68;
+  // Centred lines, so they are balanced rather than left with a short tail.
+  text-wrap: balance;
   color: rgba(255, 255, 255, 0.74);
 }
 
+// The punchline is a statement line in the display face, not a bold paragraph.
 .honesty-sign {
-  font-size: var(--text-xl);
-  font-weight: 600;
-  color: rgba(255, 255, 255, 0.88);
+  font-family: var(--font-display);
+  font-size: var(--t-statement);
+  font-weight: 400;
+  line-height: 1.3;
+  letter-spacing: -0.016em;
+  color: rgba(255, 255, 255, 0.92);
   margin: var(--space-md) 0;
 }
 
@@ -5434,7 +5441,7 @@ div[id] {
 .shoot-admit {
   margin: 0;
   font-family: var(--font-body);
-  font-size: clamp(0.94rem, 2.5vw, 1.05rem);
+  font-size: var(--t-kicker);
   font-weight: 400;
   color: var(--text-muted);
 }
@@ -5445,7 +5452,7 @@ div[id] {
 .shoot-claim {
   margin: clamp(8px, 1.4vh, 14px) 0 0;
   font-family: var(--font-display);
-  font-size: clamp(2.2rem, 8.4vw, 4.6rem);
+  font-size: var(--t-chapter);
   font-weight: 400;
   line-height: 1.04;
   letter-spacing: -0.028em;
@@ -6585,6 +6592,7 @@ div[id] {
     margin: 0;
     padding-bottom: clamp(18px, 2.6vh, 26px);
     max-width: 62ch;
+    font-size: var(--t-read);
     color: var(--text-muted);
     line-height: 1.72;
   }
@@ -7466,8 +7474,7 @@ div[id] {
     .about-layout,
     .solution-wrap,
     .contact-layout,
-    .split-grid,
-    .why-merged-grid {
+    .split-grid {
       grid-template-columns: 1fr;
       gap: var(--space-md);
     }
@@ -7545,7 +7552,6 @@ div[id] {
   // Short 1–3 word section titles stay on one line within the 20–24px gutter
   .section-title.section-title--short {
     max-width: 100%;
-    font-size: clamp(2.4rem, 7.2vw, 4.2rem);
     letter-spacing: -0.028em;
     white-space: nowrap;
 
@@ -7635,7 +7641,7 @@ div[id] {
       display: block;
       margin: 0 0 6px;
       font-family: var(--font-display);
-      font-size: clamp(1.34rem, 5.2vw, 1.6rem);
+      font-size: var(--t-statement);
       font-weight: 400;
       line-height: 1.3;
       letter-spacing: -0.016em;
@@ -7671,7 +7677,6 @@ div[id] {
     .process-row-desc {
       display: block;
       max-width: 30ch;
-      font-size: clamp(1.04rem, 3.1vw, 1.12rem);
       line-height: 1.58;
       color: color-mix(in srgb, var(--text) 74%, var(--text-muted));
     }
@@ -7738,7 +7743,7 @@ div[id] {
   .process-row-title {
     margin-bottom: 8px;
     font-family: var(--font-display);
-    font-size: clamp(1.5rem, 5.9vw, 1.8rem);
+    font-size: var(--t-statement);
     font-weight: 400;
     line-height: 1.08;
     letter-spacing: -0.02em;
@@ -7748,10 +7753,6 @@ div[id] {
       content: ".";
       color: var(--brand-accent-dim);
     }
-  }
-
-  .process-row:first-child .process-row-title {
-    font-size: clamp(2rem, 8.4vw, 2.5rem);
   }
 
   .process-row-desc {
@@ -7870,13 +7871,12 @@ div[id] {
     .problem-header .section-title {
       max-width: none;
       margin-bottom: 0;
-      font-size: clamp(2.3rem, 10.2vw, 2.6rem);
       line-height: 1.02;
       letter-spacing: -0.024em;
     }
 
     .problem-title-turn {
-      color: var(--brand-accent-dim);
+      color: var(--accent-ink);
     }
 
     .problem-header .underline-accent {
@@ -8050,7 +8050,6 @@ div[id] {
 
     .services-headline {
       margin-bottom: 0;
-      font-size: clamp(2.1rem, 9.2vw, 2.35rem);
       line-height: 1.04;
 
       &::after {
@@ -8064,7 +8063,6 @@ div[id] {
 
     .services-header-lead {
       max-width: 86%;
-      font-size: clamp(0.97rem, 4vw, 1rem);
       line-height: 1.55;
       color: var(--text-muted);
     }
@@ -8127,7 +8125,7 @@ div[id] {
       position: relative;
       margin-bottom: var(--m-space-xs);
       font-family: var(--font-display);
-      font-size: clamp(1.3rem, 5.65vw, 1.45rem);
+      font-size: var(--t-statement);
       font-weight: 400;
       line-height: 1.15;
       letter-spacing: -0.016em;
@@ -8136,7 +8134,6 @@ div[id] {
     }
 
     .services-row-tags {
-      font-size: clamp(0.97rem, 4vw, 1rem);
       line-height: 1.52;
       color: color-mix(in srgb, var(--field-text) 75%, transparent);
       text-wrap: pretty;
@@ -8206,7 +8203,6 @@ div[id] {
     .contact-copy .section-title {
       max-width: none;
       margin-bottom: 0;
-      font-size: clamp(2.3rem, 10.2vw, 2.6rem);
       line-height: 1.02;
       letter-spacing: -0.024em;
 
@@ -8222,7 +8218,6 @@ div[id] {
     .contact-copy .section-body {
       max-width: 86%;
       margin: var(--m-space-md) 0 0;
-      font-size: clamp(0.97rem, 4vw, 1rem);
       line-height: 1.55;
       color: var(--text-muted);
     }
@@ -8582,7 +8577,6 @@ div[id] {
     p {
       max-width: none;
       padding-block: 2px clamp(18px, 2.6vh, 24px);
-      font-size: clamp(1.02rem, 3.3vw, 1.1rem);
       line-height: 1.62;
       color: color-mix(in srgb, var(--text) 80%, var(--text-muted));
       opacity: 0;
@@ -8616,10 +8610,6 @@ div[id] {
   .hero-essence {
     font-size: 2.15rem;
   }
-
-  .section-title {
-    font-size: clamp(1.8rem, 8vw, 2.4rem);
-  }
 }
 
 // ────── Small-tablet / large-phone tier (540–699px) ──────
@@ -8636,11 +8626,6 @@ div[id] {
   .portfolio-editorial-header {
     grid-template-columns: 1fr 1fr;
     gap: var(--space-sm);
-  }
-
-  .why-merged-grid {
-    grid-template-columns: 1fr 1fr;
-    gap: var(--space-md);
   }
 
   .split-grid {
@@ -8714,11 +8699,6 @@ div[id] {
   .contact-layout {
     grid-template-columns: 0.95fr 1fr;
     gap: var(--space-md);
-  }
-
-  .why-merged-grid {
-    grid-template-columns: 1fr 1fr;
-    gap: var(--space-lg);
   }
 
   // The portrait must not become a 1000px tall block once it has its own column.
@@ -9040,13 +9020,11 @@ div[id] {
   }
 
   .services-headline {
-    font-size: clamp(3.6rem, 4.4vw, 5.4rem);
     max-width: 14ch;
   }
 
   .services-header-lead {
     max-width: 46ch;
-    font-size: var(--text-lg);
     line-height: 1.5;
   }
 
@@ -9076,7 +9054,7 @@ div[id] {
 
   .services-row-title {
     font-family: var(--font-display);
-    font-size: clamp(1.9rem, 2.1vw, 2.6rem);
+    font-size: var(--t-statement);
     font-weight: 400;
     line-height: 1.1;
     letter-spacing: -0.018em;
@@ -9368,49 +9346,6 @@ div[id] {
     column-gap: var(--split-gap);
   }
 
-  // WHY. Headline column five, audience column seven. The two lists are the
-  // chapter's substance and were set at body size with 11px rows - metadata
-  // beside a 74px heading. They take the lead size and rows with air, and the
-  // audience list starts on the heading's own baseline band.
-  .why-merged-grid {
-    grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
-    column-gap: var(--split-gap);
-    align-items: start;
-  }
-
-  .why-sub {
-    font-size: var(--text-lg);
-    line-height: 1.5;
-    // Two even lines, never a stranded last word.
-    text-wrap: balance;
-  }
-
-  .why-statement,
-  .audience-statement {
-    padding: clamp(14px, 1.4vw, 20px) 0;
-  }
-
-  .why-statement-text,
-  .audience-statement p {
-    font-size: var(--text-lg);
-    line-height: 1.5;
-  }
-
-  .audience-statement {
-    gap: 20px;
-  }
-
-  .audience-mark {
-    width: 24px;
-    height: 24px;
-    font-size: var(--text-base);
-    margin-top: 0.15em;
-  }
-
-  .audience-col {
-    padding-top: clamp(14px, 1.4vw, 20px);
-  }
-
   // FOOTER. An ending: a hairline over the credit and the open tier's air.
   .site-footer {
     padding-block-start: var(--sec-open);
@@ -9445,10 +9380,6 @@ div[id] {
   .hero-identity,
   .hero-quiet-cta {
     max-width: min(760px, 52%);
-  }
-
-  .section-title {
-    font-size: 4.6rem;
   }
 
   .about-layout {
@@ -9723,20 +9654,6 @@ div[id] {
 }
 
 // ── DESKTOP 1024–1439: display type sized to the column ──────────────────────
-// The phone tokens top out at 67px, which on a five-column heading at 1024 set
-// "אולי גם אצלך זה מרגיש ככה" as four lines and the about name as six. One step
-// down here; the 1440 tier above keeps its 4.6rem.
-@media (min-width: 1024px) and (max-width: 1439.98px) {
-  .section-title {
-    font-size: clamp(3.2rem, 5vw, 4.2rem);
-  }
-
-  .about-intro,
-  .quote {
-    font-size: clamp(3rem, 4.8vw, 4.2rem);
-  }
-}
-
 @media (min-width: 1440px) {
   :host {
     --container-max: 1360px;
@@ -9810,11 +9727,6 @@ div[id] {
   .portfolio-headline.reveal.is-visible::after,
   .honesty-headline.reveal.is-visible::after {
     width: 32px;
-  }
-
-  // A centred heading carries a centred line.
-  .honesty-headline::after {
-    margin-inline: auto;
   }
 
   // The comparison's 3px strokes and the portfolio's 2px gradient bar were a
