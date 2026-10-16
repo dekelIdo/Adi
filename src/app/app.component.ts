@@ -1316,11 +1316,15 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy {
     pipeline.add({
       measure: (f) => {
         probe = header.getBoundingClientRect().bottom - 1;
+        // A section may be composed differently on a phone (the diagnosis is a
+        // dark room there and paper above it), so it can name a phone theme.
+        const phone = f.vw < 768;
         secs = sections.map((el) => {
           const r = el.getBoundingClientRect();
+          const themed = (phone && el.getAttribute('data-header-theme-phone')) || el.getAttribute('data-header-theme');
           return {
             el,
-            theme: (el.getAttribute('data-header-theme') as 'light' | 'dark') ?? 'dark',
+            theme: (themed as 'light' | 'dark') ?? 'dark',
             top: r.top + f.y,
             bottom: r.bottom + f.y,
             live: getComputedStyle(el).transform !== 'none',

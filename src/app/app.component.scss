@@ -1602,6 +1602,13 @@ select {
   display: flex;
   width: max-content;
   animation: marquee 36s linear infinite;
+  // OPPOSITE TO THE CLIENTS' STRIP BELOW, AND IN THE WORDS' OWN DIRECTION.
+  // The two opening strips used to drift the same way. These are Hebrew
+  // phrases, so each one should arrive start first - its right end - which
+  // means travelling rightward; the logo strip keeps its leftward drift. Same
+  // keyframe, played back: it still ends exactly on a set boundary, so the
+  // loop hands back to itself invisibly.
+  animation-direction: reverse;
 
   &.is-idle {
     animation-play-state: paused;
@@ -7843,23 +7850,36 @@ div[id] {
       }
     }
 
-    // ─── PAIN POINTS: THE EDITORIAL PLATE, TO THE REFERENCE ─────────────────
-    // The chapter as one composition: the heading large on the warm page with
-    // its second line in the brand blue and a 32px rule beneath; then one
-    // large plate of deep smoky blue - a single quiet gradient, no border, no
-    // shadow - carrying the six sentences in ONE face at ONE size as four
-    // groups: the setup close and a little back; the core problem alone, a
-    // step in on a short measure, with the most air around it; the two
-    // barriers as one pair on a single powder-blue hairline exactly their
-    // height; the outcome on the full edge after a breath, "לקוחות" the one
-    // blue word. Nothing else is drawn on the plate. The real photograph is
-    // tucked under the plate's foot so it emerges out of the dark rather
-    // than starting as a rectangle beneath it. Plate and photograph sit 12px
-    // from the screen edges - the axis of the header bar and the package field.
-    // The chapter boundary after the logo strip: the strip keeps its own 24px
-    // and this padding makes the distance a full boundary.
+    // ─── PAIN POINTS: THE ROOM SHE WORKS IN ─────────────────────────────────
+    // The chapter is set inside the photograph's own room. The section is one
+    // full-bleed field in the picture's wall tone - the site's charcoal
+    // warming into the unlit wall behind her - so there is no card and no
+    // box: the page itself has become the room. The heading opens it in the
+    // dark-chapter voice (white, the turn in powder blue, the one rule). The
+    // six sentences are the reader's own monologue, one reading edge, one
+    // face, one size, and they gather weight as they go: each line a little
+    // brighter than the one before, the pairs held close, until the last
+    // sentence arrives in full light. That sentence is set on the photograph:
+    // the picture rises out of the wall tone beneath it, its unlit wall under
+    // the words and Adi at work below them - the problem stated, and the
+    // person who answers it in the same frame. Her desk falls to black and
+    // meets the Social-Li band that follows without a seam.
+    //
+    // Phones only; the tablet and desktop keep their own paper composition.
+    // The chapter boundary after the logo strip is a hard cut into the dark,
+    // the way every paper/dark boundary on the page is.
     .section-problem {
-      padding-top: 40px;
+      --room-top: #2a2826;
+      --room-wall: #26221a;
+      --room-foot: #0c0b0a;
+      position: relative;
+      padding-block: 56px 0;
+      background: linear-gradient(to bottom, var(--room-top) 0%, var(--room-wall) 62%, var(--room-foot) 100%);
+      color: #fff;
+    }
+
+    #problem .section-glow {
+      display: none;
     }
 
     // The comparison chapter's boundaries (its seam rule sits earlier in
@@ -7872,7 +7892,7 @@ div[id] {
     }
 
     .problem-header {
-      margin-bottom: var(--m-space-md);
+      margin-bottom: var(--m-space-lg);
     }
 
     .problem-header .section-title {
@@ -7880,28 +7900,32 @@ div[id] {
       margin-bottom: 0;
       line-height: 1.02;
       letter-spacing: -0.024em;
+      color: rgba(255, 255, 255, 0.94);
+    }
+
+    .problem-title-turn {
+      color: var(--brand-accent);
     }
 
     .problem-header .underline-accent {
       margin-top: var(--m-space-sm);
       height: 1px;
+      background: var(--brand-accent);
+      opacity: 0.75;
 
       &.is-visible {
         width: 32px;
       }
     }
 
+    // The monologue. Above the photograph, which rises beneath its last line.
     .problem-list {
-      --panel-text: #f6f3ef;
       position: relative;
       z-index: 1;
       display: block;
       max-width: none;
-      margin: 0 calc(12px - var(--container-padding));
-      padding: var(--m-space-xl) clamp(24px, 6.6vw, 28px);
-      border-radius: 12px;
-      background: linear-gradient(225deg, #33505f 0%, #294353 48%, #223743 100%);
-      color: var(--panel-text);
+      margin: 0;
+      padding: 0;
     }
 
     .problem-item {
@@ -7915,103 +7939,85 @@ div[id] {
       display: none;
     }
 
-    // ONE FACE, ONE SIZE, for all six sentences.
     .problem-item p {
       max-width: none;
       font-family: var(--font-display);
-      font-size: clamp(1.2rem, 5.2vw, 1.34rem);
+      font-size: var(--t-statement);
       font-weight: 400;
       line-height: 1.34;
       letter-spacing: -0.014em;
-      color: inherit;
       text-wrap: balance;
     }
 
-    // GROUP 1 - THE SETUP.
-    .problem-item--opening p {
-      color: color-mix(in srgb, var(--panel-text) 80%, transparent);
-    }
+    // The weight gathers: each sentence a step brighter than the last.
+    .problem-item:nth-child(1) p { color: rgba(255, 255, 255, 0.56); }
+    .problem-item:nth-child(2) p { color: rgba(255, 255, 255, 0.62); }
+    .problem-item:nth-child(3) p { color: rgba(255, 255, 255, 0.74); }
+    .problem-item:nth-child(4) p { color: rgba(255, 255, 255, 0.8); }
+    .problem-item:nth-child(5) p { color: rgba(255, 255, 255, 0.86); }
 
-    .problem-item--opening + .problem-item--opening {
-      margin-top: var(--m-pair);
-    }
-
-    // GROUP 2 - THE CORE PROBLEM.
-    .problem-item--pivot {
-      margin-top: var(--m-space-xl);
-      padding-inline-start: 14px;
-    }
-
-    .problem-item--pivot p {
-      max-width: 78%;
-    }
-
-    // GROUP 3 - THE BARRIERS, one pair on one hairline. The pair's own gap
-    // lives inside the first item, so the two borders meet as one unbroken
-    // line exactly the height of the pair.
-    .problem-item--lack {
-      border-inline-start: 1px solid color-mix(in srgb, var(--brand-accent) 72%, transparent);
-      padding-inline-start: 13px;
-    }
-
-    .problem-item--lack p {
-      color: color-mix(in srgb, var(--panel-text) 86%, transparent);
-    }
-
-    .problem-item--pivot + .problem-item--lack {
-      margin-top: var(--m-space-lg);
-      padding-bottom: var(--m-pair);
-    }
-
+    // What you tried, held close; what it comes to; what is missing, held
+    // close.
+    .problem-item--opening + .problem-item--opening,
     .problem-item--lack + .problem-item--lack {
-      margin-top: 0;
+      margin-top: 6px;
     }
 
-    // GROUP 4 - THE OUTCOME.
+    .problem-item--pivot,
+    .problem-item--pivot + .problem-item--lack {
+      margin-top: 20px;
+    }
+
+    // The outcome, in full light, on the photograph's wall.
     .problem-item--final {
-      margin-top: var(--m-space-xl);
+      margin-top: 36px;
       border: 0;
     }
 
     .problem-item--final p {
-      max-width: 17ch;
+      max-width: 15ch;
+      font-size: 1.75rem;
+      line-height: 1.2;
+      letter-spacing: -0.02em;
+      color: rgba(255, 255, 255, 0.97);
     }
 
     .problem-key {
       color: var(--brand-accent);
     }
 
-    // THE PHOTOGRAPH. The plate's own width, tucked 36px under its foot and
-    // drawn beneath it, so the first thing seen below the dark edge is the
-    // picture already emerging; square where it meets the plate, 12px at the
-    // foot; a 4:5 crop positioned so her face and hands sit in the clear.
-    // The mask runs transparent at the top, a fifth at 8%, over half at 18%,
-    // nine tenths at 28%, whole from 34%; WebKit gets it through its
-    // prefixed property.
+    // THE PHOTOGRAPH, edge to edge and square, as chapter photography is on
+    // a phone. It is pulled up under the last sentence, so the words stand
+    // on the unlit wall above her head (her hair begins about a fifth of the
+    // way down the frame, below the second line), and its top dissolves into
+    // the field it shares a tone with; its foot dissolves into the black of
+    // the band below. The picture itself is untouched.
     .problem-photo {
       display: block;
       position: relative;
       z-index: 0;
-      margin: -36px calc(12px - var(--container-padding)) 0;
-      border-radius: 0 0 12px 12px;
+      margin: -64px calc(-1 * var(--container-padding)) 0;
+      border-radius: 0;
       overflow: hidden;
       -webkit-mask-image: linear-gradient(
         to bottom,
         transparent 0%,
-        rgba(0, 0, 0, 0.18) 8%,
-        rgba(0, 0, 0, 0.55) 18%,
-        rgba(0, 0, 0, 0.88) 28%,
-        #000 34%,
-        #000 100%
+        rgba(0, 0, 0, 0.3) 7%,
+        rgba(0, 0, 0, 0.72) 15%,
+        #000 24%,
+        #000 90%,
+        rgba(0, 0, 0, 0.55) 96%,
+        transparent 100%
       );
       mask-image: linear-gradient(
         to bottom,
         transparent 0%,
-        rgba(0, 0, 0, 0.18) 8%,
-        rgba(0, 0, 0, 0.55) 18%,
-        rgba(0, 0, 0, 0.88) 28%,
-        #000 34%,
-        #000 100%
+        rgba(0, 0, 0, 0.3) 7%,
+        rgba(0, 0, 0, 0.72) 15%,
+        #000 24%,
+        #000 90%,
+        rgba(0, 0, 0, 0.55) 96%,
+        transparent 100%
       );
 
       picture,
@@ -8021,11 +8027,18 @@ div[id] {
       }
 
       img {
-        aspect-ratio: 4 / 5;
         height: auto;
-        object-fit: cover;
-        object-position: 50% 12%;
       }
+    }
+
+    // The Social-Li band now follows the room's black desk directly, so its
+    // top edge starts in the room's own foot colour and opens into its
+    // gradient - and loses the hairline that drew a seam across the join.
+    .brand-break {
+      border-top: 0;
+      background:
+        linear-gradient(to bottom, #0c0b0a 0%, rgba(12, 11, 10, 0) 70%),
+        linear-gradient(135deg, rgba(6, 5, 4, 0.98), rgba(10, 8, 6, 0.96));
     }
 
     // ─── SERVICES: THE PACKAGE FIELD ────────────────────────────────────────
