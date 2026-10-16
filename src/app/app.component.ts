@@ -208,6 +208,121 @@ class ScrollPipeline {
   }
 }
 
+// ─── THE CINEMATICS ON THE COMPOSITOR ──────────────────────────────────────────
+//
+// A phone scrolls the page on a thread of its own: the pinned stage moves with
+// the finger at the display's own rate, while anything a script moves inside
+// requestAnimationFrame lands a frame or more later, at the main thread's rate.
+// Every moving part of the two cinematics was such a write, so on an iPhone the
+// device, the photograph's push and the arriving chapter trailed and stepped
+// against the very pane they sit in - and the phone, rescaled by script each
+// frame, was re-rasterised each frame on top of it.
+//
+// So each driver's motion is baked. Its own per-frame function of progress is
+// sampled at 1% steps into one keyframe track per element, and the tracks play
+// on the document's scroll timeline across the stage's own pixel range. The
+// engine samples them with the scroll, on the compositor where it can (Safari
+// 26.4+, Chrome 115+), so everything moves in the same frame as the page and
+// nothing runs per frame on the main thread. The curves are the same numbers:
+// linear between 1% samples, within a fraction of a pixel of the script.
+//
+// Feature-detected, verified against the script's own value, and dropped back
+// to the script driver if either fails. ?cine=classic forces the script driver,
+// so the two can be compared on a device.
+type CineTrack = { el: HTMLElement; frames: string[] };
+type CineDecls = Array<[HTMLElement, Record<string, string>]>;
+
+class CineBake {
+  private readonly style: HTMLStyleElement;
+  private sig = '';
+  private tracks: CineTrack[] = [];
+
+  constructor(private readonly id: string) {
+    this.style = document.createElement('style');
+    this.style.setAttribute('data-cine', id);
+    document.head.appendChild(this.style);
+  }
+
+  static supported(): boolean {
+    try {
+      return (
+        typeof CSS !== 'undefined' &&
+        CSS.supports('animation-timeline: scroll(root block)') &&
+        CSS.supports('animation-range: 0px 1px')
+      );
+    } catch {
+      return false;
+    }
+  }
+
+  /** Samples `at` at n+1 points and plays it across document scroll [start, end]. */
+  bake(at: (p: number) => CineDecls, n: number, start: number, end: number): void {
+    const samples = Array.from({ length: n + 1 }, (_, i) => at(i / n));
+    const tracks: CineTrack[] = samples[0].map(([el], j) => ({
+      el,
+      frames: samples.map((d) =>
+        Object.entries(d[j][1])
+          .map(([k, v]) => `${k}:${v}`)
+          .join(';')
+      ),
+    }));
+    const sig = `${start.toFixed(1)}:${end.toFixed(1)}:${tracks.map((t) => t.frames.join('|')).join('#')}`;
+    if (sig === this.sig) return;
+    this.sig = sig;
+    let css = '';
+    tracks.forEach((t, i) => {
+      css += `@keyframes cine-${this.id}-${i}{`;
+      t.frames.forEach((d, j) => (css += `${((j / n) * 100).toFixed(3)}%{${d}}`));
+      css += '}';
+    });
+    this.style.textContent = css;
+    const range = `${start.toFixed(1)}px ${end.toFixed(1)}px`;
+    tracks.forEach((t, i) => {
+      const st = t.el.style;
+      st.setProperty('animation-name', `cine-${this.id}-${i}`);
+      st.setProperty('animation-duration', '1ms');
+      st.setProperty('animation-timing-function', 'linear');
+      st.setProperty('animation-fill-mode', 'both');
+      st.setProperty('animation-timeline', 'scroll(root block)');
+      st.setProperty('animation-range', range);
+    });
+    this.tracks = tracks;
+  }
+
+  clear(): void {
+    const props = ['animation-name', 'animation-duration', 'animation-timing-function', 'animation-fill-mode', 'animation-timeline', 'animation-range'];
+    for (const t of this.tracks) for (const pr of props) t.el.style.removeProperty(pr);
+    this.tracks = [];
+    this.sig = '';
+    this.style.textContent = '';
+  }
+}
+
+/**
+ * The element's baked animation: 'ready' once it is sampling the timeline,
+ * 'pending' while the engine is still starting it, 'missing' if it never took.
+ */
+function cineState(el: HTMLElement): 'ready' | 'pending' | 'missing' {
+  const name = el.style.getPropertyValue('animation-name');
+  const a = el.getAnimations?.().find((x) => (x as CSSAnimation).animationName === name);
+  if (!a) return 'missing';
+  return a.pending ? 'pending' : 'ready';
+}
+
+/** The vertical translation of an element's live transform, in px. */
+function translateYOf(el: HTMLElement): number {
+  const m = getComputedStyle(el).transform;
+  if (!m || m === 'none') return 0;
+  const v = m.slice(m.indexOf('(') + 1, -1).split(',').map(Number);
+  return m.startsWith('matrix3d') ? v[13] : v[5];
+}
+
+/** The y of a translate3d(0, ypx, 0) declaration. */
+function translateYIn(decl: string | undefined): number {
+  const m = /translate3d\(\s*-?[\d.]+(?:px)?\s*,\s*(-?[\d.]+)px/.exec(decl ?? '');
+  return m ? parseFloat(m[1]) : 0;
+}
+
 @Component({
   selector: 'app-root',
   standalone: true,
@@ -713,10 +828,13 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy {
         // Document order wins when two cross the band at once.
         const next = this.navLinks.find((l) => visible.has(l.id))?.id ?? null;
         if (next === this.activeSection) return;
-        this.activeSection = next;
-        this.cdr.markForCheck();
-        // Same state, same moment: the open list's cursor follows the reader.
-        if (this.menuOpen) this.placeMenuCursor(false);
+        // Observed outside Angular; it re-enters only when the answer changes.
+        this.zone.run(() => {
+          this.activeSection = next;
+          this.cdr.markForCheck();
+          // Same state, same moment: the open list's cursor follows the reader.
+          if (this.menuOpen) this.placeMenuCursor(false);
+        });
       },
       { rootMargin: '-40% 0px -50% 0px', threshold: 0 }
     );
@@ -1041,7 +1159,10 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy {
       this.pipeline = new ScrollPipeline();
       this.pipeline.start();
     });
-    this.initScrollReveal();
+    // The reveal observer only toggles classes, so its callbacks - which fire
+    // all the way down the page while it scrolls - run outside Angular and no
+    // longer start a change detection pass each time.
+    this.zone.runOutsideAngular(() => this.initScrollReveal());
     this.initHeaderGlass();
     this.initHeaderTheme();
     this.initCursorGlow();
@@ -1065,7 +1186,7 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy {
     // Last on purpose: it is the one driver that re-enters Angular, so its
     // change detection lands after every other write of the frame.
     this.initBackToTop();
-    this.initActiveSection();
+    this.zone.runOutsideAngular(() => this.initActiveSection());
     this.zone.runOutsideAngular(() => this.pipeline?.runNow());
     void this.loadPublishedReviews();
   }
@@ -1841,6 +1962,8 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy {
 
     const pipeline = this.pipeline;
     if (!pipeline) return;
+    const mode = this.cineMode();
+    const lid = portal?.querySelector<HTMLElement>('.laptop-portal__lid') ?? null;
     this.zone.runOutsideAngular(() => {
       let rect: DOMRect | null = null;
       // The pinned pane's own height (see initLivingPhotograph): progress is
@@ -1859,6 +1982,312 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy {
         mine.set(name, value);
         el.style.setProperty(name, value);
       };
+
+      // EVERYTHING THE CHAPTER SHOWS AT PROGRESS p, as one function of the
+      // scroll (see initLivingPhotograph): the driver's own per-frame code,
+      // recording instead of writing. The pane's height stands for the
+      // viewport's, so the browser's toolbar cannot move the shot.
+      type Rec = Map<HTMLElement, Map<string, string>>;
+      const computeAt = (p: number, w: number, h: number, pin: number): Rec => {
+        const out: Rec = new Map();
+        const rec = (el: HTMLElement, name: string, value: string) => {
+          let m = out.get(el);
+          if (!m) out.set(el, (m = new Map()));
+          m.set(name, value);
+        };
+
+          // THE CAMERA. One eased push-in, and nothing else moves: no pan, no
+          // rotation, no reframing. The photograph already carries the laptop at
+          // its own angle along her forearm, and the camera comes in along that
+          // composition rather than introducing a direction of its own.
+          const start = fit(ESTABLISH, w / h);
+          // THE PLATE BARELY MOVES. It used to close from 0.56 to 1.47 on a phone,
+          // which is the whole photograph zooming: Adi grew, the backdrop rushed
+          // forward, and the laptop only looked bigger because everything did. The
+          // object's approach now lives on the object, so this is reduced to the
+          // gentle drift that keeps the shot alive under it.
+          const sharp = (start.cw * NATIVE_W) / w;
+          const end = Math.min(PLATE_PUSH, sharp);
+
+          let n = 0;
+          for (let i = 1; i < RHYTHM.length; i++) {
+            const [pa, na] = RHYTHM[i - 1];
+            const [pb, nb] = RHYTHM[i];
+            if (p <= pb) { n = na + ((nb - na) * (p - pa)) / (pb - pa); break; }
+            n = nb;
+          }
+          const z = Math.pow(end, n);
+
+          const cw = start.cw / z;
+          let ch = start.ch / z;
+          const cx = clamp(ANCHOR.x - HOLD.x * cw, 0, 1 - cw);
+          let cy = clamp(ANCHOR.y - HOLD.y * ch, 0, 1 - ch);
+
+          // THE PHOTOGRAPH IS A PHOTOGRAPH, NOT THE SCREEN.
+          //
+          // This is the thing the phone chapter has and this one did not. Its
+          // plate is laid out at natural height inside a taller sticky, so the
+          // picture sits as a band with the page showing above and below it, and
+          // the handset grows OUT of that band into the empty space. Watching it,
+          // the moment it reads as an object is the moment its edge crosses the
+          // edge of the photograph. Nothing else in that sequence is doing the
+          // work - it is a flat 2D scale and a rotate - and it still reads as a
+          // thing coming at you, because it leaves the picture behind.
+          //
+          // This plate was full bleed. It ran to all four edges of the viewport,
+          // so there was no boundary anywhere for the laptop to cross and no
+          // outside for it to arrive in. Whatever the lid did, it did inside the
+          // photograph, which is precisely the definition of a picture zooming.
+          //
+          // So the plate is now a band too: uniform scale, whichever of width or
+          // BAND of the height binds first, centred in the frame. The picture is
+          // as static as it ever was - this is where it sits, not something it
+          // does - and now there is somewhere for the object to go.
+          // Full width, letterboxed. This is the reference's composition exactly:
+          // the picture runs edge to edge and the empty space is a bar above and
+          // below it, which reads as a frame in the page rather than as a picture
+          // floating in the middle of one. Fitting it inside the height instead
+          // left a narrow portrait with air on all four sides - correct in
+          // principle, timid on screen, and it made Adi small.
+          //
+          // So the scale is taken from the width as it always was, and the band is
+          // made by showing less of the picture's HEIGHT, which crops from her
+          // legs upward and keeps her face, the laptop and both hands.
+          // 0.72 left 104px of bare paper above the laptop and the same below it,
+          // for the whole length of the cinematic. That band is the letterbox, and
+          // a letterbox is a legitimate device - but on a white page against white
+          // paper it does not read as a frame, it reads as the section forgetting
+          // to start, and it is the first thing the eye meets coming out of the
+          // paragraph above.
+          //
+          // Widening the band shows MORE of the picture's height at the SAME
+          // scale: `s` is taken from the width and is untouched, and `cy` still
+          // anchors on the same hold point, so her face, the laptop and both hands
+          // land on exactly the pixels they landed on before. Nothing is cropped
+          // more tightly than it was - the opposite - and the headroom comes down
+          // to about 67px, which is the page's own seam rhythm.
+          const BAND = 0.84;
+          // The band may crop her legs. It may not crop her hands. The lid sits
+          // between 0.158 and 0.388 of the picture's height and her fingers are
+          // just under it, so this is the least of the frame the shot can show and
+          // still be a photograph of someone holding a laptop. On a wide screen
+          // the full picture width scaled the plate so large that the band came
+          // out at a third of the height and cut the hands off entirely, which
+          // took the hinge - the one relationship the whole chapter rests on - out
+          // of the frame before the animation had started.
+          const CH_MIN = 0.44;
+          // Full width where that fits inside the band, and pulled back to fit
+          // where it does not. Phones get an edge to edge letterbox; wide screens
+          // get the same band with air at the sides, which is a frame either way.
+          const s = Math.min(w / (cw * BASE), (h * BAND) / (CH_MIN * BASE * IMG_R));
+          ch = Math.max(CH_MIN, Math.min(ch, (h * BAND) / (BASE * IMG_R * s)));
+          cy = clamp(ANCHOR.y - HOLD.y * ch, 0, 1 - ch);
+          const padX = (w - cw * BASE * s) / 2;
+          const padY = (h - ch * BASE * IMG_R * s) / 2;
+          rec(scene, '--cam-s', s.toFixed(5));
+          rec(scene, '--cam-x', `${(padX - cx * BASE * s).toFixed(1)}px`);
+          rec(scene, '--cam-y', `${(padY - cy * BASE * IMG_R * s).toFixed(1)}px`);
+
+          // THE FRAME IS THE WINDOW, AND ONLY THE PLATE OBEYS IT.
+          //
+          // The camera window is a rectangle of the picture, but the plate is the
+          // whole picture: while it ran to the viewport edges the difference was
+          // invisible, and the moment it became a band the overflow started
+          // showing. The photograph was painting past its own frame and running
+          // off the right of the screen, which is what made it read as an image
+          // dropped in a box rather than as a photograph placed in a composition.
+          //
+          // Clipping it to the window gives the frame a clean edge on all four
+          // sides with nothing drawn around it: no border, no shadow, no card.
+          // The clip is on the plate alone. The laptop is its sibling, so it is
+          // free to cross that edge - which is the entire point of the chapter.
+          const PW = BASE;
+          const PH = BASE * IMG_R;
+          rec(
+            base,
+            '--plate-clip',
+            `inset(${(cy * PH).toFixed(1)}px ${((1 - cx - cw) * PW).toFixed(1)}px ` +
+              `${((1 - cy - ch) * PH).toFixed(1)}px ${(cx * PW).toFixed(1)}px)`
+          );
+
+          // THE OPENING. It starts once the approach has made the laptop the
+          // subject, and runs to the very end, so the last stretch of the chapter
+          // is the screen still coming round rather than a frozen frame.
+          // ── THE OBJECT ─────────────────────────────────────────────────────
+          //
+          // One element, three numbers: where it is, how big it is, how far it is
+          // still leaning. That is the whole animation, and it is the phone
+          // chapter's architecture with the laptop's material.
+          if (portal) {
+            // WHERE. The lid's centroid carried through the camera. The plate is
+            // locked, so this anchor is fixed - the object grows out of the exact
+            // point in the photograph where the laptop actually is, and can never
+            // arrive from the side.
+            const lidX = padX - cx * BASE * s + CENTROID[0] * s;
+            const lidY = padY - cy * BASE * IMG_R * s + CENTROID[1] * s;
+
+            // AND IT RECOMPOSES AS IT GROWS.
+            //
+            // The lid sits at about a quarter of the way across the picture, so
+            // anchoring the object there for the whole move meant that by the time
+            // it was full size it hung off the left edge - on a 390 screen its
+            // centre was at x=98 with a width of 398, cutting a hundred pixels off
+            // the side. That is the cropping the testers reported, and it is a
+            // composition fault rather than a transform one.
+            //
+            // So the anchor travels from the lid's real position to the middle of
+            // the frame as the object comes forward. At rest it is exactly on the
+            // laptop, which is what registration needs; by the time it dominates
+            // it is centred, which is what a camera operator would do. The drift
+            // is the object being followed, not the photograph moving.
+
+            // HOW BIG. It starts at the width the lid really occupies on screen
+            // and finishes covering the viewport, on the accelerating curve the
+            // phone chapter uses - growth that reads as approach because it
+            // quickens the way a closing object's apparent size does.
+            // TWO SCALES, CONVERGING. The lid in the photograph is foreshortened -
+            // 227 units across but 270 tall, taller than it is wide - while the
+            // extraction is landscape. A single uniform scale can never sit on it,
+            // which is why the layer showed a double edge as it faded in. So the
+            // box starts squashed to the shape the lid really presents and the two
+            // axes converge as it comes round. That convergence IS the
+            // un-foreshortening: the object turning to face the camera, done with
+            // two numbers instead of a projective matrix.
+            const restX = (LID_W * s) / CARD_W;
+            const restY = (LID_H * s) / CARD_H;
+            const cover = (w * 1.02) / CARD_W;
+            // Same correction as the phone chapter: the last samples showed no
+            // movement because this closed before the runway did.
+            const open = track(p, 0.32, 0.99);
+            const g = Math.pow(open, 2.1);
+            const recompose = Math.pow(open, 1.35);
+
+            // AND IT STAYS SEATED IN HER HANDS WHILE IT GROWS.
+            //
+            // Centred on the lid's centroid, the panel grows about its own middle,
+            // which lifts its bottom edge off the hinge - watching the checkpoints
+            // the machine visibly rose away from her fingers as it enlarged, and
+            // that is what makes it read as a panel laid over the photograph
+            // rather than the lid of something she is holding.
+            //
+            // So while it is still small the anchor is chosen to keep its BOTTOM
+            // on the hinge line rather than its centre on the centroid: the object
+            // grows upward out of her hands, which is what a lid opening does.
+            // Only once it has taken the frame does it recompose to the middle,
+            // by which point the hands are no longer the reference.
+            const hingeY = padY - cy * BASE * IMG_R * s + LID_BOTTOM * s;
+            const seatedY = hingeY - (CARD_H * (restY + g * (cover - restY))) / 2;
+            rec(portal,
+              '--pt-x',
+              `${(lidX + (w / 2 - lidX) * recompose).toFixed(1)}px`
+            );
+            rec(portal,
+              '--pt-y',
+              `${(seatedY + (h * 0.44 - seatedY) * recompose).toFixed(1)}px`
+            );
+            rec(portal, '--pt-sx', (restX + g * (cover - restX)).toFixed(4));
+            rec(portal, '--pt-sy', (restY + g * (cover - restY)).toFixed(4));
+
+            // HOW FAR IT IS STILL LEANING. The photograph shows the lid at 21.5
+            // degrees; that lean unwinds to square as it comes forward, and THAT
+            // is the turn the viewer reads - the object coming round to face the
+            // camera, in the direction Adi is looking.
+            rec(portal,
+              '--pt-rot',
+              `${(LID_TILT * (1 - ease(track(p, 0.30, 0.80)))).toFixed(2)}deg`
+            );
+
+            // It fades up over its own footprint while it is still the same size
+            // and angle as the lid beneath it, so there is nothing to see change.
+            rec(portal, '--pt-o', track(p, 0.26, 0.34).toFixed(3));
+            // Then the lid's pixels hand the box to the screen.
+            rec(portal, '--pt-lid', (1 - track(p, 0.52, 0.60)).toFixed(3));
+          }
+
+          // The photograph finishes as the screen becomes the page - and the
+          // cut-out laptop lying over it (phones) finishes with it. It used to
+          // stay at full strength, so at the end a wedge of the lid hung in the
+          // empty frame above the screen.
+          const plateO = (1 - track(p, 0.86, 1)).toFixed(3);
+          rec(base, 'opacity', plateO);
+          if (frameB) rec(frameB, 'opacity', plateO);
+
+          rec(veil, '--bridge-veil', '0');
+
+          // THE PHOTOGRAPH HANDS OVER TO THE SCREEN.
+          //
+          // Once the lid has turned past its own edge it no longer covers the
+          // laptop still sitting in the photograph, and that laptop reappears
+          // underneath - the one thing the chapter cannot show. The storyboard
+          // answers this itself: by 90% Adi is gone and the screen is the page.
+          // So the plate fades as the screen takes the frame. It never moves, and
+          // nothing is masked or drawn over it; the photograph simply finishes.
+          // THE LAPTOP KEEPS ITS BODY.
+          //
+          // The plate was fading from 0.70, which took the deck and her fingers
+          // out from under the screen and left it floating - the exact moment it
+          // stopped reading as a laptop and started reading as an HTML card. The
+          // screen is larger than the lid it replaced by the time the turn is
+          // done, so it covers the photographed lid on its own and the plate can
+          // stay. It now holds until the screen has already overrun the frame.
+
+          // THE HANDOFF. The next chapter is parked below where its margin would
+          // put it and rises through the last third of the same scroll, so it is
+          // already there to read while the laptop is still filling the frame.
+          // The shot is not cut away from; it is covered, the way the phone
+          // chapter is covered by the work chapter.
+          // Written as the section's own transform, not an inherited custom
+          // property that restyled the whole process chapter every frame.
+          if (next) {
+            const reveal = track(p, 0.52, 0.94);
+            rec(next, 'transform', `translate3d(0, ${((1 - ease(reveal)) * HANDOFF_VH * pin / 100).toFixed(1)}px, 0)`);
+          }
+
+        return out;
+      };
+
+      const num = (m: Map<string, string> | undefined, k: string, d: number) => {
+        const v = m?.get(k);
+        return v === undefined ? d : parseFloat(v);
+      };
+      // The parts that do not move with progress: the camera, the plate's
+      // window, the veil. Written as they always were.
+      const staticsOf = (r: Rec) =>
+        [
+          ['--cam-s', '--cam-x', '--cam-y'].map((k) => r.get(scene)?.get(k) ?? '').join(','),
+          r.get(base)?.get('--plate-clip') ?? '',
+        ].join('/');
+      const writeStatics = (r: Rec) => {
+        for (const k of ['--cam-s', '--cam-x', '--cam-y']) {
+          const v = r.get(scene)?.get(k);
+          if (v !== undefined) put(scene, k, v);
+        }
+        const clip = r.get(base)?.get('--plate-clip');
+        if (clip !== undefined) put(base, '--plate-clip', clip);
+        const veilV = r.get(veil)?.get('--bridge-veil');
+        if (veilV !== undefined) put(veil, '--bridge-veil', veilV);
+      };
+      // The moving parts, as the declarations each element is given.
+      const movingOf = (r: Rec): CineDecls => {
+        const out: CineDecls = [];
+        if (portal) {
+          const pm = r.get(portal);
+          out.push([portal, {
+            transform:
+              `translate3d(${(num(pm, '--pt-x', 0) - 600).toFixed(2)}px, ${(num(pm, '--pt-y', 0) - 392).toFixed(2)}px, 0) ` +
+              `rotate(${num(pm, '--pt-rot', 0).toFixed(3)}deg) scale(${num(pm, '--pt-sx', 0).toFixed(5)}, ${num(pm, '--pt-sy', 0).toFixed(5)})`,
+            opacity: num(pm, '--pt-o', 0).toFixed(4),
+          }]);
+          if (lid) out.push([lid, { opacity: num(pm, '--pt-lid', 1).toFixed(4) }]);
+        }
+        out.push([base, { opacity: r.get(base)?.get('opacity') ?? '1' }]);
+        if (frameB) out.push([frameB, { opacity: r.get(frameB)?.get('opacity') ?? '1' }]);
+        if (next) out.push([next, { transform: r.get(next)?.get('transform') ?? 'none' }]);
+        return out;
+      };
+
+      // THE SCRIPT DRIVER.
+      const shown = new Map<HTMLElement, Record<string, string>>();
       const update = (f: Frame) => {
         if (!rect) return;
         const pin = pinH || f.vh;
@@ -1868,270 +2297,83 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy {
         // Nothing moved: write nothing. (A resize re-measures, which marks the
         // next frame stale, and a cleared cache rewrites every value.)
         if (!stale && p === lastP) return;
-        if (stale) written.clear();
+        if (stale) {
+          written.clear();
+          shown.clear();
+        }
         stale = false;
         lastP = p;
-        const w = f.vw;
-        const h = f.vh;
-
-        // THE CAMERA. One eased push-in, and nothing else moves: no pan, no
-        // rotation, no reframing. The photograph already carries the laptop at
-        // its own angle along her forearm, and the camera comes in along that
-        // composition rather than introducing a direction of its own.
-        const start = fit(ESTABLISH, w / h);
-        // THE PLATE BARELY MOVES. It used to close from 0.56 to 1.47 on a phone,
-        // which is the whole photograph zooming: Adi grew, the backdrop rushed
-        // forward, and the laptop only looked bigger because everything did. The
-        // object's approach now lives on the object, so this is reduced to the
-        // gentle drift that keeps the shot alive under it.
-        const sharp = (start.cw * NATIVE_W) / w;
-        const end = Math.min(PLATE_PUSH, sharp);
-
-        let n = 0;
-        for (let i = 1; i < RHYTHM.length; i++) {
-          const [pa, na] = RHYTHM[i - 1];
-          const [pb, nb] = RHYTHM[i];
-          if (p <= pb) { n = na + ((nb - na) * (p - pa)) / (pb - pa); break; }
-          n = nb;
+        const r = computeAt(p, f.vw, pin, pin);
+        writeStatics(r);
+        for (const [el, d] of movingOf(r)) {
+          const prev = shown.get(el);
+          for (const k in d) if (!prev || prev[k] !== d[k]) el.style.setProperty(k, d[k]);
+          shown.set(el, d);
         }
-        const z = Math.pow(end, n);
+      };
 
-        const cw = start.cw / z;
-        let ch = start.ch / z;
-        const cx = clamp(ANCHOR.x - HOLD.x * cw, 0, 1 - cw);
-        let cy = clamp(ANCHOR.y - HOLD.y * ch, 0, 1 - ch);
-
-        // THE PHOTOGRAPH IS A PHOTOGRAPH, NOT THE SCREEN.
-        //
-        // This is the thing the phone chapter has and this one did not. Its
-        // plate is laid out at natural height inside a taller sticky, so the
-        // picture sits as a band with the page showing above and below it, and
-        // the handset grows OUT of that band into the empty space. Watching it,
-        // the moment it reads as an object is the moment its edge crosses the
-        // edge of the photograph. Nothing else in that sequence is doing the
-        // work - it is a flat 2D scale and a rotate - and it still reads as a
-        // thing coming at you, because it leaves the picture behind.
-        //
-        // This plate was full bleed. It ran to all four edges of the viewport,
-        // so there was no boundary anywhere for the laptop to cross and no
-        // outside for it to arrive in. Whatever the lid did, it did inside the
-        // photograph, which is precisely the definition of a picture zooming.
-        //
-        // So the plate is now a band too: uniform scale, whichever of width or
-        // BAND of the height binds first, centred in the frame. The picture is
-        // as static as it ever was - this is where it sits, not something it
-        // does - and now there is somewhere for the object to go.
-        // Full width, letterboxed. This is the reference's composition exactly:
-        // the picture runs edge to edge and the empty space is a bar above and
-        // below it, which reads as a frame in the page rather than as a picture
-        // floating in the middle of one. Fitting it inside the height instead
-        // left a narrow portrait with air on all four sides - correct in
-        // principle, timid on screen, and it made Adi small.
-        //
-        // So the scale is taken from the width as it always was, and the band is
-        // made by showing less of the picture's HEIGHT, which crops from her
-        // legs upward and keeps her face, the laptop and both hands.
-        // 0.72 left 104px of bare paper above the laptop and the same below it,
-        // for the whole length of the cinematic. That band is the letterbox, and
-        // a letterbox is a legitimate device - but on a white page against white
-        // paper it does not read as a frame, it reads as the section forgetting
-        // to start, and it is the first thing the eye meets coming out of the
-        // paragraph above.
-        //
-        // Widening the band shows MORE of the picture's height at the SAME
-        // scale: `s` is taken from the width and is untouched, and `cy` still
-        // anchors on the same hold point, so her face, the laptop and both hands
-        // land on exactly the pixels they landed on before. Nothing is cropped
-        // more tightly than it was - the opposite - and the headroom comes down
-        // to about 67px, which is the page's own seam rhythm.
-        const BAND = 0.84;
-        // The band may crop her legs. It may not crop her hands. The lid sits
-        // between 0.158 and 0.388 of the picture's height and her fingers are
-        // just under it, so this is the least of the frame the shot can show and
-        // still be a photograph of someone holding a laptop. On a wide screen
-        // the full picture width scaled the plate so large that the band came
-        // out at a third of the height and cut the hands off entirely, which
-        // took the hinge - the one relationship the whole chapter rests on - out
-        // of the frame before the animation had started.
-        const CH_MIN = 0.44;
-        // Full width where that fits inside the band, and pulled back to fit
-        // where it does not. Phones get an edge to edge letterbox; wide screens
-        // get the same band with air at the sides, which is a frame either way.
-        const s = Math.min(w / (cw * BASE), (h * BAND) / (CH_MIN * BASE * IMG_R));
-        ch = Math.max(CH_MIN, Math.min(ch, (h * BAND) / (BASE * IMG_R * s)));
-        cy = clamp(ANCHOR.y - HOLD.y * ch, 0, 1 - ch);
-        const padX = (w - cw * BASE * s) / 2;
-        const padY = (h - ch * BASE * IMG_R * s) / 2;
-        put(scene, '--cam-s', s.toFixed(5));
-        put(scene, '--cam-x', `${(padX - cx * BASE * s).toFixed(1)}px`);
-        put(scene, '--cam-y', `${(padY - cy * BASE * IMG_R * s).toFixed(1)}px`);
-
-        // THE FRAME IS THE WINDOW, AND ONLY THE PLATE OBEYS IT.
-        //
-        // The camera window is a rectangle of the picture, but the plate is the
-        // whole picture: while it ran to the viewport edges the difference was
-        // invisible, and the moment it became a band the overflow started
-        // showing. The photograph was painting past its own frame and running
-        // off the right of the screen, which is what made it read as an image
-        // dropped in a box rather than as a photograph placed in a composition.
-        //
-        // Clipping it to the window gives the frame a clean edge on all four
-        // sides with nothing drawn around it: no border, no shadow, no card.
-        // The clip is on the plate alone. The laptop is its sibling, so it is
-        // free to cross that edge - which is the entire point of the chapter.
-        const PW = BASE;
-        const PH = BASE * IMG_R;
-        put(
-          base,
-          '--plate-clip',
-          `inset(${(cy * PH).toFixed(1)}px ${((1 - cx - cw) * PW).toFixed(1)}px ` +
-            `${((1 - cy - ch) * PH).toFixed(1)}px ${(cx * PW).toFixed(1)}px)`
-        );
-
-        // THE OPENING. It starts once the approach has made the laptop the
-        // subject, and runs to the very end, so the last stretch of the chapter
-        // is the screen still coming round rather than a frozen frame.
-        // ── THE OBJECT ─────────────────────────────────────────────────────
-        //
-        // One element, three numbers: where it is, how big it is, how far it is
-        // still leaning. That is the whole animation, and it is the phone
-        // chapter's architecture with the laptop's material.
-        if (portal) {
-          // WHERE. The lid's centroid carried through the camera. The plate is
-          // locked, so this anchor is fixed - the object grows out of the exact
-          // point in the photograph where the laptop actually is, and can never
-          // arrive from the side.
-          const lidX = padX - cx * BASE * s + CENTROID[0] * s;
-          const lidY = padY - cy * BASE * IMG_R * s + CENTROID[1] * s;
-
-          // AND IT RECOMPOSES AS IT GROWS.
-          //
-          // The lid sits at about a quarter of the way across the picture, so
-          // anchoring the object there for the whole move meant that by the time
-          // it was full size it hung off the left edge - on a 390 screen its
-          // centre was at x=98 with a width of 398, cutting a hundred pixels off
-          // the side. That is the cropping the testers reported, and it is a
-          // composition fault rather than a transform one.
-          //
-          // So the anchor travels from the lid's real position to the middle of
-          // the frame as the object comes forward. At rest it is exactly on the
-          // laptop, which is what registration needs; by the time it dominates
-          // it is centred, which is what a camera operator would do. The drift
-          // is the object being followed, not the photograph moving.
-
-          // HOW BIG. It starts at the width the lid really occupies on screen
-          // and finishes covering the viewport, on the accelerating curve the
-          // phone chapter uses - growth that reads as approach because it
-          // quickens the way a closing object's apparent size does.
-          // TWO SCALES, CONVERGING. The lid in the photograph is foreshortened -
-          // 227 units across but 270 tall, taller than it is wide - while the
-          // extraction is landscape. A single uniform scale can never sit on it,
-          // which is why the layer showed a double edge as it faded in. So the
-          // box starts squashed to the shape the lid really presents and the two
-          // axes converge as it comes round. That convergence IS the
-          // un-foreshortening: the object turning to face the camera, done with
-          // two numbers instead of a projective matrix.
-          const restX = (LID_W * s) / CARD_W;
-          const restY = (LID_H * s) / CARD_H;
-          const cover = (w * 1.02) / CARD_W;
-          // Same correction as the phone chapter: the last samples showed no
-          // movement because this closed before the runway did.
-          const open = track(p, 0.32, 0.99);
-          const g = Math.pow(open, 2.1);
-          const recompose = Math.pow(open, 1.35);
-
-          // AND IT STAYS SEATED IN HER HANDS WHILE IT GROWS.
-          //
-          // Centred on the lid's centroid, the panel grows about its own middle,
-          // which lifts its bottom edge off the hinge - watching the checkpoints
-          // the machine visibly rose away from her fingers as it enlarged, and
-          // that is what makes it read as a panel laid over the photograph
-          // rather than the lid of something she is holding.
-          //
-          // So while it is still small the anchor is chosen to keep its BOTTOM
-          // on the hinge line rather than its centre on the centroid: the object
-          // grows upward out of her hands, which is what a lid opening does.
-          // Only once it has taken the frame does it recompose to the middle,
-          // by which point the hands are no longer the reference.
-          const hingeY = padY - cy * BASE * IMG_R * s + LID_BOTTOM * s;
-          const seatedY = hingeY - (CARD_H * (restY + g * (cover - restY))) / 2;
-          portal.style.setProperty(
-            '--pt-x',
-            `${(lidX + (w / 2 - lidX) * recompose).toFixed(1)}px`
-          );
-          portal.style.setProperty(
-            '--pt-y',
-            `${(seatedY + (h * 0.44 - seatedY) * recompose).toFixed(1)}px`
-          );
-          portal.style.setProperty('--pt-sx', (restX + g * (cover - restX)).toFixed(4));
-          portal.style.setProperty('--pt-sy', (restY + g * (cover - restY)).toFixed(4));
-
-          // HOW FAR IT IS STILL LEANING. The photograph shows the lid at 21.5
-          // degrees; that lean unwinds to square as it comes forward, and THAT
-          // is the turn the viewer reads - the object coming round to face the
-          // camera, in the direction Adi is looking.
-          portal.style.setProperty(
-            '--pt-rot',
-            `${(LID_TILT * (1 - ease(track(p, 0.30, 0.80)))).toFixed(2)}deg`
-          );
-
-          // It fades up over its own footprint while it is still the same size
-          // and angle as the lid beneath it, so there is nothing to see change.
-          portal.style.setProperty('--pt-o', track(p, 0.26, 0.34).toFixed(3));
-          // Then the lid's pixels hand the box to the screen.
-          portal.style.setProperty('--pt-lid', (1 - track(p, 0.52, 0.60)).toFixed(3));
+      // THE COMPOSITOR DRIVER. Only when the camera is still - a camera that
+      // moved would move the plate's clip, which is not a compositor property.
+      const bake = mode === 'compositor' ? new CineBake('bridge') : null;
+      let baked = false;
+      let failed = false;
+      const giveUp = (why: string) => {
+        failed = true;
+        bake?.clear();
+        baked = false;
+        stale = true;
+        console.info(`laptop cinematic: ${why}; using the script driver`);
+        pipeline.invalidate();
+      };
+      const verify = () => {
+        if (!baked || !next) return;
+        const state = cineState(next);
+        if (state === 'missing') return giveUp('the animation did not start');
+        if (state === 'pending') return void requestAnimationFrame(() => requestAnimationFrame(verify));
+        const r = stage.getBoundingClientRect();
+        const pin = pinH || window.innerHeight;
+        const travel = r.height - pin;
+        if (travel <= 0) return;
+        const p = Math.min(1, Math.max(0, -r.top / travel));
+        const want = translateYIn(computeAt(p, window.innerWidth, pin, pin).get(next)?.get('transform'));
+        const got = translateYOf(next);
+        if (Math.abs(got - want) > 3) giveUp(`the scroll timeline did not track (${got.toFixed(1)} vs ${want.toFixed(1)})`);
+      };
+      const rebake = (f: Frame) => {
+        if (!bake || failed) return;
+        const r = stage.getBoundingClientRect();
+        const pin = pinH || f.vh;
+        const travel = r.height - pin;
+        const r0 = computeAt(0, f.vw, pin, pin);
+        if (travel <= 0 || staticsOf(r0) !== staticsOf(computeAt(1, f.vw, pin, pin))) {
+          bake.clear();
+          baked = false;
+          return;
         }
-
-        // The photograph finishes as the screen becomes the page - and the
-        // cut-out laptop lying over it (phones) finishes with it. It used to
-        // stay at full strength, so at the end a wedge of the lid hung in the
-        // empty frame above the screen.
-        const plateO = (1 - track(p, 0.86, 1)).toFixed(3);
-        base.style.opacity = plateO;
-        if (frameB) frameB.style.opacity = plateO;
-
-        put(veil, '--bridge-veil', '0');
-
-        // THE PHOTOGRAPH HANDS OVER TO THE SCREEN.
-        //
-        // Once the lid has turned past its own edge it no longer covers the
-        // laptop still sitting in the photograph, and that laptop reappears
-        // underneath - the one thing the chapter cannot show. The storyboard
-        // answers this itself: by 90% Adi is gone and the screen is the page.
-        // So the plate fades as the screen takes the frame. It never moves, and
-        // nothing is masked or drawn over it; the photograph simply finishes.
-        // THE LAPTOP KEEPS ITS BODY.
-        //
-        // The plate was fading from 0.70, which took the deck and her fingers
-        // out from under the screen and left it floating - the exact moment it
-        // stopped reading as a laptop and started reading as an HTML card. The
-        // screen is larger than the lid it replaced by the time the turn is
-        // done, so it covers the photographed lid on its own and the plate can
-        // stay. It now holds until the screen has already overrun the frame.
-
-        // THE HANDOFF. The next chapter is parked below where its margin would
-        // put it and rises through the last third of the same scroll, so it is
-        // already there to read while the laptop is still filling the frame.
-        // The shot is not cut away from; it is covered, the way the phone
-        // chapter is covered by the work chapter.
-        // Written as the section's own transform, not an inherited custom
-        // property that restyled the whole process chapter every frame.
-        if (next) {
-          const reveal = track(p, 0.52, 0.94);
-          next.style.transform = `translate3d(0, ${((1 - ease(reveal)) * HANDOFF_VH * pin / 100).toFixed(1)}px, 0)`;
+        written.clear();
+        writeStatics(r0);
+        const start = r.top + f.y;
+        bake.bake((p) => movingOf(computeAt(p, f.vw, pin, pin)), 100, start, start + travel);
+        if (!baked) {
+          baked = true;
+          requestAnimationFrame(() => requestAnimationFrame(verify));
         }
       };
 
       pipeline.add({
-        measure: () => {
+        measure: (f) => {
           pinH = sticky.getBoundingClientRect().height;
           stale = true;
+          rebake(f);
         },
         read: () => {
-          rect = stage.getBoundingClientRect();
+          if (!baked) rect = stage.getBoundingClientRect();
         },
-        write: update,
+        write: (f) => {
+          if (!baked) update(f);
+        },
       });
+      if (bake) pipeline.onSettle(verify, 260);
       if (!baseImg.complete) baseImg.addEventListener('load', () => pipeline.invalidate(), { once: true });
       this.primeCinematic(stage);
     });
@@ -2192,6 +2434,18 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy {
   // decoding when the stage pins - a stall in the first frames of the move.
   // A stage within a viewport and a half starts its images loading and
   // decoding ahead of time, then asks the pipeline to re-measure.
+  // Which driver plays the cinematics: the compositor, unless the browser
+  // cannot or ?cine=classic asks for the script.
+  private cineMode(): 'compositor' | 'classic' {
+    let forced: string | null = null;
+    try {
+      forced = new URLSearchParams(window.location.search).get('cine');
+    } catch {}
+    const mode = forced === 'classic' || !CineBake.supported() ? 'classic' : 'compositor';
+    document.documentElement.setAttribute('data-cine', mode);
+    return mode;
+  }
+
   private primeCinematic(stage: HTMLElement): void {
     if (!('IntersectionObserver' in window)) return;
     const io = new IntersectionObserver(
@@ -2309,8 +2563,203 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy {
 
     const pipeline = this.pipeline;
     if (!pipeline) return;
+    const mode = this.cineMode();
+    const screen = portal.querySelector<HTMLElement>('.phone-screen');
+    const field = portal.querySelector<HTMLElement>('.phone-screen-field');
+    const type = document.querySelector<HTMLElement>('.action-portal-type');
     this.zone.runOutsideAngular(() => {
       let rect: DOMRect | null = null;
+      // The screen's size and its centre's offset from the device's centre, in
+      // the device's own unscaled pixels. Its type is a layer of its own beside
+      // the device (the device grows seventeen-fold, the type at most three),
+      // so it is placed through the device's transform from these.
+      let typeW = 0;
+      let typeH = 0;
+      let offX = 0;
+      let offY = 0;
+
+      // EVERYTHING THE CHAPTER SHOWS AT PROGRESS p, as one function of the
+      // scroll. The body is the driver's own per-frame code, unchanged; it
+      // records what it used to write instead of writing it, so the script
+      // driver and the compositor tracks are the same numbers. The pane's
+      // height stands for the viewport's: the stage is pinned in a 100vh pane,
+      // and the browser's toolbar moving must not move the shot.
+      type Rec = Map<HTMLElement, Map<string, string>>;
+      const computeAt = (p: number, vw: number, pin: number): Rec => {
+        const out: Rec = new Map();
+        const rec = (el: HTMLElement, name: string, value: string) => {
+          let m = out.get(el);
+          if (!m) out.set(el, (m = new Map()));
+          m.set(name, value);
+        };
+        const f = { vw, vh: pin };
+          const k = parseFloat((1 + 0.05 * track(p, 0.04, 1)).toFixed(4));
+          rec(frame, 'transform', `scale(${k.toFixed(4)})`);
+          rec(portal, '--portal-x', `${(ox + k * (p0x - ox)).toFixed(1)}px`);
+          rec(portal, '--portal-y', `${(oy + k * (p0y - oy)).toFixed(1)}px`);
+
+          // The portal appears in her hand, grows slowly while it still reads as a
+          // phone, then accelerates once it is clearly a doorway rather than an
+          // object. Scale is expressed against the viewport so it always finishes
+          // covering, whatever the screen.
+          // Phases begin almost at once and finish at the very end. With a 152vh
+          // stage there is only about half a viewport of travel, so spending any
+          // of it idle would force the motion itself to move faster to keep up.
+          const emerge = track(p, 0.05, 0.34);
+          // THE TAIL WAS FROZEN. Sampling the chapter at forty points, the phone
+          // stopped moving entirely from 90% to the end - five consecutive
+          // samples with no change - because this window closed at 0.86 while the
+          // section kept scrolling. The object arrived and then waited for the
+          // page to catch up, which is the one thing a scroll-driven object must
+          // never do. Closing at 0.97 spends the runway it actually has.
+          const open = track(p, 0.30, 0.97);
+          // The device element carries the cut-out handset at its own aspect
+          // ratio, 119x287. The curve is unchanged; the constants are only
+          // renormalised against that base, so the phone is the same number of
+          // pixels wide at every point in the move as it was before: it starts at exactly the width her own phone occupies in the
+          // photograph and finishes covering the viewport 2.4 times over.
+          // (The frame's own viewport size - reading window.innerWidth here, after
+          // the other drivers had written their styles, forced a layout.)
+          const need = (Math.max(f.vw, f.vh) * 2.4) / 119;
+          // It has to arrive at HER phone's size, not at a size of its own. Hers
+          // is about 60px across in a 4201px source, which is roughly 12px on a
+          // 390 screen; starting at 26 put a slab in front of her hand instead of
+          // taking its place. The emerge term absorbs the difference, so the
+          // device is the same size from the end of the emerge beat onward.
+          // GEOMETRIC, NOT ADDITIVE.
+          //
+          // The old curve added pow(open, 2.1) * need to a base, which meant the
+          // RATE of apparent growth was itself accelerating. Measured as the ratio
+          // between consecutive samples - the honest way to judge something that
+          // goes from twelve pixels to two thousand - it ramped from 1.10 to 1.36
+          // and decayed back to 1.11: a bulge in the middle, which the eye reads
+          // as the shot lurching and then easing off.
+          //
+          // A dolly at a steady rate multiplies apparent size by a constant factor
+          // per unit of travel, so the interpolation is geometric. Same start,
+          // same finish, same drama - but the growth rate is flat, which is what
+          // makes it feel like the page is moving the object rather than scrubbing
+          // a video.
+          const base = 0.105 + emerge * 0.2445;
+          const arrive = 0.3495 + need;
+          // AND IT SETTLES INSTEAD OF ACCELERATING OFF THE END.
+          //
+          // A constant growth RATIO is what makes the middle feel even, but at the
+          // sizes this reaches, a constant ratio is a very large number of pixels:
+          // measured across forty samples the last three steps were 185, 194 and
+          // 185px against a mean of 52. The shot was accelerating hardest at the
+          // exact moment it should be arriving.
+          //
+          // The taper is an ease-out on the progress, not on the scale, so the
+          // geometry is untouched - same start, same finish, same character - and
+          // only the rate falls away as it lands. Its derivative goes to zero at
+          // the end, which is what "arriving" means.
+          const settle = 1 - Math.pow(1 - open, 1.35);
+          const scale = open > 0 ? base * Math.pow(arrive / base, settle) : base;
+
+          rec(portal, '--portal-scale', scale.toFixed(3));
+          // Solid almost at once. Fading a physical object in over a sixth of the
+          // stage meant her real phone and her fingers showed straight through the
+          // body of this one, which is the one thing that cannot happen: a
+          // see-through handset reads as a decal, not as an object.
+          rec(portal, '--portal-opacity', track(p, 0.02, 0.09).toFixed(3));
+
+          // The body dissolves as the screen becomes the page. Scaling by fifteen
+          // would otherwise turn a 21px corner into a 320px one and the phone
+          // would read as a picture frame around the chapter instead of a device.
+          const dissolve = track(p, 0.52, 0.80);
+          const dEased = dissolve * dissolve * (3 - 2 * dissolve);
+          rec(portal, '--dev-r', (1 - dEased).toFixed(3));
+          // The screen keeps showing the WORK chapter's own opening the whole way
+          // in. Left alone the type would be magnified with the body and end up
+          // twenty times its size, so the content is counter-scaled: past the
+          // point where the device fills the frame the headline holds at roughly
+          // the size the real chapter sets it in, and the two match when it lands.
+          // It then dissolves exactly as the real header crosses the bottom edge,
+          // so the two never stand side by side as a doubled headline, and the
+          // screen is never a dark rectangle waiting for a section to climb in.
+          rec(portal, '--dev-cs', Math.min(1, 3 / scale).toFixed(4));
+          rec(portal, '--dev-screen', (1 - track(p, 0.62, 0.74)).toFixed(3));
+          // The phone is held at an angle; the portal starts matching it and
+          // straightens as it stops being an object and becomes the next chapter.
+          // Measured off the source frame, her phone leans about 21 degrees with
+          // the top to the right, along her raised forearm. The old -18 leaned it
+          // the other way, against the arm, which was most of why the device read
+          // as pasted onto the photograph rather than held in it.
+          rec(portal, '--portal-rot', `${(21 * (1 - open)).toFixed(2)}deg`);
+
+          if (mark) {
+            rec(mark, '--mark-opacity', (1 - track(p, 0.04, 0.24)).toFixed(3));
+          }
+
+          // THE HANDOFF. The next chapter is parked 65vh below where its margin
+          // would otherwise put it, and comes up through the last third of the
+          // same scroll. So by the time the portal has filled the screen the
+          // chapter it opens onto is already there to read, and the visitor never
+          // scrolls through a black frame waiting for something to arrive.
+          // Written as the section's own transform rather than through an
+          // inherited custom property, which restyled every element inside the
+          // chapter on every frame. The distance is in the pane's units, the same
+          // vh the section's negative margin is set in.
+          if (next) {
+            const reveal = track(p, 0.40, 0.88);
+            const eased = reveal * reveal * (3 - 2 * reveal);
+            rec(next, 'transform', `translate3d(0, ${((1 - eased) * HANDOFF_VH * pin / 100).toFixed(1)}px, 0)`);
+          }
+
+        return out;
+      };
+
+      const num = (m: Map<string, string> | undefined, k: string, d: number) => {
+        const v = m?.get(k);
+        return v === undefined ? d : parseFloat(v);
+      };
+      // The recorded values as the declarations each element is given.
+      const styleAt = (p: number, vw: number, pin: number): CineDecls => {
+        const r = computeAt(p, vw, pin);
+        const pm = r.get(portal);
+        const x = num(pm, '--portal-x', 0);
+        const y = num(pm, '--portal-y', 0);
+        const rot = num(pm, '--portal-rot', 0);
+        const sc = num(pm, '--portal-scale', 0);
+        const o = num(pm, '--portal-opacity', 0);
+        const rotT = `rotate(${rot.toFixed(3)}deg)`;
+        const out: CineDecls = [
+          [frame, { transform: r.get(frame)?.get('transform') ?? 'none' }],
+          [portal, {
+            transform: `translate3d(${(x - 59.5).toFixed(2)}px, ${(y - 143.5).toFixed(2)}px, 0) ${rotT} scale(${sc.toFixed(4)})`,
+            opacity: o.toFixed(4),
+          }],
+        ];
+        // The glass's dark field dissolves in as the body dissolves out.
+        if (field) out.push([field, { opacity: (1 - num(pm, '--dev-r', 1)).toFixed(4) }]);
+        if (type) {
+          const th = (rot * Math.PI) / 180;
+          const c = Math.cos(th);
+          const sn = Math.sin(th);
+          const qx = sc * offX;
+          const qy = sc * offY;
+          const cx = x + qx * c - qy * sn;
+          const cy = y + qx * sn + qy * c;
+          out.push([type, {
+            transform: `translate3d(${(cx - typeW / 2).toFixed(2)}px, ${(cy - typeH / 2).toFixed(2)}px, 0) ${rotT} scale(${(sc * num(pm, '--dev-cs', 1)).toFixed(4)})`,
+            opacity: (o * num(pm, '--dev-screen', 1)).toFixed(4),
+          }]);
+        }
+        if (mark) out.push([mark, { opacity: r.get(mark)?.get('--mark-opacity') ?? '1' }]);
+        if (next) out.push([next, { transform: r.get(next)?.get('transform') ?? 'none' }]);
+        return out;
+      };
+
+      // THE SCRIPT DRIVER: the same declarations, written as the scroll moves.
+      const shown = new Map<HTMLElement, Record<string, string>>();
+      const write = (decls: CineDecls) => {
+        for (const [el, d] of decls) {
+          const prev = shown.get(el);
+          for (const k in d) if (!prev || prev[k] !== d[k]) el.style.setProperty(k, d[k]);
+          shown.set(el, d);
+        }
+      };
       const update = (f: Frame) => {
         if (!rect) return;
         const pin = pinH || f.vh;
@@ -2322,128 +2771,82 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy {
         if (!stale && p === lastP) return;
         stale = false;
         lastP = p;
-        const k = parseFloat((1 + 0.05 * track(p, 0.04, 1)).toFixed(4));
-        frame.style.transform = `scale(${k.toFixed(4)})`;
-        portal.style.setProperty('--portal-x', `${(ox + k * (p0x - ox)).toFixed(1)}px`);
-        portal.style.setProperty('--portal-y', `${(oy + k * (p0y - oy)).toFixed(1)}px`);
+        write(styleAt(p, f.vw, pin));
+      };
 
-        // The portal appears in her hand, grows slowly while it still reads as a
-        // phone, then accelerates once it is clearly a doorway rather than an
-        // object. Scale is expressed against the viewport so it always finishes
-        // covering, whatever the screen.
-        // Phases begin almost at once and finish at the very end. With a 152vh
-        // stage there is only about half a viewport of travel, so spending any
-        // of it idle would force the motion itself to move faster to keep up.
-        const emerge = track(p, 0.05, 0.34);
-        // THE TAIL WAS FROZEN. Sampling the chapter at forty points, the phone
-        // stopped moving entirely from 90% to the end - five consecutive
-        // samples with no change - because this window closed at 0.86 while the
-        // section kept scrolling. The object arrived and then waited for the
-        // page to catch up, which is the one thing a scroll-driven object must
-        // never do. Closing at 0.97 spends the runway it actually has.
-        const open = track(p, 0.30, 0.97);
-        // The device element carries the cut-out handset at its own aspect
-        // ratio, 119x287. The curve is unchanged; the constants are only
-        // renormalised against that base, so the phone is the same number of
-        // pixels wide at every point in the move as it was before: it starts at exactly the width her own phone occupies in the
-        // photograph and finishes covering the viewport 2.4 times over.
-        // (The frame's own viewport size - reading window.innerWidth here, after
-        // the other drivers had written their styles, forced a layout.)
-        const need = (Math.max(f.vw, f.vh) * 2.4) / 119;
-        // It has to arrive at HER phone's size, not at a size of its own. Hers
-        // is about 60px across in a 4201px source, which is roughly 12px on a
-        // 390 screen; starting at 26 put a slab in front of her hand instead of
-        // taking its place. The emerge term absorbs the difference, so the
-        // device is the same size from the end of the emerge beat onward.
-        // GEOMETRIC, NOT ADDITIVE.
-        //
-        // The old curve added pow(open, 2.1) * need to a base, which meant the
-        // RATE of apparent growth was itself accelerating. Measured as the ratio
-        // between consecutive samples - the honest way to judge something that
-        // goes from twelve pixels to two thousand - it ramped from 1.10 to 1.36
-        // and decayed back to 1.11: a bulge in the middle, which the eye reads
-        // as the shot lurching and then easing off.
-        //
-        // A dolly at a steady rate multiplies apparent size by a constant factor
-        // per unit of travel, so the interpolation is geometric. Same start,
-        // same finish, same drama - but the growth rate is flat, which is what
-        // makes it feel like the page is moving the object rather than scrubbing
-        // a video.
-        const base = 0.105 + emerge * 0.2445;
-        const arrive = 0.3495 + need;
-        // AND IT SETTLES INSTEAD OF ACCELERATING OFF THE END.
-        //
-        // A constant growth RATIO is what makes the middle feel even, but at the
-        // sizes this reaches, a constant ratio is a very large number of pixels:
-        // measured across forty samples the last three steps were 185, 194 and
-        // 185px against a mean of 52. The shot was accelerating hardest at the
-        // exact moment it should be arriving.
-        //
-        // The taper is an ease-out on the progress, not on the scale, so the
-        // geometry is untouched - same start, same finish, same character - and
-        // only the rate falls away as it lands. Its derivative goes to zero at
-        // the end, which is what "arriving" means.
-        const settle = 1 - Math.pow(1 - open, 1.35);
-        const scale = open > 0 ? base * Math.pow(arrive / base, settle) : base;
-
-        portal.style.setProperty('--portal-scale', scale.toFixed(3));
-        // Solid almost at once. Fading a physical object in over a sixth of the
-        // stage meant her real phone and her fingers showed straight through the
-        // body of this one, which is the one thing that cannot happen: a
-        // see-through handset reads as a decal, not as an object.
-        portal.style.setProperty('--portal-opacity', track(p, 0.02, 0.09).toFixed(3));
-
-        // The body dissolves as the screen becomes the page. Scaling by fifteen
-        // would otherwise turn a 21px corner into a 320px one and the phone
-        // would read as a picture frame around the chapter instead of a device.
-        const dissolve = track(p, 0.52, 0.80);
-        const dEased = dissolve * dissolve * (3 - 2 * dissolve);
-        portal.style.setProperty('--dev-r', (1 - dEased).toFixed(3));
-        // The screen keeps showing the WORK chapter's own opening the whole way
-        // in. Left alone the type would be magnified with the body and end up
-        // twenty times its size, so the content is counter-scaled: past the
-        // point where the device fills the frame the headline holds at roughly
-        // the size the real chapter sets it in, and the two match when it lands.
-        // It then dissolves exactly as the real header crosses the bottom edge,
-        // so the two never stand side by side as a doubled headline, and the
-        // screen is never a dark rectangle waiting for a section to climb in.
-        portal.style.setProperty('--dev-cs', Math.min(1, 3 / scale).toFixed(4));
-        portal.style.setProperty('--dev-screen', (1 - track(p, 0.62, 0.74)).toFixed(3));
-        // The phone is held at an angle; the portal starts matching it and
-        // straightens as it stops being an object and becomes the next chapter.
-        // Measured off the source frame, her phone leans about 21 degrees with
-        // the top to the right, along her raised forearm. The old -18 leaned it
-        // the other way, against the arm, which was most of why the device read
-        // as pasted onto the photograph rather than held in it.
-        portal.style.setProperty('--portal-rot', `${(21 * (1 - open)).toFixed(2)}deg`);
-
-        if (mark) {
-          mark.style.setProperty('--mark-opacity', (1 - track(p, 0.04, 0.24)).toFixed(3));
+      // THE COMPOSITOR DRIVER: baked when the geometry changes, then left alone.
+      const bake = mode === 'compositor' ? new CineBake('phone') : null;
+      let baked = false;
+      let failed = false;
+      const expectedY = (p: number, vw: number, pin: number) =>
+        translateYIn(styleAt(Math.min(1, Math.max(0, p)), vw, pin).find(([el]) => el === next)?.[1]['transform']);
+      const giveUp = (why: string) => {
+        failed = true;
+        bake?.clear();
+        baked = false;
+        stale = true;
+        shown.clear();
+        stage.classList.remove('is-compositor');
+        console.info(`phone cinematic: ${why}; using the script driver`);
+        pipeline.invalidate();
+      };
+      // Checked against the script's own number once the engine is sampling
+      // the timeline, and again whenever the scroll settles.
+      const verify = () => {
+        if (!baked || !next) return;
+        const state = cineState(next);
+        if (state === 'missing') return giveUp('the animation did not start');
+        if (state === 'pending') return void requestAnimationFrame(() => requestAnimationFrame(verify));
+        const r = stage.getBoundingClientRect();
+        const pin = pinH || window.innerHeight;
+        const travel = r.height - pin;
+        if (travel <= 0) return;
+        const want = expectedY(-r.top / travel, window.innerWidth, pin);
+        const got = translateYOf(next);
+        if (Math.abs(got - want) > 3) giveUp(`the scroll timeline did not track (${got.toFixed(1)} vs ${want.toFixed(1)})`);
+      };
+      const rebake = (f: Frame) => {
+        if (!bake || failed || !rect) return;
+        const pin = pinH || f.vh;
+        const travel = rect.height - pin;
+        if (travel <= 0) {
+          bake.clear();
+          baked = false;
+          return;
         }
-
-        // THE HANDOFF. The next chapter is parked 65vh below where its margin
-        // would otherwise put it, and comes up through the last third of the
-        // same scroll. So by the time the portal has filled the screen the
-        // chapter it opens onto is already there to read, and the visitor never
-        // scrolls through a black frame waiting for something to arrive.
-        // Written as the section's own transform rather than through an
-        // inherited custom property, which restyled every element inside the
-        // chapter on every frame. The distance is in the pane's units, the same
-        // vh the section's negative margin is set in.
-        if (next) {
-          const reveal = track(p, 0.40, 0.88);
-          const eased = reveal * reveal * (3 - 2 * reveal);
-          next.style.transform = `translate3d(0, ${((1 - eased) * HANDOFF_VH * pin / 100).toFixed(1)}px, 0)`;
+        const start = rect.top + f.y;
+        bake.bake((p) => styleAt(p, f.vw, pin), 100, start, start + travel);
+        if (!baked) {
+          baked = true;
+          requestAnimationFrame(() => requestAnimationFrame(verify));
         }
       };
 
       pipeline.add({
-        measure,
-        read: () => {
+        measure: (f) => {
+          measure();
           rect = stage.getBoundingClientRect();
+          if (screen && type) {
+            typeW = screen.offsetWidth;
+            typeH = screen.offsetHeight;
+            offX = screen.offsetLeft + typeW / 2 - portal.offsetWidth / 2;
+            offY = screen.offsetTop + typeH / 2 - portal.offsetHeight / 2;
+            type.style.width = `${typeW}px`;
+            type.style.height = `${typeH}px`;
+          }
+          if (bake) {
+            rebake(f);
+            if (baked) stage.classList.add('is-compositor');
+          }
         },
-        write: update,
+        read: () => {
+          if (!baked) rect = stage.getBoundingClientRect();
+        },
+        write: (f) => {
+          if (!baked) update(f);
+        },
       });
+      if (bake) pipeline.onSettle(verify, 260);
       if (!img.complete) img.addEventListener('load', () => pipeline.invalidate(), { once: true });
       this.primeCinematic(stage);
     });

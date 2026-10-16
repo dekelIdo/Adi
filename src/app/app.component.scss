@@ -4313,24 +4313,41 @@ div[id] {
   height: 96.14%;
   overflow: hidden;
   border-radius: 13.3px;
-  // Transparent while the device still reads as an object, so what is behind
-  // the type is the photograph's own glass rather than a painted panel. It
-  // turns into the WORK chapter's field on the same curve that dissolves the
-  // body, so the surface and the section are one field when it lands.
-  &::before {
-    content: "";
-    position: absolute;
-    inset: 0;
-    background: linear-gradient(135deg, rgba(6, 5, 4, 0.98), rgba(10, 8, 6, 0.96));
-    opacity: calc(1 - var(--dev-r, 1));
-  }
+}
+
+// The glass's field. Transparent while the device still reads as an object, so
+// what is behind the type is the photograph's own glass rather than a painted
+// panel; it turns into the WORK chapter's field on the same curve that
+// dissolves the body, so the surface and the section are one field when it
+// lands. A flat colour, not a gradient, on purpose: this is the part of the
+// device that ends up covering the screen several times over, and a flat
+// colour can be scaled by the compositor without ever being redrawn. Matched
+// by measurement to the WORK chapter's field as it renders under the page
+// grain, so the chapter's top edge rises through it without a seam.
+.phone-screen-field {
+  position: absolute;
+  inset: 0;
+  background: #080706;
+  opacity: 0;
+}
+
+// On the compositor the handset photograph is a layer of its own, so it is
+// scaled as the picture it is rather than repainted at every size.
+.action-stage.is-compositor .phone-frame {
+  will-change: transform;
 }
 
 // Real content from the chapter this opens onto, at the device's own scale.
+// Its own layer beside the device, placed through the device's transform by
+// the driver, which also sizes it to the glass. Hidden until it is driven.
 .phone-screen-content {
   position: absolute;
-  inset: 0;
-  z-index: 1;
+  left: 0;
+  top: 0;
+  z-index: 3;
+  width: 101px;
+  height: 276px;
+  pointer-events: none;
   display: flex;
   flex-direction: column;
   align-items: flex-end;
@@ -4338,9 +4355,8 @@ div[id] {
   gap: 7px;
   padding: 0 12px;
   text-align: end;
-  transform: scale(var(--dev-cs, 1));
   transform-origin: 50% 50%;
-  opacity: var(--dev-screen, 1);
+  opacity: 0;
 }
 
 .phone-screen-ghost {
@@ -4427,7 +4443,8 @@ div[id] {
     height: auto;
   }
 
-  .action-portal {
+  .action-portal,
+  .action-portal-type {
     display: none;
   }
 }

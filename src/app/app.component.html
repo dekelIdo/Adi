@@ -590,13 +590,18 @@
                    own content is clipped to the glass and the bezel, the side
                    profile and the notch stay in front of it. -->
               <div class="phone-screen">
-                <div class="phone-screen-content">
-                  <span class="phone-screen-ghost">WORK</span>
-                  <span class="phone-screen-title">תוכן שמדבר</span>
-                  <span class="phone-screen-rule"></span>
-                </div>
+                <span class="phone-screen-field"></span>
               </div>
             </div>
+          </div>
+          <!-- The screen's type, drawn as a layer of its own and placed through
+               the device's own transform: the device grows seventeen-fold, the
+               type never more than three, so each is drawn at the size it is
+               actually seen at. -->
+          <div class="phone-screen-content action-portal-type" aria-hidden="true">
+            <span class="phone-screen-ghost">WORK</span>
+            <span class="phone-screen-title">תוכן שמדבר</span>
+            <span class="phone-screen-rule"></span>
           </div>
         </div>
       </div>
