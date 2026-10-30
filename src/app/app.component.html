@@ -1227,6 +1227,16 @@
                   <button type="button" class="contact-suggest__btn" (click)="acceptEmailSuggestion(leadEmail)">התכוונת ל־<bdi dir="ltr">{{ emailSuggestion }}</bdi>?</button>
                 }
               </p>
+              <!-- Optional: the services listed in the "שירותים" section. -->
+              <label>
+                <span>איזה שירות מעניין אותך?</span>
+                <select name="service" [class.is-empty]="!leadService" (change)="leadService = $any($event.target).value">
+                  <option value="">לא חובה</option>
+                  @for (service of leadServices; track service) {
+                    <option [value]="service">{{ service }}</option>
+                  }
+                </select>
+              </label>
               <label class="contact-hp" aria-hidden="true">
                 <span>אתר</span>
                 <input type="text" name="website" tabindex="-1" autocomplete="off" />
@@ -1243,7 +1253,10 @@
               <p class="contact-trust" aria-hidden="true">ללא התחייבות • הפרטים נשארים פרטיים</p>
               <div class="contact-result" #leadResult tabindex="-1">
                 <p class="contact-result__ok" role="status" aria-live="polite">
-                  @if (leadState === 'sent') { הפרטים התקבלו בהצלחה — אחזור אליכם בהקדם 💙 }
+                  @if (leadState === 'opened') {
+                    נפתח וואטסאפ, רק ללחוץ שליחה ✨
+                    <a class="contact-result__wa" [href]="leadWaUrl" target="_blank" rel="noopener">לא נפתח? לפתיחת וואטסאפ</a>
+                  }
                 </p>
                 <p class="contact-result__bad" role="alert">
                   @if (leadState === 'error') { משהו השתבש בשליחת הפרטים. אפשר לנסות שוב. }

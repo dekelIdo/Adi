@@ -6305,7 +6305,8 @@ div[id] {
     }
   }
 
-  input {
+  input,
+  select {
     width: 100%;
     min-height: 54px;
     padding: 12px 16px;
@@ -6344,6 +6345,26 @@ div[id] {
 
     &[disabled] {
       opacity: 0.6;
+    }
+  }
+
+  // The optional service choice: the field's own look, with a small chevron at
+  // its far end, and the empty choice in the placeholder's tone.
+  select {
+    appearance: none;
+    -webkit-appearance: none;
+    padding-inline-end: 44px;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1.5l5 5 5-5' fill='none' stroke='%236a6664' stroke-width='1.4' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: left 16px center;
+    cursor: pointer;
+
+    &.is-empty {
+      color: var(--text-light);
+    }
+
+    option {
+      color: var(--text);
     }
   }
 
@@ -6448,6 +6469,14 @@ div[id] {
 
   .contact-result__ok {
     color: var(--text);
+  }
+
+  .contact-result__wa {
+    display: block;
+    margin-top: 4px;
+    color: var(--accent-ink);
+    text-decoration: underline;
+    text-underline-offset: 3px;
   }
 
   .contact-result__bad {
@@ -8450,11 +8479,17 @@ div[id] {
 
       // (label input: the tier's own 54px rule is written later, at one
       // class less.)
-      label input {
+      label input,
+      label select {
         min-height: 48px;
         padding: 10px 14px;
         border-radius: 11px;
         font-size: 1rem;
+      }
+
+      label select {
+        padding-inline-end: 40px;
+        background-position: left 14px center;
       }
     }
 
@@ -8533,7 +8568,8 @@ div[id] {
   }
 
   // Contact form
-  .contact-form input {
+  .contact-form input,
+  .contact-form select {
     min-height: 54px;
   }
 

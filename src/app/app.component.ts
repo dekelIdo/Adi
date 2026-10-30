@@ -332,7 +332,15 @@ function translateYIn(decl: string | undefined): number {
 })
 export class AppComponent implements OnInit, AfterViewInit, OnDestroy {
   // ─── The contact form ──────────────────────────────────────────────────────
-  leadState: 'idle' | 'sending' | 'sent' | 'error' = 'idle';
+  leadState: 'idle' | 'sending' | 'sent' | 'opened' | 'error' = 'idle';
+  // The contact form opens a WhatsApp chat with the details already written:
+  // the visitor reviews the message and sends it from WhatsApp themselves.
+  // International format, digits only (a temporary testing number).
+  private readonly leadWhatsApp = '972528088959';
+  leadWaUrl: string | null = null;
+  // The optional service choice: the services listed in the "שירותים" section.
+  readonly leadServices = ['אסטרטגיה שיווקית', 'יצירת תוכן מקצועית', 'ניהול העמודים בפועל', 'עבודה מבוססת נתונים'];
+  leadService = '';
   leadErrors: { fullName?: string; phone?: string; email?: string } = {};
   // A one-tap completion for the email domain; never applied without a tap.
   emailSuggestion: string | null = null;
@@ -357,9 +365,6 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy {
       form.reset();
       return;
     }
-    // A short cooldown after a success stops a double tap becoming two leads.
-    if (Date.now() < this.leadCooldownUntil) return;
-
     const fullName = read('fullName');
     const phoneRaw = read('phone');
     const email = read('email');
@@ -385,31 +390,38 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy {
       return;
     }
 
-    this.leadState = 'sending';
+    // THE MESSAGE, written for her to read in WhatsApp: the form's own labels,
+    // the optional lines only when they were filled in.
+    const service = read('service');
+    const lines = ['היי עדי, הגעתי מהאתר 👋', `שם מלא: ${fullName}`, `טלפון: ${phoneRaw}`];
+    if (email) lines.push(`מייל: ${email}`);
+    if (service) lines.push(`מתעניין/ת ב: ${service}`);
+    const url = `https://wa.me/${this.leadWhatsApp}?text=${encodeURIComponent(lines.join('\n'))}`;
+
+    // Opened in the same tap, so it is not treated as a pop-up. Nothing is
+    // sent from here and the page does not say it was: the visitor sends it
+    // from WhatsApp. The fields keep their values.
+    window.open(url, '_blank', 'noopener');
+    this.leadWaUrl = url;
+    this.leadState = 'opened';
     this.cdr.markForCheck();
-    try {
-      // The Supabase gateway is loaded on demand, as the testimonials are: the
-      // landing page does not carry the admin code until it is needed.
-      const { MediaService } = await import('./admin/media.service');
-      await new MediaService().submitLead({
-        full_name: fullName,
-        phone: phoneRaw,
-        email: email || null,
-        source_path: window.location.pathname || '/'
-      });
-      form.reset();
-      this.emailSuggestion = null;
-      this.leadState = 'sent';
-      this.leadCooldownUntil = Date.now() + 10_000;
-    } catch {
-      // Values stay in the fields; the button is live again; the message says
-      // it can be tried again. The server's error text never reaches the page.
-      this.leadState = 'error';
-    }
-    this.cdr.markForCheck();
-    // The result region is focusable so the outcome is reached, not just
-    // announced; a moment later so the text is already in the DOM.
     setTimeout(() => this.leadResultRef?.nativeElement.focus({ preventScroll: false }), 30);
+
+    // The existing lead record is still kept, quietly and once per short
+    // window, so a second tap reopens WhatsApp without a second record.
+    if (Date.now() >= this.leadCooldownUntil) {
+      this.leadCooldownUntil = Date.now() + 10_000;
+      import('./admin/media.service')
+        .then(({ MediaService }) =>
+          new MediaService().submitLead({
+            full_name: fullName,
+            phone: phoneRaw,
+            email: email || null,
+            source_path: window.location.pathname || '/'
+          })
+        )
+        .catch(() => {});
+    }
   }
 
 
