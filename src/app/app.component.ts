@@ -1177,6 +1177,9 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy {
     // reveal and the editorial drift stay phone-only choreography.
     this.initLivingPhotograph();
     this.initLaptopBridge();
+    // The laptop and iPhone frame sequences play inside the two pinned panes;
+    // the drivers above still carry each pane's hand-off to the next chapter.
+    this.zone.runOutsideAngular(() => this.initSequences());
     const wide = window.matchMedia('(min-width: 768px)').matches;
     if (!wide) {
       this.initHeroParallax();
@@ -2850,6 +2853,173 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy {
       if (!img.complete) img.addEventListener('load', () => pipeline.invalidate(), { once: true });
       this.primeCinematic(stage);
     });
+  }
+
+  // ─── The two frame sequences (laptop, iPhone) ─────────────────────────────────
+  // The approved reference's own player (adi-arieli-social.vercel.app/main.js):
+  // a 96-frame sequence per chapter, drawn on a canvas in the pinned pane and
+  // scrubbed by the scroll - first frame, then a coarse pass, then the gaps, so
+  // it can be scrubbed early; nearest loaded frame while the rest arrive; the
+  // intro fading out at the start, the extra push and the fade to ink at the
+  // end, the outro title fading in. Same numbers as the reference.
+  //
+  // The one adaptation is the length it plays over. These panes are shorter
+  // than the reference's and the next chapter rises over them before they
+  // release, so the sequence's progress runs over the stretch of pinned scroll
+  // in which the pane is still uncovered - the whole sequence is seen, then the
+  // chapter arrives exactly as it does now.
+  private initSequences(): void {
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    const pipeline = this.pipeline;
+    if (!pipeline || !('IntersectionObserver' in window)) return;
+    // The reference's ink in its "original" palette, which is this site's.
+    const INK = '#0A0806';
+    const INK_RGB = '10,8,6';
+    const clamp01 = (v: number) => (v < 0 ? 0 : v > 1 ? 1 : v);
+    // Each pane's existing hand-off (see initLivingPhotograph / initLaptopBridge).
+    const seqs = [
+      { stage: '.action-stage', name: 'phone', next: '#portfolio', from: 0.4, to: 0.88, vh: 80 },
+      ...(this.bridgeCinematic ? [{ stage: '.bridge-stage', name: 'laptop', next: '#process', from: 0.52, to: 0.94, vh: 48 }] : []),
+    ];
+    for (const cfg of seqs) {
+      const sec = document.querySelector<HTMLElement>(cfg.stage);
+      const sticky = sec?.firstElementChild as HTMLElement | null;
+      const canvas = sec?.querySelector<HTMLCanvasElement>('.seq-canvas');
+      const intro = sec?.querySelector<HTMLElement>('.seq-intro');
+      const outro = sec?.querySelector<HTMLElement>('.seq-outro');
+      const next = document.querySelector<HTMLElement>(cfg.next);
+      const ctx = canvas?.getContext('2d');
+      if (!sec || !sticky || !canvas || !intro || !outro || !ctx) continue;
+      sec.classList.add('is-seq');
+
+      const count = 96;
+      const variant = () => (innerWidth / innerHeight < 0.9 ? 'm' : 'd');
+      let set = variant();
+      let frames: HTMLImageElement[] = [];
+      let started = false;
+      let last = -1;
+      // The pinned scroll over which the pane is uncovered (see above).
+      let clear = 1;
+
+      const src = (i: number) => `assets/seq/${cfg.name}/${set}/${String(i + 1).padStart(3, '0')}.webp`;
+      const load = () => {
+        started = true;
+        frames = new Array(count);
+        // first frame, then a coarse pass, then fill the gaps, so scrubbing works early
+        const order = [0, ...[...Array(count).keys()].filter((i) => i % 6 === 0 && i), ...[...Array(count).keys()].filter((i) => i % 6)];
+        order.forEach((i) => {
+          const img = new Image();
+          img.decoding = 'async';
+          img.onload = () => {
+            frames[i] = img;
+            if (i === 0 || i === last) draw(true);
+          };
+          img.src = src(i);
+        });
+      };
+      const nearest = (i: number) => {
+        for (let d = 0; d < count; d++) {
+          if (frames[i - d]) return frames[i - d];
+          if (frames[i + d]) return frames[i + d];
+        }
+        return null;
+      };
+      const size = () => {
+        const dpr = Math.min(devicePixelRatio || 1, 2);
+        canvas.width = Math.round(canvas.clientWidth * dpr);
+        canvas.height = Math.round(canvas.clientHeight * dpr);
+        last = -1;
+      };
+      const progress = () => clamp01(-sec.getBoundingClientRect().top / clear);
+      let shownIntro = '';
+      let shownOutro = '';
+      const draw = (force: boolean) => {
+        if (!started) return;
+        const p = progress();
+        const i = Math.min(count - 1, Math.floor(Math.min(1, p / 0.8) * (count - 1)));
+        const ease = (a: number, b: number) => Math.min(1, Math.max(0, (p - a) / (b - a)));
+        const inKey = (1 - ease(0.02, 0.2)).toFixed(3);
+        if (inKey !== shownIntro) {
+          shownIntro = inKey;
+          intro.style.opacity = String(1 - ease(0.02, 0.2));
+          intro.style.transform = `translateY(${-40 * ease(0.02, 0.2)}px)`;
+        }
+        const outKey = ease(0.74, 0.9).toFixed(3);
+        if (outKey !== shownOutro) {
+          shownOutro = outKey;
+          outro.style.opacity = String(ease(0.74, 0.9));
+          outro.style.transform = `translateY(${30 * (1 - ease(0.74, 0.9))}px)`;
+        }
+        if (i === last && !force && (p < 0.6 || p > 0.86)) return;
+        const img = nearest(i);
+        if (!img) return;
+        last = i;
+        const cw = canvas.width;
+        const ch = canvas.height;
+        // extra push at the end so the device screen always fills the view, then fade to the page color
+        const zoom = 1 + 0.55 * ease(0.62, 0.84);
+        const r = Math.max(cw / img.naturalWidth, ch / img.naturalHeight) * zoom;
+        const w = img.naturalWidth * r;
+        const h = img.naturalHeight * r;
+        ctx.fillStyle = INK;
+        ctx.fillRect(0, 0, cw, ch);
+        ctx.drawImage(img, (cw - w) / 2, (ch - h) / 2, w, h);
+        const dark = ease(0.66, 0.84);
+        if (dark > 0) {
+          ctx.fillStyle = `rgba(${INK_RGB},${dark})`;
+          ctx.fillRect(0, 0, cw, ch);
+        }
+      };
+
+      // The first point of the pinned travel at which the next chapter's top,
+      // carried by its existing hand-off, reaches the foot of the pane.
+      const measureClear = () => {
+        const pin = sticky.getBoundingClientRect().height || innerHeight;
+        const travel = sec.offsetHeight - pin;
+        if (travel <= 0 || !next) {
+          clear = Math.max(1, travel);
+          return;
+        }
+        const m = getComputedStyle(next).transform;
+        const ty = m && m !== 'none' ? new DOMMatrix(m).m42 : 0;
+        // The next chapter's laid-out top below the stage's top, without its hand-off.
+        const below = next.getBoundingClientRect().top - ty - sec.getBoundingClientRect().top;
+        let enter = 1;
+        for (let t = 0; t <= 1; t += 0.002) {
+          const rr = clamp01((t - cfg.from) / (cfg.to - cfg.from));
+          const e = rr * rr * (3 - 2 * rr);
+          if (below - t * travel + ((1 - e) * cfg.vh * pin) / 100 <= pin) {
+            enter = t;
+            break;
+          }
+        }
+        clear = Math.max(1, enter * travel);
+      };
+
+      new IntersectionObserver(
+        (es) => {
+          if (es[0].isIntersecting && !started) {
+            size();
+            load();
+          }
+        },
+        { rootMargin: '200% 0px' }
+      ).observe(sec);
+      pipeline.add({
+        measure: () => {
+          measureClear();
+          if (started) {
+            size();
+            if (variant() !== set) {
+              set = variant();
+              load();
+            }
+          }
+          draw(true);
+        },
+        write: () => draw(false),
+      });
+    }
   }
 
   // ─── Image reels: playback only ───────────────────────────────────────────────

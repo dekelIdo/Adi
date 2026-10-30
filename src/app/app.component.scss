@@ -4449,6 +4449,107 @@ div[id] {
   }
 }
 
+// ─────── THE TWO FRAME SEQUENCES (laptop, iPhone) ──────────────────────────────
+// From the approved reference (adi-arieli-social.vercel.app), in its "original"
+// palette, which is this site's: a canvas in each pinned pane plays a 96-frame
+// sequence with the scroll, an intro label at the foot fades up and away as it
+// starts, and the chapter's title fades in at the end. Shown only while
+// initSequences runs them (motion allowed); otherwise none of this exists and
+// the photograph and its layers are the chapter, exactly as before.
+.seq-canvas,
+.seq-intro,
+.seq-outro {
+  display: none;
+}
+
+.action-stage.is-seq,
+.bridge-stage.is-seq {
+  .seq-canvas {
+    position: absolute;
+    inset: 0;
+    z-index: 10;
+    display: block;
+    width: 100%;
+    height: 100%;
+  }
+
+  .seq-intro,
+  .seq-outro {
+    position: absolute;
+    inset: 0;
+    z-index: 11;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 0 max(24px, 8vw);
+    color: #f8f6f3;
+    pointer-events: none;
+    will-change: opacity, transform;
+  }
+
+  .seq-intro {
+    justify-content: flex-end;
+    padding-bottom: 12vh;
+    text-shadow: 0 2px 24px rgba(0, 0, 0, 0.45);
+    background: linear-gradient(180deg, transparent 45%, rgba(10, 8, 6, 0.62));
+  }
+
+  .seq-outro {
+    align-items: center;
+    text-align: center;
+    opacity: 0;
+  }
+
+  .seq-eyebrow {
+    margin: 0 0 14px;
+    font-family: var(--font-body);
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+  }
+
+  .seq-intro .seq-eyebrow {
+    color: #f8f6f3;
+    opacity: 0.85;
+  }
+
+  .seq-outro .seq-eyebrow {
+    color: var(--brand-accent);
+  }
+
+  .seq-big {
+    margin: 0;
+    font-family: var(--font-display);
+    font-size: clamp(40px, 6vw, 88px);
+    font-weight: 400;
+    line-height: 1.05;
+  }
+
+  .seq-title {
+    margin: 0;
+    font-family: var(--font-display);
+    font-size: clamp(38px, 6vw, 84px);
+    font-weight: 400;
+    line-height: 1.12;
+    letter-spacing: -0.02em;
+  }
+
+  // The photograph and its layers stand down while the sequence plays.
+  .action-frame,
+  .action-portal,
+  .action-portal-type,
+  .bridge-scene,
+  .laptop-portal,
+  .bridge-veil {
+    display: none;
+  }
+
+  .action-sticky::before {
+    display: none;
+  }
+}
+
 // ─────── PORTFOLIO SECTION ─────────────────────────────────────────────────────
 
 .section-portfolio {
