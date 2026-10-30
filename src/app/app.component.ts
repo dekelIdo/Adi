@@ -393,7 +393,7 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy {
     // THE MESSAGE, written for her to read in WhatsApp: the form's own labels,
     // the optional lines only when they were filled in.
     const service = read('service');
-    const lines = ['היי עדי, הגעתי מהאתר 👋', `שם מלא: ${fullName}`, `טלפון: ${phoneRaw}`];
+    const lines = ['היי עדי, הגעתי מהאתר 👋', '', `שם מלא: ${fullName}`, `טלפון: ${phoneRaw}`];
     if (email) lines.push(`מייל: ${email}`);
     if (service) lines.push(`מתעניין/ת ב: ${service}`);
     const url = `https://wa.me/${this.leadWhatsApp}?text=${encodeURIComponent(lines.join('\n'))}`;
@@ -406,22 +406,8 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy {
     this.leadState = 'opened';
     this.cdr.markForCheck();
     setTimeout(() => this.leadResultRef?.nativeElement.focus({ preventScroll: false }), 30);
-
-    // The existing lead record is still kept, quietly and once per short
-    // window, so a second tap reopens WhatsApp without a second record.
-    if (Date.now() >= this.leadCooldownUntil) {
-      this.leadCooldownUntil = Date.now() + 10_000;
-      import('./admin/media.service')
-        .then(({ MediaService }) =>
-          new MediaService().submitLead({
-            full_name: fullName,
-            phone: phoneRaw,
-            email: email || null,
-            source_path: window.location.pathname || '/'
-          })
-        )
-        .catch(() => {});
-    }
+    // Nothing is stored from here: the page tells the visitor nothing is sent
+    // until they press Send in WhatsApp, so no record is kept on their behalf.
   }
 
 
@@ -453,7 +439,7 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy {
    * places.
    */
   readonly socialLinks = {
-    whatsapp: 'https://wa.me/972000000000',
+    whatsapp: 'https://wa.me/972528088959',
     instagram: 'https://www.instagram.com/adi_arieli1/',
     tiktok: 'https://www.tiktok.com/@adiarieli0'
   };
