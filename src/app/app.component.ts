@@ -500,7 +500,7 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy {
   // w/h are the files' own pixel sizes: they reserve each card's space before
   // the image arrives, so nothing above the contact form moves while a
   // visitor is being scrolled to it.
-  resultCards: { image: string; w: number; h: number; value: string; desc?: string }[] = [
+  resultCards: { image: string; w: number; h: number; value?: string; desc?: string }[] = [
     {
       image: 'assets/lovable-uploads/MyAssets/Results/IMG_7629.PNG',
       w: 670,
@@ -521,12 +521,28 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy {
       value: 'צמיחה חודשית',
       desc: 'עוקבים חדשים',
     },
+    // Screenshots shown on their own, without a figure beneath them.
+    {
+      image: 'assets/lovable-uploads/MyAssets/Results/Uss.png',
+      w: 407,
+      h: 811,
+    },
+    {
+      image: 'assets/lovable-uploads/MyAssets/Results/sssa.png',
+      w: 374,
+      h: 659,
+    },
   ];
 
+  // A long message and a short one in turn, so every row of the desktop grid
+  // and every stretch of the phone reel carries both.
   reviews: Review[] = [
     { src: 'assets/lovable-uploads/MyAssets/Reviews/14050.jpg', alt: 'עדות לקוחה', width: 1170, height: 1280 },
+    { src: 'assets/lovable-uploads/MyAssets/Reviews/Unled.png', alt: 'עדות לקוחה', width: 336, height: 175 },
     { src: 'assets/lovable-uploads/MyAssets/Reviews/IMG_6712.PNG', alt: 'עדות לקוחה', width: 1064, height: 932 },
-    { src: 'assets/lovable-uploads/MyAssets/Reviews/IMG_6715.PNG', alt: 'עדות לקוחה', width: 1320, height: 547 }
+    { src: 'assets/lovable-uploads/MyAssets/Reviews/Us.png', alt: 'עדות לקוחה', width: 387, height: 180 },
+    { src: 'assets/lovable-uploads/MyAssets/Reviews/IMG_6715.PNG', alt: 'עדות לקוחה', width: 1320, height: 547 },
+    { src: 'assets/lovable-uploads/MyAssets/Reviews/Unl.png', alt: 'עדות לקוחה', width: 293, height: 242 }
   ];
 
   private reelObserver?: IntersectionObserver;
@@ -945,10 +961,39 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy {
       aspectRatio: 'landscape',
       imageMode: 'contain',
       alt: 'צמיחה חודשית בעוקבים - גרף ביצועים'
+    },
+    // Two full-screen insights, shown on their own without a caption.
+    {
+      id: 'reel-insights',
+      title: '',
+      category: '',
+      image: 'assets/lovable-uploads/MyAssets/Results/Uss.png',
+      aspectRatio: 'portrait',
+      imageMode: 'contain',
+      alt: 'תוצאות'
+    },
+    {
+      id: 'dashboard',
+      title: '',
+      category: '',
+      image: 'assets/lovable-uploads/MyAssets/Results/sssa.png',
+      aspectRatio: 'portrait',
+      imageMode: 'contain',
+      alt: 'תוצאות'
     }
   ];
 
   constructor(private zone: NgZone, private cdr: ChangeDetectorRef) {}
+
+  // A screenshot is never drawn larger than its own pixels: the frames cap
+  // each picture at var(--nat-w). Pictures listed with their size carry it in
+  // the markup; any other picture takes it from the file once it has loaded.
+  markNatural(event: Event): void {
+    const img = event.target as HTMLImageElement;
+    if (img.naturalWidth && !img.style.getPropertyValue('--nat-w')) {
+      img.style.setProperty('--nat-w', `${img.naturalWidth}px`);
+    }
+  }
 
   ngOnInit(): void {
     const clalit = this.brandLogos.find((b) => b.name === 'Clalit Active+');

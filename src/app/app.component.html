@@ -639,18 +639,20 @@
       </div>
       <!-- Infinite auto-scrolling reel -->
       <div class="portfolio-reel-outer">
-        <div class="portfolio-reel-track">
+        <div class="portfolio-reel-track" [style.--reel-count]="portfolioProjects.length">
           <!-- Set 1 -->
           @for (project of portfolioProjects; track project.id) {
             <article class="reel-card" [attr.data-aspect]="project.aspectRatio">
               <figure class="reel-frame" [attr.data-mode]="project.imageMode">
                 <div class="reel-frame-inner">
-                  <img [src]="project.image" [alt]="project.alt" loading="lazy" />
+                  <img [src]="project.image" [alt]="project.alt" loading="lazy" (load)="markNatural($event)" />
                 </div>
-                <div class="reel-content">
-                  <h3 class="reel-title">{{ project.title }}</h3>
-                  <span class="reel-category">{{ project.category }}</span>
-                </div>
+                @if (project.title) {
+                  <div class="reel-content">
+                    <h3 class="reel-title">{{ project.title }}</h3>
+                    <span class="reel-category">{{ project.category }}</span>
+                  </div>
+                }
               </figure>
             </article>
           }
@@ -659,12 +661,14 @@
             <article class="reel-card" [attr.data-aspect]="project.aspectRatio" aria-hidden="true">
               <figure class="reel-frame" [attr.data-mode]="project.imageMode">
                 <div class="reel-frame-inner">
-                  <img [src]="project.image" alt="" loading="lazy" />
+                  <img [src]="project.image" alt="" loading="lazy" (load)="markNatural($event)" />
                 </div>
-                <div class="reel-content">
-                  <h3 class="reel-title">{{ project.title }}</h3>
-                  <span class="reel-category">{{ project.category }}</span>
-                </div>
+                @if (project.title) {
+                  <div class="reel-content">
+                    <h3 class="reel-title">{{ project.title }}</h3>
+                    <span class="reel-category">{{ project.category }}</span>
+                  </div>
+                }
               </figure>
             </article>
           }
@@ -695,15 +699,19 @@
         <div class="results-rail" [style.--reel-count]="resultCards.length">
           @for (set of [0, 1]; track set) {
             @for (card of resultCards; track card.image) {
-              <div class="result-card" [attr.aria-hidden]="set === 1 ? 'true' : null">
+              <div class="result-card" [class.result-card--portrait]="card.h > card.w" [attr.aria-hidden]="set === 1 ? 'true' : null">
                 <figure class="result-frame">
-                  <img [src]="card.image" [alt]="set === 1 ? '' : 'תוצאות'" [attr.width]="card.w" [attr.height]="card.h" loading="lazy" />
-                  <div class="result-overlay">
-                    <span class="result-value">{{ card.value }}</span>
-                    @if (card.desc) {
-                      <span class="result-desc">{{ card.desc }}</span>
-                    }
+                  <div class="result-mat">
+                    <img [src]="card.image" [alt]="set === 1 ? '' : 'תוצאות'" [attr.width]="card.w" [attr.height]="card.h" [style.--nat-w.px]="card.w" loading="lazy" />
                   </div>
+                  @if (card.value) {
+                    <div class="result-overlay">
+                      <span class="result-value">{{ card.value }}</span>
+                      @if (card.desc) {
+                        <span class="result-desc">{{ card.desc }}</span>
+                      }
+                    </div>
+                  }
                 </figure>
               </div>
             }
@@ -874,8 +882,10 @@
                       [alt]="set === 1 ? '' : review.alt"
                       [width]="review.width"
                       [height]="review.height"
+                      [style.--nat-w.px]="review.width"
                       loading="lazy"
                       decoding="async"
+                      (load)="markNatural($event)"
                     />
                   </figure>
                 </div>

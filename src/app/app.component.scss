@@ -4711,7 +4711,7 @@ div[id] {
   // Now the animation runs on its own and the observer only pauses it off
   // screen. If the observer never runs the rail still turns; the worst case is a
   // little wasted work rather than a dead carousel.
-  animation: reelScroll 52s linear infinite;
+  animation: reelScroll calc(var(--reel-count, 4) * 13s) linear infinite;
 
   &.is-idle {
     animation-play-state: paused;
@@ -4778,9 +4778,15 @@ div[id] {
   }
 
   [data-mode="contain"] & img {
+    inset: 20px;
+    margin: auto;
+    width: auto;
+    height: auto;
+    max-width: min(calc(100% - 40px), var(--nat-w, 100%));
+    max-height: calc(100% - 40px);
     object-fit: contain;
-    padding: 20px;
-    background: rgba(255, 255, 255, 0.96);
+    border-radius: 8px;
+    box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.08), 0 14px 34px rgba(0, 0, 0, 0.35);
   }
 }
 
@@ -4842,6 +4848,7 @@ div[id] {
 
 .results-rail {
   display: flex;
+  align-items: flex-start;
   gap: 0;
   width: max-content;
   will-change: transform;
@@ -4874,14 +4881,40 @@ div[id] {
   background: none;
   box-shadow: none;
   transition: border-color var(--motion-mid) var(--ease-expo);
+}
+
+// ONE FRAME PER SHAPE OF SCREENSHOT. A wide strip and a full-screen capture
+// used to set their own card heights, so a row read as different objects.
+// Each now sits whole on a mat, centred and never drawn larger than its own
+// pixels (--nat-w): wide captures on a 16:9 mat, full-screen captures on a 4:5
+// one, so every wide card matches every other wide card and the tall ones stay
+// readable rather than shrunk into a landscape box. The picture is placed
+// absolutely inside the mat: Safari ignores a percentage max-height on an
+// in-flow image whose box takes its height from aspect-ratio, and drew the tall
+// captures at full size through the bottom of the mat.
+.result-mat {
+  position: relative;
+  aspect-ratio: 16 / 9;
+  border-radius: var(--r-media);
+  background: #fff;
+  box-shadow: 0 0 0 1px var(--rule);
 
   img {
-    width: 100%;
-    height: auto;
+    position: absolute;
+    inset: 14px;
+    margin: auto;
     display: block;
-    border-radius: var(--r-media);
-    border: 1px solid var(--rule);
+    width: auto;
+    height: auto;
+    max-width: min(calc(100% - 28px), var(--nat-w, 100%));
+    max-height: calc(100% - 28px);
+    border-radius: 6px;
+    box-shadow: 0 0 0 1px var(--rule);
   }
+}
+
+.result-card--portrait .result-mat {
+  aspect-ratio: 4 / 5;
 }
 
 .result-overlay {
@@ -5409,13 +5442,15 @@ div[id] {
 // aspect ratio to reserve space from; without them these cards rendered 0x0, the
 // rail collapsed to a 20px strip, that pushed it below the fold, and the lazy
 // images then never entered the viewport to load at all. A deadlock that showed
-// up as a permanently empty testimonials section.
+// up as a permanently empty testimonials section. The frame below now holds
+// the space itself (aspect-ratio), so a picture that has not arrived yet cannot
+// collapse the rail.
 .review-frame img {
-  width: 100%;
-  height: auto;
   display: block;
-  max-width: none;
-  max-height: none;
+  width: auto;
+  height: auto;
+  max-width: min(100%, var(--nat-w, 100%));
+  max-height: 100%;
 }
 
 // The offsets stay on the scrolling rail, where they give the row its rhythm.
@@ -5467,13 +5502,23 @@ div[id] {
   transform: none;
 }
 
+// ONE FRAME SHAPE FOR EVERY TESTIMONIAL: the proportions of the tallest
+// message, so it fills its card exactly and every other message sits whole at
+// the centre of a card of the same size. A short or low-resolution message is
+// shown at its own size, never stretched to fill. The frame has its size before
+// a byte arrives, so the reel keeps its geometry while pictures load.
 .review-frame {
   position: relative;
   overflow: hidden;
   display: block;
+  aspect-ratio: 1170 / 1280;
 
+  // Centred absolutely, as in the results mat: Safari would otherwise ignore
+  // the max-height and let a tall upload run out of the frame.
   img {
-    position: static;
+    position: absolute;
+    inset: 0;
+    margin: auto;
     display: block;
   }
 }
@@ -5492,16 +5537,7 @@ div[id] {
   // under this, so nothing that ships today changes. Only max-height is set:
   // with the width definite and the height auto, the browser rescales the width
   // to match, so the picture is fitted rather than squashed or cropped.
-  .review-frame img {
-    // The box still comes from width: 100% and the width/height attributes, so
-    // the card reserves its space before a byte arrives. Letting the WIDTH go
-    // auto instead fixed the squashing and reintroduced the 0x0 deadlock this
-    // file already warns about. So the box is allowed to be clamped and the
-    // picture is fitted inside it: no distortion, no crop, and on everything
-    // that is not extreme the ceiling never binds and nothing changes at all.
-    max-height: clamp(520px, 74vh, 820px);
-    object-fit: contain;
-  }
+  // (The frame now owns the picture's size; see .review-frame.)
 }
 
 // ─────── SHOOT DAY ─────────────────────────────────────────────────────────────
@@ -8562,10 +8598,7 @@ div[id] {
   // short for it and `contain` letterboxed it with white down both sides. The
   // pictures that already ship are all wider than 4:5 and never reach this, so
   // they render exactly as before and nothing in the row shifts.
-  .review-frame img {
-    max-height: clamp(340px, 56vh, 460px);
-    object-fit: contain;
-  }
+  // (The testimonial's size is owned by .review-frame.)
 
   // Contact form
   .contact-form input,
@@ -9358,23 +9391,20 @@ div[id] {
     display: none;
   }
 
-  // The three result screenshots have three aspect ratios and one caption has
-  // no second line, so the captions landed on three baselines. Card and figure
-  // hand the rail's two rows down (subgrid): every screenshot sits on one
-  // line, every hairline and caption on the next.
+  // Results: cards of one size, three to a row; a short last row is centred
+  // rather than left hanging. Equal mats put every caption on one line.
   .results-rail {
-    row-gap: 0;
+    --results-gap: var(--grid-gap);
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: flex-start;
+    column-gap: var(--results-gap);
+    row-gap: clamp(28px, 3vw, 44px);
   }
 
-  .result-card,
-  .result-frame {
-    display: grid;
-    grid-row: span 2;
-    grid-template-rows: subgrid;
-  }
-
-  .result-frame img {
-    align-self: end;
+  .result-card {
+    width: calc((100% - 2 * var(--results-gap)) / 3) !important;
   }
 
   // One ratio across the work grid, whatever the reel used to allow each card.
@@ -9463,9 +9493,9 @@ div[id] {
 }
 
 @media (min-width: 1024px) {
-  // ── THE WORK: four across, one ratio, on the container ─────────────────────
+  // ── THE WORK: three across, one ratio, on the container ────────────────────
   .portfolio-reel-track {
-    grid-template-columns: repeat(4, minmax(0, 1fr));
+    grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 
   .portfolio-reel-outer {
@@ -9549,6 +9579,11 @@ div[id] {
   .results-rail,
   .reviews-rail {
     gap: clamp(24px, 2vw, 36px);
+  }
+
+  .results-rail {
+    --results-gap: clamp(24px, 2vw, 36px);
+    row-gap: clamp(28px, 3vw, 44px);
   }
 
   // Type one step up on a wide screen. The hero group keeps its five columns
