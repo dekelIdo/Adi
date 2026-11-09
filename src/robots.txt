@@ -2,4 +2,4 @@ User-agent: *
 Allow: /
 Disallow: /admin
 
-Sitemap: https://adi-gnga.onrender.com/sitemap.xml
+Sitemap: https://www.adisocial.co.il/sitemap.xml
