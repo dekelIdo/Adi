@@ -66,6 +66,9 @@ interface BrandLogo {
    * without a mark is typeset instead, and the interface says so.
    */
   logo?: string;
+  /** The mark's own pixel size: lets the strip reserve its width before it loads. */
+  w?: number;
+  h?: number;
   href: string;
   scale?: 'clalit' | 'large' | 'default';
 }
@@ -546,6 +549,7 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy {
   ];
 
   private reelObserver?: IntersectionObserver;
+  private posterObserver?: IntersectionObserver;
 
   backToTopVisible = false;
   /**
@@ -870,10 +874,10 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy {
   // whichever store matches the visitor's platform - see getClalitAppUrl().
   brandLogos: BrandLogo[] = [
     { name: 'Clalit Active+', href: 'https://play.google.com/store/apps/details?id=co.il.move_club.app1' },
-    { name: 'Allen Carr', logo: 'assets/lovable-uploads/client-allen-carr.png', href: 'https://www.allencarr.co.il/', scale: 'default' },
-    { name: 'Movement', logo: 'assets/lovable-uploads/client-movement.png', href: 'https://movement-group.com/en/', scale: 'large' },
-    { name: 'Moon Productions', logo: 'assets/lovable-uploads/client-moon-productions.png', href: 'https://moonproduction.co.il/', scale: 'default' },
-    { name: 'Noma Security', logo: 'assets/lovable-uploads/client-noma.png', href: 'https://noma.security/', scale: 'default' },
+    { name: 'Allen Carr', logo: 'assets/lovable-uploads/client-allen-carr.png', w: 486, h: 162, href: 'https://www.allencarr.co.il/', scale: 'default' },
+    { name: 'Movement', logo: 'assets/lovable-uploads/client-movement.png', w: 628, h: 142, href: 'https://movement-group.com/en/', scale: 'large' },
+    { name: 'Moon Productions', logo: 'assets/lovable-uploads/client-moon-productions.png', w: 1080, h: 514, href: 'https://moonproduction.co.il/', scale: 'default' },
+    { name: 'Noma Security', logo: 'assets/lovable-uploads/client-noma.png', w: 588, h: 309, href: 'https://noma.security/', scale: 'default' },
     { name: 'Ichilov Well', href: 'https://ichilov-well.co.il/' }
   ];
 
@@ -930,7 +934,7 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy {
       id: 'onaction',
       title: 'OnAction',
       category: 'מיתוג אישי · קמפיין',
-      image: 'assets/lovable-uploads/MyAssets/AdiArieli/Me3 (2).jpg',
+      image: 'assets/lovable-uploads/MyAssets/AdiArieli/me3-1100w.webp',
       aspectRatio: 'portrait',
       imageMode: 'cover',
       alt: 'OnAction - מיתוג אישי וקמפיין'
@@ -1208,8 +1212,8 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy {
     this.zone.runOutsideAngular(() => this.initScrollReveal());
     this.initHeaderGlass();
     this.initHeaderTheme();
-    this.initCursorGlow();
     this.initReelPlayback();
+    this.zone.runOutsideAngular(() => this.initPosterDefer());
     this.initReelDrag();
     this.initProcessJourney();
     // THE TWO SCROLL CINEMATICS RUN AT EVERY WIDTH. The studio photograph
@@ -1585,29 +1589,6 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy {
         exit.style.setProperty('--hero-type-y', `${(typeOut * -46).toFixed(1)}px`);
         exit.style.setProperty('--hero-type-o', (1 - typeOut).toFixed(3));
       },
-    });
-  }
-
-  // ─── Cursor glow on cards ─────────────────────────────────────────────────
-  private initCursorGlow(): void {
-    if (!window.matchMedia('(hover:hover)').matches) return;
-
-    const targets = Array.from(
-      document.querySelectorAll<HTMLElement>(
-        '.editorial-img, .reel-frame, .result-frame, .story-card'
-      )
-    );
-
-    targets.forEach((el) => {
-      el.addEventListener(
-        'mousemove',
-        (e: MouseEvent) => {
-          const rect = el.getBoundingClientRect();
-          el.style.setProperty('--x', `${((e.clientX - rect.left) / rect.width) * 100}%`);
-          el.style.setProperty('--y', `${((e.clientY - rect.top) / rect.height) * 100}%`);
-        },
-        { passive: true }
-      );
     });
   }
 
@@ -3105,6 +3086,32 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy {
     });
   }
 
+  // A <video poster> is fetched with the page wherever the video sits, and the
+  // three clips are near the end of it: about 220 KB that competed with the
+  // hero. The poster is given to each video two screens before it arrives.
+  private initPosterDefer(): void {
+    const videos = Array.from(document.querySelectorAll<HTMLVideoElement>('video[data-poster]'));
+    const give = (v: HTMLVideoElement) => {
+      if (v.dataset['poster'] && !v.getAttribute('poster')) v.poster = v.dataset['poster'];
+    };
+    if (!('IntersectionObserver' in window)) {
+      videos.forEach(give);
+      return;
+    }
+    const obs = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (!entry.isIntersecting) return;
+          give(entry.target as HTMLVideoElement);
+          obs.unobserve(entry.target);
+        });
+      },
+      { rootMargin: '200% 0px' }
+    );
+    videos.forEach((v) => obs.observe(v));
+    this.posterObserver = obs;
+  }
+
 
   // ─── Reels (reviews, results): native scroll + autoplay, phone only ─────────
   //
@@ -3412,6 +3419,7 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy {
   ngOnDestroy(): void {
     this.observer?.disconnect();
     this.reelObserver?.disconnect();
+    this.posterObserver?.disconnect();
     this.sectionObserver?.disconnect();
     this.pipeline?.destroy();
     this.clearReelFocus();

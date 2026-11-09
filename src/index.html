@@ -5,7 +5,7 @@
     <title>עדי אריאלי · Social-Li · ניהול רשתות חברתיות</title>
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="description" content="עדי אריאלי - מנהלת סושיאל ויוצרת תוכן מקצועית. אסטרטגיה, יצירת תוכן וניהול רשתות חברתיות לעסקים." />
-    <link rel="icon" type="image/png" href="assets/lovable-uploads/MyAssets/AdiArieli.png" />
+    <link rel="icon" type="image/png" href="assets/lovable-uploads/MyAssets/AdiArieli-96.png" />
     <!-- The public origin below (also in og:url / og:image / twitter:image,
          robots.txt and sitemap.xml) is stamped from site.config.json by
          scripts/set-public-origin.mjs. Do not edit it by hand. -->
@@ -44,6 +44,12 @@
           href="assets/lovable-uploads/MyAssets/Fonts/yarden-regular-alefalefalef.otf" />
     <link rel="preload" as="font" type="font/woff2" crossorigin
           href="assets/fonts/AssistantVariable/assistant-hebrew-wght-normal.woff2" />
+    <!-- The hero photograph (LCP image) is written by the app, so without this
+         it would not be requested until the script has run. Same srcset and
+         sizes as the hero <source>, so the browser fetches one file once. -->
+    <link rel="preload" as="image" type="image/webp" fetchpriority="high"
+          imagesrcset="assets/lovable-uploads/MyAssets/AdiArieli/hero-adi-1500w.webp 1500w, assets/lovable-uploads/MyAssets/AdiArieli/hero-adi-2000w.webp 2000w, assets/lovable-uploads/MyAssets/AdiArieli/hero-adi.webp 2806w"
+          imagesizes="(max-width: 767.98px) 100vw, 60vw" />
   </head>
   <body>
     <app-root></app-root>

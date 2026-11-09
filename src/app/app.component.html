@@ -10,7 +10,7 @@
         <span class="logo-light" aria-hidden="true"></span>
         <span class="logo-beam" aria-hidden="true"></span>
         <span class="logo-frame">
-          <img src="assets/lovable-uploads/MyAssets/AdiArieli.png" alt="ADIARIELI" />
+          <img src="assets/lovable-uploads/MyAssets/AdiArieli-160.webp" alt="ADIARIELI" />
         </span>
         <!-- PHONE AND TABLET ONLY: the name as a wordmark, set at the true
              centre of the bar. The circular mark and its light are desktop. -->
@@ -86,10 +86,14 @@
         
         <div class="hero-portrait-full">
           <!-- Same frame, same 2806x4201 aspect ratio, same CSS crop.
-               Only the encoding changed: 5.2 MB JPEG -> 272 KB WebP (363 KB JPEG fallback). -->
+               Only the encoding changed: 5.2 MB JPEG -> 272 KB WebP (363 KB JPEG fallback).
+               Smaller copies of the same file let a phone take 84 KB instead of 272 KB;
+               each width still covers the cover crop plus the scroll push-in at 3x.
+               index.html preloads the same set, so both must stay identical. -->
           <picture>
             <source
-              srcset="assets/lovable-uploads/MyAssets/AdiArieli/hero-adi.webp"
+              srcset="assets/lovable-uploads/MyAssets/AdiArieli/hero-adi-1500w.webp 1500w, assets/lovable-uploads/MyAssets/AdiArieli/hero-adi-2000w.webp 2000w, assets/lovable-uploads/MyAssets/AdiArieli/hero-adi.webp 2806w"
+              sizes="(max-width: 767.98px) 100vw, 60vw"
               type="image/webp"
             />
             <img
@@ -167,7 +171,7 @@
               target="_blank"
               rel="noopener noreferrer"
               [attr.aria-label]="brand.name">
-              <img *ngIf="brand.logo" [src]="brand.logo" [alt]="brand.name" />
+              <img *ngIf="brand.logo" [src]="brand.logo" [attr.width]="brand.w" [attr.height]="brand.h" [alt]="brand.name" />
               <span *ngIf="!brand.logo" class="brand-track-name">{{ brand.name }}</span>
             </a>
           </div>
@@ -181,7 +185,7 @@
               target="_blank"
               rel="noopener noreferrer"
               tabindex="-1">
-              <img *ngIf="brand.logo" [src]="brand.logo" alt="" />
+              <img *ngIf="brand.logo" [src]="brand.logo" [attr.width]="brand.w" [attr.height]="brand.h" alt="" />
               <span *ngIf="!brand.logo" class="brand-track-name" aria-hidden="true">{{ brand.name }}</span>
             </a>
           </div>
@@ -264,7 +268,7 @@
         <div class="split-stack">
           <figure class="editorial-img editorial-img--bleed-end reveal reveal-float" data-drift="0.5">
             <img
-              src="assets/lovable-uploads/IMG_1707 (2).jpg"
+              src="assets/lovable-uploads/IMG_1707-1500w.webp"
               alt=""
               width="2806"
               height="4201"
@@ -303,7 +307,9 @@
       <div class="container solution-wrap">
         <figure class="editorial-img editorial-img--bleed-start solution-visual-wrap reveal reveal-float" data-drift="0.6">
           <img
-            src="assets/lovable-uploads/avivozeri 820 (1).jpg"
+            src="assets/lovable-uploads/avivozeri-820-2400w.webp"
+            srcset="assets/lovable-uploads/avivozeri-820-1500w.webp 1500w, assets/lovable-uploads/avivozeri-820-2400w.webp 2400w"
+            sizes="(max-width: 767.98px) 100vw, 80vw"
             alt=""
             width="4201"
             height="2806"
@@ -1087,7 +1093,7 @@
               <div class="social-frame">
                 <video
                   class="social-video-el"
-                  [poster]="video.poster"
+                  [attr.data-poster]="video.poster"
                   [attr.aria-label]="video.alt"
                   preload="none"
                   muted
@@ -1137,10 +1143,12 @@
       <div class="container">
         <div class="contact-layout">
           <figure class="contact-img reveal reveal-float" data-drift="0.5">
-            <!-- Same frame and 4201x2806 aspect; 5.6 MB JPEG -> 373 KB WebP. -->
+            <!-- Same frame and 4201x2806 aspect; 5.6 MB JPEG -> 373 KB WebP.
+                 A phone crops this to a tall box and needs about 1700px of it. -->
             <picture>
               <source
-                srcset="assets/lovable-uploads/MyAssets/contact-adi.webp"
+                srcset="assets/lovable-uploads/MyAssets/contact-adi-1800w.webp 1800w, assets/lovable-uploads/MyAssets/contact-adi.webp 4201w"
+                sizes="(max-width: 767.98px) 125vw, 1700px"
                 type="image/webp"
               />
               <img
